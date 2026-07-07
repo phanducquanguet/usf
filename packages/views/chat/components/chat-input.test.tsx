@@ -196,7 +196,7 @@ function renderInput(props: Partial<React.ComponentProps<typeof ChatInput>> = {}
     );
   render(
     <I18nProvider locale="en" resources={TEST_RESOURCES}>
-      <ChatInput onSend={onSend} onUploadFile={onUploadFile} agentName="Multica" {...props} />
+      <ChatInput onSend={onSend} onUploadFile={onUploadFile} agentName="UniAI" {...props} />
     </I18nProvider>,
   );
   return { onSend, onUploadFile };
@@ -529,7 +529,7 @@ describe("ChatInput session-aware restore", () => {
   function element(props: Partial<React.ComponentProps<typeof ChatInput>>) {
     return (
       <I18nProvider locale="en" resources={TEST_RESOURCES}>
-        <ChatInput onSend={vi.fn()} onUploadFile={vi.fn()} agentName="Multica" {...props} />
+        <ChatInput onSend={vi.fn()} onUploadFile={vi.fn()} agentName="UniAI" {...props} />
       </I18nProvider>
     );
   }

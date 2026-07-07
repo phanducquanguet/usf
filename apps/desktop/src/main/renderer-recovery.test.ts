@@ -163,10 +163,10 @@ describe("installRendererRecoveryHandlers", () => {
 
     expect(showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Multica needs to reload",
+        title: "UniAI needs to reload",
         message: "The desktop window has been stuck for a few seconds.",
         detail: expect.stringContaining(
-          "Click Reload to refresh this window and keep using Multica.",
+          "Click Reload to refresh this window and keep using UniAI.",
         ),
       }),
     );

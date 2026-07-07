@@ -78,7 +78,7 @@ export interface MarkdownProps {
 }
 
 // Sanitization schema — extends GitHub defaults to allow code highlighting classes
-// and Multica's internal mention/slash protocols.
+// and UniAI's internal mention/slash protocols.
 const sanitizeSchema = {
   ...defaultSchema,
   protocols: {
@@ -120,7 +120,7 @@ const sanitizeSchema = {
 }
 
 /**
- * Custom URL transform that allows Multica internal protocols while keeping
+ * Custom URL transform that allows UniAI internal protocols while keeping
  * the default security for all other URLs.
  */
 function urlTransform(url: string): string {

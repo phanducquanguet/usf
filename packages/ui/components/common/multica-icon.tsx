@@ -27,7 +27,7 @@ const borderedSizes = {
 };
 
 /**
- * Pure CSS 8-pointed asterisk icon matching the Multica logo.
+ * Pure CSS 8-pointed asterisk icon matching the UniAI logo.
  * Uses currentColor so it adapts to light/dark themes automatically.
  * Clip-path polygon traced from the original SVG path coordinates.
  */
