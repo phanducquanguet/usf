@@ -68,16 +68,18 @@ export function proxy(req: NextRequest) {
     }
 
     // Logged-in but no cookie yet (first login since slug migration, or
-    // cookie cleared). Bounce to root; the root-path logic below picks a
-    // workspace and writes the cookie, then future hits short-circuit here.
-    url.pathname = "/";
+    // cookie cleared). Bounce to /login; it resolves already-authenticated
+    // arrivals into their workspace client-side.
+    url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // --- Root path: redirect logged-in users to their last workspace ---
-  if (pathname === "/" && hasSession && lastSlug) {
+  // --- Root path: there is no landing page. Logged-in users with a
+  // remembered workspace go straight there; everyone else goes to /login,
+  // which redirects already-authenticated arrivals client-side.
+  if (pathname === "/") {
     const url = req.nextUrl.clone();
-    url.pathname = `/${lastSlug}/issues`;
+    url.pathname = hasSession && lastSlug ? `/${lastSlug}/issues` : "/login";
     return NextResponse.redirect(url);
   }
 

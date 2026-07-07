@@ -44,11 +44,9 @@ import { useT } from "../../i18n";
 
 type DialogState = "cli" | null;
 
-// Single canonical download destination — the /download page owns
-// OS + arch detection, the All-Platforms matrix, release-note links,
-// and the CLI / Cloud alternates. Kept in sync with landing-hero.tsx
-// and landing footer nav, both of which target the same path.
-const DOWNLOAD_PAGE_URL = "/download";
+// Single canonical download destination. The in-app /download page was
+// removed with the marketing site; GitHub releases owns desktop builds.
+const DOWNLOAD_PAGE_URL = "https://github.com/multica-ai/multica/releases/latest";
 
 export function StepPlatformFork({
   wsId,

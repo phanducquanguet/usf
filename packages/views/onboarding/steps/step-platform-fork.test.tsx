@@ -120,10 +120,8 @@ describe("StepPlatformFork", () => {
 
     await user.click(screen.getByText(/^use this computer$/i));
 
-    // Routes to the new /download page (not GitHub releases) so the
-    // user lands on the OS auto-detect surface.
     expect(openSpy).toHaveBeenCalledWith(
-      "/download",
+      "https://github.com/multica-ai/multica/releases/latest",
       "_blank",
       "noopener,noreferrer",
     );

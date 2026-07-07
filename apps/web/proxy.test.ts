@@ -52,13 +52,34 @@ describe("proxy legacy workspace route redirects", () => {
     );
   });
 
-  it("sends logged-in legacy URLs without a last workspace cookie to root", () => {
+  it("sends logged-in legacy URLs without a last workspace cookie to login", () => {
     expect(
       redirectLocation("/squads", { multica_logged_in: "1" }),
-    ).toBe("https://app.multica.test/");
+    ).toBe("https://app.multica.test/login");
   });
 
   it("does not redirect workspace-scoped URLs whose first segment is already a slug", () => {
     expect(redirectLocation("/acme/squads", sessionCookies)).toBeNull();
+  });
+});
+
+describe("proxy root path redirects", () => {
+  it("sends logged-out visitors to login", () => {
+    expect(redirectLocation("/")).toBe("https://app.multica.test/login");
+  });
+
+  it("sends logged-in users with a last workspace cookie to that workspace", () => {
+    expect(
+      redirectLocation("/", {
+        multica_logged_in: "1",
+        last_workspace_slug: "acme",
+      }),
+    ).toBe("https://app.multica.test/acme/issues");
+  });
+
+  it("sends logged-in users without a last workspace cookie to login", () => {
+    expect(redirectLocation("/", { multica_logged_in: "1" })).toBe(
+      "https://app.multica.test/login",
+    );
   });
 });

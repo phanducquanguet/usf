@@ -26,7 +26,6 @@ import {
 import { Button } from "@multica/ui/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { setLoggedInCookie } from "@/features/auth/auth-cookie";
-import Link from "next/link";
 import { LoginPage, validateCliCallback } from "@multica/views/auth";
 import { useT } from "@multica/views/i18n";
 
@@ -236,12 +235,14 @@ function LoginPageContent() {
       extra={
         <span className="text-xs text-muted-foreground">
           {t(($) => $.web.prefer_desktop)}{" "}
-          <Link
-            href="/download"
+          <a
+            href="https://github.com/multica-ai/multica/releases/latest"
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground/70"
           >
             {t(($) => $.web.download)}
-          </Link>
+          </a>
         </span>
       }
     />
