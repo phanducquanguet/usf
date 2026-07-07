@@ -27,10 +27,22 @@ const borderedSizes = {
 };
 
 /**
- * Pure CSS 8-pointed asterisk icon matching the UniAI logo.
+ * Four-point star from the UNICOM brand mark (the star inside the "O").
  * Uses currentColor so it adapts to light/dark themes automatically.
- * Clip-path polygon traced from the original SVG path coordinates.
  */
+function StarGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className={cn("block size-full", className)}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M50 2 C56 32 68 44 98 50 C68 56 56 68 50 98 C44 68 32 56 2 50 C32 44 44 32 50 2 Z" />
+    </svg>
+  );
+}
+
 export function MulticaIcon({
   className,
   animate = false,
@@ -46,15 +58,6 @@ export function MulticaIcon({
     const timer = setTimeout(() => setEntranceDone(true), 600);
     return () => clearTimeout(timer);
   }, [animate]);
-
-  const clipPath = `polygon(
-    45% 62.1%, 45% 100%, 55% 100%, 55% 62.1%,
-    81.8% 88.9%, 88.9% 81.8%, 62.1% 55%, 100% 55%,
-    100% 45%, 62.1% 45%, 88.9% 18.2%, 81.8% 11.1%,
-    55% 37.9%, 55% 0%, 45% 0%, 45% 37.9%,
-    18.2% 11.1%, 11.1% 18.2%, 37.9% 45%, 0% 45%,
-    0% 55%, 37.9% 55%, 11.1% 81.8%, 18.2% 88.9%
-  )`;
 
   if (bordered) {
     const sizeConfig = borderedSizes[size];
@@ -76,10 +79,7 @@ export function MulticaIcon({
             entranceDone && !noSpin && "hover:animate-spin"
           )}
         >
-          <span
-            className="block size-full bg-current"
-            style={{ clipPath }}
-          />
+          <StarGlyph />
         </span>
       </span>
     );
@@ -96,10 +96,7 @@ export function MulticaIcon({
       aria-hidden="true"
       {...props}
     >
-      <span
-        className="block size-full bg-current"
-        style={{ clipPath }}
-      />
+      <StarGlyph />
     </span>
   );
 }

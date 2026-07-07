@@ -1,6 +1,25 @@
 import { LoginPage } from "@multica/views/auth";
 import { DragStrip } from "@multica/views/platform";
-import { MulticaIcon } from "@multica/ui/components/common/multica-icon";
+import logoLight from "../assets/unicom-logo-light.png";
+import logoDark from "../assets/unicom-logo-dark.png";
+
+/** UNICOM logo lockup, theme-aware (light/dark PNG pair). */
+function UnicomLogo() {
+  return (
+    <>
+      <img
+        src={logoLight}
+        alt="UNICOM — AI Software Factory"
+        className="h-12 w-auto dark:hidden"
+      />
+      <img
+        src={logoDark}
+        alt="UNICOM — AI Software Factory"
+        className="hidden h-12 w-auto dark:block"
+      />
+    </>
+  );
+}
 
 function requireRuntimeAppUrl(): string {
   const runtimeConfig = window.desktopAPI.runtimeConfig;
@@ -26,7 +45,7 @@ export function DesktopLoginPage() {
     <div className="flex h-screen flex-col">
       <DragStrip />
       <LoginPage
-        logo={<MulticaIcon bordered size="lg" />}
+        logo={<UnicomLogo />}
         onSuccess={() => {
           // Auth store update triggers AppContent re-render → shows DesktopShell.
           // Initial workspace navigation happens in routes.tsx via IndexRedirect.

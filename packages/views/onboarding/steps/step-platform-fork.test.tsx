@@ -76,9 +76,10 @@ describe("StepPlatformFork", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders the three fork options at rest", () => {
+  it("renders the fork options at rest, without the desktop download card", () => {
     renderFork();
-    expect(screen.getByText(/^use this computer$/i)).toBeInTheDocument();
+    // Desktop download card is hidden — web is the only supported client.
+    expect(screen.queryByText(/^use this computer$/i)).not.toBeInTheDocument();
     expect(screen.getByText(/^connect from the terminal$/i)).toBeInTheDocument();
     expect(screen.getByText(/^use a cloud computer$/i)).toBeInTheDocument();
     // Cloud option is a "Coming soon" preview — not yet wired up.
@@ -111,23 +112,6 @@ describe("StepPlatformFork", () => {
     await user.click(screen.getByRole("button", { name: /skip for now/i }));
     expect(onNext).toHaveBeenCalledTimes(1);
     expect(onNext).toHaveBeenCalledWith(null);
-  });
-
-  it("opens the download page and flips the card to a post-click state", async () => {
-    const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
-    const user = userEvent.setup();
-    renderFork();
-
-    await user.click(screen.getByText(/^use this computer$/i));
-
-    expect(openSpy).toHaveBeenCalledWith(
-      "https://github.com/multica-ai/multica/releases/latest",
-      "_blank",
-      "noopener,noreferrer",
-    );
-    expect(
-      screen.getByText(/opening the download page/i),
-    ).toBeInTheDocument();
   });
 
   it("CLI dialog: opens with instructions + 'waiting' and a disabled Connect button", async () => {

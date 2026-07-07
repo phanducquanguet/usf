@@ -25,9 +25,34 @@ import {
 } from "@multica/ui/components/ui/card";
 import { Button } from "@multica/ui/components/ui/button";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import { setLoggedInCookie } from "@/features/auth/auth-cookie";
-import { LoginPage, validateCliCallback } from "@multica/views/auth";
+import { AuthShell, LoginPage, validateCliCallback } from "@multica/views/auth";
 import { useT } from "@multica/views/i18n";
+
+/** UNICOM logo lockup, theme-aware (light/dark PNG pair from public/brand). */
+function UnicomLogo() {
+  return (
+    <>
+      <Image
+        src="/brand/unicom-logo-light.png"
+        alt="UNICOM — AI Software Factory"
+        width={797}
+        height={206}
+        priority
+        className="h-12 w-auto dark:hidden"
+      />
+      <Image
+        src="/brand/unicom-logo-dark.png"
+        alt="UNICOM — AI Software Factory"
+        width={797}
+        height={206}
+        priority
+        className="hidden h-12 w-auto dark:block"
+      />
+    </>
+  );
+}
 
 /**
  * Pick where a logged-in user with no explicit `?next=` should land.
@@ -170,8 +195,8 @@ function LoginPageContent() {
   if (isDesktopHandoff && user) {
     if (desktopError) {
       return (
-        <div className="flex min-h-screen items-center justify-center">
-          <Card className="w-full max-w-sm">
+        <AuthShell logo={<UnicomLogo />}>
+          <Card className="w-full">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">
                 {t(($) => $.web.desktop_handoff.failed_title)}
@@ -179,12 +204,12 @@ function LoginPageContent() {
               <CardDescription>{desktopError}</CardDescription>
             </CardHeader>
           </Card>
-        </div>
+        </AuthShell>
       );
     }
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Card className="w-full max-w-sm">
+      <AuthShell logo={<UnicomLogo />}>
+        <Card className="w-full">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
               {t(($) => $.web.desktop_handoff.opening_title)}
@@ -210,12 +235,13 @@ function LoginPageContent() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </AuthShell>
     );
   }
 
   return (
     <LoginPage
+      logo={<UnicomLogo />}
       onSuccess={handleSuccess}
       google={
         googleClientId
@@ -232,19 +258,6 @@ function LoginPageContent() {
           : undefined
       }
       onTokenObtained={setLoggedInCookie}
-      extra={
-        <span className="text-xs text-muted-foreground">
-          {t(($) => $.web.prefer_desktop)}{" "}
-          <a
-            href="https://github.com/multica-ai/multica/releases/latest"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground/70"
-          >
-            {t(($) => $.web.download)}
-          </a>
-        </span>
-      }
     />
   );
 }

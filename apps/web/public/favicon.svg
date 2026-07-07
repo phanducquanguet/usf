@@ -1,7 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Multica">
-  <rect width="100" height="100" rx="20" fill="#ffffff"/>
-  <polygon
-    fill="#111827"
-    points="45,62.1 45,100 55,100 55,62.1 81.8,88.9 88.9,81.8 62.1,55 100,55 100,45 62.1,45 88.9,18.2 81.8,11.1 55,37.9 55,0 45,0 45,37.9 18.2,11.1 11.1,18.2 37.9,45 0,45 0,55 37.9,55 11.1,81.8 18.2,88.9"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="UNICOM">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3C83F6"/>
+      <stop offset="1" stop-color="#06BBE0"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="28" fill="url(#brand)"/>
+  <path
+    fill="#ffffff"
+    d="M50 16 C54.3 37.4 62.9 46 84 50 C62.9 54 54.3 62.6 50 84 C45.7 62.6 37.1 54 16 50 C37.1 46 45.7 37.4 50 16 Z"
   />
 </svg>

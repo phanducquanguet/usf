@@ -94,6 +94,66 @@ export function validateCliCallback(cliCallback: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
+// Shell
+// ---------------------------------------------------------------------------
+
+/** Four-point brand star used as a scattered decorative motif. */
+function BrandSparkle({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
+      <path d="M50 2 C56 32 68 44 98 50 C68 56 56 68 50 98 C44 68 32 56 2 50 C32 44 44 32 50 2 Z" />
+    </svg>
+  );
+}
+
+/**
+ * Shared chrome for all auth screens: centers the card over an ambient
+ * brand backdrop (blue→cyan aurora, faint grid, scattered brand stars)
+ * and renders the logo lockup above the card. Purely decorative — the
+ * backdrop is aria-hidden and non-interactive.
+ */
+export function AuthShell({
+  logo,
+  children,
+}: {
+  logo?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 py-10">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-start/[0.08] via-transparent to-brand-end/[0.06] dark:from-brand-start/[0.12] dark:to-brand-end/[0.08]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:44px_44px] opacity-50 [mask-image:radial-gradient(ellipse_65%_55%_at_50%_42%,black,transparent)]" />
+        <div className="absolute -top-24 left-1/2 h-[30rem] w-[52rem] -translate-x-1/2 rounded-full bg-brand-start/20 blur-[100px] dark:bg-brand-start/25" />
+        <div className="absolute -bottom-32 left-1/2 h-[24rem] w-[40rem] -translate-x-1/2 rounded-full bg-brand-end/15 blur-[100px] dark:bg-brand-end/20" />
+        <BrandSparkle className="absolute left-[16%] top-[24%] size-4 text-brand-start/30 dark:text-brand-start/40" />
+        <BrandSparkle className="absolute right-[18%] top-[34%] size-6 text-brand-end/25 dark:text-brand-end/35" />
+        <BrandSparkle className="absolute bottom-[26%] left-[24%] size-3 text-brand-end/30 dark:text-brand-end/40" />
+        <BrandSparkle className="absolute bottom-[18%] right-[26%] size-5 text-brand-start/20 dark:text-brand-start/30" />
+      </div>
+      <div className="animate-onboarding-enter relative flex w-full max-w-sm flex-col items-center gap-7">
+        {logo && <div className="flex justify-center">{logo}</div>}
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** Card treatment shared by every auth step: translucent blurred surface
+ *  with a brand-gradient hairline along the top edge. */
+const authCardClass =
+  "relative w-full overflow-hidden rounded-2xl border-border/60 bg-card/85 shadow-xl shadow-black/[0.05] backdrop-blur-md before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-gradient-to-r before:from-brand-start before:to-brand-end dark:bg-card/75 dark:shadow-black/30";
+
+/** Primary CTA painted with the UNICOM brand gradient. Disabled drops the
+ *  gradient for a flat muted fill so it can't read as a washed-out CTA. */
+const brandButtonClass =
+  "w-full border-0 bg-gradient-to-r from-brand-start to-brand-end text-white shadow-md shadow-brand-start/25 transition-all hover:shadow-lg hover:shadow-brand-start/35 hover:brightness-[1.06] active:brightness-95 disabled:opacity-100 disabled:bg-none disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none";
+
+/** Email input: soft brand-tinted focus ring instead of the default gray. */
+const authInputClass =
+  "h-11 rounded-lg text-[15px] focus-visible:border-brand-start/50 focus-visible:ring-[3px] focus-visible:ring-brand-start/20";
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -292,11 +352,10 @@ export function LoginPage({
 
   if (step === "cli_confirm" && existingUser) {
     return (
-      <div className="flex min-h-svh items-center justify-center">
-        <Card className="w-full max-w-sm">
+      <AuthShell logo={logo}>
+        <Card className={authCardClass}>
           <CardHeader className="text-center">
-            {logo && <div className="mx-auto mb-4">{logo}</div>}
-            <CardTitle className="text-2xl">
+            <CardTitle className="text-2xl font-semibold tracking-tight">
               {t(($) => $.cli.title)}
             </CardTitle>
             <CardDescription>
@@ -307,7 +366,7 @@ export function LoginPage({
             <Button
               onClick={handleCliAuthorize}
               disabled={loading}
-              className="w-full"
+              className={brandButtonClass}
               size="lg"
             >
               {loading
@@ -326,7 +385,7 @@ export function LoginPage({
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </AuthShell>
     );
   }
 
@@ -336,11 +395,10 @@ export function LoginPage({
 
   if (step === "code") {
     return (
-      <div className="flex min-h-svh items-center justify-center">
-        <Card className="w-full max-w-sm">
+      <AuthShell logo={logo}>
+        <Card className={authCardClass}>
           <CardHeader className="text-center">
-            {logo && <div className="mx-auto mb-4">{logo}</div>}
-            <CardTitle className="text-2xl">
+            <CardTitle className="text-2xl font-semibold tracking-tight">
               {t(($) => $.verify.title)}
             </CardTitle>
             <CardDescription>
@@ -359,12 +417,12 @@ export function LoginPage({
               disabled={loading}
             >
               <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
+                <InputOTPSlot className="h-12 w-11 text-lg" index={0} />
+                <InputOTPSlot className="h-12 w-11 text-lg" index={1} />
+                <InputOTPSlot className="h-12 w-11 text-lg" index={2} />
+                <InputOTPSlot className="h-12 w-11 text-lg" index={3} />
+                <InputOTPSlot className="h-12 w-11 text-lg" index={4} />
+                <InputOTPSlot className="h-12 w-11 text-lg" index={5} />
               </InputOTPGroup>
             </InputOTP>
             {error && (
@@ -398,7 +456,7 @@ export function LoginPage({
             </Button>
           </CardFooter>
         </Card>
-      </div>
+      </AuthShell>
     );
   }
 
@@ -407,11 +465,10 @@ export function LoginPage({
   // -------------------------------------------------------------------------
 
   return (
-    <div className="flex min-h-svh items-center justify-center">
-      <Card className="w-full max-w-sm">
+    <AuthShell logo={logo}>
+      <Card className={authCardClass}>
         <CardHeader className="text-center">
-          {logo && <div className="mx-auto mb-4">{logo}</div>}
-          <CardTitle className="text-2xl">
+          <CardTitle className="text-2xl font-semibold tracking-tight">
             {t(($) => $.signin.title)}
           </CardTitle>
           <CardDescription>
@@ -428,6 +485,7 @@ export function LoginPage({
                 placeholder={t(($) => $.common.email_placeholder)}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className={authInputClass}
                 autoFocus
                 required
               />
@@ -441,7 +499,7 @@ export function LoginPage({
           <Button
             type="submit"
             form="login-form"
-            className="w-full"
+            className={brandButtonClass}
             size="lg"
             disabled={!email || loading}
           >
@@ -451,15 +509,10 @@ export function LoginPage({
           </Button>
           {(google || onGoogleLogin) && (
             <>
-              <div className="relative w-full">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">
-                    {t(($) => $.signin.divider)}
-                  </span>
-                </div>
+              <div className="flex w-full items-center gap-3 text-xs uppercase text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                {t(($) => $.signin.divider)}
+                <span className="h-px flex-1 bg-border" />
               </div>
               <Button
                 type="button"
@@ -494,6 +547,6 @@ export function LoginPage({
           {extra && <div className="w-full pt-1 text-center">{extra}</div>}
         </CardFooter>
       </Card>
-    </div>
+    </AuthShell>
   );
 }
