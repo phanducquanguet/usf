@@ -99,6 +99,16 @@ deployment.
 ## Edge cases
 
 - A stranger mid-onboarding at deploy time sees the notice on next load.
+- Existing account, not yet onboarded, zero workspaces: routed to
+  `/onboarding`, which now renders the invitation-required notice (section 4).
+  When invited, they enter via the `/invite/{id}` email link or the existing
+  `/invitations` routing for un-onboarded users with pending invites.
+- Existing account, already onboarded, zero workspaces (e.g. removed from a
+  workspace): `resolvePostAuthDestination` routes them to `/workspaces/new`,
+  which already renders a "creation disabled" notice instead of the form.
+  With the per-user flag from section 3 this works without extra changes.
+  They enter via the `/invite/{id}` email link when invited (onboarded users
+  are not auto-routed to `/invitations` — existing product behavior).
 - Desktop shares `packages/views`, so both platforms get the behavior.
 - `/api/config` never exposes the allowlist to anonymous callers.
 - Old desktop clients without the new `/api/me` field fall back to the
