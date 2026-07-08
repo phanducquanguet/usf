@@ -13,6 +13,7 @@ import {
   type OnboardingStep,
   type QuestionnaireAnswers,
 } from "@multica/core/onboarding";
+import { useWorkspaceCreationDisabled } from "@multica/core/config";
 import { workspaceListOptions } from "@multica/core/workspace/queries";
 import type { AgentRuntime, Workspace } from "@multica/core/types";
 import { StepWelcome } from "./steps/step-welcome";
@@ -22,6 +23,7 @@ import { StepUseCase } from "./steps/step-use-case";
 import { StepWorkspace } from "./steps/step-workspace";
 import { StepRuntimeConnect } from "./steps/step-runtime-connect";
 import { StepPlatformFork } from "./steps/step-platform-fork";
+import { InvitationRequiredScreen } from "./invitation-required";
 import { useT } from "../i18n";
 
 const EMPTY_QUESTIONNAIRE: QuestionnaireAnswers = {
@@ -151,6 +153,8 @@ export function OnboardingFlow({
   // introducing a redundant prop.
   const isWeb = !!runtimeInstructions;
 
+  const creationDisabled = useWorkspaceCreationDisabled();
+
   // Derive "what comes after `from`" from ONBOARDING_STEP_ORDER so
   // inserting/reordering a persisted step only requires editing the
   // canonical array. Returns null if `from` is the last persisted step
@@ -262,6 +266,20 @@ export function OnboardingFlow({
     const prev = ONBOARDING_STEP_ORDER[idx - 1]!;
     setStep(prev);
   }, []);
+
+  // Stranger gate: a user who cannot create workspaces (self-host
+  // allowlist, spec 2026-07-08) and has no workspace to resume gets the
+  // invitation-required screen instead of the questionnaire. Invited
+  // users never reach OnboardingFlow (AcceptInvitation marks them
+  // onboarded), and a user with an existing workspace still finishes
+  // onboarding normally. Hold rendering until the workspace list has
+  // loaded so the Welcome step doesn't flash before the gate.
+  if (creationDisabled && !workspacesFetched) {
+    return null;
+  }
+  if (creationDisabled && workspaces.length === 0) {
+    return <InvitationRequiredScreen />;
+  }
 
   // Welcome, Questionnaire, and Workspace own full-bleed two-column
   // layouts (hero / side panel) with their own DragStrip + StepHeader.
