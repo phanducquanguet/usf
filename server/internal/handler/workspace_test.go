@@ -831,3 +831,80 @@ INSERT INTO member (workspace_id, user_id, role) VALUES ($1, $2, 'admin') RETURN
 		t.Fatal("member row was not deleted")
 	}
 }
+
+// TestCreateWorkspace_AllowlistBypassesDisable: with the self-host gate on,
+// an email listed in WorkspaceCreationAllowedEmails may still create a
+// workspace. Matching is case-insensitive.
+func TestCreateWorkspace_AllowlistBypassesDisable(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+
+	const slug = "handler-tests-allowlist-create"
+	ctx := context.Background()
+	_, _ = testPool.Exec(ctx, `DELETE FROM workspace WHERE slug = $1`, slug)
+	t.Cleanup(func() {
+		_, _ = testPool.Exec(context.Background(), `DELETE FROM workspace WHERE slug = $1`, slug)
+	})
+
+	prev := testHandler.cfg
+	testHandler.cfg = Config{
+		AllowSignup:              prev.AllowSignup,
+		DisableWorkspaceCreation: true,
+		// Deliberately different case from handlerTestEmail to pin
+		// case-insensitive matching.
+		WorkspaceCreationAllowedEmails: []string{"Handler-Test@multica.ai"},
+	}
+	t.Cleanup(func() { testHandler.cfg = prev })
+
+	w := httptest.NewRecorder()
+	req := newRequest("POST", "/api/workspaces", map[string]any{
+		"name": "Allowlist Create",
+		"slug": slug,
+	})
+	testHandler.CreateWorkspace(w, req)
+	if w.Code != http.StatusCreated {
+		t.Fatalf("expected 201 for allowlisted email, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+// TestCreateWorkspace_NotOnAllowlistStillForbidden: a non-empty allowlist
+// that does NOT contain the caller's email keeps the 403.
+func TestCreateWorkspace_NotOnAllowlistStillForbidden(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+
+	const slug = "handler-tests-allowlist-forbidden"
+	ctx := context.Background()
+	_, _ = testPool.Exec(ctx, `DELETE FROM workspace WHERE slug = $1`, slug)
+	t.Cleanup(func() {
+		_, _ = testPool.Exec(context.Background(), `DELETE FROM workspace WHERE slug = $1`, slug)
+	})
+
+	prev := testHandler.cfg
+	testHandler.cfg = Config{
+		AllowSignup:                    prev.AllowSignup,
+		DisableWorkspaceCreation:       true,
+		WorkspaceCreationAllowedEmails: []string{"someone-else@multica.ai"},
+	}
+	t.Cleanup(func() { testHandler.cfg = prev })
+
+	w := httptest.NewRecorder()
+	req := newRequest("POST", "/api/workspaces", map[string]any{
+		"name": "Forbidden Create",
+		"slug": slug,
+	})
+	testHandler.CreateWorkspace(w, req)
+	if w.Code != http.StatusForbidden {
+		t.Fatalf("expected 403 for non-allowlisted email, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var count int
+	if err := testPool.QueryRow(ctx, `SELECT count(*) FROM workspace WHERE slug = $1`, slug).Scan(&count); err != nil {
+		t.Fatalf("count workspaces: %v", err)
+	}
+	if count != 0 {
+		t.Fatalf("expected no workspace row, found %d", count)
+	}
+}

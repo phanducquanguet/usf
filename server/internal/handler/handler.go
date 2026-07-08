@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/netip"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -59,12 +60,18 @@ type Config struct {
 	AllowedEmails       []string
 	AllowedEmailDomains []string
 	// DisableWorkspaceCreation, when true, makes POST /api/workspaces return
-	// 403 for every caller. There is no role/owner exception because the repo
-	// has no platform-admin concept; operators bootstrap the workspace with
-	// the flag off, then flip it on and restart so subsequent users join via
-	// invitation only. The public /api/config endpoint mirrors this flag so
-	// the UI can hide every "Create workspace" affordance — see #3433.
+	// 403 unless the caller's email is in WorkspaceCreationAllowedEmails.
+	// Operators bootstrap by either creating the workspace with the flag off,
+	// or by allowlisting the platform admin's email; all other users join via
+	// invitation only. The public /api/config endpoint mirrors only the
+	// instance-wide flag (never the allowlist) so the UI can hide "Create
+	// workspace" affordances — the per-user exception travels on /api/me as
+	// can_create_workspace. See #3433.
 	DisableWorkspaceCreation bool
+	// WorkspaceCreationAllowedEmails lists emails exempt from
+	// DisableWorkspaceCreation (WORKSPACE_CREATION_ALLOWED_EMAILS,
+	// comma-separated, case-insensitive). Ignored when the flag is off.
+	WorkspaceCreationAllowedEmails []string
 	// PublicURL is the absolute base URL the API is reachable at from the
 	// public internet, with no trailing slash (e.g. "https://app.multica.ai").
 	// Used only to build webhook_url responses for autopilot webhook triggers
@@ -260,6 +267,21 @@ func New(queries *db.Queries, txStarter txStarter, hub *realtime.Hub, bus *event
 		}),
 		cfg: cfg,
 	}
+}
+
+// canCreateWorkspace reports whether a user with this email may create
+// workspaces: always when the self-host gate is off, otherwise only when
+// the email is on the allowlist (case-insensitive).
+func (h *Handler) canCreateWorkspace(email string) bool {
+	if !h.cfg.DisableWorkspaceCreation {
+		return true
+	}
+	for _, allowed := range h.cfg.WorkspaceCreationAllowedEmails {
+		if strings.EqualFold(strings.TrimSpace(allowed), email) {
+			return true
+		}
+	}
+	return false
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
