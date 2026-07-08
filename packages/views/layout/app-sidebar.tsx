@@ -20,8 +20,8 @@ import {
   ListTodo,
   Bot,
   Monitor,
-  ChevronDown,
   ChevronRight,
+  ChevronsUpDown,
   Settings,
   LogOut,
   Plus,
@@ -80,6 +80,7 @@ import { issueDetailOptions } from "@multica/core/issues/queries";
 import { projectDetailOptions } from "@multica/core/projects/queries";
 import type { PinnedItem } from "@multica/core/types";
 import { useLogout } from "../auth";
+import { UnicomLogo } from "./unicom-logo";
 import { ProjectIcon } from "../projects/components/project-icon";
 import { useT } from "../i18n";
 
@@ -490,140 +491,13 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
   return (
       <Sidebar variant="inset">
         {topSlot}
-        {/* Workspace Switcher */}
+        {/* Brand + quick actions (workspace switching lives in the footer user menu) */}
         <SidebarHeader className={cn("py-3", headerClassName)} style={headerStyle}>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <SidebarMenuButton>
-                      <span className="relative">
-                        <WorkspaceAvatar name={workspace?.name ?? "M"} avatarUrl={workspace?.avatar_url} size="sm" />
-                        {/* Shared brand dot: a pending invitation OR another
-                            workspace with unread inbox items. The active
-                            workspace's own unread stays on the Inbox nav count
-                            (below), so it is deliberately excluded here. */}
-                        {(myInvitations.length > 0 || otherWorkspaceUnread) && (
-                          <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-brand ring-1 ring-sidebar" />
-                        )}
-                      </span>
-                      <span className="flex-1 truncate font-medium">
-                        {workspace?.name ?? "UniAI"}
-                      </span>
-                      <ChevronDown className="size-3 text-muted-foreground" />
-                    </SidebarMenuButton>
-                  }
-                />
-                <DropdownMenuContent
-                  className="w-auto min-w-56"
-                  align="start"
-                  side="bottom"
-                  sideOffset={4}
-                >
-                  <div className="flex items-center gap-2.5 px-2 py-1.5">
-                    <ActorAvatar
-                      name={user?.name ?? ""}
-                      initials={(user?.name ?? "U").charAt(0).toUpperCase()}
-                      avatarUrl={resolvePublicFileUrl(user?.avatar_url)}
-                      size={32}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium leading-tight">
-                        {user?.name}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground leading-tight">
-                        {user?.email}
-                      </p>
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel className="text-xs text-muted-foreground">
-                      {t(($) => $.sidebar.workspaces_label)}
-                    </DropdownMenuLabel>
-                    {workspaces.map((ws) => (
-                      <DropdownMenuItem
-                        key={ws.id}
-                        render={
-                          <AppLink href={paths.workspace(ws.slug).issues()} />
-                        }
-                      >
-                        <WorkspaceAvatar name={ws.name} avatarUrl={ws.avatar_url} size="sm" />
-                        <span className="flex-1 truncate">{ws.name}</span>
-                        {/* Points at the specific workspace holding unread
-                            inbox items. Sits in the same right-edge slot as the
-                            active-workspace check; the active workspace is
-                            excluded (its unread is the Inbox nav count), so dot
-                            and check never collide on one row. */}
-                        {ws.id !== workspace?.id && unreadWsIds.has(ws.id) && (
-                          <span className="size-2 rounded-full bg-brand" />
-                        )}
-                        {ws.id === workspace?.id && (
-                          <Check className="h-3.5 w-3.5 text-primary" />
-                        )}
-                      </DropdownMenuItem>
-                    ))}
-                    {!workspaceCreationDisabled && (
-                      <DropdownMenuItem
-                        onClick={() =>
-                          useModalStore.getState().open("create-workspace")
-                        }
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        {t(($) => $.sidebar.create_workspace)}
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuGroup>
-                  {myInvitations.length > 0 && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuLabel className="text-xs text-muted-foreground">
-                          {t(($) => $.sidebar.pending_invitations_label)}
-                        </DropdownMenuLabel>
-                        {myInvitations.map((inv) => (
-                          <div key={inv.id} className="flex items-center gap-2 px-2 py-1.5">
-                            <WorkspaceAvatar name={inv.workspace_name ?? "W"} size="sm" />
-                            <span className="flex-1 truncate text-sm">{inv.workspace_name ?? t(($) => $.sidebar.invitation_workspace_fallback)}</span>
-                            <button
-                              type="button"
-                              className="text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                              disabled={acceptInvitationMut.isPending}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                acceptInvitationMut.mutate(inv.id);
-                              }}
-                            >
-                              {t(($) => $.sidebar.invitation_join)}
-                            </button>
-                            <button
-                              type="button"
-                              className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground hover:bg-muted/80 disabled:opacity-50"
-                              disabled={declineInvitationMut.isPending}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                declineInvitationMut.mutate(inv.id);
-                              }}
-                            >
-                              {t(($) => $.sidebar.invitation_decline)}
-                            </button>
-                          </div>
-                        ))}
-                      </DropdownMenuGroup>
-                    </>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem variant="destructive" onClick={logout}>
-                      <LogOut className="h-3.5 w-3.5" />
-                      {t(($) => $.sidebar.log_out)}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
+          {/* Full lockup (logo + tagline baked into the PNG) — brand lives
+              here; account actions live in the SidebarFooter user menu. */}
+          <div className="flex items-center px-2 pb-3 pt-0.5">
+            <UnicomLogo className="h-7" />
+          </div>
           <SidebarMenu>
             {searchSlot && (
               <SidebarMenuItem>
@@ -763,10 +637,148 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
           </SidebarGroup>
         </SidebarContent>
 
+        {/* Account footer: user identity + logout live here, separated from
+            the workspace switcher (context) at the top. */}
         <SidebarFooter className="p-2">
-          <div className="flex justify-end">
-            <HelpLauncher />
-          </div>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <div className="flex items-center gap-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <SidebarMenuButton className="h-auto flex-1 py-1.5">
+                        <span className="relative">
+                          <ActorAvatar
+                            name={user?.name ?? ""}
+                            initials={(user?.name ?? "U").charAt(0).toUpperCase()}
+                            avatarUrl={resolvePublicFileUrl(user?.avatar_url)}
+                            size={28}
+                          />
+                          {/* Shared brand dot: a pending invitation OR another
+                              workspace with unread inbox items. The active
+                              workspace's own unread stays on the Inbox nav
+                              count, so it is deliberately excluded here. */}
+                          {(myInvitations.length > 0 || otherWorkspaceUnread) && (
+                            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-brand ring-1 ring-sidebar">
+                              <span className="sr-only">{t(($) => $.sidebar.updates_dot_sr)}</span>
+                            </span>
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1 text-left leading-tight">
+                          <span className="block truncate text-sm font-medium">
+                            {user?.name}
+                          </span>
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {user?.email}
+                          </span>
+                        </span>
+                        <ChevronsUpDown className="size-3 shrink-0 text-muted-foreground" />
+                      </SidebarMenuButton>
+                    }
+                  />
+                  <DropdownMenuContent
+                    className="w-(--anchor-width) min-w-56"
+                    align="start"
+                    side="top"
+                    sideOffset={4}
+                  >
+                    {/* No identity header here — the trigger button directly
+                        below already shows avatar + name + email. */}
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="text-xs text-muted-foreground">
+                        {t(($) => $.sidebar.workspaces_label)}
+                      </DropdownMenuLabel>
+                      {workspaces.map((ws) => (
+                        <DropdownMenuItem
+                          key={ws.id}
+                          render={
+                            <AppLink href={paths.workspace(ws.slug).issues()} />
+                          }
+                        >
+                          <WorkspaceAvatar name={ws.name} avatarUrl={ws.avatar_url} size="sm" />
+                          <span className="flex-1 truncate">{ws.name}</span>
+                          {/* Points at the specific workspace holding unread
+                              inbox items. Sits in the same right-edge slot as
+                              the active-workspace check; the active workspace
+                              is excluded (its unread is the Inbox nav count),
+                              so dot and check never collide on one row. */}
+                          {ws.id !== workspace?.id && unreadWsIds.has(ws.id) && (
+                            <span className="size-2 rounded-full bg-brand">
+                              <span className="sr-only">{t(($) => $.sidebar.workspace_unread_sr)}</span>
+                            </span>
+                          )}
+                          {ws.id === workspace?.id && (
+                            <Check className="h-3.5 w-3.5 text-primary" />
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                      {!workspaceCreationDisabled && (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            useModalStore.getState().open("create-workspace")
+                          }
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          {t(($) => $.sidebar.create_workspace)}
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuGroup>
+                    {myInvitations.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel className="text-xs text-muted-foreground">
+                            {t(($) => $.sidebar.pending_invitations_label)}
+                          </DropdownMenuLabel>
+                          {myInvitations.map((inv) => {
+                            const invName = inv.workspace_name ?? t(($) => $.sidebar.invitation_workspace_fallback);
+                            return (
+                              <div key={inv.id}>
+                                <div className="flex items-center gap-2 px-2 py-1.5">
+                                  <WorkspaceAvatar name={inv.workspace_name ?? "W"} size="sm" />
+                                  <span className="flex-1 truncate text-sm">{invName}</span>
+                                </div>
+                                {/* Real menu items (not bare buttons) so Base UI
+                                    arrow-key navigation reaches them; closeOnClick
+                                    keeps the menu open, matching the previous
+                                    stopPropagation behavior. */}
+                                <div className="flex gap-1">
+                                  <DropdownMenuItem
+                                    closeOnClick={false}
+                                    disabled={acceptInvitationMut.isPending}
+                                    onClick={() => acceptInvitationMut.mutate(inv.id)}
+                                    className="min-h-9 flex-1 justify-center font-medium text-primary"
+                                    aria-label={`${t(($) => $.sidebar.invitation_join)} — ${invName}`}
+                                  >
+                                    {t(($) => $.sidebar.invitation_join)}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    closeOnClick={false}
+                                    disabled={declineInvitationMut.isPending}
+                                    onClick={() => declineInvitationMut.mutate(inv.id)}
+                                    className="min-h-9 flex-1 justify-center text-muted-foreground"
+                                    aria-label={`${t(($) => $.sidebar.invitation_decline)} — ${invName}`}
+                                  >
+                                    {t(($) => $.sidebar.invitation_decline)}
+                                  </DropdownMenuItem>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </DropdownMenuGroup>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem variant="destructive" onClick={logout}>
+                      <LogOut className="h-3.5 w-3.5" />
+                      {t(($) => $.sidebar.log_out)}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <HelpLauncher />
+              </div>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>

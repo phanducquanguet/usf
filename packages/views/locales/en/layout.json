@@ -40,6 +40,8 @@
     "invitation_workspace_fallback": "Workspace",
     "invitation_join": "Join",
     "invitation_decline": "Decline",
+    "updates_dot_sr": "New invitations or unread updates in other workspaces",
+    "workspace_unread_sr": "Has unread inbox items",
     "log_out": "Log out",
     "new_issue": "New Issue",
     "new_issue_shortcut": "C",

@@ -78,10 +78,9 @@ describe("DocsDialog", () => {
   it("shows the brand logo and localized chrome", () => {
     render(<DocsDialog open onOpenChange={() => {}} />);
 
-    // Theme-aware UNICOM logo pair in the header.
-    expect(
-      screen.getAllByAltText("UNICOM — AI Software Factory"),
-    ).toHaveLength(2);
+    // Theme-aware UNICOM logo pair in the header (hideTagline variant, so the
+    // alt text carries just the brand name).
+    expect(screen.getAllByAltText("UNICOM")).toHaveLength(2);
     expect(screen.getByText("Tài liệu")).toBeInTheDocument();
 
     // Section label uses the app-locale translation when present and falls
