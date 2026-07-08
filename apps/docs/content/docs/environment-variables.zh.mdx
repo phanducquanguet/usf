@@ -140,13 +140,16 @@ API 返回的 `download_url` 在未配置 CloudFront 签名时会指向 `GET /ap
 
 | 环境变量 | 默认值 | 说明 |
 |---|---|---|
-| `DISABLE_WORKSPACE_CREATION` | `false` | 设为 `true` 时，对 `POST /api/workspaces` 的任何调用都返回 `403 workspace creation is disabled for this instance`。Web UI 通过 `/api/config` 隐藏所有「创建工作区」入口。该开关是实例级的，没有 owner / admin 例外 |
+| `DISABLE_WORKSPACE_CREATION` | `false` | 设为 `true` 时，对 `POST /api/workspaces` 的任何调用都返回 `403 workspace creation is disabled for this instance`。Web UI 通过 `/api/config` 隐藏所有「创建工作区」入口。`WORKSPACE_CREATION_ALLOWED_EMAILS` 里的邮箱不受此限制 |
+| `WORKSPACE_CREATION_ALLOWED_EMAILS` | _(空)_ | 逗号分隔的邮箱列表，列出的邮箱不受 `DISABLE_WORKSPACE_CREATION` 限制（大小写不敏感）。名单内的用户保留完整的创建工作区界面；其他用户在被邀请之前会看到「请联系管理员获取邀请」页面。开关关闭时此变量不生效 |
 
 推荐的开服流程：
 
 1. 启动实例时保持 `DISABLE_WORKSPACE_CREATION` 未设置（默认）。
 2. 管理员登录并创建共享工作区。
 3. 把 `DISABLE_WORKSPACE_CREATION=true` 设上并重启 backend。之后新用户只能通过邀请加入。
+
+也可以完全跳过「先关后开」的引导流程：从首次启动就同时设置 `DISABLE_WORKSPACE_CREATION=true` 和 `WORKSPACE_CREATION_ALLOWED_EMAILS=admin@example.com` —— 名单内的管理员随时可以创建共享工作区，其他人只能通过邀请加入。
 
 如果还想让被邀请的新用户能完成首次注册，保留 `ALLOW_SIGNUP=true`（必要时用 `ALLOWED_EMAIL_DOMAINS` / `ALLOWED_EMAILS` 限定可注册邮箱），只把 `DISABLE_WORKSPACE_CREATION=true` 打开即可；如果同时设 `ALLOW_SIGNUP=false`，连有 pending invite 的邮箱都无法完成首次注册，仅适合所有成员都已有 UniAI 账号的实例。
 
