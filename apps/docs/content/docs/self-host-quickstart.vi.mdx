@@ -57,7 +57,7 @@ Khi đã chạy:
 <Callout type="warning">
 **`docker-compose.selfhost.yml` mặc định đặt `APP_ENV` là `production`** và để trống `MULTICA_DEV_VERIFICATION_CODE`, nên không có mã cố định nào trên các máy chủ công khai.
 
-Chỉ đặt `MULTICA_DEV_VERIFICATION_CODE` cho môi trường cục bộ hoặc test tự động riêng tư. Nếu bật mã cố định khi `APP_ENV` không phải production, bất kỳ ai xin được mã đều có thể đăng nhập bằng giá trị cố định đó. Xem [Thiết lập xác thực → Mã kiểm thử cục bộ cố định](/auth-setup#fixed-local-testing-codes).
+Chỉ đặt `MULTICA_DEV_VERIFICATION_CODE` cho môi trường cục bộ hoặc test tự động riêng tư. Nếu bật mã cố định khi `APP_ENV` không phải production, bất kỳ ai xin được mã đều có thể đăng nhập bằng giá trị cố định đó. Xem Thiết lập xác thực → Mã kiểm thử cục bộ cố định.
 
 Trước mọi lần triển khai công khai, đảm bảo `.env` có `APP_ENV=production` và `MULTICA_DEV_VERIFICATION_CODE` để trống.
 </Callout>
@@ -127,7 +127,7 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com
 
 Rồi khởi động lại: `docker compose -f docker-compose.selfhost.yml restart backend`. Khi khởi động lại, backend in ra provider nó chọn và chế độ TLS đã thương lượng (`EmailService: SMTP relay <host>:<port> (starttls|implicit-tls) from=…` / `Resend API` / `DEV mode`) — thông tin đăng nhập không bao giờ bị ghi log, nên dòng này an toàn để chia sẻ khi cần hỗ trợ.
 
-Cấu hình xác thực thêm (OAuth, danh sách cho phép đăng ký) và tham chiếu đầy đủ biến SMTP, xem [Thiết lập xác thực](/auth-setup) và [Biến môi trường → Email](/environment-variables#email-configuration).
+Cấu hình xác thực thêm (OAuth, danh sách cho phép đăng ký) và tham chiếu đầy đủ biến SMTP, xem Thiết lập xác thực và Biến môi trường → Email.
 
 ## 4. Đăng nhập lần đầu + tạo không gian làm việc
 
@@ -163,7 +163,7 @@ multica setup self-host \
 ```
 
 <Callout type="info">
-Thích biến môi trường hơn cờ lệnh? `setup self-host` đọc `MULTICA_SERVER_URL` và `MULTICA_APP_URL` khi cờ tương ứng bị bỏ trống — cờ vẫn được ưu tiên hơn biến môi trường. `MULTICA_SERVER_URL` cũng chấp nhận dạng `ws://…/ws` dành cho daemon từ [Biến môi trường](/environment-variables) và tự chuẩn hóa về HTTP base.
+Thích biến môi trường hơn cờ lệnh? `setup self-host` đọc `MULTICA_SERVER_URL` và `MULTICA_APP_URL` khi cờ tương ứng bị bỏ trống — cờ vẫn được ưu tiên hơn biến môi trường. `MULTICA_SERVER_URL` cũng chấp nhận dạng `ws://…/ws` dành cho daemon từ Biến môi trường và tự chuẩn hóa về HTTP base.
 </Callout>
 
 Một Caddyfile tối giản phục vụ cả frontend lẫn backend (kèm hỗ trợ WebSocket, thứ mà cả daemon lẫn web app đều cần) trên một hostname duy nhất:
@@ -188,7 +188,7 @@ multica.example.com {
 }
 ```
 
-Sau khi bật proxy, đặt `FRONTEND_ORIGIN=https://multica.example.com` trong `.env` của server rồi khởi động lại backend — nếu không, phép kiểm tra origin của WebSocket sẽ từ chối trình duyệt ([Khắc phục sự cố → WebSocket không kết nối được](/troubleshooting#websocket-cant-connect)).
+Sau khi bật proxy, đặt `FRONTEND_ORIGIN=https://multica.example.com` trong `.env` của server rồi khởi động lại backend — nếu không, phép kiểm tra origin của WebSocket sẽ từ chối trình duyệt (Khắc phục sự cố → WebSocket không kết nối được).
 
 [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) cũng là một lựa chọn tốt — nó cho bạn TLS và hostname công khai mà không phải mở cổng nào trên máy. Cấu hình Nginx tương đương (tách hostname `app.` / `api.`, `proxy_set_header Upgrade` cho WebSocket) cũng dùng tốt; yêu cầu then chốt là chấm dứt TLS và chuyển tiếp header `Upgrade` trên `/ws`.
 
@@ -266,13 +266,10 @@ Tham chiếu đầy đủ — ba chế độ đăng nhập, workaround ExternalN
 
 - **Backend không khởi động**: xem log container bằng `docker compose -f docker-compose.selfhost.yml logs backend`; thường do `DATABASE_URL` hoặc `JWT_SECRET` sai trong `.env`
 - **Không nhận được mã xác thực**: chưa cấu hình backend email nào (cả Resend lẫn SMTP) → tìm `[DEV] Verification code` trong `docker compose logs backend`
-- **WebSocket không kết nối**: với triển khai công khai bạn phải đặt `FRONTEND_ORIGIN` đúng tên miền frontend thật; xem [Khắc phục sự cố → WebSocket không kết nối được](/troubleshooting#websocket-wont-connect)
-- **Bảng Usage / Runtime toàn số 0**: `rollup_task_usage_hourly()` không được lập lịch — xem [Bước 7](#7-usage-rollup-no-operator-action-required) phía trên và [Khắc phục sự cố → Bảng usage hiện 0](/troubleshooting#usage-dashboard-stays-at-zero)
+- **WebSocket không kết nối**: với triển khai công khai bạn phải đặt `FRONTEND_ORIGIN` đúng tên miền frontend thật; xem Khắc phục sự cố → WebSocket không kết nối được
+- **Bảng Usage / Runtime toàn số 0**: `rollup_task_usage_hourly()` không được lập lịch — xem [Bước 7](#7-usage-rollup-no-operator-action-required) phía trên và Khắc phục sự cố → Bảng usage hiện 0
 - **`migrate up` lỗi `refusing to drop legacy daily rollups`**: guard đường nâng cấp `v0.3.4 → v0.3.5+`. Từ MUL-2957, lệnh migrate tự chạy backfill trước khi áp migration 103 — xem [Bước 7](#7-usage-rollup-no-operator-action-required)
 
 ## Bước tiếp theo
 
-- [Biến môi trường](/environment-variables) — tham chiếu env đầy đủ
-- [Thiết lập xác thực](/auth-setup) — Resend / OAuth / danh sách cho phép đăng ký chi tiết
 - [Tích hợp GitHub](/github-integration) — kết nối GitHub App để PR tự liên kết issue và merge thì đóng issue
-- [Khắc phục sự cố](/troubleshooting) — bắt đầu từ đây khi có trục trặc

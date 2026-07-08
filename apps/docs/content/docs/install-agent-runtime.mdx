@@ -20,7 +20,7 @@ The UniAI server never sees your API keys or the tools themselves. Everything be
 
 Two prerequisites apply to **every** tool below:
 
-1. **The UniAI daemon must be running.** Run `multica daemon start` after installing the [UniAI CLI](/cli). Without a running daemon there is nothing to detect tools.
+1. **The UniAI daemon must be running.** Run `multica daemon start` after installing the UniAI CLI. Without a running daemon there is nothing to detect tools.
 2. **The tool's binary must be reachable on `PATH`.** The daemon shells out to each tool by name (see the **Daemon looks for** column in each section). If `which <name>` doesn't find it in your terminal, the daemon won't find it either. After installing, open a fresh terminal (or restart the daemon) so the new `PATH` entry is picked up.
 
 After installing a tool, restart the daemon:
@@ -192,7 +192,7 @@ Google's Antigravity CLI (`agy`). Pairs with Google's Antigravity service and ru
 - **The binary exists but launching fails.** Run the tool's own `--version` or `--help` once from the terminal — most failures here are missing auth, expired tokens, or a Node.js / runtime mismatch.
 - **The Runtimes page shows the row, but tasks fail immediately.** Check `multica daemon logs -f` while triggering a task. The daemon surfaces the tool's own error output.
 
-For broader symptoms, see the [Troubleshooting guide](/troubleshooting).
+For broader symptoms, see the Troubleshooting guide.
 
 ## Next
 

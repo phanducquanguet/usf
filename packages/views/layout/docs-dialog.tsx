@@ -9,7 +9,7 @@
  * links open in a new tab.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -25,11 +25,22 @@ import { useT } from "../i18n";
 interface DocsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Page to show when the dialog opens; defaults to the index. */
+  slug?: string;
 }
 
-export default function DocsDialog({ open, onOpenChange }: DocsDialogProps) {
+export default function DocsDialog({
+  open,
+  onOpenChange,
+  slug = "index",
+}: DocsDialogProps) {
   const { t, i18n } = useT("layout");
-  const [activeSlug, setActiveSlug] = useState("index");
+  const [activeSlug, setActiveSlug] = useState(slug);
+
+  // Jump to the requested page each time the dialog is (re)opened.
+  useEffect(() => {
+    if (open) setActiveSlug(slug);
+  }, [open, slug]);
 
   // Docs content follows the app language; anything non-vi reads English.
   const sections =

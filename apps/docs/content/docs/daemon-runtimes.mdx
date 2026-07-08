@@ -8,11 +8,11 @@ import { Mermaid } from "@/components/mermaid";
 
 In UniAI, [agents](/agents) do **not** run on our servers — they run on your own machines, driven by a small program called the **daemon** that invokes the [AI coding tools](/providers) installed locally. The UniAI server only coordinates: it stores [issues](/issues), queues [tasks](/tasks), and dispatches them to the right **runtime** (runtime = daemon × one AI coding tool).
 
-This structure is the biggest difference between UniAI and Linear / Jira: **your API keys, toolchain, and code directories stay on your machine** — the UniAI server never sees any of them. That means "my agent isn't working" is almost always a local problem — the daemon isn't running, an AI tool isn't installed, a key has expired. Check locally first; see [Troubleshooting](/troubleshooting) for a guide.
+This structure is the biggest difference between UniAI and Linear / Jira: **your API keys, toolchain, and code directories stay on your machine** — the UniAI server never sees any of them. That means "my agent isn't working" is almost always a local problem — the daemon isn't running, an AI tool isn't installed, a key has expired. Check locally first; see Troubleshooting for a guide.
 
 ## Starting the daemon
 
-The daemon is part of the UniAI CLI. Once you've installed the [UniAI CLI](/cli), run on your own machine:
+The daemon is part of the UniAI CLI. Once you've installed the UniAI CLI, run on your own machine:
 
 ```bash
 multica daemon start
@@ -35,7 +35,7 @@ Common commands:
 | `multica daemon status` | Show status |
 | `multica daemon logs` | Show logs (add `-f` to follow) |
 
-Full CLI reference in [CLI commands](/cli).
+Full CLI reference in CLI commands.
 
 ## Why one machine has multiple runtimes
 
@@ -94,10 +94,6 @@ server-side Runtimes UI stores `fixed_args`, and the server is what surfaces
 do not understand instead of failing loudly, so treating the server upgrade as
 the first step keeps the rollout observable.
 
-<Callout type="info">
-**Cloud runtimes are coming**, currently in a waitlist phase. Once available, you'll be able to execute agent tasks directly on UniAI Cloud without running a local daemon.
-</Callout>
-
 ## When a runtime is marked offline
 
 UniAI uses heartbeats to decide whether a runtime is online. Three key numbers:
@@ -139,7 +135,7 @@ When you hit a "my agent isn't working" problem, run this three-step checklist f
 2. Run `multica daemon logs -f` — check for errors
 3. Open the **Runtimes** page in the UniAI UI — confirm your runtime shows "online"
 
-More scenarios in [Troubleshooting](/troubleshooting).
+More scenarios in Troubleshooting.
 
 ## Next
 

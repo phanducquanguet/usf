@@ -3,8 +3,6 @@
   "pages": [
     "index",
     "how-multica-works",
-    "cloud-quickstart",
-    "self-host-quickstart",
     "---Không gian làm việc & nhóm---",
     "workspaces",
     "members-roles",
@@ -28,21 +26,6 @@
     "chat",
     "autopilots",
     "---Hộp thư đến---",
-    "inbox",
-    "---Tích hợp---",
-    "channels",
-    "github-integration",
-    "lark-bot-integration",
-    "slack-bot-integration",
-    "---Tự vận hành & triển khai---",
-    "environment-variables",
-    "auth-setup",
-    "troubleshooting",
-    "---Tham khảo---",
-    "cli",
-    "auth-tokens",
-    "mobile-app",
-    "---Developers---",
-    "developers"
+    "inbox"
   ]
 }

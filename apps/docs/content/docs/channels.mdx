@@ -6,7 +6,7 @@ description: How UniAI connects agents to chat platforms — one channel engine,
 import { Callout } from "fumadocs-ui/components/callout";
 import { Mermaid } from "@/components/mermaid";
 
-A **channel** connects a UniAI [agent](/agents) to a chat platform so your team can work with it where they already talk. Today there are two channels — [Lark (飞书)](/lark-bot-integration) and [Slack](/slack-bot-integration) — and both run on the **same engine**: a platform-neutral core plus a thin per-platform adapter. Adding a platform is "implement the adapter," not "rebuild the pipeline."
+A **channel** connects a UniAI [agent](/agents) to a chat platform so your team can work with it where they already talk. Today there are two channels — Lark (飞书) and Slack — and both run on the **same engine**: a platform-neutral core plus a thin per-platform adapter. Adding a platform is "implement the adapter," not "rebuild the pipeline."
 
 An **installation** is the unit that ties it together: one bot bound to one `(workspace, agent)`. Inbound messages are routed to an installation, then through a shared pipeline; the agent's reply is sent back to the same chat.
 
@@ -68,11 +68,11 @@ So adding a bot to a public channel is safe: only workspace members who have bou
 ## The two channels
 
 <Callout type="info">
-**Lark (飞书) — scan to install.** A workspace admin binds an agent by scanning a QR with the Lark app; no developer console steps. One Bot per agent. See [Lark Bot integration](/lark-bot-integration).
+**Lark (飞书) — scan to install.** A workspace admin binds an agent by scanning a QR with the Lark app; no developer console steps. One Bot per agent.
 </Callout>
 
 <Callout type="info">
-**Slack — bring your own app.** A workspace admin creates a Slack app, installs it to their Slack workspace, and pastes its bot token + app-level token into UniAI. Each agent gets its own Slack app, so several agents can each have a distinct bot in one Slack workspace. See [Slack Bot integration](/slack-bot-integration) for the manifest and step-by-step setup.
+**Slack — bring your own app.** A workspace admin creates a Slack app, installs it to their Slack workspace, and pastes its bot token + app-level token into UniAI. Each agent gets its own Slack app, so several agents can each have a distinct bot in one Slack workspace.
 </Callout>
 
 ## Self-host
@@ -84,10 +84,8 @@ MULTICA_LARK_SECRET_KEY=<base64-encoded 32-byte key>
 MULTICA_SLACK_SECRET_KEY=<base64-encoded 32-byte key>
 ```
 
-On UniAI Cloud both are already configured. See [Environment variables](/environment-variables) for the full reference.
+On UniAI Cloud both are already configured.
 
 ## Next
 
-- [Lark Bot integration](/lark-bot-integration) — scan-to-install, DM / @-mention / `/issue`
-- [Slack Bot integration](/slack-bot-integration) — bring-your-own-app setup (manifest + tokens), per-agent bots
 - [Agents](/agents) · [Chat](/chat) · [Tasks](/tasks)

@@ -15,7 +15,7 @@ UniAI is a **distributed** platform. The web interface you see is just the front
 - **Daemon** — part of the UniAI CLI, running on your own machine. On start it detects which AI coding tools are installed locally, registers with the server, and begins polling for tasks every 3 seconds and sending heartbeats every 15 seconds.
 - **AI coding tools** — one of the fourteen (or several in parallel): [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). Once the daemon has picked up a task, it uses these tools to actually do the work.
 
-Because the toolchain stays local, **your API keys, code directories, and authorized tools** are only ever used on your machine — the UniAI server never sees any of them. This holds whether you self-host or use Cloud.
+Because the toolchain stays local, **your API keys, code directories, and authorized tools** are only ever used on your machine — the UniAI server never sees any of them.
 
 ## The lifecycle of a task
 
@@ -45,10 +45,8 @@ It's not only "assign an issue" — UniAI has 4 triggers, one per collaboration 
 
 A **runtime** is the pairing of "daemon × one AI coding tool." If the daemon on one machine has both Claude Code and Codex installed and is joined to two workspaces, UniAI registers 4 independent runtimes (2 workspaces × 2 tools).
 
-Only the **local daemon** runtime model is supported today. Cloud runtimes (where you don't need your own machine running) are **coming soon**, currently waitlist-only.
+Only the **local daemon** runtime model is supported today.
 
 ## Next steps
 
-- [Cloud Quickstart](/cloud-quickstart) — connect to UniAI Cloud in 5 minutes
-- [Self-Host Quickstart](/self-host-quickstart) — run your own backend
 - [Daemon and runtimes](/daemon-runtimes) — a deep dive into the component the architecture rests on

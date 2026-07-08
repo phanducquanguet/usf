@@ -204,10 +204,6 @@ Phản hồi non-2xx cho lỗi thật:
 - `413` — payload vượt 256 KiB.
 - `429` — vượt hạn mức theo token (mặc định 60 req/phút).
 
-### Tự vận hành: cấu hình URL công khai
-
-Khi `MULTICA_PUBLIC_URL` được đặt trên server (ví dụ `https://multica.example.com`), phản hồi trigger có `webhook_url` tuyệt đối và UI hiện URL sẵn sàng chép. Không có nó, UI ghép URL từ origin API của client — ổn với desktop và web cùng origin, nhưng không ổn với reverse proxy tự vận hành tùy chỉnh. UniAI chủ ý không suy host công khai từ header `Host` / `X-Forwarded-Host` để reverse proxy cấu hình sai không lừa được server đúc URL webhook trỏ về host của kẻ tấn công.
-
 ## Xem lịch sử chạy
 
 Mỗi lượt kích hoạt sinh một **bản ghi chạy**, xem ở tab "History" trên trang chi tiết autopilot:

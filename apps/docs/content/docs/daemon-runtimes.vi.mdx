@@ -8,11 +8,11 @@ import { Mermaid } from "@/components/mermaid";
 
 Trong UniAI, [agent](/agents) **không** chạy trên máy chủ của chúng tôi — chúng chạy trên máy của bạn, được điều khiển bởi một chương trình nhỏ gọi là **daemon** chuyên gọi các [công cụ lập trình AI](/providers) cài trên máy. UniAI server chỉ điều phối: lưu [issue](/issues), xếp hàng [task](/tasks) và phát chúng tới đúng **runtime** (runtime = daemon × một công cụ lập trình AI).
 
-Cấu trúc này là khác biệt lớn nhất giữa UniAI với Linear / Jira: **API key, bộ công cụ và thư mục mã nguồn ở lại trên máy của bạn** — UniAI server không bao giờ nhìn thấy chúng. Vì thế "agent của tôi không chạy" gần như luôn là vấn đề cục bộ — daemon chưa chạy, công cụ AI chưa cài, key hết hạn. Kiểm tra trên máy trước; xem [Khắc phục sự cố](/troubleshooting).
+Cấu trúc này là khác biệt lớn nhất giữa UniAI với Linear / Jira: **API key, bộ công cụ và thư mục mã nguồn ở lại trên máy của bạn** — UniAI server không bao giờ nhìn thấy chúng. Vì thế "agent của tôi không chạy" gần như luôn là vấn đề cục bộ — daemon chưa chạy, công cụ AI chưa cài, key hết hạn. Kiểm tra trên máy trước; xem Khắc phục sự cố.
 
 ## Khởi động daemon
 
-Daemon là một phần của UniAI CLI. Sau khi cài [UniAI CLI](/cli), chạy trên máy của bạn:
+Daemon là một phần của UniAI CLI. Sau khi cài UniAI CLI, chạy trên máy của bạn:
 
 ```bash
 multica daemon start
@@ -35,7 +35,7 @@ Các lệnh thường dùng:
 | `multica daemon status` | Xem trạng thái |
 | `multica daemon logs` | Xem log (thêm `-f` để theo dõi) |
 
-Tham chiếu CLI đầy đủ tại [Lệnh CLI](/cli).
+Tham chiếu CLI đầy đủ tại Lệnh CLI.
 
 ## Vì sao một máy có nhiều runtime
 
@@ -78,10 +78,6 @@ multica runtime profile unset-path <profile-id>
 
 Sửa lệnh hoặc đối số của profile chỉ áp dụng cho task nhận mới sau khi daemon đăng ký lại. Task đang chạy giữ nguyên đối số khởi chạy ban đầu. Với triển khai hỗn hợp, nâng cấp server trước khi tung daemon mới: giao diện Runtime phía server lưu `fixed_args`, và server là nơi hiển thị báo cáo đăng ký `failed_profiles`. Các thành phần cũ có thể lặng lẽ bỏ qua trường chúng không hiểu thay vì báo lỗi rõ ràng, nên coi nâng cấp server là bước đầu tiên giúp đợt rollout luôn quan sát được.
 
-<Callout type="info">
-**Cloud runtime sắp ra mắt**, hiện trong giai đoạn danh sách chờ. Khi khả dụng, bạn sẽ chạy được task của agent trực tiếp trên UniAI Cloud mà không cần daemon cục bộ.
-</Callout>
-
 ## Khi runtime bị đánh dấu offline
 
 UniAI dùng heartbeat để quyết định runtime có online hay không. Ba con số then chốt:
@@ -123,7 +119,7 @@ Khi gặp vấn đề "agent của tôi không chạy", làm checklist ba bướ
 2. Chạy `multica daemon logs -f` — kiểm tra lỗi
 3. Mở trang **Runtime** trong giao diện UniAI — xác nhận runtime của bạn hiện "online"
 
-Thêm tình huống khác tại [Khắc phục sự cố](/troubleshooting).
+Thêm tình huống khác tại Khắc phục sự cố.
 
 ## Tiếp theo
 

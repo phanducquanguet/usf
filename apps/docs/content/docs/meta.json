@@ -3,8 +3,6 @@
   "pages": [
     "index",
     "how-multica-works",
-    "cloud-quickstart",
-    "self-host-quickstart",
     "---Workspace & team---",
     "workspaces",
     "members-roles",
@@ -28,22 +26,6 @@
     "chat",
     "autopilots",
     "---Inbox---",
-    "inbox",
-    "---Integrations---",
-    "channels",
-    "github-integration",
-    "lark-bot-integration",
-    "slack-bot-integration",
-    "---Self-hosting & ops---",
-    "environment-variables",
-    "auth-setup",
-    "troubleshooting",
-    "---Reference---",
-    "cli",
-    "auth-tokens",
-    "desktop-app",
-    "mobile-app",
-    "---Developers---",
-    "developers"
+    "inbox"
   ]
 }

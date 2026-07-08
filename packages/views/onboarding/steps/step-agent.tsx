@@ -7,6 +7,7 @@ import { Button } from "@multica/ui/components/ui/button";
 import { useScrollFade } from "@multica/ui/hooks/use-scroll-fade";
 import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
+import { useDocsViewerStore } from "@multica/core/docs";
 import {
   recommendTemplate,
   type AgentTemplateId,
@@ -264,6 +265,7 @@ function TemplateCard({
 
 function AboutAgentsSide() {
   const { t } = useT("onboarding");
+  const openDocs = useDocsViewerStore((s) => s.openDocs);
   return (
     <div className="flex max-w-[380px] flex-col gap-8">
       <section className="flex flex-col gap-4">
@@ -310,14 +312,13 @@ function AboutAgentsSide() {
         {t(($) => $.step_agent.add_more_hint)}
       </p>
 
-      <a
-        href="https://multica.ai/docs/agents-create"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="self-start text-[13px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+      <button
+        type="button"
+        onClick={() => openDocs("agents-create")}
+        className="cursor-pointer self-start text-[13px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
       >
         {t(($) => $.step_agent.docs_link)}
-      </a>
+      </button>
     </div>
   );
 }

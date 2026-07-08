@@ -255,17 +255,6 @@ Non-2xx responses cover real failures:
 - `413` — payload exceeded 256 KiB.
 - `429` — per-token rate limit exceeded (defaults to 60 req/min).
 
-### Self-hosted: configure your public URL
-
-When `MULTICA_PUBLIC_URL` is set on the server (e.g. `https://multica.example.com`),
-the trigger response includes an absolute `webhook_url` and the UI shows a
-ready-to-copy URL. Without it, the UI composes the URL from the client's
-API origin — which is fine for desktop and same-origin web, but not for
-custom self-hosted reverse proxies. UniAI deliberately does not derive
-the public host from `Host` / `X-Forwarded-Host` headers so a misconfigured
-reverse proxy cannot trick the server into minting webhook URLs pointing at
-an attacker-controlled host.
-
 ## View run history
 
 Every trigger produces a **run record**, visible on the "History" tab of the autopilot detail page:

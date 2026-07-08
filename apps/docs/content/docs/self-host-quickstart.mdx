@@ -58,7 +58,7 @@ Once it's up:
 <Callout type="warning">
 **`docker-compose.selfhost.yml` sets `APP_ENV` to `production` by default** and leaves `MULTICA_DEV_VERIFICATION_CODE` empty, so there is no fixed code on public instances.
 
-Only set `MULTICA_DEV_VERIFICATION_CODE` for local or private test automation. If a fixed code is enabled while `APP_ENV` is non-production, anyone who can request a code can sign in with that fixed value. See [Auth setup → Fixed local testing codes](/auth-setup#fixed-local-testing-codes).
+Only set `MULTICA_DEV_VERIFICATION_CODE` for local or private test automation. If a fixed code is enabled while `APP_ENV` is non-production, anyone who can request a code can sign in with that fixed value. See Auth setup → Fixed local testing codes.
 
 Before any public deployment, make sure `.env` has `APP_ENV=production` and `MULTICA_DEV_VERIFICATION_CODE` is empty.
 </Callout>
@@ -128,7 +128,7 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com
 
 Then restart: `docker compose -f docker-compose.selfhost.yml restart backend`. On restart, the backend prints which provider it picked and the negotiated TLS mode (`EmailService: SMTP relay <host>:<port> (starttls|implicit-tls) from=…` / `Resend API` / `DEV mode`) — credentials are never logged, so this line is safe to share when asking for help.
 
-For more auth configuration (OAuth, signup allowlist) and the full SMTP variable reference, see [Auth setup](/auth-setup) and [Environment variables → Email](/environment-variables#email-configuration).
+For more auth configuration (OAuth, signup allowlist) and the full SMTP variable reference, see Auth setup and Environment variables → Email.
 
 ## 4. First login + create a workspace
 
@@ -164,7 +164,7 @@ multica setup self-host \
 ```
 
 <Callout type="info">
-Prefer environment variables over flags? `setup self-host` reads `MULTICA_SERVER_URL` and `MULTICA_APP_URL` when the matching flag is omitted — a flag still takes precedence over the env var. `MULTICA_SERVER_URL` also accepts the `ws://…/ws` daemon form from [Environment variables](/environment-variables) and normalizes it to the HTTP base.
+Prefer environment variables over flags? `setup self-host` reads `MULTICA_SERVER_URL` and `MULTICA_APP_URL` when the matching flag is omitted — a flag still takes precedence over the env var. `MULTICA_SERVER_URL` also accepts the `ws://…/ws` daemon form from Environment variables and normalizes it to the HTTP base.
 </Callout>
 
 A minimal Caddyfile that fronts both the frontend and the backend (with WebSocket support, which the daemon and the web app both need) on a single hostname:
@@ -189,7 +189,7 @@ multica.example.com {
 }
 ```
 
-After bringing the proxy up, set `FRONTEND_ORIGIN=https://multica.example.com` in the server's `.env` and restart the backend — otherwise the WebSocket origin check will reject the browser ([Troubleshooting → WebSocket can't connect](/troubleshooting#websocket-cant-connect)).
+After bringing the proxy up, set `FRONTEND_ORIGIN=https://multica.example.com` in the server's `.env` and restart the backend — otherwise the WebSocket origin check will reject the browser (Troubleshooting → WebSocket can't connect).
 
 [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) is another solid option — it gives you TLS and a public hostname without exposing any port on the host at all. An Nginx equivalent (separate `app.` / `api.` hostnames, `proxy_set_header Upgrade` for WebSockets) works just as well; the key requirements are TLS termination and forwarding the `Upgrade` header on `/ws`.
 
@@ -267,13 +267,10 @@ The full reference — three login modes, the `backend` ExternalName workaround 
 
 - **Backend won't start**: check container logs with `docker compose -f docker-compose.selfhost.yml logs backend`; usually it's a bad `DATABASE_URL` or `JWT_SECRET` in `.env`
 - **Verification code not received**: no email backend is configured (neither Resend nor SMTP) → look for `[DEV] Verification code` in `docker compose logs backend`
-- **WebSocket won't connect**: for public deployments you must set `FRONTEND_ORIGIN` to your real frontend domain; see [Troubleshooting → WebSocket won't connect](/troubleshooting#websocket-wont-connect)
-- **Usage / Runtime dashboard stays at zero**: `rollup_task_usage_hourly()` isn't being scheduled — see [Step 7](#7-usage-rollup-no-operator-action-required) above and [Troubleshooting → Usage dashboard shows zero](/troubleshooting#usage-dashboard-stays-at-zero)
+- **WebSocket won't connect**: for public deployments you must set `FRONTEND_ORIGIN` to your real frontend domain; see Troubleshooting → WebSocket won't connect
+- **Usage / Runtime dashboard stays at zero**: `rollup_task_usage_hourly()` isn't being scheduled — see [Step 7](#7-usage-rollup-no-operator-action-required) above and Troubleshooting → Usage dashboard shows zero
 - **`migrate up` fails with `refusing to drop legacy daily rollups`**: upgrade-path guard from `v0.3.4 → v0.3.5+`. As of MUL-2957 the migrate command runs the backfill automatically before applying migration 103 — see [Step 7](#7-usage-rollup-no-operator-action-required)
 
 ## Next steps
 
-- [Environment variables](/environment-variables) — full env reference
-- [Auth setup](/auth-setup) — Resend / OAuth / signup allowlist in detail
 - [GitHub integration](/github-integration) — connect a GitHub App so PRs auto-link to issues and merging closes them
-- [Troubleshooting](/troubleshooting) — start here when things go wrong

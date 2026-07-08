@@ -82,6 +82,24 @@ function transform(mdx) {
     },
   );
 
+  // <Step number="01" title="T">body</Step> → bold heading + de-indented body.
+  // De-indent so the body isn't parsed as a markdown code block.
+  src = src.replace(
+    /<Step(\s[^>]*)>([\s\S]*?)<\/Step>/g,
+    (_, attrs, body) => {
+      const get = (name) => attrs.match(new RegExp(`${name}="([^"]*)"`))?.[1];
+      const num = get("number");
+      const t = get("title") ?? "";
+      const head = [num ? `${num} —` : null, t].filter(Boolean).join(" ");
+      const text = body
+        .trim()
+        .split("\n")
+        .map((l) => l.replace(/^\s+/, ""))
+        .join("\n");
+      return `**${head}**\n\n${text}\n`;
+    },
+  );
+
   // Wrapper/decoration tags whose children are already valid markdown
   src = src.replace(
     /<\/?(?:Steps|Step|Cards|Card|NumberedCards|NumberedSteps)[^>]*>/g,

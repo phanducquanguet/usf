@@ -21,6 +21,7 @@ import type {
 import { useQuery } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useAuthStore } from "@multica/core/auth";
+import { useDocsViewerStore } from "@multica/core/docs";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { useWorkspacePaths } from "@multica/core/paths";
 import {
@@ -167,6 +168,7 @@ function PageHeaderBar({
   onCreate: () => void;
 }) {
   const { t } = useT("skills");
+  const openDocs = useDocsViewerStore((s) => s.openDocs);
   return (
     <PageHeader className="justify-between px-5">
       <div className="flex items-center gap-2">
@@ -179,14 +181,13 @@ function PageHeaderBar({
         )}
         <p className="ml-2 hidden text-xs text-muted-foreground md:block">
           {t(($) => $.page.tagline)}{" "}
-          <a
-            href="https://multica.ai/docs/skills"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline decoration-muted-foreground/30 underline-offset-4 transition-colors hover:text-foreground"
+          <button
+            type="button"
+            onClick={() => openDocs("skills")}
+            className="cursor-pointer underline decoration-muted-foreground/30 underline-offset-4 transition-colors hover:text-foreground"
           >
             {t(($) => $.page.learn_more)}
-          </a>
+          </button>
         </p>
       </div>
       {/* Quiet chrome button (outline, icon-only below md) — primary is

@@ -7,6 +7,7 @@ import { cn } from "@multica/ui/lib/utils";
 import { WebProviders } from "@/components/web-providers";
 import type { SupportedLocale } from "@multica/core/i18n";
 import { RESOURCES } from "@multica/views/locales";
+import { DocsViewerHost } from "@multica/views/layout";
 import { getRequestLocale } from "@/lib/request-locale";
 import "./globals.css";
 
@@ -134,6 +135,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <WebProviders locale={locale} resources={resources}>
             {children}
+            <DocsViewerHost />
           </WebProviders>
           <Toaster />
         </ThemeProvider>
