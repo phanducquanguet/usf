@@ -5,7 +5,7 @@ description: Để agent bắt đầu việc theo lịch cron, webhook gửi và
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Tự động hóa (autopilot) để [agent](/agents) **tự bắt đầu việc theo lịch** — cấu hình một biểu thức cron cùng múi giờ, và Multica tự phát một [`task`](/tasks) mà bạn không phải kích hoạt gì. Nó hợp với kiểm tra định kỳ, báo cáo lặp lại và các việc dọn dẹp qua đêm — dạng công việc "lệnh thường trực". So với ba đường kích hoạt còn lại ([giao việc](/assigning-issues), [@nhắc](/mentioning-agents) và [chat](/chat), nơi bạn là người khởi động), khác biệt cốt lõi của tự động hóa là **thời gian điều khiển**.
+Tự động hóa (autopilot) để [agent](/agents) **tự bắt đầu việc theo lịch** — cấu hình một biểu thức cron cùng múi giờ, và UniAI tự phát một [`task`](/tasks) mà bạn không phải kích hoạt gì. Nó hợp với kiểm tra định kỳ, báo cáo lặp lại và các việc dọn dẹp qua đêm — dạng công việc "lệnh thường trực". So với ba đường kích hoạt còn lại ([giao việc](/assigning-issues), [@nhắc](/mentioning-agents) và [chat](/chat), nơi bạn là người khởi động), khác biệt cốt lõi của tự động hóa là **thời gian điều khiển**.
 
 ## Cấu hình autopilot
 
@@ -35,7 +35,7 @@ Vài ví dụ:
 - `*/30 * * * *`, `UTC` — mỗi 30 phút
 - `0 3 * * *`, `UTC` — mỗi ngày 3 giờ sáng UTC
 
-Multica server quét trigger tới hạn mỗi **30 giây** — **thời điểm nổ thật có thể trễ tới 30 giây**, không chính xác tới giây. Nếu server khởi động lại qua một thời điểm nổ, nó đuổi kịp các trigger bị lỡ khi bật (không mất gì, nhưng chúng nổ ngay lập tức).
+UniAI server quét trigger tới hạn mỗi **30 giây** — **thời điểm nổ thật có thể trễ tới 30 giây**, không chính xác tới giây. Nếu server khởi động lại qua một thời điểm nổ, nó đuổi kịp các trigger bị lỡ khi bật (không mất gì, nhưng chúng nổ ngay lập tức).
 
 ## Kích hoạt một lần thủ công
 
@@ -52,13 +52,13 @@ Kích hoạt tay đi đúng luồng thực thi như trigger `schedule` — chỉ
 
 ## Kích hoạt từ webhook
 
-Autopilot cũng nổ theo webhook HTTP gửi vào. Thêm trigger **Webhook** trên trang chi tiết autopilot; Multica sinh một URL duy nhất dạng:
+Autopilot cũng nổ theo webhook HTTP gửi vào. Thêm trigger **Webhook** trên trang chi tiết autopilot; UniAI sinh một URL duy nhất dạng:
 
 ```
 https://<your-multica-host>/api/webhooks/autopilots/awt_…
 ```
 
-POST JSON bất kỳ vào URL đó — Multica ghi một lượt chạy với `source = webhook`, lưu body làm `trigger_payload` của lượt chạy, và phát agent y hệt trigger theo lịch.
+POST JSON bất kỳ vào URL đó — UniAI ghi một lượt chạy với `source = webhook`, lưu body làm `trigger_payload` của lượt chạy, và phát agent y hệt trigger theo lịch.
 
 ```bash
 curl -X POST "$MULTICA_WEBHOOK_URL" \
@@ -76,7 +76,7 @@ Bạn có thể gửi phong bì của riêng mình:
 { "event": "github.pull_request.opened", "eventPayload": { } }
 ```
 
-…hoặc bất kỳ object/array JSON nào. Multica chuẩn hóa thành phong bì nội bộ:
+…hoặc bất kỳ object/array JSON nào. UniAI chuẩn hóa thành phong bì nội bộ:
 
 ```json
 {
@@ -86,7 +86,7 @@ Bạn có thể gửi phong bì của riêng mình:
 }
 ```
 
-Khi bạn không cung cấp trường `event`, Multica suy ra từ các header và trường body phổ biến (`X-GitHub-Event` + `action` trong body, `X-Gitlab-Event`, `X-Event-Type`, `event`/`type`/`action` trong body). Không khớp gì thì event là `webhook.received`.
+Khi bạn không cung cấp trường `event`, UniAI suy ra từ các header và trường body phổ biến (`X-GitHub-Event` + `action` trong body, `X-Gitlab-Event`, `X-Event-Type`, `event`/`type`/`action` trong body). Không khớp gì thì event là `webhook.received`.
 
 Khi cấu hình GitHub hay nguồn tương tự, đặt content type là `application/json` — payload webhook mã hóa form không được chấp nhận.
 
@@ -94,7 +94,7 @@ Khi cấu hình GitHub hay nguồn tương tự, đặt content type là `applic
 
 Trigger webhook mới nổ với mọi POST gửi vào — ổn cho URL một mục đích nhưng ồn ào với các nguồn tỏa nhiều loại sự kiện (GitHub là ví dụ rõ nhất — một webhook repo có thể gửi `push`, `pull_request`, `workflow_run`, `check_suite` và hơn nữa). Mục **Event filters** trên trigger webhook cho bạn giới hạn sự kiện nào thực sự phát lượt chạy; phần còn lại được ghi vào lịch sử giao nhận với `status = ignored` và `reason = event_filtered`, không tạo lượt chạy hay issue nào.
 
-Mỗi dòng là một quy tắc: một **tên sự kiện** cùng danh sách **actions** tùy chọn phân tách bởi dấu phẩy. Multica cho qua nếu **bất kỳ** dòng nào khớp; để trống cả mục để nhận tất cả (hành vi trước khi có bộ lọc).
+Mỗi dòng là một quy tắc: một **tên sự kiện** cùng danh sách **actions** tùy chọn phân tách bởi dấu phẩy. UniAI cho qua nếu **bất kỳ** dòng nào khớp; để trống cả mục để nhận tất cả (hành vi trước khi có bộ lọc).
 
 Ví dụ:
 
@@ -106,7 +106,7 @@ Ví dụ:
 
 #### Tên sự kiện và action lấy từ đâu
 
-Multica suy `event` và `action` từ request gửi vào theo thứ tự này — **khớp đầu tiên thắng**.
+UniAI suy `event` và `action` từ request gửi vào theo thứ tự này — **khớp đầu tiên thắng**.
 
 **1. Phong bì body.** Nếu body là object JSON có trường `event` dạng chuỗi, giá trị đó là tên sự kiện luôn. Object `eventPayload` tùy chọn khi đó cấp ứng viên action từ các trường `action` / `state` / `conclusion` / `status` của nó.
 
@@ -117,7 +117,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 # suy ra: event = trigger, ứng viên action = true
 ```
 
-**2. Header.** Không có phong bì body thì Multica đọc các header provider quen thuộc:
+**2. Header.** Không có phong bì body thì UniAI đọc các header provider quen thuộc:
 
 - `X-GitHub-Event: <event>` — ghép với trường `action` cấp cao nhất của body (nếu có) thành `github.<event>.<action>`.
 - `X-Gitlab-Event: <event>` — thành `gitlab.<event>`.
@@ -140,7 +140,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 # suy ra: event = trigger.true → khớp trigger / true
 ```
 
-**3. Body dự phòng.** Nếu không có phong bì body lẫn header quen thuộc, Multica lùi về các trường chuỗi cấp cao nhất của body theo thứ tự: `event` → `type` → `action`.
+**3. Body dự phòng.** Nếu không có phong bì body lẫn header quen thuộc, UniAI lùi về các trường chuỗi cấp cao nhất của body theo thứ tự: `event` → `type` → `action`.
 
 ```bash
 curl -X POST "$MULTICA_WEBHOOK_URL" \
@@ -151,7 +151,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 
 **4. Mặc định.** Không gì khớp thì event là `webhook.received` và không có ứng viên action.
 
-**Ứng viên action, đầy đủ.** Khi event đã xác định, Multica xét mọi giá trị dưới đây làm ứng viên khớp action:
+**Ứng viên action, đầy đủ.** Khi event đã xác định, UniAI xét mọi giá trị dưới đây làm ứng viên khớp action:
 
 - Hậu tố tên sự kiện, khi event có dạng `provider.event.<action>` (ví dụ `github.workflow_run.completed` → `completed`).
 - Các trường body `action`, `state`, `conclusion` và `status` — **chỉ khi chúng là chuỗi JSON**. Boolean (`{"action": true}`) hay số không tính, nên bộ lọc mong `event=trigger, action=true` không bao giờ khớp body `{"trigger": true}` vì `true` là bool, không phải chuỗi.
@@ -189,7 +189,7 @@ URL được sinh **chính là** thông tin xác thực. Ai có nó đều nổ 
 
 ### Ngữ nghĩa mã trạng thái
 
-Multica trả `200 OK` kèm trường `status` cho các kết quả no-op bình thường để bộ máy retry webhook của provider không dội URL liên tục:
+UniAI trả `200 OK` kèm trường `status` cho các kết quả no-op bình thường để bộ máy retry webhook của provider không dội URL liên tục:
 
 - `{"status":"accepted","run_id":"…","autopilot_id":"…","trigger_id":"…"}` — một lượt chạy đã được phát.
 - `{"status":"skipped","run_id":"…","reason":"agent runtime is offline at dispatch time"}` — với autopilot `run_only`, runtime của người nhận offline và không task nào xếp hàng. Autopilot `create_issue` vẫn tạo issue theo dõi để công việc luôn nhìn thấy và được nhận khi runtime trở lại.
@@ -206,7 +206,7 @@ Phản hồi non-2xx cho lỗi thật:
 
 ### Tự vận hành: cấu hình URL công khai
 
-Khi `MULTICA_PUBLIC_URL` được đặt trên server (ví dụ `https://multica.example.com`), phản hồi trigger có `webhook_url` tuyệt đối và UI hiện URL sẵn sàng chép. Không có nó, UI ghép URL từ origin API của client — ổn với desktop và web cùng origin, nhưng không ổn với reverse proxy tự vận hành tùy chỉnh. Multica chủ ý không suy host công khai từ header `Host` / `X-Forwarded-Host` để reverse proxy cấu hình sai không lừa được server đúc URL webhook trỏ về host của kẻ tấn công.
+Khi `MULTICA_PUBLIC_URL` được đặt trên server (ví dụ `https://multica.example.com`), phản hồi trigger có `webhook_url` tuyệt đối và UI hiện URL sẵn sàng chép. Không có nó, UI ghép URL từ origin API của client — ổn với desktop và web cùng origin, nhưng không ổn với reverse proxy tự vận hành tùy chỉnh. UniAI chủ ý không suy host công khai từ header `Host` / `X-Forwarded-Host` để reverse proxy cấu hình sai không lừa được server đúc URL webhook trỏ về host của kẻ tấn công.
 
 ## Xem lịch sử chạy
 

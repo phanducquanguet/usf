@@ -5,7 +5,7 @@ description: Từ đăng ký tới giao task đầu tiên cho agent trong 5 phú
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Trang này dẫn bạn đi trọn vẹn Multica Cloud — **đăng ký → cài [CLI](/cli) → khởi động [daemon](/daemon-runtimes) → tạo [agent](/agents) → giao [task](/tasks) đầu tiên**. Mất khoảng 5 phút.
+Trang này dẫn bạn đi trọn vẹn UniAI Cloud — **đăng ký → cài [CLI](/cli) → khởi động [daemon](/daemon-runtimes) → tạo [agent](/agents) → giao [task](/tasks) đầu tiên**. Mất khoảng 5 phút.
 
 Một điều kiện tiên quyết: bạn đã cài sẵn ít nhất một [công cụ lập trình AI](/providers) trên máy ([Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder) hoặc [Trae CLI](/providers#trae)). Daemon tự phát hiện chúng khi khởi động và từ chối chạy nếu không tìm thấy công cụ nào.
 
@@ -15,7 +15,7 @@ Một điều kiện tiên quyết: bạn đã cài sẵn ít nhất một [côn
 
 Sau khi đăng ký, bạn được đưa vào một không gian làm việc mặc định (tạo từ tên tài khoản). Bạn có thể đổi tên sau, hoặc tạo không gian làm việc mới.
 
-## 2. Cài Multica CLI
+## 2. Cài UniAI CLI
 
 **macOS / Linux (khuyên dùng Homebrew)**:
 
@@ -51,7 +51,7 @@ multica setup
 
 `multica setup` sẽ:
 
-1. Cấu hình CLI kết nối tới Multica Cloud
+1. Cấu hình CLI kết nối tới UniAI Cloud
 2. Mở trình duyệt để đăng nhập (cùng mã xác thực email / Google OAuth như trên web)
 3. Lưu PAT được tạo vào `~/.multica/config.json`
 4. **Tự động khởi động daemon** — daemon bắt đầu poll task mỗi 3 giây và gửi heartbeat mỗi 15 giây
@@ -102,7 +102,7 @@ multica issue assign MUL-1 --to my-agent-name
 1. Nó nhận task trong vòng 3 giây (trạng thái chuyển từ `queued` sang `dispatched`)
 2. Nó gọi công cụ lập trình AI tương ứng để bắt đầu làm việc (trạng thái thành `running`)
 3. AI làm việc trên máy bạn — có thể đọc thư mục mã nguồn, chạy lệnh, sửa file
-4. Khi xong, nó báo kết quả về Multica (trạng thái thành `completed` hoặc `failed`, tùy việc tự động thử lại có kích hoạt hay không)
+4. Khi xong, nó báo kết quả về UniAI (trạng thái thành `completed` hoặc `failed`, tùy việc tự động thử lại có kích hoạt hay không)
 
 Giao diện web cập nhật **thời gian thực** (qua WebSocket) — không cần tải lại trang.
 

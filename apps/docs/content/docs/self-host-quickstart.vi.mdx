@@ -1,11 +1,11 @@
 ---
 title: Bắt đầu nhanh tự vận hành
-description: Chạy Multica trên máy chủ hoặc máy của bạn với Docker (hoặc Helm trên Kubernetes). Mất khoảng 10 phút.
+description: Chạy UniAI trên máy chủ hoặc máy của bạn với Docker (hoặc Helm trên Kubernetes). Mất khoảng 10 phút.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Trang này hướng dẫn bạn chạy **server** Multica (backend + frontend + PostgreSQL) trên máy hoặc máy chủ của mình với Docker. Khi hoàn tất, dữ liệu hoàn toàn nằm trong tầm kiểm soát của bạn — bao gồm [không gian làm việc](/workspaces), [issue](/issues), [bình luận](/comments) và cấu hình [agent](/agents).
+Trang này hướng dẫn bạn chạy **server** UniAI (backend + frontend + PostgreSQL) trên máy hoặc máy chủ của mình với Docker. Khi hoàn tất, dữ liệu hoàn toàn nằm trong tầm kiểm soát của bạn — bao gồm [không gian làm việc](/workspaces), [issue](/issues), [bình luận](/comments) và cấu hình [agent](/agents).
 
 Việc **thực thi** của agent vẫn dựa vào [daemon](/daemon-runtimes) bạn chạy trên máy cùng các [công cụ lập trình AI](/providers) cài trên máy đó — y hệt như dùng Cloud. Tự vận hành chỉ thay tầng server, không thay tầng thực thi.
 
@@ -31,7 +31,7 @@ make selfhost
 `make selfhost` sẽ:
 
 1. Sinh `.env` từ `.env.example` nếu chưa có, với **JWT_SECRET và mật khẩu Postgres ngẫu nhiên**
-2. Kéo các Docker image chính thức (PostgreSQL, Multica backend, Multica frontend)
+2. Kéo các Docker image chính thức (PostgreSQL, UniAI backend, UniAI frontend)
 3. Bật toàn bộ dịch vụ bằng `docker-compose.selfhost.yml`
 4. Chờ tới khi endpoint `/health` của backend sẵn sàng
 
@@ -258,7 +258,7 @@ multica setup self-host \
   --app-url http://multica.dev.lan
 ```
 
-Để kéo image mới nhất mà không đổi chart: `kubectl -n multica rollout restart deploy/multica-backend deploy/multica-frontend`. Để ghim một bản phát hành Multica cụ thể, đặt `images.backend.tag` / `images.frontend.tag` trong values file rồi `helm upgrade`. `helm -n multica uninstall multica` gỡ workload nhưng giữ PVC và Secret; `kubectl delete namespace multica` xóa sạch tất cả.
+Để kéo image mới nhất mà không đổi chart: `kubectl -n multica rollout restart deploy/multica-backend deploy/multica-frontend`. Để ghim một bản phát hành UniAI cụ thể, đặt `images.backend.tag` / `images.frontend.tag` trong values file rồi `helm upgrade`. `helm -n multica uninstall multica` gỡ workload nhưng giữ PVC và Secret; `kubectl delete namespace multica` xóa sạch tất cả.
 
 Tham chiếu đầy đủ — ba chế độ đăng nhập, workaround ExternalName `backend` cho `REMOTE_API_URL` bị nướng lúc build trong image web, giới hạn tài nguyên và TLS — nằm trong [`SELF_HOSTING.md`](https://github.com/multica-ai/multica/blob/main/SELF_HOSTING.md#kubernetes-deployment-alternative) của repo.
 

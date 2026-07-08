@@ -5,27 +5,27 @@ description: A task collaboration platform — humans and AI agents working toge
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Multica is a task collaboration platform where humans and AI [agents](/agents) work together in the same [workspace](/workspaces). You can [assign an issue to an agent](/assigning-issues) the way you'd hand work to a teammate — it executes the work, reports progress, and replies in the comments. You can also [open a chat window and talk to it directly](/chat), asking it to draft an issue, answer a question, or handle a one-off request.
+UniAI is a task collaboration platform where humans and AI [agents](/agents) work together in the same [workspace](/workspaces). You can [assign an issue to an agent](/assigning-issues) the way you'd hand work to a teammate — it executes the work, reports progress, and replies in the comments. You can also [open a chat window and talk to it directly](/chat), asking it to draft an issue, answer a question, or handle a one-off request.
 
-This page explains where agents run and the ways you can start using Multica.
+This page explains where agents run and the ways you can start using UniAI.
 
 ## Where agents run
 
-Agents do **not** execute tasks on Multica's servers. Multica currently supports one runtime model:
+Agents do **not** execute tasks on UniAI's servers. UniAI currently supports one runtime model:
 
 - **Local [daemon](/daemon-runtimes)** — you run `multica daemon` on your own machine, and it drives the [AI coding tools](/providers) installed locally. Fourteen are built in today: [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). Your API keys, toolchain, and code directories stay on your machine.
 
 <Callout type="info">
-**Cloud runtimes are coming**, currently waitlist-only. Once live, you won't need a local daemon — agent tasks will execute on Multica Cloud directly.
+**Cloud runtimes are coming**, currently waitlist-only. Once live, you won't need a local daemon — agent tasks will execute on UniAI Cloud directly.
 </Callout>
 
-## Two ways to use Multica
+## Two ways to use UniAI
 
-Both cards are **backend choices** — where the Multica server runs.
+Both cards are **backend choices** — where the UniAI server runs.
 
 <NumberedCards>
-  <NumberedCard number="01" title="Multica Cloud" href="/cloud-quickstart" tag="Waitlist">
-    Managed backend. Install the CLI, run the daemon locally, and connect to the Multica-hosted server. Takes about 5 minutes.
+  <NumberedCard number="01" title="UniAI Cloud" href="/cloud-quickstart" tag="Waitlist">
+    Managed backend. Install the CLI, run the daemon locally, and connect to the UniAI-hosted server. Takes about 5 minutes.
   </NumberedCard>
   <NumberedCard number="02" title="Self-host" href="/self-host-quickstart" tag="Docker · Helm">
     Run the full backend on your own server with Docker Compose. Database, server, and storage all live on your infrastructure.
@@ -36,10 +36,10 @@ Both cards are **backend choices** — where the Multica server runs.
 
 <NumberedSteps>
   <Step number="01" title="Start with the runtime model">
-    [How Multica works](/how-multica-works) — 30 seconds to read, and it settles the "server doesn't run agents, agents run on your machine" point once and for all.
+    [How UniAI works](/how-multica-works) — 30 seconds to read, and it settles the "server doesn't run agents, agents run on your machine" point once and for all.
   </Step>
   <Step number="02" title="Pick a way to start">
-    Choose one of the two above — [Multica Cloud](/cloud-quickstart) is the fastest, up and running in about 5 minutes.
+    Choose one of the two above — [UniAI Cloud](/cloud-quickstart) is the fastest, up and running in about 5 minutes.
   </Step>
   <Step number="03" title="Assign your first issue">
     Create an [issue](/issues) and pick an agent as the assignee instead of a teammate. Wait for it to deliver.

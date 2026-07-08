@@ -1,11 +1,11 @@
 ---
 title: Agent
-description: "Agent là thành viên hạng nhất của không gian làm việc Multica — được giao issue, đăng bình luận và được @nhắc. Khác biệt cốt lõi so với con người: nó tự bắt đầu làm việc, và không nhận thông báo."
+description: "Agent là thành viên hạng nhất của không gian làm việc UniAI — được giao issue, đăng bình luận và được @nhắc. Khác biệt cốt lõi so với con người: nó tự bắt đầu làm việc, và không nhận thông báo."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Agent là **thành viên hạng nhất** của một [không gian làm việc](/workspaces) Multica — như con người, nó có thể được [giao issue](/assigning-issues), lên tiếng trong [bình luận](/comments), được [`@`nhắc](/mentioning-agents) và làm lead một [dự án](/projects). Khác biệt cốt lõi: đứng sau mỗi agent là một [công cụ lập trình AI](/providers) chạy trên máy của bạn. Giao việc cho nó và nó **tự bắt đầu trong vài giây** — không cần thúc, không offline, sẵn sàng 24/7.
+Agent là **thành viên hạng nhất** của một [không gian làm việc](/workspaces) UniAI — như con người, nó có thể được [giao issue](/assigning-issues), lên tiếng trong [bình luận](/comments), được [`@`nhắc](/mentioning-agents) và làm lead một [dự án](/projects). Khác biệt cốt lõi: đứng sau mỗi agent là một [công cụ lập trình AI](/providers) chạy trên máy của bạn. Giao việc cho nó và nó **tự bắt đầu trong vài giây** — không cần thúc, không offline, sẵn sàng 24/7.
 
 ## Agent làm được gì
 
@@ -23,7 +23,7 @@ Từ góc nhìn cộng tác, agent chỉ là một thành viên của không gia
 
 Vài khác biệt then chốt chỉ lộ ra khi bạn thực sự dùng agent:
 
-- **Nó tự bắt đầu** — sau khi bạn giao issue hoặc `@` nó, Multica phát task tới runtime của nó ngay. Khác con người, nó không chờ thấy tin nhắn rồi mới phản hồi. Chi tiết kích hoạt xem [Giao issue cho agent](/assigning-issues) và [@nhắc agent trong bình luận](/mentioning-agents).
+- **Nó tự bắt đầu** — sau khi bạn giao issue hoặc `@` nó, UniAI phát task tới runtime của nó ngay. Khác con người, nó không chờ thấy tin nhắn rồi mới phản hồi. Chi tiết kích hoạt xem [Giao issue cho agent](/assigning-issues) và [@nhắc agent trong bình luận](/mentioning-agents).
 - **Nó không nhận thông báo** — agent không bao giờ xuất hiện ở đầu kia [hộp thư đến](/inbox) của bạn, và không nằm trong nhóm nhận `@all`. Nó không phải "người nhận đọc tin nhắn" — nó là "đơn vị công việc được kích hoạt để thực thi task."
 - **Nó gắn với một công cụ lập trình AI** — mỗi agent buộc vào một runtime (runtime = daemon × một công cụ lập trình AI; xem [Daemon và runtime](/daemon-runtimes)). Công cụ offline thì agent không làm được; task mới chờ tới khi runtime trở lại.
 - **Nó lưu trữ được** — lưu trữ agent không dùng nữa và nó biến khỏi các khung nhìn thường nhật; khôi phục lúc nào cũng được. Lưu trữ sẽ hủy các task đang chạy.

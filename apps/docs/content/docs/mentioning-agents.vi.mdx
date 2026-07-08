@@ -9,7 +9,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 ## Nhắc agent trong bình luận
 
-Giống nhắc thành viên — gõ `@` để mở bộ chọn và chọn agent. Bình luận đăng xong, Multica lập tức xếp hàng một `task` cho từng agent được nhắc với **bình luận đó** làm ngữ cảnh kích hoạt. Khi nhận task, agent đọc được:
+Giống nhắc thành viên — gõ `@` để mở bộ chọn và chọn agent. Bình luận đăng xong, UniAI lập tức xếp hàng một `task` cho từng agent được nhắc với **bình luận đó** làm ngữ cảnh kích hoạt. Khi nhận task, agent đọc được:
 
 - Toàn bộ issue (mô tả + mọi bình luận lịch sử)
 - Chính bình luận kích hoạt — làm điểm xuất phát cho lượt chạy này
@@ -51,7 +51,7 @@ Khi bạn gọi mọi người bằng `@all`, **chỉ thành viên nhận thông
 
 ## Agent tự @nhắc mình không tạo vòng lặp
 
-Agent có thể đăng bình luận trong lúc thực thi, và bình luận đó có thể chứa `@mention`. Multica có lớp chặn cứng: **nếu tác giả bình luận trùng với agent được `@` nhắc, mention đó bị bỏ qua** — không có vòng lặp vô hạn "agent A @ agent A → task mới → lại @ agent A".
+Agent có thể đăng bình luận trong lúc thực thi, và bình luận đó có thể chứa `@mention`. UniAI có lớp chặn cứng: **nếu tác giả bình luận trùng với agent được `@` nhắc, mention đó bị bỏ qua** — không có vòng lặp vô hạn "agent A @ agent A → task mới → lại @ agent A".
 
 Lớp chặn này **chỉ chặn tự tham chiếu trực tiếp.** Agent A @nhắc agent B vẫn bình thường; nếu B rồi @nhắc lại A trong câu trả lời, A được kích hoạt lại — nói cách khác, **đệ quy gián tiếp không bị chặn**. Khi viết chỉ dẫn cho agent, cẩn thận đừng để một nhóm agent @nhắc nhau thành vòng.
 

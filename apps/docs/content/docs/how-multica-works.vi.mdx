@@ -1,27 +1,27 @@
 ---
-title: Cách Multica hoạt động
+title: Cách UniAI hoạt động
 description: Ba thành phần cốt lõi (server / daemon / công cụ lập trình AI) phối hợp ra sao để chạy công việc của một agent.
 ---
 
 import { ArchitectureDiagram } from "@/components/architecture-diagram";
 
-Multica là một nền tảng **phân tán**. Giao diện web bạn nhìn thấy chỉ là mặt tiền — công việc thật sự do ba thành phần đảm nhận: **Multica server** nắm dữ liệu ([không gian làm việc](/workspaces), [issue](/issues), [thành viên](/members-roles), hàng đợi [task](/tasks), v.v.); **[daemon](/daemon-runtimes)** chạy trên máy của bạn, nhận task và điều khiển công cụ lập trình AI; còn **[công cụ lập trình AI](/providers)** (Claude Code, Codex và các CLI cục bộ khác) là thành phần thực sự viết mã. Đây là khác biệt lớn nhất giữa Multica với Linear hay Jira — **[agent](/agents) không chạy trên máy chủ của chúng tôi, chúng chạy trên máy của bạn**.
+UniAI là một nền tảng **phân tán**. Giao diện web bạn nhìn thấy chỉ là mặt tiền — công việc thật sự do ba thành phần đảm nhận: **UniAI server** nắm dữ liệu ([không gian làm việc](/workspaces), [issue](/issues), [thành viên](/members-roles), hàng đợi [task](/tasks), v.v.); **[daemon](/daemon-runtimes)** chạy trên máy của bạn, nhận task và điều khiển công cụ lập trình AI; còn **[công cụ lập trình AI](/providers)** (Claude Code, Codex và các CLI cục bộ khác) là thành phần thực sự viết mã. Đây là khác biệt lớn nhất giữa UniAI với Linear hay Jira — **[agent](/agents) không chạy trên máy chủ của chúng tôi, chúng chạy trên máy của bạn**.
 
 ## Ba thành phần cốt lõi
 
 <ArchitectureDiagram />
 
-- **Multica server** — không gian làm việc, danh sách issue và các luồng bình luận bạn thấy đều nằm trong cơ sở dữ liệu của nó. Nó cũng là hub WebSocket đẩy cập nhật thời gian thực giữa bạn và đồng đội. Nó **không** thực thi bất kỳ task nào của agent.
-- **Daemon** — một phần của Multica CLI, chạy trên máy của bạn. Khi khởi động, nó phát hiện các công cụ lập trình AI đã cài trên máy, đăng ký với server, rồi bắt đầu poll task mỗi 3 giây và gửi heartbeat mỗi 15 giây.
+- **UniAI server** — không gian làm việc, danh sách issue và các luồng bình luận bạn thấy đều nằm trong cơ sở dữ liệu của nó. Nó cũng là hub WebSocket đẩy cập nhật thời gian thực giữa bạn và đồng đội. Nó **không** thực thi bất kỳ task nào của agent.
+- **Daemon** — một phần của UniAI CLI, chạy trên máy của bạn. Khi khởi động, nó phát hiện các công cụ lập trình AI đã cài trên máy, đăng ký với server, rồi bắt đầu poll task mỗi 3 giây và gửi heartbeat mỗi 15 giây.
 - **Công cụ lập trình AI** — một trong 14 công cụ (hoặc nhiều công cụ chạy song song): [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). Sau khi daemon nhận task, nó dùng các công cụ này để thực sự làm việc.
 
-Vì bộ công cụ nằm hoàn toàn trên máy bạn, **API key, thư mục mã nguồn và các công cụ đã cấp quyền** chỉ được dùng trên máy của bạn — Multica server không bao giờ nhìn thấy chúng. Điều này đúng cho cả tự vận hành lẫn dùng Cloud.
+Vì bộ công cụ nằm hoàn toàn trên máy bạn, **API key, thư mục mã nguồn và các công cụ đã cấp quyền** chỉ được dùng trên máy của bạn — UniAI server không bao giờ nhìn thấy chúng. Điều này đúng cho cả tự vận hành lẫn dùng Cloud.
 
 ## Vòng đời của một task
 
 Lấy kịch bản phổ biến nhất — bạn giao một issue cho agent:
 
-1. Bạn bấm giao việc trên giao diện web. Trình duyệt gửi một request HTTP tới Multica server.
+1. Bạn bấm giao việc trên giao diện web. Trình duyệt gửi một request HTTP tới UniAI server.
 2. Server đặt người phụ trách issue đó là agent, đồng thời tạo một task thực thi trong hàng đợi với trạng thái `queued`.
 3. Daemon trên máy bạn nhận task ở lần poll kế tiếp (trong vòng 3 giây). Trạng thái task chuyển thành `dispatched`.
 4. Daemon tạo một thư mục làm việc cách ly trên máy và gọi công cụ lập trình AI tương ứng. Trạng thái task chuyển thành `running`.
@@ -32,7 +32,7 @@ Chi tiết cơ chế xem tại [Daemon và runtime](/daemon-runtimes) và [Task]
 
 ## Bốn cách để agent bắt đầu làm việc
 
-Không chỉ có "giao issue" — Multica có 4 cách kích hoạt, mỗi cách ứng với một kiểu cộng tác:
+Không chỉ có "giao issue" — UniAI có 4 cách kích hoạt, mỗi cách ứng với một kiểu cộng tác:
 
 | Cách | Tình huống điển hình | Tài liệu |
 |---|---|---|
@@ -43,12 +43,12 @@ Không chỉ có "giao issue" — Multica có 4 cách kích hoạt, mỗi cách 
 
 ## Runtime: chạy ở đâu, bao nhiêu công cụ
 
-Một **runtime** là cặp "daemon × một công cụ lập trình AI". Nếu daemon trên một máy có cả Claude Code lẫn Codex và tham gia hai không gian làm việc, Multica sẽ đăng ký 4 runtime độc lập (2 không gian làm việc × 2 công cụ).
+Một **runtime** là cặp "daemon × một công cụ lập trình AI". Nếu daemon trên một máy có cả Claude Code lẫn Codex và tham gia hai không gian làm việc, UniAI sẽ đăng ký 4 runtime độc lập (2 không gian làm việc × 2 công cụ).
 
 Hiện tại chỉ hỗ trợ mô hình **daemon cục bộ**. Cloud runtime (không cần máy của bạn phải bật) **sắp ra mắt**, hiện đang trong giai đoạn danh sách chờ.
 
 ## Bước tiếp theo
 
-- [Bắt đầu nhanh với Cloud](/cloud-quickstart) — kết nối Multica Cloud trong 5 phút
+- [Bắt đầu nhanh với Cloud](/cloud-quickstart) — kết nối UniAI Cloud trong 5 phút
 - [Bắt đầu nhanh tự vận hành](/self-host-quickstart) — chạy backend của riêng bạn
 - [Daemon và runtime](/daemon-runtimes) — đi sâu vào thành phần nền tảng của kiến trúc

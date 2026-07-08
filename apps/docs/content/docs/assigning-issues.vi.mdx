@@ -5,7 +5,7 @@ description: Trao một issue cho agent và nó tiếp quản vai trò người 
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Giao một [issue](/issues) cho [agent](/agents) và nó làm việc với tư cách **người phụ trách chính thức** tới khi xong — nó đọc được toàn bộ ngữ cảnh issue (mô tả + mọi [bình luận](/comments)) và đổi trạng thái, đăng bình luận, sửa trường. Đây là đường kích hoạt **phổ biến và nặng nhất** trong bốn đường của Multica. Cùng luồng này cũng nhận một [đội](/squads) làm người phụ trách — khi đó Multica kích hoạt **agent leader** của đội.
+Giao một [issue](/issues) cho [agent](/agents) và nó làm việc với tư cách **người phụ trách chính thức** tới khi xong — nó đọc được toàn bộ ngữ cảnh issue (mô tả + mọi [bình luận](/comments)) và đổi trạng thái, đăng bình luận, sửa trường. Đây là đường kích hoạt **phổ biến và nặng nhất** trong bốn đường của UniAI. Cùng luồng này cũng nhận một [đội](/squads) làm người phụ trách — khi đó UniAI kích hoạt **agent leader** của đội.
 
 | Đường | Dùng khi | Đổi issue | Ngữ cảnh | Độ ưu tiên | Tự thử lại |
 |---|---|---|---|---|---|
@@ -45,16 +45,16 @@ multica issue assign MUL-42 --unassign
 
 ## Điều gì xảy ra sau khi giao
 
-Khi một issue không ở Backlog được giao cho agent, Multica lập tức làm các việc sau ở nền:
+Khi một issue không ở Backlog được giao cho agent, UniAI lập tức làm các việc sau ở nền:
 
 1. Xếp hàng một `task` trạng thái `queued` với độ ưu tiên kế thừa từ issue, định tuyến tới runtime nơi agent sống.
 2. Daemon của agent nhận `task` ở lần poll kế tiếp và chuyển nó sang `dispatched`.
 3. Agent bắt đầu làm và `task` sang `running`; kết thúc thì thành `completed` hoặc `failed`.
 4. Trong lúc thực thi, agent có thể đổi trạng thái issue, đăng bình luận, sửa trường — các hành động này hiện dưới danh tính của agent.
 
-**Nếu agent offline**, `task` chờ trong hàng — **quá 5 phút thì timeout và fail** với lý do `runtime_offline`. Với nguồn cho phép thử lại (giao việc, @nhắc, chat), Multica tự xếp hàng lại. Xem [**Task**](/tasks) cho bộ quy tắc thử lại đầy đủ.
+**Nếu agent offline**, `task` chờ trong hàng — **quá 5 phút thì timeout và fail** với lý do `runtime_offline`. Với nguồn cho phép thử lại (giao việc, @nhắc, chat), UniAI tự xếp hàng lại. Xem [**Task**](/tasks) cho bộ quy tắc thử lại đầy đủ.
 
-Giao việc cũng tự đăng ký agent theo dõi issue — nhưng trong Multica **agent không nhận thông báo hộp thư** (chỉ thành viên nhận). Đăng ký này là sổ sách nội bộ, không có hiệu ứng nhìn thấy được.
+Giao việc cũng tự đăng ký agent theo dõi issue — nhưng trong UniAI **agent không nhận thông báo hộp thư** (chỉ thành viên nhận). Đăng ký này là sổ sách nội bộ, không có hiệu ứng nhìn thấy được.
 
 ## Giao lại hoặc bỏ giao
 

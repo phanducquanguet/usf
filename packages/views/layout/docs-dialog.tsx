@@ -97,7 +97,7 @@ export default function DocsDialog({ open, onOpenChange }: DocsDialogProps) {
       <DialogContent className="flex h-[min(90vh,calc(100vh-2rem))] max-w-5xl sm:max-w-5xl flex-col overflow-hidden p-0 gap-0">
         {/* Brand header */}
         <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3 pr-12">
-          <UnicomLogo className="h-6" />
+          <UnicomLogo className="h-6" hideTagline />
           <DialogTitle className="text-sm font-semibold">
             {t(($) => $.help.docs)}
           </DialogTitle>

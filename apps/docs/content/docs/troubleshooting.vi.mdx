@@ -1,6 +1,6 @@
 ---
 title: Khắc phục sự cố
-description: Các vấn đề thường gặp khi tự vận hành Multica — triệu chứng, nguyên nhân, cách chẩn đoán, cách sửa.
+description: Các vấn đề thường gặp khi tự vận hành UniAI — triệu chứng, nguyên nhân, cách chẩn đoán, cách sửa.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -128,11 +128,11 @@ Nếu không thấy dòng bạn mong đợi, biến môi trường chưa vào ti
 
 | Lỗi trong log | Nghĩa là gì | Cách sửa |
 |---|---|---|
-| `smtp dial <host>:<port>: dial tcp …: connect: connection refused` / `i/o timeout` | Container backend không tới được relay — sai host, sai cổng, firewall, hoặc relay không lắng nghe | Kiểm chứng `SMTP_HOST` / `SMTP_PORT` phân giải từ trong container (`docker compose -f docker-compose.selfhost.yml exec backend nslookup <host>` và `nc -vz <host> <port>`); mở firewall từ máy chạy Multica tới relay |
+| `smtp dial <host>:<port>: dial tcp …: connect: connection refused` / `i/o timeout` | Container backend không tới được relay — sai host, sai cổng, firewall, hoặc relay không lắng nghe | Kiểm chứng `SMTP_HOST` / `SMTP_PORT` phân giải từ trong container (`docker compose -f docker-compose.selfhost.yml exec backend nslookup <host>` và `nc -vz <host> <port>`); mở firewall từ máy chạy UniAI tới relay |
 | `smtp starttls: x509: certificate signed by unknown authority` (hoặc `certificate is not valid for any names`) | Relay dùng CA riêng / chứng chỉ tự ký và kho tin cậy của container từ chối | Hoặc cài CA vào container, hoặc đặt `SMTP_TLS_INSECURE=true` chỉ sau khi xác nhận relay nằm trên phân đoạn tin cậy |
 | `smtp auth: 535 5.7.8 Authentication credentials invalid` (hoặc `534`/`530`) | `SMTP_USERNAME` / `SMTP_PASSWORD` sai, hoặc relay đòi cơ chế xác thực khác `PLAIN` | Xác nhận lại thông tin tài khoản dịch vụ với quản trị mail; với relay nội bộ ẩn danh Exchange, để trống cả hai (`SMTP_USERNAME=`, `SMTP_PASSWORD=`) |
 | `smtp MAIL FROM: 550 5.7.1 Client does not have permissions to send as this sender` | Relay không nhận `RESEND_FROM_EMAIL` làm người gửi envelope — điển hình Exchange "anonymous users not allowed" hoặc vấn đề khớp DMARC | Đặt `RESEND_FROM_EMAIL` về tên miền relay chấp nhận; trên Exchange, cấp `ms-Exch-SMTP-Accept-Any-Sender` cho IP nguồn trên receive connector |
-| `smtp RCPT TO <addr>: 550 5.7.1 Unable to relay` | Receive connector của relay không cho subnet của bạn relay tới người nhận ngoài (phổ biến nhất với relay nội bộ ẩn danh gửi ra tên miền ngoài) | Hoặc giới hạn lời mời cho người nhận nội bộ, hoặc thêm subnet của máy Multica vào danh sách quyền "Anonymous Users → Relay" của Exchange |
+| `smtp RCPT TO <addr>: 550 5.7.1 Unable to relay` | Receive connector của relay không cho subnet của bạn relay tới người nhận ngoài (phổ biến nhất với relay nội bộ ẩn danh gửi ra tên miền ngoài) | Hoặc giới hạn lời mời cho người nhận nội bộ, hoặc thêm subnet của máy UniAI vào danh sách quyền "Anonymous Users → Relay" của Exchange |
 | `smtp DATA` / `smtp write body` / `smtp end data` | Phiên được nhận nhưng relay bỏ phần thân — thường do giới hạn kích thước, lọc nội dung, hoặc reset kết nối giữa chừng | Xem log của relay với cùng `Message-ID` (log dạng `<unixnano>@<host>`); nâng giới hạn kích thước nếu cần |
 
 Lỗi `MAIL FROM`, `RCPT TO` và `DATA` luôn được log kèm mã phản hồi của relay để bạn đối chiếu với log Exchange / Postfix phía bên kia. Mã xác thực và token mời **không bao giờ** nằm trong lỗi được bọc.
@@ -148,7 +148,7 @@ Lỗi `MAIL FROM`, `RCPT TO` và `DATA` luôn được log kèm mã phản hồi
 - Sai host / cổng → chỉnh `SMTP_HOST` / `SMTP_PORT` và khởi động lại backend; các chế độ relay được hỗ trợ xem [Thiết lập xác thực → Phương án B: SMTP relay](/auth-setup)
 - Lệch chứng chỉ → cài CA của relay vào container, hoặc tạm `SMTP_TLS_INSECURE=true` trên phân đoạn tin cậy
 - Lỗi xác thực → kiểm tra lại thông tin đăng nhập; với relay nội bộ ẩn danh, để trống `SMTP_USERNAME` và `SMTP_PASSWORD`
-- `Unable to relay` → hoặc giới hạn người nhận nội bộ, hoặc cấp quyền relay cho IP của máy Multica trên receive connector Exchange
+- `Unable to relay` → hoặc giới hạn người nhận nội bộ, hoặc cấp quyền relay cho IP của máy UniAI trên receive connector Exchange
 
 ## Mã kiểm thử cục bộ cố định không hoạt động
 
@@ -181,7 +181,7 @@ Kiểm tra hộp thư (cả spam) tìm mã xác thực thật.
 **Nguyên nhân khả dĩ**:
 
 1. **`rollup_task_usage_hourly()` không bao giờ được nhận** — bảng điều khiển Usage / Runtime đọc từ bảng dẫn xuất `task_usage_hourly`, do hàm đó ghi. Từ MUL-2957, backend chạy rollup trong tiến trình qua bộ lập lịch dựa trên DB (`sys_cron_executions`); build cũ, thiếu migration `113`, hoặc backend sập kéo dài không còn bản sao nào chạy có thể khiến bảng không có dòng SUCCESS gần đây.
-2. **`pg_cron` cấu hình cho tương thích nhưng trỏ sai cơ sở dữ liệu** — `pg_cron.database_name` mặc định là `postgres`; nếu database Multica của bạn tên khác, job theo lịch không bao giờ thấy `rollup_task_usage_hourly()`. Bộ lập lịch trong tiến trình không phụ thuộc cái này, nhưng nếu bạn gỡ nó và dựa vào `pg_cron`, tên DB phải khớp.
+2. **`pg_cron` cấu hình cho tương thích nhưng trỏ sai cơ sở dữ liệu** — `pg_cron.database_name` mặc định là `postgres`; nếu database UniAI của bạn tên khác, job theo lịch không bao giờ thấy `rollup_task_usage_hourly()`. Bộ lập lịch trong tiến trình không phụ thuộc cái này, nhưng nếu bạn gỡ nó và dựa vào `pg_cron`, tên DB phải khớp.
 3. **Handler được nhận nhưng lỗi lặng lẽ** — ví dụ hàm SQL thiếu do migration áp một phần, hoặc role DB / search_path cấu hình sai. Xem các dòng audit FAILED trong `sys_cron_executions`.
 
 **Cách chẩn đoán**:

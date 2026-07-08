@@ -21,7 +21,7 @@ Biểu mẫu chỉ có hai trường bắt buộc: **tên** (duy nhất trong kh
 
 ## Chọn công cụ lập trình AI
 
-Mỗi runtime được chống lưng bởi một công cụ lập trình AI cụ thể. Multica hỗ trợ 14 công cụ. Các lựa chọn phổ biến nhất:
+Mỗi runtime được chống lưng bởi một công cụ lập trình AI cụ thể. UniAI hỗ trợ 14 công cụ. Các lựa chọn phổ biến nhất:
 
 | Công cụ | Hợp với |
 |---|---|
@@ -64,7 +64,7 @@ ANTHROPIC_BASE_URL = https://my-proxy.example.com
 Các biến trọng yếu của hệ thống không ghi đè được: `PATH`, `HOME`, `USER`, `SHELL`, `TERM`, `CODEX_HOME` và mọi khóa bắt đầu bằng `MULTICA_*` bị daemon lặng lẽ bỏ qua (có log cảnh báo — không báo lỗi).
 
 <Callout type="warning">
-**Giá trị trong `custom_env` được lưu dạng plaintext trong cơ sở dữ liệu server của Multica.** Phản hồi list/get agent không còn mang giá trị env — chỉ một con số đếm. Đọc giá trị đòi hỏi owner hoặc admin của không gian làm việc gọi endpoint chuyên biệt có kiểm toán `GET /api/agents/{id}/env` (CLI: `multica agent env get <id>`). Agent đang chạy task KHÔNG dùng được thông tin đăng nhập owner của máy chủ nó để lộ env của agent khác — endpoint từ chối phiên agent-actor.
+**Giá trị trong `custom_env` được lưu dạng plaintext trong cơ sở dữ liệu server của UniAI.** Phản hồi list/get agent không còn mang giá trị env — chỉ một con số đếm. Đọc giá trị đòi hỏi owner hoặc admin của không gian làm việc gọi endpoint chuyên biệt có kiểm toán `GET /api/agents/{id}/env` (CLI: `multica agent env get <id>`). Agent đang chạy task KHÔNG dùng được thông tin đăng nhập owner của máy chủ nó để lộ env của agent khác — endpoint từ chối phiên agent-actor.
 
 **Đừng đặt bí mật giá trị cao vào `custom_env`** (mật khẩu cơ sở dữ liệu production, token quyền root, v.v.). Dùng **thông tin đăng nhập chuyên biệt, phạm vi hẹp** cho agent (API key chỉ đọc, PAT một phạm vi), và xoay vòng đều đặn. Bản sao lưu và kiểm toán DB vẫn là bề mặt lộ đáng kể.
 </Callout>

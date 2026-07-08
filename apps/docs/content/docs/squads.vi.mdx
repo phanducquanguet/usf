@@ -58,10 +58,10 @@ multica squad member add <squad-id> --member-id <agent-or-user-uuid> --type agen
 
 ## Issue giao cho đội chạy thế nào
 
-Khi một issue không ở Backlog được giao cho đội, Multica lập tức xếp hàng một `task` cho **agent leader** (không phải cho mọi thành viên). Luồng tiếp theo:
+Khi một issue không ở Backlog được giao cho đội, UniAI lập tức xếp hàng một `task` cho **agent leader** (không phải cho mọi thành viên). Luồng tiếp theo:
 
 1. **Leader nhận task.** Runtime của agent nhận task ở lần poll kế tiếp, như mọi lần giao cho agent.
-2. **Leader được brief.** Lúc nhận, Multica nối ba khối vào system prompt của leader — xem [Leader thấy gì mỗi lượt](#what-the-leader-sees-on-every-turn) bên dưới.
+2. **Leader được brief.** Lúc nhận, UniAI nối ba khối vào system prompt của leader — xem [Leader thấy gì mỗi lượt](#what-the-leader-sees-on-every-turn) bên dưới.
 3. **Leader đăng một bình luận ủy thác.** Bình luận `@`nhắc thành viên được chọn bằng đúng markdown mention từ danh sách đội — mention đó kích hoạt một `task` mới cho từng agent được nhắc.
 4. **Leader ghi đánh giá** qua `multica squad activity <issue-id> action --reason "..."`. Lệnh này ghi một mục vào dòng thời gian hoạt động của issue để con người thấy leader đã thực sự đánh giá lượt kích hoạt.
 5. **Leader dừng.** Leader không tự triển khai. Khi thành viên được ủy thác báo lại, leader được kích hoạt lại để đọc cập nhật và hoặc ủy thác bước kế, hoặc leo thang, hoặc im lặng.

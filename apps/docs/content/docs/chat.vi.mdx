@@ -42,7 +42,7 @@ Agent chạy ở chế độ **sandbox hoàn toàn** trong cuộc trò chuyện.
 
 Chat giữ ngữ cảnh nhiều lượt qua **khôi phục phiên của provider** — agent lập một phiên provider ở câu trả lời đầu (ví dụ một phiên Claude), và ID phiên được lưu. Ở tin nhắn kế, lượt phát task truyền ID đó lại để agent **tiếp nối từ chỗ dừng** mà không phải đọc lại lịch sử mỗi lần.
 
-Nếu **một lượt lỗi**, Multica tra ngược task trước đó từng lập ID phiên (dù task đó thành công hay thất bại) và thử nối lại — một lần lỗi giữa chừng không làm mất trí nhớ của cả cuộc trò chuyện.
+Nếu **một lượt lỗi**, UniAI tra ngược task trước đó từng lập ID phiên (dù task đó thành công hay thất bại) và thử nối lại — một lần lỗi giữa chừng không làm mất trí nhớ của cả cuộc trò chuyện.
 
 Lưu ý: không phải provider nào cũng thực sự có khôi phục phiên — xem [**Ma trận provider**](/providers) cho hiện trạng hỗ trợ.
 

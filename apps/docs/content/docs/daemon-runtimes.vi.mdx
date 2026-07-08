@@ -1,18 +1,18 @@
 ---
 title: Daemon và runtime
-description: Agent không chạy trên máy chủ của Multica — chúng chạy trên chính máy của bạn.
+description: Agent không chạy trên máy chủ của UniAI — chúng chạy trên chính máy của bạn.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 import { Mermaid } from "@/components/mermaid";
 
-Trong Multica, [agent](/agents) **không** chạy trên máy chủ của chúng tôi — chúng chạy trên máy của bạn, được điều khiển bởi một chương trình nhỏ gọi là **daemon** chuyên gọi các [công cụ lập trình AI](/providers) cài trên máy. Multica server chỉ điều phối: lưu [issue](/issues), xếp hàng [task](/tasks) và phát chúng tới đúng **runtime** (runtime = daemon × một công cụ lập trình AI).
+Trong UniAI, [agent](/agents) **không** chạy trên máy chủ của chúng tôi — chúng chạy trên máy của bạn, được điều khiển bởi một chương trình nhỏ gọi là **daemon** chuyên gọi các [công cụ lập trình AI](/providers) cài trên máy. UniAI server chỉ điều phối: lưu [issue](/issues), xếp hàng [task](/tasks) và phát chúng tới đúng **runtime** (runtime = daemon × một công cụ lập trình AI).
 
-Cấu trúc này là khác biệt lớn nhất giữa Multica với Linear / Jira: **API key, bộ công cụ và thư mục mã nguồn ở lại trên máy của bạn** — Multica server không bao giờ nhìn thấy chúng. Vì thế "agent của tôi không chạy" gần như luôn là vấn đề cục bộ — daemon chưa chạy, công cụ AI chưa cài, key hết hạn. Kiểm tra trên máy trước; xem [Khắc phục sự cố](/troubleshooting).
+Cấu trúc này là khác biệt lớn nhất giữa UniAI với Linear / Jira: **API key, bộ công cụ và thư mục mã nguồn ở lại trên máy của bạn** — UniAI server không bao giờ nhìn thấy chúng. Vì thế "agent của tôi không chạy" gần như luôn là vấn đề cục bộ — daemon chưa chạy, công cụ AI chưa cài, key hết hạn. Kiểm tra trên máy trước; xem [Khắc phục sự cố](/troubleshooting).
 
 ## Khởi động daemon
 
-Daemon là một phần của Multica CLI. Sau khi cài [Multica CLI](/cli), chạy trên máy của bạn:
+Daemon là một phần của UniAI CLI. Sau khi cài [UniAI CLI](/cli), chạy trên máy của bạn:
 
 ```bash
 multica daemon start
@@ -39,7 +39,7 @@ Tham chiếu CLI đầy đủ tại [Lệnh CLI](/cli).
 
 ## Vì sao một máy có nhiều runtime
 
-Runtime không phải server, cũng không phải container — nó là tổ hợp "**daemon × một công cụ lập trình AI**". Ví dụ: bạn khởi động daemon trên một chiếc MacBook cài cả Claude Code lẫn Codex, và bạn là thành viên của hai không gian làm việc. Multica sẽ đăng ký 4 runtime:
+Runtime không phải server, cũng không phải container — nó là tổ hợp "**daemon × một công cụ lập trình AI**". Ví dụ: bạn khởi động daemon trên một chiếc MacBook cài cả Claude Code lẫn Codex, và bạn là thành viên của hai không gian làm việc. UniAI sẽ đăng ký 4 runtime:
 
 <Mermaid chart={`
 graph TD
@@ -54,11 +54,11 @@ graph TD
 
 - **Một daemon có thể ứng với nhiều runtime** — mỗi runtime cho một tổ hợp công cụ đã cài × không gian làm việc bạn tham gia
 - **Cùng daemon, không gian làm việc và công cụ thì chỉ có đúng một runtime** — khởi động lại daemon không bao giờ tạo bản ghi trùng
-- Trang **Runtime** trong giao diện Multica liệt kê các dòng này
+- Trang **Runtime** trong giao diện UniAI liệt kê các dòng này
 
 ## Runtime profile tùy chỉnh
 
-Cơ chế phát hiện provider có sẵn đã phủ các công cụ phổ biến, nhưng đội của bạn cũng có thể định nghĩa **runtime profile tùy chỉnh** cho các AI CLI nói một trong các họ giao thức Multica hỗ trợ và cần lệnh khởi chạy riêng theo không gian làm việc. Profile được quản lý từ giao diện Runtime hoặc CLI:
+Cơ chế phát hiện provider có sẵn đã phủ các công cụ phổ biến, nhưng đội của bạn cũng có thể định nghĩa **runtime profile tùy chỉnh** cho các AI CLI nói một trong các họ giao thức UniAI hỗ trợ và cần lệnh khởi chạy riêng theo không gian làm việc. Profile được quản lý từ giao diện Runtime hoặc CLI:
 
 ```bash
 multica runtime profile list
@@ -67,7 +67,7 @@ multica runtime profile update <profile-id> --command-name agent
 multica runtime profile delete <profile-id>
 ```
 
-Lệnh theo hướng argv, không phải chuỗi shell. Multica lưu tên file thực thi cùng các đối số cố định, rồi daemon khởi chạy trực tiếp bằng `exec.Command(command_name, fixed_args...)`. Hỗ trợ đối số thường, dấu nháy và escape bằng backslash; không hỗ trợ pipe, redirect, `&&`, `;`, backtick và mở rộng `$VAR` / `$(...)`. Dùng script bọc khi runtime cần hành vi shell. Hiện giao diện Runtime đảm nhận phân tích lệnh-và-đối-số; các lệnh profile của CLI quản lý bản ghi profile và ghi đè đường dẫn cục bộ.
+Lệnh theo hướng argv, không phải chuỗi shell. UniAI lưu tên file thực thi cùng các đối số cố định, rồi daemon khởi chạy trực tiếp bằng `exec.Command(command_name, fixed_args...)`. Hỗ trợ đối số thường, dấu nháy và escape bằng backslash; không hỗ trợ pipe, redirect, `&&`, `;`, backtick và mở rộng `$VAR` / `$(...)`. Dùng script bọc khi runtime cần hành vi shell. Hiện giao diện Runtime đảm nhận phân tích lệnh-và-đối-số; các lệnh profile của CLI quản lý bản ghi profile và ghi đè đường dẫn cục bộ.
 
 Nếu daemon không tìm thấy một lệnh vốn chạy được trong terminal của bạn, ghim đường dẫn tuyệt đối trên máy đó:
 
@@ -79,12 +79,12 @@ multica runtime profile unset-path <profile-id>
 Sửa lệnh hoặc đối số của profile chỉ áp dụng cho task nhận mới sau khi daemon đăng ký lại. Task đang chạy giữ nguyên đối số khởi chạy ban đầu. Với triển khai hỗn hợp, nâng cấp server trước khi tung daemon mới: giao diện Runtime phía server lưu `fixed_args`, và server là nơi hiển thị báo cáo đăng ký `failed_profiles`. Các thành phần cũ có thể lặng lẽ bỏ qua trường chúng không hiểu thay vì báo lỗi rõ ràng, nên coi nâng cấp server là bước đầu tiên giúp đợt rollout luôn quan sát được.
 
 <Callout type="info">
-**Cloud runtime sắp ra mắt**, hiện trong giai đoạn danh sách chờ. Khi khả dụng, bạn sẽ chạy được task của agent trực tiếp trên Multica Cloud mà không cần daemon cục bộ.
+**Cloud runtime sắp ra mắt**, hiện trong giai đoạn danh sách chờ. Khi khả dụng, bạn sẽ chạy được task của agent trực tiếp trên UniAI Cloud mà không cần daemon cục bộ.
 </Callout>
 
 ## Khi runtime bị đánh dấu offline
 
-Multica dùng heartbeat để quyết định runtime có online hay không. Ba con số then chốt:
+UniAI dùng heartbeat để quyết định runtime có online hay không. Ba con số then chốt:
 
 | Sự kiện | Ngưỡng |
 |---|---|
@@ -95,12 +95,12 @@ Multica dùng heartbeat để quyết định runtime có online hay không. Ba 
 Missing không phải vĩnh viễn — daemon gửi heartbeat tiếp theo là nó trở lại online, và bản ghi runtime được giữ nguyên. Khởi động lại daemon không làm mất runtime.
 
 <Callout type="warning">
-**Task đang chạy trên runtime missing bị đánh dấu failed** (lý do `runtime_offline`). Với các nguồn cho phép thử lại (issue, chat), Multica tự xếp hàng lại; task do Autopilot kích hoạt không tự thử lại. Xem [Task → Lỗi nào tự thử lại](/tasks#which-failures-retry-automatically-which-dont).
+**Task đang chạy trên runtime missing bị đánh dấu failed** (lý do `runtime_offline`). Với các nguồn cho phép thử lại (issue, chat), UniAI tự xếp hàng lại; task do Autopilot kích hoạt không tự thử lại. Xem [Task → Lỗi nào tự thử lại](/tasks#which-failures-retry-automatically-which-dont).
 </Callout>
 
 ## Bao nhiêu task chạy song song được
 
-Multica giới hạn đồng thời ở hai tầng:
+UniAI giới hạn đồng thời ở hai tầng:
 
 - **Tầng daemon**: mặc định **20 task đồng thời** (chỉnh bằng biến môi trường `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`)
 - **Tầng agent**: mặc định **6 task đồng thời mỗi agent** (cấu hình theo từng agent)
@@ -121,7 +121,7 @@ Khi gặp vấn đề "agent của tôi không chạy", làm checklist ba bướ
 
 1. Chạy `multica daemon status` — xác nhận daemon đang chạy và online
 2. Chạy `multica daemon logs -f` — kiểm tra lỗi
-3. Mở trang **Runtime** trong giao diện Multica — xác nhận runtime của bạn hiện "online"
+3. Mở trang **Runtime** trong giao diện UniAI — xác nhận runtime của bạn hiện "online"
 
 Thêm tình huống khác tại [Khắc phục sự cố](/troubleshooting).
 
