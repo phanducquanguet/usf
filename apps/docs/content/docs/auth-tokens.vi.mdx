@@ -1,0 +1,80 @@
+---
+title: Xác thực và token
+description: Multica có ba loại token — mỗi loại cho trình duyệt, CLI và daemon. Khi nào dùng cái nào.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Multica có ba loại token, mỗi loại cho một ngữ cảnh: Web UI trên trình duyệt, dòng lệnh và script, và daemon. Cả ba đại diện cho cùng một bạn, nhưng phạm vi và vòng đời khác nhau.
+
+## Ba loại token
+
+| Token | Định dạng | Dùng ở đâu | Vòng đời |
+|---|---|---|---|
+| **Cookie JWT** | cookie `multica_auth` (HttpOnly) | Trình duyệt web | 30 ngày |
+| **Personal access token (PAT)** | Tiền tố `mul_` | CLI, script, gọi API trực tiếp | Mặc định không hết hạn; tạo qua API có thể truyền `expires_in_days` |
+| **Daemon token** | Tiền tố `mdt_` | Giao tiếp daemon-với-server | Daemon tự quản lý |
+
+Dùng hằng ngày bạn chỉ đụng hai loại đầu. **Token của [daemon](/daemon-runtimes)** được `multica daemon login` tự tạo và làm mới — bạn không phải nghĩ về nó.
+
+## Mỗi token gọi được gì
+
+| Route API | Cookie JWT | PAT | Daemon token |
+|---|---|---|---|
+| `/api/user/*` (hành động mức người dùng) | ✓ | ✓ | ✗ |
+| `/api/workspaces/:id/*` (mức không gian làm việc) | ✓ | ✓ | ✗ |
+| `/api/daemon/*` (chỉ daemon) | ✗ | ✓ | ✓ |
+| WebSocket `/ws` (đẩy thời gian thực) | ✓ (cookie) | ✓ (xác thực qua tin nhắn đầu) | ✗ |
+
+**PAT gọi được gần như mọi thứ** — nó đại diện "toàn bộ bạn." Daemon token chỉ làm được việc daemon cần: lấy task và báo kết quả.
+
+**Cả hai đều gọi được `/api/daemon/*`, nhưng phạm vi khác nhau.** PAT đại diện **cả một người dùng** — xác thực xong, nó thấy mọi không gian làm việc bạn thuộc về. Daemon token bị ghim vào một không gian làm việc lúc tạo và chỉ đụng được tài nguyên trong đó. Ở production, chạy daemon bằng daemon token — đừng đi tắt dùng PAT, kẻo cấp cho daemon nhiều quyền hơn nó cần rất nhiều.
+
+## Đăng nhập
+
+### Email + mã xác thực
+
+1. Nhập email; server gửi mã 6 chữ số.
+2. Nhập mã; server cấp cookie JWT (trình duyệt) hoặc đổi lấy PAT (CLI).
+
+<Callout type="warning">
+**Người vận hành tự host lưu ý**: giữ `MULTICA_DEV_VERIFICATION_CODE` trống trên triển khai công khai. Nếu bật mã kiểm thử cố định, bất kỳ ai xin được mã đều đăng nhập được bằng giá trị đó khi `APP_ENV` không phải production. Xem [Thiết lập xác thực tự vận hành](/auth-setup).
+</Callout>
+
+### Google OAuth
+
+Bấm **Đăng nhập với Google** và đi qua callback OAuth chuẩn. Tự vận hành cần cấu hình `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` và redirect URI — xem [Thiết lập xác thực tự vận hành](/auth-setup).
+
+## Tạo, xem và thu hồi PAT
+
+**Tạo** PAT có hai cách:
+
+- **Web UI**: Cài đặt → Personal Access Tokens → New token
+- **CLI**: `multica login` tự tạo nếu chưa có PAT cục bộ
+
+<Callout type="warning">
+**PAT đầy đủ chỉ hiển thị đúng một lần lúc tạo.** Tải lại hay đóng hộp thoại rồi, bạn không xem lại được.
+
+Multica chỉ lưu hash của PAT trong cơ sở dữ liệu — chính server cũng không khôi phục được bản gốc. Chép và lưu ngay. Mất nó thì lựa chọn duy nhất là thu hồi và tạo cái mới.
+</Callout>
+
+**Xem** các PAT hiện có (tên, thời điểm tạo, lần dùng cuối — **không** phải token đầy đủ) nằm ở Cài đặt → Personal Access Tokens.
+
+**Thu hồi** PAT: bấm Revoke trong danh sách. Thu hồi có hiệu lực ngay — request kế tiếp bằng PAT đó bị từ chối với 401.
+
+## Đăng xuất chỉ xóa token cục bộ
+
+Khi bạn chạy `multica auth logout` hoặc bấm đăng xuất trên Web UI:
+
+- **Token cục bộ bị xóa** — CLI gỡ PAT khỏi `~/.multica/config.json`; trình duyệt xóa cookie.
+- **PAT vẫn hợp lệ trên server** — nếu ai đó lấy được PAT của bạn trước khi bạn đăng xuất (ví dụ chép sang máy khác), họ **vẫn dùng được**.
+
+<Callout type="warning">
+**Nghi PAT bị lộ thì đừng chỉ đăng xuất.** Vào Cài đặt → Personal Access Tokens và **thu hồi** token. Chỉ thu hồi mới vô hiệu hóa ngay một token bị lộ.
+</Callout>
+
+## Bước tiếp theo
+
+- [Tham chiếu lệnh CLI](/cli) — xác thực là tự động cho mọi lệnh CLI
+- [Thiết lập xác thực tự vận hành](/auth-setup) — cấu hình email, OAuth và danh sách đăng ký khi tự vận hành
+- [Daemon và runtime](/daemon-runtimes) — daemon token từ đâu ra

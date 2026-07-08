@@ -1,0 +1,186 @@
+---
+title: Tích hợp Slack Bot
+description: Nối một agent Multica với app Slack của riêng bạn — tạo app từ manifest, cài đặt, dán bot token + app-level token, rồi @nhắc nó, DM nó, hoặc gõ /issue ngay trong Slack.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Nối bất kỳ [agent](/agents) nào với một bot Slack và nhóm của bạn làm việc với nó ngay trong Slack — DM cho bot, @nhắc nó trong kênh, hoặc gõ `/issue` để tạo một [issue Multica](/issues) mà không phải mở app.
+
+Slack dùng mô hình **tự-mang-app (BYO)**: admin của không gian làm việc tạo một app Slack, cài vào Slack workspace của mình và dán token của nó vào Multica. Mỗi agent có **app Slack riêng** — nên nhiều agent có thể mỗi con một bot riêng, @nhắc riêng, trong cùng một Slack workspace. (Khác với [Lark](/lark-bot-integration), nơi việc buộc là luồng quét-để-cài.)
+
+Toàn bộ thiết lập ở bên dưới, mất khoảng năm phút. Kết quả là hai token để dán vào Multica:
+
+- một **Bot token** — bắt đầu bằng `xoxb-`
+- một **App-level token** — bắt đầu bằng `xapp-`
+
+## Thiết lập app Slack của bạn
+
+### 1. Tạo app từ manifest
+
+1. Vào [https://api.slack.com/apps](https://api.slack.com/apps) và bấm **Create New App**.
+2. Chọn **From a manifest**.
+3. Chọn Slack workspace để cài app vào.
+4. Chuyển sang tab **YAML**, dán manifest bên dưới, xem lại và tạo app.
+
+```yaml
+display_information:
+  name: Multica
+features:
+  app_home:
+    home_tab_enabled: false
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Multica
+    always_online: true
+  slash_commands:
+    - command: /issue
+      description: Create a Multica issue
+      usage_hint: "[title]"
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:history
+      - groups:history
+      - im:history
+      - mpim:history
+      - chat:write
+      - reactions:write
+      - users:read
+      - commands
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - message.im
+      - message.channels
+      - message.groups
+      - message.mpim
+  interactivity:
+    is_enabled: false
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false
+```
+
+Manifest này cấu hình đủ mọi thứ Multica cần, nên bạn không phải chỉnh tay gì:
+
+| Mục | Vì sao cần |
+|---|---|
+| `app_home.messages_tab_enabled: true` | Cho thành viên mở bot và **DM** nó. Thiếu nó, bot không nhắn trực tiếp được. |
+| `bot_user` | Tạo danh tính bot được @nhắc và đăng trả lời. |
+| `chat:write` | Đăng câu trả lời của agent ngược vào Slack. |
+| `reactions:write` | Thêm cảm xúc 👀 vào tin nhắn của bạn khi agent đang làm, gỡ khi nó trả lời. Thiếu scope này, chỉ báo bị bỏ qua lặng lẽ — mọi thứ khác vẫn chạy. |
+| `app_mentions:read` + sự kiện `app_mention` | Nhận @nhắc trong kênh. |
+| `im:history` + `message.im` | Nhận **DM** gửi bot (mọi tin DM đều được đọc). |
+| `channels:history` / `groups:history` / `mpim:history` + các sự kiện `message.*` tương ứng | Nhận tin trong kênh công khai, kênh riêng và DM nhóm. Ở đó, bot chỉ hành động với tin **@nhắc** nó. |
+| `users:read` | Cần để Multica xác minh (qua `bots.info`) rằng hai token thuộc cùng một app. |
+| `commands` | Scope bot bật lệnh gạch chéo `/issue` (đi cặp với `features.slash_commands`). Thiếu nó, cập nhật manifest và cài lại cũng không được cấp lệnh. |
+| `socket_mode_enabled: true` | Bot kết nối ra ngoài qua Socket Mode — **không cần URL công khai / request URL**. |
+| `interactivity.is_enabled: false` | Lời nhắc của Multica là liên kết thuần, không phải nút, nên không cần interactivity. |
+| `slash_commands` (`/issue`) | Đăng ký lệnh `/issue` để ai cũng tạo được issue Multica từ ô nhắn tin. Giao qua Socket Mode — không cần request URL. |
+
+**Không có OAuth redirect URL**, vì BYO không dùng OAuth.
+
+<Callout type="info">
+Muốn tên riêng trong Slack? Đổi `display_information.name` và `features.bot_user.display_name` (ví dụ thành tên agent của bạn) trước khi tạo, hoặc sửa sau ở **App Home**. Slack hiển thị bot theo **tên hiển thị của bot**, có thể khác tên app.
+</Callout>
+
+### 2. Cài app và chép Bot token
+
+1. Ở nav trái của app, mở **Install App** (hoặc **OAuth & Permissions**).
+2. Bấm **Install to Workspace** và phê duyệt.
+3. Chép **Bot User OAuth Token** — bắt đầu bằng `xoxb-`. Đây là **Bot token** của bạn.
+
+### 3. Tạo App-level token
+
+App-level token ủy quyền cho kết nối Socket Mode. Chỉ tạo được trong console (nó không thuộc OAuth).
+
+1. Mở **Basic Information → App-Level Tokens** và bấm **Generate Token and Scopes**.
+2. Đặt tên tùy ý.
+3. Bấm **Add Scope** và chọn **`connections:write`** từ danh sách (đó là bộ chọn — chọn nó, đừng gõ).
+4. Bấm **Generate**, rồi chép token — bắt đầu bằng `xapp-`. Đây là **App-level token** của bạn.
+
+### 4. Kết nối trong Multica
+
+1. Mở agent trong **Agent → _agent của bạn_** → tab **Integrations** (hoặc mục **Integrations** ở thanh bên trái).
+2. Bấm **Connect Slack**.
+3. Dán **Bot token** (`xoxb-`) và **App-level token** (`xapp-`), rồi bấm **Connect**.
+4. Agent hiện **Connected to Slack**. Bot giờ đang nghe qua kết nối Socket Mode của riêng nó.
+
+<Callout type="warning">
+Hai token phải từ **cùng một** app Slack, và app đó ánh xạ tới đúng **một** agent. Kết nối một app đã nối với agent hoặc không gian làm việc khác sẽ bị từ chối. Muốn chuyển app sang agent khác, ngắt kết nối trước; kết nối lại một agent với app **mới** sẽ cập nhật bot của agent đó tại chỗ.
+</Callout>
+
+<Callout type="info">
+Thiết lập cho **nhiều agent**? Lặp lại toàn bộ luồng cho từng agent — mỗi agent có app Slack riêng và cặp token riêng, chúng hiện thành các bot tách biệt trong Slack workspace của bạn.
+</Callout>
+
+## Tích hợp làm gì
+
+| Bề mặt | Hành vi |
+|---|---|
+| **Agent → Integrations** | Owner và admin thấy **Connect Slack**; nối xong nó chuyển thành huy hiệu **Connected to Slack** kèm nút **Disconnect**. |
+| **DM cho bot** | Một thành viên nhắn thẳng cho bot. Cuộc trò chuyện thành một phiên [chat](/chat) Multica với agent; mọi tin DM đều được đọc. |
+| **@nhắc trong kênh** | Mời bot (`/invite @your-bot`) và @nhắc nó. Chỉ tin có nhắc mới được đọc — bot không nghe cả kênh. Mỗi **thread** @bot là một phiên riêng. |
+| **Lệnh gạch chéo `/issue`** | Gõ `/issue <mô tả>` (trong kênh hoặc DM) và agent biến mô tả bằng lời thường của bạn thành một issue Multica chỉn chu, đứng tên bạn. Nó trả lời riêng tư để xác nhận — bạn nhận thông báo Multica khi issue sẵn sàng. Không cần @nhắc. |
+| **Trả lời** | Câu trả lời của agent được đăng ngược vào đúng DM hoặc thread. |
+
+## Dùng bot (thành viên)
+
+### Tin nhắn đầu tiên: liên kết tài khoản
+
+Lần đầu bạn @nhắc hoặc DM bot, nó trả lời với lời nhắc **liên kết tài khoản**. Bấm liên kết, đăng nhập Multica, và danh tính Slack của bạn được buộc với tư cách thành viên Multica — đây là thứ cho agent hành động thay bạn (ví dụ `/issue` tạo issue đứng tên bạn). Liên kết dùng một lần và hết hạn sau khoảng 15 phút; nhắn bot lần nữa để lấy cái mới.
+
+Bạn chỉ liên kết **một lần cho mỗi Slack workspace**. Nếu cùng một không gian làm việc Multica chạy nhiều bot trong một Slack workspace (mỗi agent một app), bot đầu tiên bạn liên kết sẽ dạy các con còn lại: nhắn bot thứ hai tự dùng lại liên kết đó, không hỏi lại. (Chỉ cần liên kết lại với bot ở Slack workspace *khác*, hoặc bot nối với không gian làm việc Multica *khác*.)
+
+<Callout type="warning">
+Chỉ **thành viên của không gian làm việc** dùng được bot. Nếu bạn không phải thành viên, hoặc bỏ qua liên kết danh tính, bot sẽ không chạy — tin nhắn của bạn bị bỏ (ghi lại để kiểm toán, không kèm nội dung).
+</Callout>
+
+### Chat và `/issue`
+
+- **Trong kênh** — bot không tự vào. Chạy `/invite @your-bot` một lần, rồi `@your-bot <tin nhắn>`. Nhắc lại nó cho mỗi câu tiếp theo (bot chỉ đọc tin có nhắc nó).
+- **Trong DM** — mở bot từ mục **Apps** ở thanh bên Slack và nhắn trực tiếp; không cần nhắc.
+- **Tạo issue** — dùng lệnh `/issue`, ví dụ `/issue the login redirect is broken on Safari`. Mô tả bằng lời thường; agent viết tiêu đề chuẩn và mô tả có cấu trúc rồi tạo issue. Dùng được trong kênh hoặc DM (không cần @nhắc) và trả lời riêng tư để xác nhận — bạn nhận thông báo Multica khi issue được tạo. Người dùng lần đầu nhận liên kết một lần để nối tài khoản.
+
+## Quản lý và ngắt kết nối
+
+Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integrations**:
+
+- **Connected bots** liệt kê mọi bot trong không gian làm việc và agent từng con buộc vào (mọi thành viên thấy được).
+- **Disconnect** chỉ dành cho **owner / admin**. Nó làm bot ngừng nhận tin Slack và gỡ kết nối; bản ghi installation giữ lại để kiểm toán, và bạn nối lại được về sau.
+
+## Quyền
+
+- **Kết nối / ngắt** cần **owner** hoặc **admin** của không gian làm việc.
+- **Nói chuyện với bot** cần là thành viên có danh tính Slack đã liên kết. Ai khác bị bỏ.
+- Nội dung tin nhắn bị bỏ không bao giờ được lưu — chỉ lý do bỏ, để kiểm toán.
+
+## Thiết lập tự vận hành
+
+Trên Multica Cloud tích hợp đã sẵn sàng — bỏ qua mục này.
+
+Với tự vận hành, Slack **tắt cho tới khi bạn đặt khóa mã hóa at-rest**. Khóa mã hóa bot + app-level token của từng app trước khi chạm cơ sở dữ liệu. BYO **không** cần OAuth client id/secret và **không** cần app token mức triển khai — mỗi installation dùng token admin dán vào.
+
+1. Sinh một khóa 32 byte và đặt trên API server:
+
+   ```dotenv
+   MULTICA_SLACK_SECRET_KEY=<khóa 32 byte mã hóa base64>
+   ```
+
+   Ví dụ: `openssl rand -base64 32`.
+
+2. Khởi động lại API. Chừng nào khóa chưa đặt, **Cài đặt → Integrations** hiện thông báo "Slack integration not enabled" và các lối vào **Connect Slack** vẫn ẩn.
+
+<Callout type="info">
+Khóa phải giải mã ra đúng 32 byte — `openssl rand -base64 32` làm đúng vậy. Đối xử với nó như bí mật sống lâu: xoay hoặc mất nó khiến token đã lưu không giải mã được, buộc mọi bot kết nối lại. Liên kết "liên kết tài khoản" được dựng từ URL web app của bạn (`MULTICA_APP_URL`, lùi về `FRONTEND_ORIGIN`) — triển khai bình thường đã đặt sẵn, không cần cấu hình thêm.
+</Callout>
+
+## Tiếp theo
+
+- [Tích hợp chat](/channels) — bộ máy kênh, phiên và ủy quyền hoạt động ra sao
+- [Agent](/agents) · [Chat](/chat) · [Issue](/issues)
+- [Biến môi trường](/environment-variables) — tham chiếu cấu hình tự vận hành đầy đủ

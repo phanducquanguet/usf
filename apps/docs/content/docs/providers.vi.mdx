@@ -1,0 +1,151 @@
+---
+title: Ma trận công cụ lập trình AI
+description: Multica hỗ trợ 14 công cụ lập trình AI; chúng triển khai cùng một giao diện, nhưng chi tiết năng lực khác nhau đáng kể.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Multica hỗ trợ sẵn **14 công cụ lập trình AI**. Tất cả triển khai cùng một giao diện — xếp hàng, phát, thực thi, trả kết quả — nên bạn điều khiển được con nào cũng từ cùng một bảng Multica. **Nhưng chi tiết năng lực khác nhau đáng kể**: khôi phục phiên có thật sự chạy không, MCP có được hỗ trợ không, file skill nằm đâu, model được chọn thế nào. Trang này là ma trận đầy đủ.
+
+Để chọn công cụ khi tạo agent, xem [Tạo và cấu hình agent](/agents-create).
+
+## Ma trận năng lực
+
+| Công cụ | Nhà cung cấp | Khôi phục phiên | MCP | Đường chèn skill | Chọn model |
+|---|---|---|---|---|---|
+| **Antigravity** | Google | ✅ (`--conversation <id>`) | ❌ | `.agents/skills/` | Khám phá động (`agy models`) |
+| **Claude Code** | Anthropic | ✅ | ✅ | `.claude/skills/` | Tĩnh + cờ |
+| **CodeBuddy** | Tencent | ✅ | ✅ | `.claude/skills/` | Khám phá động |
+| **Codex** | OpenAI | ✅ | ✅ | `$CODEX_HOME/skills/` | Tĩnh |
+| **Copilot** | GitHub | ✅ | ❌ | `.github/skills/` | Tĩnh (theo quyền lợi tài khoản) |
+| **Cursor** | Anysphere | ✅ | ✅ | `.cursor/skills/` | Khám phá động |
+| **Hermes** | Nous Research | ✅ | ✅ | `.agent_context/skills/` (dự phòng) | Khám phá động |
+| **Kimi** | Moonshot | ✅ | ✅ | `.kimi/skills/` | Khám phá động |
+| **Kiro CLI** | Amazon | ✅ | ✅ | `.kiro/skills/` | Khám phá động |
+| **OpenCode** | SST | ✅ | ✅ | `.opencode/skills/` | Khám phá động + biến thể |
+| **OpenClaw** | Mã nguồn mở | ✅ | ✅ | `.agent_context/skills/` (dự phòng) | Gắn ở tầng agent, không đổi theo task |
+| **Pi** | Inflection AI | ✅ (phiên là đường dẫn file) | ❌ | `.pi/skills/` | Khám phá động |
+| **Qoder** | Alibaba | ✅ | ✅ | `.qoder/skills/` | Khám phá động |
+| **Trae** | ByteDance | ✅ (ACP `session/load`) | ✅ | `.traecli/skills/` | Khám phá động |
+
+## Từng công cụ dùng cho việc gì
+
+### Antigravity
+
+Của Google. Tên binary CLI là `agy`. Ghép với dịch vụ Antigravity của Google, model mặc định nền Gemini. Multica khởi chạy Antigravity bằng `agy -p` vì đó là chế độ không tương tác tương thích daemon; `agy -i` cần TTY và không hợp thực thi task nền. Các bản Antigravity CLI hiện tại vẫn thực thi được công cụ từ chế độ này, nhưng stdout là văn bản trợ lý thuần chứ không phải luồng sự kiện có cấu trúc, nên Multica chuyển tiếp bản ghi dưới dạng văn bản và hiện chưa hiển thị được telemetry theo công cụ cho Antigravity. **Khôi phục phiên hoạt động** qua `--conversation <id>`; daemon bắt UUID cuộc trò chuyện từ file log của CLI. **Chọn model hoạt động** qua cờ `--model` (thêm từ agy 1.0.6): daemon liệt kê danh mục bằng `agy models` và gửi nguyên giá trị đã chọn. Lưu ý đây là chuỗi hiển thị cho người đọc như `Claude Opus 4.6 (Thinking)`, không phải slug `provider/model` — và agy lặng lẽ bỏ qua giá trị nó không nhận ra, nên ưu tiên chọn từ danh sách khám phá được thay vì tự gõ. Skill nằm trong `.agents/skills/` (CLI kế thừa bố cục skill của Gemini CLI — xem [tài liệu di trú Antigravity](https://antigravity.google/docs/gcli-migration)).
+
+### Claude Code
+
+Của Anthropic. **Lựa chọn đầu tiên cho người mới** — bộ tính năng đầy đủ nhất: khôi phục phiên chạy thật, đọc cấu hình MCP, và hỗ trợ các cờ tinh chỉnh như `--max-turns` và `--append-system-prompt`. Cần API key của Anthropic.
+
+### CodeBuddy
+
+Của Tencent. CLI agent tương thích Claude Code — Multica điều khiển nó bằng đúng giao thức stream-json như Claude Code, nên khôi phục phiên hoạt động (qua `--resume`), cấu hình MCP truyền qua `--mcp-config`, và skill dùng bố cục `.claude/skills/` của Claude Code. Model khám phá động.
+
+### Codex
+
+Của OpenAI. Dùng JSON-RPC 2.0, tính trạng thái mạnh hơn, và cơ chế phê duyệt chi tiết hơn (phê duyệt tay cho `exec_command` và `patch_apply`). Cấu hình MCP được vật thể hóa vào `$CODEX_HOME/config.toml` theo từng task. **Khôi phục phiên hoạt động** qua `thread/resume` của Codex app-server; nếu thread đã lưu mất hoặc cũ, Multica quay về thread mới để task vẫn chạy được.
+
+### Copilot
+
+Của GitHub. Định tuyến model qua quyền lợi tài khoản GitHub — công cụ không tự chọn model; GitHub quyết định bạn được model nào. Đặt skill trong `.github/skills/` là cơ chế khám phá gốc của GitHub CLI.
+
+### Cursor
+
+Của Anysphere, bản CLI của trình soạn thảo Cursor. **Khôi phục phiên hoạt động** với các bản Cursor Agent hiện tại: sự kiện stream-json chứa `session_id`, và Multica truyền lại bằng `--resume <id>` ở lần chạy sau. Cấu hình MCP được vật thể hóa vào `.cursor/mcp.json` trong workspace của task, kèm file phê duyệt dự án của Cursor ghi dưới `CURSOR_DATA_DIR` theo từng task để các MCP server được quản lý không phụ thuộc phê duyệt Cursor toàn cục của người dùng.
+
+### Hermes
+
+Của Nous Research. Dùng giao thức ACP (chung giao vận với Kimi). Khôi phục phiên hoạt động, cấu hình MCP truyền qua ACP `mcpServers`. Nhưng **đường chèn skill là dự phòng chung** (`.agent_context/skills/`), không phải đường riêng — nếu bản thân Hermes CLI không đọc đường này, skill có thể không hiệu lực. Kiểm chứng bằng cách thử.
+
+**Chọn profile Hermes.** Để khởi chạy Hermes dưới một profile cụ thể, đặt `custom_args` của agent thành cờ profile và tên profile như hai mục riêng — ví dụ với profile tên `research`:
+
+```json
+["-p", "research"]
+```
+
+Đừng gộp thành một chuỗi kiểu `"-p research"`; Multica truyền mỗi phần tử mảng như một mục argv riêng. `custom_args` cấu hình theo từng agent — xem [Tạo và cấu hình agent](/agents-create).
+
+### Kimi
+
+Của Moonshot, nhắm thị trường Trung Quốc. Chung giao thức ACP với Hermes, gồm cấu hình MCP qua ACP `mcpServers`, nhưng đường skill `.kimi/skills/` là cơ chế khám phá gốc của Kimi CLI — khác đường dự phòng của Hermes.
+
+### Kiro CLI
+
+Của Amazon. Dùng ACP qua stdio bằng `kiro-cli acp`. Khôi phục phiên qua ACP `session/load`, cấu hình MCP qua ACP `mcpServers`, chọn model qua `session/set_model`, và skill được chép vào `.kiro/skills/` để khám phá gốc mức dự án.
+
+### OpenCode
+
+Của SST, mã nguồn mở. Khám phá động các model và biến thể model khả dụng (quét file cấu hình của CLI). Khôi phục phiên hoạt động, và nó dùng trường `mcp_config` của agent — Multica tiêm inline qua biến môi trường `OPENCODE_CONFIG_CONTENT`, nên MCP server của agent tới được OpenCode mà không ghi gì vào `opencode.json` trong workdir của task (agent hoặc người dùng giữ quyền sở hữu file đó). Khi một model có biến thể, Multica hiện chúng làm bộ chọn thinking của agent và truyền giá trị đã chọn qua `opencode run --variant`. **Hợp với người thích vọc, muốn tùy biến danh mục model.**
+
+### OpenClaw
+
+Dự án mã nguồn mở, một bộ điều phối CLI agent. Cấu hình MCP được vật thể hóa qua lớp bọc cấu hình OpenClaw theo từng task của Multica. **Model gắn ở tầng agent** (`openclaw agents add --model`) — không ghi đè được theo task. Cấu hình được kiểm soát chặt: người dùng không truyền được `--model` hay `--system-prompt`; cấu hình đăng ký agent quyết định.
+
+### Pi
+
+Của Inflection AI, tối giản. **Khôi phục phiên hơi khác thường** — ID phiên là đường dẫn file trên đĩa (`~/.pi/...`) thay vì chuỗi ID. Ở công cụ khác, resume id là chuỗi do CLI trả về; ở Pi, resume id là chính file phiên.
+
+### Qoder
+
+Của Alibaba. CLI lập trình agentic. Dùng giao thức ACP qua stdio (chung giao vận với Hermes, Kimi và Kiro CLI). Khôi phục phiên qua ACP `session/resume`, cấu hình MCP qua ACP `mcpServers`, chọn model khám phá động, và skill được chép vào `.qoder/skills/` để khám phá gốc.
+
+### Trae
+
+Của ByteDance — **TRAE CLI** chính thức (`traecli`, tài liệu tại [docs.trae.cn/cli](https://docs.trae.cn/cli); đây là sản phẩm đi cặp với Trae IDE, **không phải** bản mã nguồn mở `bytedance/trae-agent`). traecli là ACP-native, nên Multica điều khiển qua giao vận ACP JSON-RPC chuẩn bằng `traecli acp serve --yolo`, y như Kiro và Qoder — `--yolo` đặt nó ở chế độ bỏ qua phê duyệt để các lần chạy headless không kẹt ở lời nhắc phê duyệt công cụ.
+
+- **Khôi phục phiên hoạt động** qua ACP `session/load` (traecli công bố `loadSession: true` từ `initialize`).
+- **Chọn model là động**: danh mục model khám phá từ `session/new` (`models.availableModels`) và đổi theo task qua `session/set_model`. Đặt mặc định toàn daemon bằng `MULTICA_TRAECLI_MODEL`.
+- **MCP được hỗ trợ** — cấu hình truyền qua ACP `mcpServers`; traecli công bố `mcpCapabilities: {http, sse}`, các giao vận không hỗ trợ bị lọc trước `session/new`.
+- **Xác thực** là đăng nhập doanh nghiệp của chính traecli: chạy `traecli` một lần ở chế độ tương tác để hoàn tất đăng nhập qua trình duyệt (token lưu ở `~/.trae` + keyring hệ điều hành). Đăng nhập IDE là chuyện riêng — đăng nhập Trae IDE **không** đăng nhập CLI.
+- **Skill** được ghi vào `.traecli/skills/` (dự án) để khám phá gốc; skill toàn cục nằm ở `~/.traecli/skills`.
+- Phần chỉ dẫn runtime của Multica cũng được nhúng thẳng vào prompt (traecli không có cờ `--system-prompt` và đọc quy tắc dự án từ `.trae/rules/`, không phải `AGENTS.md`), nên chỉ dẫn quy trình vẫn tới được agent.
+
+> Các năng lực trên được ghi nhận từ binary `traecli` v0.120.42 thật: `initialize` → `loadSession:true` + `mcpCapabilities{http,sse}`; `session/new` → `result.sessionId` + `models.availableModels`; `session/prompt` stream các thông báo `session/update` với `sessionUpdate: agent_message_chunk`.
+
+## Khôi phục phiên: ai hỗ trợ thật
+
+Cơ chế khôi phục phiên được nói ở [Task](/tasks#can-a-task-continue-from-the-previous-context). **Mọi công cụ được hỗ trợ đều khôi phục phiên** — truyền resume id và task tiếp tục từ ngữ cảnh trước. Điểm dị biệt duy nhất là Pi, có resume id là đường dẫn file phiên trên đĩa thay vì chuỗi id (xem [Pi](#pi) ở trên).
+
+## Cấu hình MCP: hỗ trợ theo từng provider
+
+**Trong 14 công cụ, mười một con dùng `mcp_config`: Claude Code, CodeBuddy, Codex, Cursor, Hermes, Kimi, Kiro CLI, OpenCode, OpenClaw, Qoder và Trae**. Ba con còn lại (Antigravity, Copilot, Pi) nhận trường này nhưng **bỏ qua** — không lỗi, không cảnh báo, cấu hình đơn giản là không có tác dụng.
+
+Đường runtime là theo từng provider: Claude Code và CodeBuddy nhận qua `--mcp-config` đi cặp `--strict-mcp-config`; Codex ghi khối `mcp_servers` do daemon quản lý vào `$CODEX_HOME/config.toml` theo từng task; Cursor ghi `.cursor/mcp.json` cùng phê duyệt dự án theo task dưới `CURSOR_DATA_DIR`; Hermes, Kimi, Kiro CLI, Qoder và Trae nhận ACP `mcpServers`; OpenCode nhận cấu hình inline qua `OPENCODE_CONFIG_CONTENT`; OpenClaw nhận `mcp.servers` qua lớp bọc cấu hình theo task của Multica. Đường của OpenCode **không** viết lại `opencode.json` của dự án.
+
+<Callout type="warning">
+Nếu bạn đặt `mcp_config` trong cấu hình agent nhưng chọn công cụ không có ✅ ở cột MCP, các MCP server của bạn **không có tác dụng** với agent đó. Tích hợp MCP là theo từng provider.
+</Callout>
+
+## File skill đi đâu
+
+Mỗi công cụ dùng đường khám phá skill **của riêng nó**. Trước khi task chạy, daemon Multica chép file skill của không gian làm việc vào đường tương ứng:
+
+| Công cụ | Đường | Khám phá gốc? |
+|---|---|---|
+| Claude Code | `.claude/skills/` | ✅ Gốc |
+| CodeBuddy | `.claude/skills/` | ✅ Gốc |
+| Codex | `$CODEX_HOME/skills/` | ✅ Gốc |
+| Copilot | `.github/skills/` | ✅ Gốc |
+| Cursor | `.cursor/skills/` | ✅ Gốc |
+| Kimi | `.kimi/skills/` | ✅ Gốc |
+| Kiro CLI | `.kiro/skills/` | ✅ Gốc |
+| OpenCode | `.opencode/skills/` | ✅ Gốc |
+| Pi | `.pi/skills/` | ✅ Gốc |
+| Qoder | `.qoder/skills/` | ✅ Gốc |
+| Antigravity | `.agents/skills/` | ✅ Gốc (kế thừa bố cục workspace của Gemini CLI — xem [tài liệu Antigravity](https://antigravity.google/docs/gcli-migration)) |
+| Hermes | `.agent_context/skills/` | ⚠️ Dự phòng chung |
+| OpenClaw | `.agent_context/skills/` | ⚠️ Dự phòng chung |
+
+Công cụ dùng đường dự phòng có thật sự đọc thư mục này không thì tùy tài liệu của chính công cụ — không đảm bảo. Nếu skill không hiệu lực với Hermes / OpenClaw, kiểm tra chỗ này trước.
+
+Với các đường gốc mức dự án, khám phá trong phạm vi repo là hành vi được kỳ vọng: nếu repository đã checkout có sẵn thư mục khớp, công cụ bên dưới tự khám phá các skill đã commit đó. Bạn không cần nhập các skill repo đó vào Multica chỉ để dùng trong repo đó. Multica giữ nguyên file của repo. Nếu một skill của không gian làm việc trùng tên thư mục tự nhiên, daemon ghi bản của không gian làm việc sang tên không đụng độ như `review-helper-multica`.
+
+Về tạo và dùng skill, xem [Skills](/skills).
+
+## Tiếp theo
+
+- [Tạo và cấu hình agent](/agents-create) — chọn công cụ cho agent của bạn
+- [Task](/tasks) — vòng đời task và cơ chế khôi phục phiên
+- [Daemon và runtime](/daemon-runtimes) — các công cụ chạy ở đâu và kết nối Multica ra sao
+- [Cài đặt runtime cho agent](/install-agent-runtime) — cài đặt và xác thực cho từng công cụ trong 14 công cụ được hỗ trợ

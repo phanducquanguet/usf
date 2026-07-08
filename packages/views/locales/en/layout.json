@@ -16,8 +16,17 @@
     "trigger": "Help",
     "docs": "Docs",
     "changelog": "Change log",
-    "discord": "Discord",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "sections": {
+      "workspace_team": "Workspace & team",
+      "agents": "Agents",
+      "how_agents_run": "How agents run",
+      "collaborating_with_agents": "Collaborating with agents",
+      "inbox": "Inbox",
+      "integrations": "Integrations",
+      "self_hosting_ops": "Self-hosting & ops",
+      "reference": "Reference"
+    }
   },
   "workspace_loader": {
     "loading_workspace": "Loading workspace…",
@@ -37,11 +46,6 @@
     "pinned_label": "Pinned",
     "workspace_group": "Workspace",
     "configure_group": "Configure",
-    "unread_overflow": "99+",
-    "discord_card": {
-      "title": "Join our Discord",
-      "description": "Chat with the team and other builders.",
-      "dismiss": "Dismiss"
-    }
+    "unread_overflow": "99+"
   }
 }

@@ -1,0 +1,127 @@
+---
+title: Tạo và cấu hình agent
+description: Các trường tối thiểu để tạo agent, cùng mọi thiết lập tùy chọn — chỉ dẫn hệ thống, biến môi trường, phạm vi hiển thị, giới hạn đồng thời và lưu trữ.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Tạo một [agent](/agents) chỉ cần hai thứ: **một cái tên** và **một [công cụ lập trình AI](/providers)**. Còn lại đều tùy chọn — chỉ dẫn hệ thống, model, biến môi trường, đối số CLI, phạm vi hiển thị, giới hạn đồng thời — mặc định là dùng tốt. Cho chạy trước, tinh chỉnh sau; trường nào cũng đổi được bất cứ lúc nào.
+
+## Tạo agent
+
+Điều kiện tiên quyết: bạn đã cài ít nhất một [công cụ lập trình AI](/providers) được hỗ trợ trên máy (Claude Code, Codex, v.v.) và một [daemon](/daemon-runtimes) đang chạy. Nếu chưa tới bước đó, bắt đầu với [Bắt đầu nhanh với Cloud](/cloud-quickstart) hoặc [Bắt đầu nhanh tự vận hành](/self-host-quickstart).
+
+Xong xuôi, vào trang **Agent** trong không gian làm việc và bấm **+ New**, hoặc dùng CLI:
+
+```bash
+multica agent create
+```
+
+Biểu mẫu chỉ có hai trường bắt buộc: **tên** (duy nhất trong không gian làm việc) và **runtime** (= chọn một công cụ lập trình AI). Các trường còn lại được nói từng mục bên dưới.
+
+## Chọn công cụ lập trình AI
+
+Mỗi runtime được chống lưng bởi một công cụ lập trình AI cụ thể. Multica hỗ trợ 14 công cụ. Các lựa chọn phổ biến nhất:
+
+| Công cụ | Hợp với |
+|---|---|
+| **Claude Code** | Công cụ chính thức của Anthropic, bộ tính năng đầy đủ nhất; **lựa chọn đầu tiên tốt nhất** |
+| **Codex** | OpenAI, phương án chủ lưu thay thế |
+| **Cursor** | Người dùng hệ sinh thái editor Cursor |
+| **Copilot** | Đội tận dụng quyền lợi tài khoản GitHub |
+| **CodeBuddy** | Đội dùng CLI tương thích Claude Code của Tencent |
+
+Chín công cụ còn lại (Antigravity, Hermes, Kimi, Kiro CLI, OpenCode, Pi, OpenClaw, Qoder, Trae CLI), cùng ma trận năng lực đầy đủ của từng công cụ (khôi phục phiên, MCP, đường chèn skill, chọn model), xem tại [So sánh công cụ lập trình AI](/providers).
+
+## Viết chỉ dẫn hệ thống
+
+**Chỉ dẫn hệ thống** (`instructions`) được gắn trước mỗi task, cho agent biết nó đóng vai gì và tuân thủ quy tắc nào:
+
+```text
+You're a frontend code-review agent. When an issue comes in, read the diff first. Focus only on:
+- Styling issues (tailwind class names, box model)
+- Accessibility (a11y)
+Don't change code — leave suggestions in a comment.
+```
+
+Để trống (mặc định), agent dùng hành vi gốc của công cụ lập trình AI bên dưới, không ràng buộc thêm.
+
+## Chọn model
+
+Đa số công cụ lập trình AI hỗ trợ chọn model (ví dụ Claude Code cho chọn giữa Sonnet và Opus). Để trống thì dùng mặc định của công cụ; chọn tường minh thì chạy đúng cái đó. Model được hỗ trợ của từng công cụ liệt kê tại [So sánh công cụ lập trình AI](/providers).
+
+Đổi model **chỉ áp dụng cho task mới**. Task đã dispatched tiếp tục với model đã chốt lúc dispatch.
+
+## Biến môi trường tùy chỉnh (custom_env)
+
+**Biến môi trường tùy chỉnh** (`custom_env`) cho phép tiêm thêm biến môi trường lúc thực thi task — cách dùng điển hình là API key hoặc chuyển endpoint upstream:
+
+```
+ANTHROPIC_API_KEY = sk-...
+ANTHROPIC_BASE_URL = https://my-proxy.example.com
+```
+
+Các biến trọng yếu của hệ thống không ghi đè được: `PATH`, `HOME`, `USER`, `SHELL`, `TERM`, `CODEX_HOME` và mọi khóa bắt đầu bằng `MULTICA_*` bị daemon lặng lẽ bỏ qua (có log cảnh báo — không báo lỗi).
+
+<Callout type="warning">
+**Giá trị trong `custom_env` được lưu dạng plaintext trong cơ sở dữ liệu server của Multica.** Phản hồi list/get agent không còn mang giá trị env — chỉ một con số đếm. Đọc giá trị đòi hỏi owner hoặc admin của không gian làm việc gọi endpoint chuyên biệt có kiểm toán `GET /api/agents/{id}/env` (CLI: `multica agent env get <id>`). Agent đang chạy task KHÔNG dùng được thông tin đăng nhập owner của máy chủ nó để lộ env của agent khác — endpoint từ chối phiên agent-actor.
+
+**Đừng đặt bí mật giá trị cao vào `custom_env`** (mật khẩu cơ sở dữ liệu production, token quyền root, v.v.). Dùng **thông tin đăng nhập chuyên biệt, phạm vi hẹp** cho agent (API key chỉ đọc, PAT một phạm vi), và xoay vòng đều đặn. Bản sao lưu và kiểm toán DB vẫn là bề mặt lộ đáng kể.
+</Callout>
+
+## Đối số CLI tùy chỉnh (custom_args)
+
+**Đối số CLI tùy chỉnh** (`custom_args`) là một mảng chuỗi nối lần lượt vào dòng lệnh của công cụ lập trình AI:
+
+```json
+["--max-turns", "100", "--append-system-prompt", "always respond in Chinese"]
+```
+
+Lệnh cuối cùng thành ra:
+
+```bash
+claude --model <model> --max-turns 100 --append-system-prompt "always respond in Chinese" [...]
+```
+
+Đối số được truyền nguyên vẹn, không qua shell (không rủi ro injection), nhưng cờ nào được nhận ra là chuyện của chính công cụ lập trình AI — các công cụ khác nhau đáng kể ở điểm này.
+
+<Callout type="tip">
+`custom_env` và `custom_args` không có trần cứng, nhưng thực tế **giữ mỗi cái dưới 10 mục**. Nhiều quá làm dòng lệnh dài, khởi động chậm và khó bảo trì.
+</Callout>
+
+## Phạm vi hiển thị
+
+- **Workspace** (`workspace`) — thành viên nào của không gian làm việc cũng giao được
+- **Private** (`private`) — chỉ owner, admin, hoặc người tạo agent giao được
+
+Agent mới mặc định là `private`.
+
+**Private không có nghĩa là ẩn** — thành viên nào cũng thấy tên và mô tả của agent private trong danh sách, họ chỉ không đọc được cấu hình nhạy cảm (giá trị env không bao giờ xuất hiện trong phản hồi list/get; cấu hình MCP bị che với người không phải owner). Ý nghĩa đầy đủ tại [Agent → Ai giao được việc cho agent](/agents#who-can-assign-an-agent).
+
+## Giới hạn đồng thời
+
+**Giới hạn đồng thời** (`max_concurrent_tasks`) kiểm soát agent này chạy song song được bao nhiêu task một lúc. Mặc định là **6**. Task mới chạm trần thì xếp hàng — không bị từ chối.
+
+Đây mới là "tầng agent" của giới hạn hai tầng — bản thân daemon có trần rộng hơn (mặc định 20), và cái chặt hơn thắng. Chi tiết tại [Daemon và runtime → Bao nhiêu task chạy song song được](/daemon-runtimes#how-many-tasks-can-run-in-parallel).
+
+Đổi giá trị này **không hủy task đang chạy** — chỉ áp dụng cho task sắp được nhận kế tiếp.
+
+## Gắn chuyên môn: Skills
+
+Agent tạo xong có thể gắn **Skills** — các **gói tri thức** (`SKILL.md` + file hỗ trợ) tự động chuyển tới công cụ lập trình AI lúc thực thi task. Bạn có thể tạo skill mới, nhập từ GitHub hoặc ClawHub, hoặc quét từ một thư mục skill sẵn có trên máy. Xem [Skills](/skills).
+
+## Lưu trữ và khôi phục
+
+Agent không dùng nữa có thể **lưu trữ** — chúng biến khỏi các khung nhìn thường nhật, nhưng dữ liệu lịch sử (task đã chạy, bình luận đã đăng) được giữ nguyên vẹn. **Khôi phục** bất cứ lúc nào để đưa chúng trở lại làm việc.
+
+<Callout type="warning">
+**Lưu trữ lập tức hủy mọi task chưa xong của agent** — task đang chạy, đã dispatched và đang xếp hàng đều bị đánh dấu `cancelled` và không tiếp tục. Có task quan trọng đang chạy thì để nó xong rồi hãy lưu trữ.
+</Callout>
+
+Agent đã lưu trữ không được giao task mới.
+
+## Bước tiếp theo
+
+- [Skills](/skills) — gắn gói tri thức cho agent
+- [So sánh công cụ lập trình AI](/providers) — ma trận năng lực đầy đủ của cả 14 công cụ
+- [Giao issue cho agent](/assigning-issues) — đưa agent mới của bạn vào việc

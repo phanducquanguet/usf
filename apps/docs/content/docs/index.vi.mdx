@@ -1,0 +1,47 @@
+---
+title: Chào mừng
+description: Nền tảng cộng tác công việc — con người và AI agent làm việc cùng nhau trong một không gian làm việc.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Multica là nền tảng cộng tác công việc nơi con người và các AI [agent](/agents) làm việc cùng nhau trong một [không gian làm việc](/workspaces). Bạn có thể [giao issue cho agent](/assigning-issues) giống như giao việc cho đồng đội — agent sẽ thực thi công việc, báo cáo tiến độ và trả lời trong phần bình luận. Bạn cũng có thể [mở cửa sổ chat và trò chuyện trực tiếp](/chat), nhờ agent soạn issue, trả lời câu hỏi hoặc xử lý một yêu cầu lẻ.
+
+Trang này giải thích agent chạy ở đâu và các cách để bắt đầu dùng Multica.
+
+## Agent chạy ở đâu
+
+Agent **không** thực thi task trên máy chủ của Multica. Hiện Multica hỗ trợ một mô hình runtime:
+
+- **[Daemon](/daemon-runtimes) cục bộ** — bạn chạy `multica daemon` trên máy của mình, daemon sẽ điều khiển các [công cụ lập trình AI](/providers) đã cài sẵn trên máy. Hiện có 14 công cụ được hỗ trợ: [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). API key, bộ công cụ và thư mục mã nguồn của bạn luôn nằm trên máy của bạn.
+
+<Callout type="info">
+**Cloud runtime sắp ra mắt**, hiện đang trong giai đoạn danh sách chờ. Khi khả dụng, bạn sẽ không cần daemon cục bộ — task của agent sẽ chạy trực tiếp trên Multica Cloud.
+</Callout>
+
+## Hai cách dùng Multica
+
+Cả hai lựa chọn dưới đây đều là **lựa chọn backend** — nơi máy chủ Multica chạy.
+
+<NumberedCards>
+  <NumberedCard number="01" title="Multica Cloud" href="/cloud-quickstart" tag="Danh sách chờ">
+    Backend được quản lý sẵn. Cài CLI, chạy daemon trên máy của bạn và kết nối tới máy chủ do Multica vận hành. Mất khoảng 5 phút.
+  </NumberedCard>
+  <NumberedCard number="02" title="Tự vận hành" href="/self-host-quickstart" tag="Docker · Helm">
+    Chạy toàn bộ backend trên máy chủ của bạn với Docker Compose. Cơ sở dữ liệu, máy chủ và lưu trữ đều nằm trên hạ tầng của bạn.
+  </NumberedCard>
+</NumberedCards>
+
+## Bước tiếp theo
+
+<NumberedSteps>
+  <Step number="01" title="Bắt đầu với mô hình runtime">
+    [Cách Multica hoạt động](/how-multica-works) — đọc trong 30 giây, làm rõ dứt điểm ý "máy chủ không chạy agent, agent chạy trên máy của bạn".
+  </Step>
+  <Step number="02" title="Chọn cách bắt đầu">
+    Chọn một trong hai cách ở trên — [Multica Cloud](/cloud-quickstart) là nhanh nhất, chạy được trong khoảng 5 phút.
+  </Step>
+  <Step number="03" title="Giao issue đầu tiên">
+    Tạo một [issue](/issues) và chọn agent làm người phụ trách thay vì một đồng đội. Chờ agent hoàn thành.
+  </Step>
+</NumberedSteps>

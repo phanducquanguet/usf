@@ -1,0 +1,266 @@
+---
+title: Tài nguyên dự án
+description: Đính các con trỏ có kiểu (repo Git, thư mục cục bộ, sau này còn nữa) vào dự án để agent nhận chúng làm ngữ cảnh có phạm vi.
+---
+
+**Tài nguyên dự án** là một con trỏ có kiểu — URL repo Git, đường dẫn trên máy bạn, mai này là trang Notion — đính vào một [dự án](/workspaces). Khi một [agent](/agents) chạy trên issue thuộc dự án đó, daemon tự ghi danh sách tài nguyên của dự án vào thư mục làm việc của agent và vào prompt [meta-skill](/skills) của nó.
+
+Kết quả: agent biết cần checkout repo nào (hoặc làm việc trong thư mục cục bộ nào), và tài liệu nào là "tham chiếu chính" của dự án, mà không ai phải chép-dán ngữ cảnh vào phần thân issue.
+
+## Mô hình tư duy
+
+Dự án không còn chỉ là cái nhãn. Nó là một **vật chứa tài nguyên** nhỏ:
+
+- Một dự án có 0..N **tài nguyên**.
+- Một tài nguyên có `resource_type` (ví dụ `github_repo`, `local_directory`) và `resource_ref` (payload JSON định kiểu theo `resource_type`).
+- Kiểu tài nguyên mới chỉ cần thêm một chuỗi + một handler. **Không migration schema. Không viết lại frontend.**
+
+Hình dạng này là chủ ý — đúng mẫu Multica đã dùng cho provider của agent: một discriminator `type` và một payload có kiểu. Nó giữ schema ổn định, nên bổ sung "trang Notion", "Google Doc", "file tải lên" hay "URL ngoài" sau này chỉ là thay đổi cộng thêm rất nhỏ.
+
+Hiện có hai kiểu tài nguyên: [`github_repo`](#resource-type-github_repo) (clone theo từng task vào worktree cách ly) và [`local_directory`](#resource-type-local_directory) (chạy trực tiếp trong một thư mục trên máy của một daemon cụ thể).
+
+## Kiểu tài nguyên: `github_repo`
+
+Kiểu mặc định — checkout theo từng task vào worktree cách ly:
+
+```json
+{
+  "resource_type": "github_repo",
+  "resource_ref": {
+    "url": "https://github.com/owner/repo",
+    "ref": "release/v2",
+    "default_branch_hint": "main"
+  }
+}
+```
+
+`ref` là tùy chọn — nếu có, `multica repo checkout <url>` dùng nó làm nhánh, tag hoặc commit mặc định cho task trong dự án này. Một lệnh `multica repo checkout <url> --ref <other-ref>` tường minh vẫn thắng cho lần checkout đó.
+
+`default_branch_hint` là ngữ cảnh prompt tùy chọn. Nó không dùng để checkout; dùng `ref` khi dự án cần ghim nhánh, tag hoặc SHA.
+
+## Kiểu tài nguyên: `local_directory`
+
+Cho các repo không thể clone lại theo từng task một cách hợp lý — checkout game nhiều gigabyte, monorepo lớn, hay bất kỳ dự án nào mà mô hình worktree-mỗi-task gây khổ sở — dự án có thể trỏ vào **một thư mục sẵn có trên máy của một [daemon](/daemon-runtimes) cụ thể**. Agent chạy **ngay trong thư mục đó**, không clone, không copy, không worktree.
+
+```json
+{
+  "resource_type": "local_directory",
+  "resource_ref": {
+    "local_path": "/Users/me/code/big-game",
+    "daemon_id": "0001234e-…",
+    "label": "main checkout"
+  }
+}
+```
+
+Đánh đổi so với `github_repo` là chủ ý: chỉ daemon được gắn mới nhận được task trên thư mục đó, và các task trên cùng thư mục chạy **tuần tự** thay vì song song. Đổi lại bạn giữ nguyên checkout, nhánh và trạng thái dở dang hiện có — Multica không bao giờ clone lại.
+
+### Khi nào chọn `local_directory` thay vì `github_repo`
+
+| Mối quan tâm | `github_repo` (worktree) | `local_directory` |
+| --- | --- | --- |
+| Chi phí checkout mỗi task | Clone mới + worktree | Không — agent chạy tại chỗ |
+| Đồng thời trên cùng repo | Nhiều task song song | Mỗi thư mục một task một lúc |
+| Nhánh / trạng thái dở dang | Mỗi task một nhánh mới từ mặc định | Nguyên trạng thư mục hiện tại |
+| Chạy ở đâu được | Daemon bất kỳ | Đúng một daemon (cái được gắn) |
+| Dung lượng đĩa | Một worktree mỗi task | Không tốn thêm — thư mục sẵn có |
+
+Chọn `local_directory` khi **một trong hai** điều này đúng:
+
+1. **Clone lại đắt tới mức không chấp nhận được** — checkout game nhiều gigabyte, monorepo nặng LFS, hay bất kỳ trường hợp nào `git clone` mỗi task lấn át chính công việc. Bạn đổi tính song song lấy lần chạy không cần clone.
+2. **Thay đổi của bạn nhỏ lẻ và bạn muốn review ngay trên máy khi chúng diễn ra** — bạn đang lặp trên một component, muốn nhảy qua lại giữa chỉnh sửa của agent và editor mỗi vài phút, và muốn checkout hiện có là nguồn sự thật thay vì worktree mỗi task phải đào từ `~/multica_workspaces/`.
+
+Đánh đổi bạn chấp nhận ở cả hai trường hợp là một: **phiên bản này không có khóa ghi mức file.** Cổng tuần tự theo thư mục (mỗi thư mục một task một lúc) là lớp bảo vệ duy nhất chống chuyện agent của hai issue đụng cùng file cùng lúc. Trỏ agent của hai issue vào cùng một `local_directory` thì task của chúng xếp hàng thay vì chạy song song — đó là chủ ý. Cần song song thật trên cùng codebase thì ở lại `github_repo`.
+
+### Đính thư mục cục bộ
+
+Bộ chọn thư mục chỉ có trong **app Desktop** — web không có cách đọc đường dẫn hệ điều hành, nên nút "Add local directory" bị ẩn ở đó. Trên Desktop:
+
+1. Mở dự án → khung **Tài nguyên**.
+2. Bấm **Add local directory**. Bộ chọn thư mục native mở ra.
+3. Chọn thư mục. Đường dẫn được gắn với **daemon hiện đang đăng ký bởi bản Desktop này** — bản ghi tài nguyên lưu cả đường dẫn lẫn ID daemon đó.
+
+Trên Desktop, nút vẫn hiện nhưng **bị vô hiệu kèm gợi ý** khi daemon trên máy này offline, hoặc khi dự án đã có `local_directory` gắn với daemon này — để bạn thấy *vì sao* nó không dùng được. (Trên web, nút bị ẩn hẳn vì hoàn toàn không có bộ chọn thư mục.) Muốn gắn thư mục của máy khác, cài Desktop trên máy đó và thêm tài nguyên từ đó.
+
+Từ CLI (dùng được cả trong môi trường chỉ có web, miễn bạn tự cung cấp ID daemon):
+
+```bash
+multica project resource add <project-id> \
+  --type local_directory \
+  --local-path /Users/me/code/big-game \
+  --daemon-id <daemon-uuid> \
+  --ref-label "main checkout"        # tùy chọn
+
+multica project resource update <project-id> <resource-id> \
+  --local-path /Users/me/code/big-game-new
+```
+
+`--daemon-id` lấy từ `multica daemon list`. CLI cũng nhận lối thoát chung `--ref '<json>'` nếu bạn muốn truyền thẳng payload.
+
+### Quy tắc đường dẫn
+
+Đường dẫn bạn đính phải vượt qua kiểm tra lúc đính và kiểm tra theo từng task. Cả hai do daemon sở hữu tài nguyên thi hành — server chỉ lưu JSON. Đường dẫn phạm bất kỳ quy tắc nào sẽ làm task thất bại với lỗi có kiểu và không đụng gì tới thư mục của bạn:
+
+- Phải là đường dẫn **tuyệt đối**.
+- Phải **tồn tại** và là **thư mục** (không phải file, symlink tới file, hay device node).
+- Phải **đọc và ghi được** bởi tiến trình daemon.
+- Không được là gốc hệ thống hay cả một hồ sơ người dùng — `/`, `/Users`, `/home`, `/root`, `/etc`, `/tmp`, `/var`, `/usr`, `/opt`, `/Users/Shared`, chính `$HOME` của bạn, gốc ổ đĩa Windows bất kỳ (`C:\`, `D:\`, …), hay `C:\Users` / `C:\ProgramData` / `C:\Program Files` / `C:\Program Files (x86)` / `C:\Windows`.
+- Symlink phân giải về bất kỳ mục nào ở trên đều bị từ chối, dạng chính tắc của đường dẫn bí danh hệ điều hành cũng vậy (ví dụ trên macOS, gõ `/private/tmp` bị từ chối y như `/tmp`).
+
+Danh sách chặn cố tình gắt — chọn thư mục home sẽ đặt file runtime của Multica ngay gốc tài khoản của bạn, điều không bao giờ nên. Hãy chọn thư mục con (thường là checkout dự án thật của bạn).
+
+### Một cho mỗi (dự án, daemon)
+
+Một dự án giữ **tối đa một `local_directory` cho mỗi daemon**. Thêm cái thứ hai trên cùng daemon sẽ nhận `409` từ API; nút trên Desktop tự ẩn khi đã chạm giới hạn và hiện tooltip giải thích.
+
+Các daemon khác nhau độc lập với nhau — một dự án dùng chung có thể có một `local_directory` cho máy của từng đồng đội, mỗi cái gắn cùng dự án với một thư mục khác trên một máy khác. Khi daemon nhận task, nó chọn dòng khớp ID của chính nó và bỏ qua phần còn lại.
+
+### Trộn kiểu tài nguyên, và nhiều `local_directory`
+
+Hai cấu hình chéo tài nguyên hay gặp trong thực tế:
+
+- **`github_repo` + `local_directory` trên cùng dự án.** Trên daemon có gắn `local_directory` khớp, thư mục cục bộ **được ưu tiên**: agent chạy trong thư mục của bạn, daemon không tạo hay dùng worktree `github_repo` cho task đó. (Cache repo theo không gian làm việc vẫn có thể đồng bộ như thường — đó là hành vi nền không liên quan cây làm việc của task này.) URL `github_repo` vẫn xuất hiện trong `.multica/project/resources.json` và mục `## Repositories` của agent để tham chiếu — nhưng cây làm việc agent sửa là thư mục cục bộ của bạn, không phải worktree. Trên daemon **không** có dòng `local_directory` cho dự án này (máy khác, hoặc trước khi đồng đội đó đính), task quay về luồng worktree `github_repo` như thường. Về bản chất, thư mục cục bộ là lớp ghi đè đường worktree theo từng daemon.
+- **Hai `local_directory` trên cùng dự án.** Vì mỗi `local_directory` gắn với đúng một daemon, chuyện này chỉ xảy ra trên hai máy khác nhau (API từ chối hai cái trên cùng daemon lúc đính, xem trên). Task được định tuyến theo phân công runtime của agent, không theo daemon nào có thư mục cục bộ: task rơi vào daemon sở hữu runtime của agent nhận việc, daemon đó chọn dòng `local_directory` khớp ID mình và bỏ qua phần còn lại. Không có cân bằng tải — muốn một máy cụ thể chạy task thì phái agent gắn với runtime của máy đó.
+
+Daemon không có dòng `local_directory` cho một dự án đã gắn ở nơi khác thì **không** bị chặn — task của nó cứ đi tiếp qua các tài nguyên khác của dự án (thường là fallback `github_repo`). `local_directory` chỉ có ý nghĩa với daemon nó được gắn.
+
+### Chạy task trên thư mục cục bộ
+
+Khi task được phát trên issue mà dự án của nó có `local_directory` gắn với daemon nhận, daemon sẽ:
+
+1. Kiểm tra lại đường dẫn (quy tắc ở trên).
+2. Lấy khóa theo thư mục dựa trên đường dẫn thật đã phân giải symlink — nên hai lối vào cùng thư mục (một qua symlink, một trực tiếp) vẫn tuần tự hóa.
+3. Ghi `CLAUDE.md` / `AGENTS.md` của agent (và `.multica/project/resources.json`) **vào thư mục của bạn**. Agent làm việc tại đó, y như bạn tự mở thư mục.
+4. Giữ các artefact runtime của Multica (`output/`, `logs/`, `.gc_meta.json`) trong một envRoot riêng **bên ngoài** thư mục của bạn.
+
+Nếu task thứ hai cho cùng thư mục tới khi task đầu đang chạy, nó đỗ lại với trạng thái **Waiting for local directory**. Trạng thái hiện ở mọi nơi có task — pill task trong chat, banner agent, nhật ký thực thi và chỉ báo hoạt động — và task đang đỗ được tính vào diện "đang xếp hàng" của agent. Hủy task đang đỗ giải phóng chỗ ngay; hủy task đang chạy cho task kế được lên.
+
+Chờ không có timeout — task đỗ tới khi khóa được nhả hoặc người dùng / agent hủy nó.
+
+### Multica sẽ và sẽ không đụng gì trong thư mục của bạn
+
+- **Sẽ ghi** `CLAUDE.md` / `AGENTS.md` (hoặc tương đương theo provider của agent) và `.multica/project/resources.json` ở gốc thư mục, để agent có meta-skill và danh sách tài nguyên. Thêm chúng vào `.gitignore` nếu không muốn commit.
+- **Sẽ ghi** những sửa đổi mã mà agent quyết định làm — y hệt như bạn tự chạy agent trên máy.
+- **Không bao giờ xóa vật lý** thư mục hay bất cứ thứ gì bên trong. Dọn rác nhận biết đường dẫn: với envRoot của `local_directory`, nó chỉ dọn `output/` và `logs/` của chính nó dưới `workspacesRoot`, và coi thư mục của bạn là vùng cấm.
+
+### Giới hạn v1 (sẽ siết dần)
+
+Bản đầu chủ ý sắc cạnh hơn `github_repo`. Danh sách này sẽ ngắn dần — ghi ở đây là những gì đúng hôm nay:
+
+- **Không tự chuyển nhánh.** Agent chạy trên nhánh bạn đang checkout. Chuyển nhánh trước khi phái việc nếu điều đó quan trọng.
+- **Không bảo vệ cây dở dang, không auto-commit.** Thay đổi chưa commit hiện ra với agent, có thể bị sửa tại chỗ và không được stash. Hãy coi thư mục là cây làm việc thật và commit trước những lần chạy rủi ro.
+- **Không tự mở PR.** Task kết thúc thì thay đổi nằm trên nhánh nơi chúng được tạo — không push, không mở PR. Tự push và mở PR khi bạn sẵn sàng.
+- **`waiting_local_directory` hiện trạng thái, không hiện ai đang giữ.** Huy hiệu cho biết task đang đỗ; nó không chỉ ra task nào hay đường dẫn nào đang giữ thư mục.
+
+Những mục này được theo dõi trong phần tiếp nối agent-task-lifecycle của tính năng thư mục cục bộ; trước khi nó ra, hãy coi `local_directory` là "agent chạy trong thư mục của bạn, theo đúng cách bạn sẽ chạy."
+
+## Đính repo lúc tạo dự án
+
+Trong app **Web** hoặc **Desktop**, mở *New project* giờ có pill **Repos** cạnh Trạng thái / Độ ưu tiên / Lead. Chọn các repo đã gắn không gian làm việc (hoặc dán một URL bất kỳ) sẽ đính chúng làm tài nguyên `github_repo` ngay khi dự án được tạo.
+
+Từ **CLI**:
+
+```bash
+# Tạo + đính trong một phát. Server đính tài nguyên trong cùng transaction
+# với việc tạo dự án — tài nguyên không hợp lệ sẽ rollback toàn bộ,
+# nên không bao giờ có dự án chỉ đính được một nửa.
+multica project create \
+  --title "Agent UX 2026" \
+  --repo https://github.com/multica-ai/multica
+
+# Quản lý tài nguyên về sau
+multica project resource list <project-id>
+multica project resource add  <project-id> --type github_repo --url <url>
+multica project resource add  <project-id> --type github_repo --url <url> --ref <branch-or-sha>
+multica project resource remove <project-id> <resource-id>
+
+# Lối thoát chung cho mọi resource_type server hiểu —
+# không cần đổi CLI khi có kiểu mới:
+multica project resource add <project-id> \
+  --type notion_page \
+  --ref '{"page_id":"…","title":"…"}'
+```
+
+`--repo` lặp lại được; mỗi giá trị được đính thành một tài nguyên `github_repo` riêng.
+
+## Agent thấy gì lúc chạy
+
+Khi daemon khởi tạo agent cho issue trong một dự án, hai điều xảy ra:
+
+### 1. `.multica/project/resources.json`
+
+Bản chuyển tiếp có cấu trúc của phản hồi API, ghi vào thư mục làm việc của agent:
+
+```json
+{
+  "project_id": "…",
+  "project_title": "Agent UX 2026",
+  "resources": [
+    {
+      "id": "…",
+      "resource_type": "github_repo",
+      "resource_ref": {
+        "url": "https://github.com/multica-ai/multica",
+        "default_branch_hint": "main"
+      }
+    }
+  ]
+}
+```
+
+Skill, script phụ trợ, hoặc chính agent có thể parse file này khi cần tập tài nguyên *chính xác* của lần chạy.
+
+### 2. Mục "Project Context" trong prompt meta-skill
+
+`CLAUDE.md` / `AGENTS.md` của agent (tùy provider) giờ có phần tóm tắt dễ đọc:
+
+```
+## Project Context
+
+This issue belongs to **Agent UX 2026**.
+
+Project resources (also written to `.multica/project/resources.json`):
+
+- **GitHub repo**: https://github.com/multica-ai/multica (default branch: `main`)
+
+Resources are pointers — open them only when relevant to the task. For
+`github_repo` resources, use `multica repo checkout <url>` to fetch the code.
+```
+
+Đoạn chữ cố tình tối giản. Payload đầy đủ nằm trên đĩa; prompt chỉ định hướng để agent biết dự án tồn tại và có gì đính kèm.
+
+### Khi lỗi
+
+Lấy tài nguyên là **best-effort**. Nếu gọi API thất bại, phần dự án bị bỏ khỏi prompt và file không được ghi, nhưng task vẫn chạy. Agent không bao giờ bị chặn vì thiếu ngữ cảnh dự án.
+
+## Thêm kiểu tài nguyên mới
+
+Toàn bộ ý nghĩa của lớp trừu tượng này là kiểu mới rất rẻ. Đường đi đầy đủ:
+
+1. **Validator phía server** (`server/internal/handler/project_resource.go`) — thêm một case trong `validateAndNormalizeResourceRef` để parse và chuẩn hóa payload mới.
+2. **Formatter meta-skill của daemon** (`server/internal/daemon/execenv/runtime_config.go`) — thêm case trong `formatProjectResource` để prompt của agent hiển thị kiểu mới thành gạch đầu dòng dễ đọc.
+3. **Kiểu TypeScript** (`packages/core/types/project.ts`) — mở rộng `ProjectResourceType` và thêm interface payload.
+4. **Renderer UI** (`packages/views/projects/components/project-resources-section.tsx`) — thêm case trong `ResourceRow` cho kiểu mới.
+
+**Không** migration schema, không truy vấn sqlc mới, không endpoint mới, **và không đổi CLI** — cờ chung `--ref '<json>'` của CLI nhận mọi payload mà validator hiểu, nên hỗ trợ ngày-một cho kiểu mới chỉ là bốn bước trên. (Bạn *có thể* thêm lối tắt CLI theo kiểu về sau; không bắt buộc.)
+
+Cùng bảng `project_resource` và cùng ba lệnh CRUD phục vụ mọi kiểu.
+
+## Repo của không gian làm việc vs. repo của dự án
+
+Danh sách repo hiện cho agent (khối `## Repositories` trong `CLAUDE.md` / `AGENTS.md`) do trình xử lý nhận task của daemon chọn theo thứ tự ưu tiên:
+
+- **Dự án có ít nhất một tài nguyên `github_repo`** → chỉ các repo đó được đưa cho agent. Repo gắn không gian làm việc bị chủ ý ẩn để agent không phải đoán repo nào thuộc issue này.
+- **Dự án không có tài nguyên `github_repo` (hoặc issue không thuộc dự án nào)** → quay về danh sách repo của không gian làm việc như trước.
+
+Điều này giữ tập làm việc của agent gọn: khi dự án đã nói rõ repo của nó, đó là câu trả lời có thẩm quyền. Danh sách tài nguyên có cấu trúc tại `.multica/project/resources.json` luôn mang tập đầy đủ, nên skill nào muốn soi tất cả vẫn được.
+
+Daemon phản chiếu điều này ở phía checkout: khi task tới với các URL `github_repo` thuộc phạm vi dự án, các URL đó được gộp vào allowlist theo không gian làm việc *và* đồng bộ vào cache repo cục bộ trước khi agent khởi chạy. Nên một URL repo dự án chưa gắn ở tầng không gian làm việc vẫn là đối số hợp lệ cho `multica repo checkout` — daemon không từ chối kiểu "chưa cấu hình". Nếu tài nguyên dự án có `ref`, ref đó thành mặc định cho `multica repo checkout <url>` trong task đó; truyền `--ref` cho lệnh checkout sẽ ghi đè. Việc tách allowlist là nội bộ: URL gắn không gian làm việc và URL theo task được theo dõi riêng, nên một lần refresh repo không gian làm việc không vô tình thu hồi URL dự án giữa chừng.
+
+## Những gì chủ ý **không** nằm trong phạm vi
+
+- **Chia sẻ chéo dự án.** Hôm nay mỗi tài nguyên thuộc đúng một dự án.
+- **Phạm vi tài nguyên theo skill.** Mọi tài nguyên hiện ra với mọi skill trong lần chạy của agent; lọc theo kiểu là việc tiếp nối.
+- **Cache / đồng bộ.** `github_repo` chỉ là metadata — checkout vẫn qua `multica repo checkout` khi cần. Văn bản tài liệu cache cho Notion / Google Docs sẽ tới cùng các kiểu đó.
+
+Đây là những thiếu sót có chủ đích — mục tiêu của bản đầu là kiểm chứng lớp trừu tượng với ít bộ phận chuyển động nhất.

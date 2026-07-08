@@ -1,0 +1,80 @@
+---
+title: Ứng dụng di động (iOS)
+description: Cách tự build ứng dụng iOS mã nguồn mở của Multica lên iPhone của bạn — chưa có trên App Store.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Client iOS của Multica là mã nguồn mở và nằm trong repo chính cùng web, desktop và backend. Nó chưa có trên App Store — cho tới khi điều đó thay đổi, ai muốn dùng trên iPhone thì build từ mã nguồn. Lần build đầu mất khoảng 10–20 phút và ~2 phút cho các lần sau, và nó nói chuyện với cùng backend như [multica.ai](https://multica.ai) nên tài khoản sẵn có của bạn dùng được luôn.
+
+<Callout type="info">
+Trang này dành cho **dùng cá nhân**. Lập trình viên của app nên đọc `apps/mobile/README.md` trong repo — nó nói về các biến thể dev / staging và ma trận script đầy đủ.
+</Callout>
+
+## Bạn cần gì
+
+- Một chiếc **Mac** cài Xcode (miễn phí từ App Store).
+- Một **Apple ID** miễn phí thêm ở Xcode → Settings → Accounts. Tài khoản Apple Developer Program trả phí là tùy chọn, chỉ để kéo dài cửa sổ ký 7 ngày lên 1 năm — xem [giới hạn 7 ngày](#7-day-signing-limit) bên dưới.
+- Một chiếc **iPhone** nối qua cáp USB, đã [bật Developer Mode](https://docs.expo.dev/guides/ios-developer-mode/) (Cài đặt → Quyền riêng tư & Bảo mật → Developer Mode).
+- Mã nguồn Multica đã checkout:
+
+  ```bash
+  git clone https://github.com/multica-ai/multica.git
+  cd multica
+  pnpm install
+  ```
+
+Thiếu gì trong danh sách đó, hãy đi qua hướng dẫn [Set up your environment](https://docs.expo.dev/get-started/set-up-your-environment/) của Expo (chọn **Development build → iOS Device**) — đó là hướng dẫn thiết lập chuẩn cho mọi thứ trừ phần checkout repo.
+
+## Build
+
+Một lệnh:
+
+```bash
+pnpm ios:mobile:device:prod:release
+```
+
+Xcode ký bản build bằng "Personal Team" mà Apple ID của bạn tự sở hữu — team này được tạo âm thầm ở lần đầu bạn đăng nhập Xcode bằng bất kỳ Apple ID nào, nên nó có sẵn dù bạn không nhớ đã thiết lập gì. Đây là **bản Release**: không phụ thuộc Metro, splash → app, y như bản cài từ App Store.
+
+Lần build đầu tải CocoaPods + biên dịch React Native từ mã nguồn — chờ 10–20 phút. Các lần sau dùng lại cache của Xcode.
+
+Đường điển hình chỉ có vậy. Nếu ký thất bại, nhảy tới [Khắc phục sự cố](#troubleshooting).
+
+## Giới hạn ký 7 ngày
+
+Apple ID miễn phí ký bản build trong **7 ngày**. Sau đó, app từ chối khởi động trên iPhone và hiện lỗi "untrusted developer". Cắm lại vào Mac và chạy lại đúng lệnh trên để ký lại — dữ liệu của bạn còn nguyên vì nó nằm trên backend, không nằm trong app.
+
+Cách duy nhất để kéo dài là tài khoản **Apple Developer Program** ($99/năm từ [developer.apple.com](https://developer.apple.com)). Khi đó chữ ký có hiệu lực 1 năm giữa các lần gia hạn, và bạn còn phân phối được cho thiết bị khác qua TestFlight.
+
+## Cập nhật
+
+Chưa có tự cập nhật. Khi codebase Multica tiến lên, pull và build lại:
+
+```bash
+git pull
+pnpm install
+pnpm ios:mobile:device:prod:release
+```
+
+Các lần build sau nhanh vì Xcode cache phần biên dịch native.
+
+## Vì sao chưa lên App Store
+
+App iOS vẫn đang đi nhanh — đội ưu tiên ship-và-lặp hơn chu kỳ duyệt App Store lúc này. Bản beta TestFlight nhiều khả năng là bước kế tiếp trước khi phát hành App Store đầy đủ. Trước đó, đường tự build ở trên là cách duy nhất để dùng Multica trên iOS.
+
+## Khắc phục sự cố
+
+**"No matching provisioning profiles found"** — Xcode từ chối ký bundle id mặc định `ai.multica.mobile` với Apple ID của bạn. Hiếm, nhưng xảy ra nếu ai đó đã đăng ký tiền tố đó trên cổng developer của Apple. Chọn bất kỳ reverse-domain nào bạn kiểm soát (`com.yourname.multica` là ổn), export rồi chạy lại:
+
+```bash
+export EXPO_BUNDLE_IDENTIFIER_PROD=com.yourname.multica
+pnpm ios:mobile:device:prod:release
+```
+
+Id không cần mang nghĩa gì — Apple chỉ cần nó chưa bị team khác nhận.
+
+**"Could not launch &lt;app&gt;" / "Untrusted Developer"** — hoặc bạn chạm giới hạn 7 ngày (build lại), hoặc cần tự tin cậy hồ sơ developer trên iPhone: Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị → chạm Apple ID của bạn → Tin cậy.
+
+**Build treo ở `Pod install` hoặc biên dịch mãi** — lần build đầu thật sự mất 10–20 phút vì CocoaPods tải phụ thuộc và Xcode biên dịch React Native từ mã nguồn. Các lần sau nhanh hơn nhiều.
+
+**App không tới được backend** — xác nhận `apps/mobile/.env.production` chưa bị sửa (nó đi kèm `EXPO_PUBLIC_API_URL=https://api.multica.ai`). Nếu bạn đã đổi, khôi phục bằng `git checkout apps/mobile/.env.production`.

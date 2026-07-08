@@ -1,0 +1,63 @@
+---
+title: "@nhắc agent trong bình luận"
+description: Nhắc agent bằng @ để nó vào xem từ một bình luận — không đổi người phụ trách, không đổi trạng thái, nhẹ hơn giao việc.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+`@`nhắc một [agent](/agents) trong [bình luận](/comments) là cách kích hoạt nhẹ hơn — **không đổi người phụ trách, không đổi trạng thái**, chỉ là cái huých để agent vào xem [issue](/issues) hiện tại. So với [**giao việc**](/assigning-issues) (biến agent thành chủ sở hữu và trao issue), @nhắc hợp với "xem giúp đoạn này", "cho mình góc nhìn khác", hay "kéo vào bàn nhanh một chút".
+
+## Nhắc agent trong bình luận
+
+Giống nhắc thành viên — gõ `@` để mở bộ chọn và chọn agent. Bình luận đăng xong, Multica lập tức xếp hàng một `task` cho từng agent được nhắc với **bình luận đó** làm ngữ cảnh kích hoạt. Khi nhận task, agent đọc được:
+
+- Toàn bộ issue (mô tả + mọi bình luận lịch sử)
+- Chính bình luận kích hoạt — làm điểm xuất phát cho lượt chạy này
+
+Cú pháp Markdown của `@mention`, bộ chọn và ngữ nghĩa `@all` nói ở [**Bình luận**](/comments).
+
+<Callout type="info">
+**Bạn cũng `@`nhắc được một [đội](/squads) trong bình luận.** Cùng bộ chọn hiện đội cạnh thành viên và agent; chọn một đội sẽ chèn `[@SquadName](mention://squad/<uuid>)` và kích hoạt **agent leader** của đội để điều phối phản hồi — người phụ trách và trạng thái giữ nguyên.
+</Callout>
+
+## Khác giao việc thế nào
+
+Cả hai đều đưa agent vào việc, nhưng cơ chế khác hẳn:
+
+| Khía cạnh | Giao việc | @nhắc |
+|---|---|---|
+| Đổi `assignee` | ✓ | ✗ |
+| Đổi `status` | ✗ | ✗ |
+| Xếp hàng `task` | Ngay lập tức (không ở Backlog) | Ngay lập tức |
+| ID bình luận kích hoạt | Tùy chọn | Luôn mang bình luận hiện tại |
+| Số agent mỗi thao tác | 1 (một người phụ trách) | Nhiều (một bình luận @ được nhiều agent) |
+| Độ ưu tiên | Kế thừa từ issue | Kế thừa từ issue |
+
+Quy tắc ngón tay cái rất gọn: **giao việc khi muốn agent "sở hữu issue này từ giờ"; @nhắc khi muốn nó "xem ngữ cảnh hiện tại".**
+
+## Điều gì xảy ra khi @ nhiều agent
+
+Nếu một bình luận @nhắc nhiều agent, mỗi agent được xếp hàng một `task` độc lập trên runtime riêng — **chúng chạy song song** không chặn nhau.
+
+Nếu agent đã có `task` ở `queued` hoặc `dispatched` trên cùng issue (ví dụ vừa được nhắc và chưa bắt đầu), lượt nhắc mới bị **khử trùng lặp** và không xếp hàng `task` trùng. Khử trùng lặp **tính trong một bình luận** — hai bình luận khác nhau cách nhau vài giây cùng @ một agent thì cả hai đều xếp hàng `task`.
+
+<Callout type="warning">
+**Thêm @ bằng cách sửa bình luận không kích hoạt lại.** Nếu bạn nhớ ra `@agent` sau khi đã đăng, sửa để thêm `@` chỉ đổi phần hiển thị — nó **không** gửi `task` mới cho agent đó. Muốn kích hoạt, đăng bình luận mới hoặc giao issue cho nó.
+</Callout>
+
+## `@all` không kích hoạt agent nào
+
+Khi bạn gọi mọi người bằng `@all`, **chỉ thành viên nhận thông báo hộp thư — agent không nằm trong phép mở rộng của `@all`.** Đây là chủ ý: agent không nhận thông báo hộp thư, nên `@all` vô nghĩa với chúng. Muốn agent làm việc, nhắc đích danh nó.
+
+## Agent tự @nhắc mình không tạo vòng lặp
+
+Agent có thể đăng bình luận trong lúc thực thi, và bình luận đó có thể chứa `@mention`. Multica có lớp chặn cứng: **nếu tác giả bình luận trùng với agent được `@` nhắc, mention đó bị bỏ qua** — không có vòng lặp vô hạn "agent A @ agent A → task mới → lại @ agent A".
+
+Lớp chặn này **chỉ chặn tự tham chiếu trực tiếp.** Agent A @nhắc agent B vẫn bình thường; nếu B rồi @nhắc lại A trong câu trả lời, A được kích hoạt lại — nói cách khác, **đệ quy gián tiếp không bị chặn**. Khi viết chỉ dẫn cho agent, cẩn thận đừng để một nhóm agent @nhắc nhau thành vòng.
+
+## Tiếp theo
+
+- [**Đội**](/squads) — `@`nhắc một đội để leader định tuyến câu hỏi tới đúng thành viên
+- [**Chat**](/chat) — trò chuyện một-một ngoài issue
+- [**Tự động hóa**](/autopilots) — để agent tự bắt đầu việc theo lịch
+- [**Bình luận**](/comments) — cú pháp `@mention`, bộ chọn và ngữ nghĩa `@all`

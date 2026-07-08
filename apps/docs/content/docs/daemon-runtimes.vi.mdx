@@ -1,0 +1,131 @@
+---
+title: Daemon và runtime
+description: Agent không chạy trên máy chủ của Multica — chúng chạy trên chính máy của bạn.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Mermaid } from "@/components/mermaid";
+
+Trong Multica, [agent](/agents) **không** chạy trên máy chủ của chúng tôi — chúng chạy trên máy của bạn, được điều khiển bởi một chương trình nhỏ gọi là **daemon** chuyên gọi các [công cụ lập trình AI](/providers) cài trên máy. Multica server chỉ điều phối: lưu [issue](/issues), xếp hàng [task](/tasks) và phát chúng tới đúng **runtime** (runtime = daemon × một công cụ lập trình AI).
+
+Cấu trúc này là khác biệt lớn nhất giữa Multica với Linear / Jira: **API key, bộ công cụ và thư mục mã nguồn ở lại trên máy của bạn** — Multica server không bao giờ nhìn thấy chúng. Vì thế "agent của tôi không chạy" gần như luôn là vấn đề cục bộ — daemon chưa chạy, công cụ AI chưa cài, key hết hạn. Kiểm tra trên máy trước; xem [Khắc phục sự cố](/troubleshooting).
+
+## Khởi động daemon
+
+Daemon là một phần của Multica CLI. Sau khi cài [Multica CLI](/cli), chạy trên máy của bạn:
+
+```bash
+multica daemon start
+```
+
+Khi khởi động, nó làm bốn việc:
+
+1. Đọc thông tin đăng nhập đã lưu khi bạn đăng nhập
+2. Phát hiện các công cụ lập trình AI trên `PATH` (14 công cụ có sẵn: [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae))
+3. Đăng ký chính nó với server, kèm một runtime cho mỗi công cụ phát hiện được
+4. **Poll mỗi 3 giây** để nhận task, và **gửi heartbeat mỗi 15 giây**
+
+Các lệnh thường dùng:
+
+| Lệnh | Mục đích |
+|---|---|
+| `multica daemon start` | Khởi động (mặc định chạy nền; thêm `--foreground` để chạy tiền cảnh) |
+| `multica daemon stop` | Dừng |
+| `multica daemon restart` | Khởi động lại |
+| `multica daemon status` | Xem trạng thái |
+| `multica daemon logs` | Xem log (thêm `-f` để theo dõi) |
+
+Tham chiếu CLI đầy đủ tại [Lệnh CLI](/cli).
+
+## Vì sao một máy có nhiều runtime
+
+Runtime không phải server, cũng không phải container — nó là tổ hợp "**daemon × một công cụ lập trình AI**". Ví dụ: bạn khởi động daemon trên một chiếc MacBook cài cả Claude Code lẫn Codex, và bạn là thành viên của hai không gian làm việc. Multica sẽ đăng ký 4 runtime:
+
+<Mermaid chart={`
+graph TD
+    D["Daemon của bạn<br/>MacBook"]
+    D --> R1["Runtime<br/>Không gian làm việc A × Claude Code"]
+    D --> R2["Runtime<br/>Không gian làm việc A × Codex"]
+    D --> R3["Runtime<br/>Không gian làm việc B × Claude Code"]
+    D --> R4["Runtime<br/>Không gian làm việc B × Codex"]
+`} />
+
+Điểm chính:
+
+- **Một daemon có thể ứng với nhiều runtime** — mỗi runtime cho một tổ hợp công cụ đã cài × không gian làm việc bạn tham gia
+- **Cùng daemon, không gian làm việc và công cụ thì chỉ có đúng một runtime** — khởi động lại daemon không bao giờ tạo bản ghi trùng
+- Trang **Runtime** trong giao diện Multica liệt kê các dòng này
+
+## Runtime profile tùy chỉnh
+
+Cơ chế phát hiện provider có sẵn đã phủ các công cụ phổ biến, nhưng đội của bạn cũng có thể định nghĩa **runtime profile tùy chỉnh** cho các AI CLI nói một trong các họ giao thức Multica hỗ trợ và cần lệnh khởi chạy riêng theo không gian làm việc. Profile được quản lý từ giao diện Runtime hoặc CLI:
+
+```bash
+multica runtime profile list
+multica runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
+multica runtime profile update <profile-id> --command-name agent
+multica runtime profile delete <profile-id>
+```
+
+Lệnh theo hướng argv, không phải chuỗi shell. Multica lưu tên file thực thi cùng các đối số cố định, rồi daemon khởi chạy trực tiếp bằng `exec.Command(command_name, fixed_args...)`. Hỗ trợ đối số thường, dấu nháy và escape bằng backslash; không hỗ trợ pipe, redirect, `&&`, `;`, backtick và mở rộng `$VAR` / `$(...)`. Dùng script bọc khi runtime cần hành vi shell. Hiện giao diện Runtime đảm nhận phân tích lệnh-và-đối-số; các lệnh profile của CLI quản lý bản ghi profile và ghi đè đường dẫn cục bộ.
+
+Nếu daemon không tìm thấy một lệnh vốn chạy được trong terminal của bạn, ghim đường dẫn tuyệt đối trên máy đó:
+
+```bash
+multica runtime profile set-path <profile-id> --path /abs/path/to/agent
+multica runtime profile unset-path <profile-id>
+```
+
+Sửa lệnh hoặc đối số của profile chỉ áp dụng cho task nhận mới sau khi daemon đăng ký lại. Task đang chạy giữ nguyên đối số khởi chạy ban đầu. Với triển khai hỗn hợp, nâng cấp server trước khi tung daemon mới: giao diện Runtime phía server lưu `fixed_args`, và server là nơi hiển thị báo cáo đăng ký `failed_profiles`. Các thành phần cũ có thể lặng lẽ bỏ qua trường chúng không hiểu thay vì báo lỗi rõ ràng, nên coi nâng cấp server là bước đầu tiên giúp đợt rollout luôn quan sát được.
+
+<Callout type="info">
+**Cloud runtime sắp ra mắt**, hiện trong giai đoạn danh sách chờ. Khi khả dụng, bạn sẽ chạy được task của agent trực tiếp trên Multica Cloud mà không cần daemon cục bộ.
+</Callout>
+
+## Khi runtime bị đánh dấu offline
+
+Multica dùng heartbeat để quyết định runtime có online hay không. Ba con số then chốt:
+
+| Sự kiện | Ngưỡng |
+|---|---|
+| Tần suất heartbeat của daemon | Mỗi **15 giây** |
+| Bị đánh dấu missing | Không có heartbeat trong **45 giây** (lỡ 3 nhịp) |
+| Tự động xóa | Missing và không gắn agent nào trong hơn **7 ngày** |
+
+Missing không phải vĩnh viễn — daemon gửi heartbeat tiếp theo là nó trở lại online, và bản ghi runtime được giữ nguyên. Khởi động lại daemon không làm mất runtime.
+
+<Callout type="warning">
+**Task đang chạy trên runtime missing bị đánh dấu failed** (lý do `runtime_offline`). Với các nguồn cho phép thử lại (issue, chat), Multica tự xếp hàng lại; task do Autopilot kích hoạt không tự thử lại. Xem [Task → Lỗi nào tự thử lại](/tasks#which-failures-retry-automatically-which-dont).
+</Callout>
+
+## Bao nhiêu task chạy song song được
+
+Multica giới hạn đồng thời ở hai tầng:
+
+- **Tầng daemon**: mặc định **20 task đồng thời** (chỉnh bằng biến môi trường `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`)
+- **Tầng agent**: mặc định **6 task đồng thời mỗi agent** (cấu hình theo từng agent)
+
+Giới hạn chặt hơn thắng. Nếu daemon đã chạy 20 task, task mới phải chờ dù agent vẫn còn chỗ.
+
+Nếu bạn thấy task kẹt ở `queued` không sang `dispatched`, thường là một trong hai giới hạn này đã bão hòa.
+
+## Task đang chạy ra sao sau khi daemon sập
+
+Khi daemon sập hoặc bị kill, các task nó đã nhận bị bỏ lại ở `dispatched` hoặc `running`. Ở lần khởi động kế tiếp, daemon báo server: "các task này không còn của tôi, hãy đánh dấu failed." Server chuyển chúng sang `failed` với lý do `runtime_recovery` — với các nguồn cho phép thử lại, task được tự xếp hàng lại.
+
+Kể cả khi bước này thất bại do lỗi mạng, phía server có một lượt quét **mỗi 30 giây** làm lưới đỡ: runtime nào không có heartbeat quá 45 giây bị đánh dấu missing, và các task của nó được thu hồi theo.
+
+## Chẩn đoán agent không hoạt động
+
+Khi gặp vấn đề "agent của tôi không chạy", làm checklist ba bước này trước:
+
+1. Chạy `multica daemon status` — xác nhận daemon đang chạy và online
+2. Chạy `multica daemon logs -f` — kiểm tra lỗi
+3. Mở trang **Runtime** trong giao diện Multica — xác nhận runtime của bạn hiện "online"
+
+Thêm tình huống khác tại [Khắc phục sự cố](/troubleshooting).
+
+## Tiếp theo
+
+- [Task](/tasks) — vòng đời đầy đủ của task sau khi daemon nhận
+- [Ma trận provider](/providers) — khác biệt năng lực giữa 14 công cụ lập trình AI

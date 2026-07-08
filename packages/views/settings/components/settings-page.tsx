@@ -36,12 +36,12 @@ const ACCOUNT_TAB_ICONS = {
   tokens: Key,
 } as const;
 
+// ponytail: integrations & labs hidden from nav per product request; content
+// and ?tab= deep links still work — re-add keys here to unhide.
 const WORKSPACE_TAB_KEYS = [
   "general",
   "repositories",
   "github",
-  "integrations",
-  "labs",
   "members",
 ] as const;
 const WORKSPACE_TAB_VALUES = {

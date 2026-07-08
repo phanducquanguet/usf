@@ -4,6 +4,18 @@ import type { Lang } from "./i18n";
 // Fumadocs built-in UI strings (search, TOC, last-updated, etc.) per locale.
 // English uses Fumadocs defaults so we only override Chinese.
 export const uiTranslations: Partial<Record<Lang, Partial<Translations>>> = {
+  vi: {
+    search: "Tìm kiếm",
+    searchNoResult: "Không tìm thấy kết quả",
+    toc: "Trên trang này",
+    tocNoHeadings: "Không có mục nào",
+    lastUpdate: "Cập nhật lần cuối",
+    chooseLanguage: "Chọn ngôn ngữ",
+    nextPage: "Trang sau",
+    previousPage: "Trang trước",
+    chooseTheme: "Đổi giao diện",
+    editOnGithub: "Sửa trên GitHub",
+  },
   zh: {
     search: "搜索",
     searchNoResult: "没有找到结果",
@@ -45,6 +57,7 @@ export const uiTranslations: Partial<Record<Lang, Partial<Translations>>> = {
 // Display name shown in the LanguageToggle dropdown.
 export const localeLabels: Record<Lang, string> = {
   en: "English",
+  vi: "Tiếng Việt",
   zh: "简体中文",
   ko: "한국어",
   ja: "日本語",
@@ -58,6 +71,12 @@ export const homeCopy = {
     titleLead: "Humans and agents,",
     titleAccent: "in one place.",
     byline: ["Getting started", "Updated April 2026", "6 min read"],
+  },
+  vi: {
+    eyebrow: "Tài liệu Multica",
+    titleLead: "Con người và agent,",
+    titleAccent: "cùng một nơi.",
+    byline: ["Bắt đầu", "Cập nhật tháng 4/2026", "Đọc trong 6 phút"],
   },
   zh: {
     eyebrow: "Multica 文档",

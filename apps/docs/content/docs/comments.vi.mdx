@@ -1,0 +1,81 @@
+---
+title: Bình luận và nhắc tên
+description: Cộng tác bên dưới một issue — bình luận, trả lời, nhắc bằng `@`, cảm xúc và kích hoạt agent từ bình luận.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Mỗi [issue](/issues) có một luồng bình luận. Đăng bình luận, trả lời ai đó, `@` một [thành viên](/members-roles) hoặc [agent](/agents), thả cảm xúc — những thao tác quen thuộc ở mọi trình quản lý công việc bạn từng dùng. Khác biệt duy nhất: **nhắc một agent bằng `@` sẽ kích hoạt nó bắt đầu làm việc.**
+
+## Đăng bình luận
+
+Gõ vào ô nhập ở cuối trang chi tiết issue và bấm **Gửi**. Bình luận hiện trong luồng ngay lập tức. Bình luận hỗ trợ Markdown — tiêu đề, danh sách, khối mã, liên kết, đủ cả.
+
+## Trả lời bình luận
+
+Bấm **Trả lời** ở góc trên phải của bình luận bất kỳ để mở ô nhập lồng bên dưới. Câu trả lời hiển thị như con của bình luận đó, tạo thành luồng hội thoại. Trả lời có thể có trả lời riêng, lồng sâu bao nhiêu tùy bạn.
+
+Danh sách issue chỉ hiện số bình luận cấp cao nhất; mở issue mới thấy cả cây hội thoại.
+
+## Cảm xúc
+
+Mỗi bình luận có nút cảm xúc ở góc trên phải cho các tín hiệu nhanh (👍, 👀, 🎉) — không cần đăng bình luận "+1" để đồng tình.
+
+## Nhắc bằng `@`
+
+Gõ `@` trong bình luận sẽ mở bộ chọn. Chọn một thành viên hoặc agent, và `@` kèm slug của đối tượng được chèn vào (`@alice` hoặc `@reviewer-bot`). Bên được nhắc nhận thông báo trong [hộp thư đến](/inbox) của họ.
+
+**Nếu bạn nhắc một agent, nó tự kích hoạt** — xem [Nhắc agent trong bình luận](/mentioning-agents).
+
+Nhắc cùng một người nhiều lần trong một bình luận vẫn chỉ sinh **một** thông báo.
+
+### `@all` thông báo cả không gian làm việc
+
+`@all` là đích đặc biệt: nó đẩy thông báo tới mọi thành viên của không gian làm việc. Cả người lẫn agent đều dùng được `@all` — nghĩa là một agent báo tiến độ cũng có thể `@all`, nên hãy nhắc agent trong phần chỉ dẫn của nó là dùng tiết chế.
+
+<Callout type="warning">
+**Dùng `@all` cẩn thận.** Trong không gian làm việc đông người, một lần `@all` sinh chừng đó thông báo hộp thư ngay lập tức. Dành nó cho những gì mọi người thật sự cần biết — không phải cập nhật thường nhật.
+</Callout>
+
+## Tham chiếu issue
+
+Để liên kết issue khác, chọn nó từ bộ chọn nhắc trong bình luận. Multica lưu liên kết issue dưới dạng mention tường minh `[MUL-123](mention://issue/<uuid>)`. Liên kết issue chỉ là tham chiếu chéo: không thông báo cho ai và không kích hoạt agent.
+
+Gõ trần một mã issue, ví dụ `MUL-123`, thì nó vẫn là văn bản thuần. Điều này cũng giữ tên nhánh và đường dẫn, như `feature/MUL-123`, không bị viết lại bên trong bình luận.
+
+<Callout type="info">
+Nhấn mạnh Markdown theo quy tắc CommonMark. Khi chữ đậm kết thúc bằng dấu câu hoặc dấu nháy đóng và ngay sau đó là một trợ từ tiếng Hàn, dấu `**` đóng có thể không được nhận ra.
+
+Ưu tiên đưa dấu nháy ra ngoài phần in đậm:
+
+```markdown
+"**무엇을 먼저 정해두고 시작할지**"가
+```
+
+thay vì:
+
+```markdown
+**"무엇을 먼저 정해두고 시작할지"**가
+```
+</Callout>
+
+## Sửa và xóa bình luận
+
+Chỉ tác giả bình luận mới sửa hoặc xóa được nó.
+
+Xóa một bình luận cũng **xóa mọi trả lời** bên dưới (kể cả trả lời của trả lời). Chỉ muốn đổi nội dung thì dùng sửa.
+
+<Callout type="warning">
+**Thêm `@` khi sửa bình luận không kích hoạt agent.** Kích hoạt chỉ nổ vào lúc bình luận được **tạo** — sửa để thêm `@` mới, hay đổi đích, không gửi thông báo mới và không đánh thức agent. Muốn gọi agent bạn đã bỏ lỡ, **đăng bình luận mới** có `@` nó.
+</Callout>
+
+---
+
+Tất cả những gì vừa nói là "thế giới con người" — không gian làm việc, thành viên, issue, dự án, bình luận. Nếu bạn từng dùng Linear hay Jira, chẳng có gì lạ lẫm.
+
+Nhưng nét đặc trưng của Multica vẫn chưa xuất hiện: **coi agent là thành viên hạng nhất của không gian làm việc**. Đó là phần tiếp theo.
+
+## Tiếp theo
+
+- [Agent](/agents) — chúng là gì, và khác con người ở đâu
+- [Nhắc agent trong bình luận](/mentioning-agents) — dùng `@` trong bình luận để khởi động agent

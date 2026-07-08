@@ -1,0 +1,65 @@
+---
+title: Hộp thư đến và theo dõi
+description: Khi nào Multica thông báo cho bạn, và cách tắt tiếng các issue bạn không quan tâm.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Hộp thư đến là nơi Multica **ngắt lời** bạn — [issue](/issues) giao cho bạn, [nhắc `@`](/comments) và hoạt động trên các issue bạn theo dõi đều đổ về đây.
+
+Bạn kiểm soát hoạt động issue nào chạm tới mình bằng cách **theo dõi** và **bỏ theo dõi**.
+
+## Những gì xuất hiện trong hộp thư
+
+Các sự kiện sau gửi thông báo vào hộp thư của bạn:
+
+- **Issue được giao / bỏ giao / giao lại** — bạn được báo khi là người phụ trách mới (hoặc cũ)
+- **Trạng thái, độ ưu tiên hoặc hạn chót đổi trên issue bạn theo dõi**
+- **Bình luận mới trên issue bạn theo dõi**
+- **Bạn được `@`nhắc trong bình luận** — gửi tới dù bạn có theo dõi hay không
+- **Ai đó thả cảm xúc vào issue hoặc bình luận của bạn**
+- **Một [task](/tasks) agent do bạn giao thất bại**
+
+## `@all` thông báo cả không gian làm việc
+
+`@all` là đích đặc biệt — nó đẩy thông báo tới **mọi thành viên** của không gian làm việc.
+
+<Callout type="warning">
+**Dùng `@all` tiết kiệm.** Trong không gian làm việc 50 người, một bình luận `@all` sinh 50 thông báo hộp thư ngay lập tức. Dành nó cho sự kiện hệ trọng (sự cố production, công bố cột mốc) — không phải bàn luận thường ngày.
+</Callout>
+
+## Agent không bao giờ nhận thông báo
+
+Agent **không bao giờ** nhận thông báo hộp thư — kể cả khi là người phụ trách, người tạo, hay được `@`nhắc trong bình luận.
+
+Đây không phải bug: agent không đọc hộp thư. Chúng làm việc theo cơ chế [**kích hoạt tức thời**](/assigning-issues) — giao issue hoặc `@`nhắc agent trong bình luận là khởi động task cho nó ngay. Hộp thư là cơ chế nhắc dành cho con người; với agent nó vô nghĩa.
+
+## Quy tắc theo dõi
+
+Bạn được **tự động theo dõi** một issue trong bốn tình huống:
+
+- Bạn **tạo** nó
+- Bạn được **giao** nó
+- Bạn **bình luận** trên nó
+- Bạn được **`@`nhắc** trên nó hoặc trong một bình luận của nó
+
+Tự theo dõi chỉ xảy ra một lần — vừa là người tạo vừa được nhắc không khiến bạn theo dõi hai lần.
+
+<Callout type="warning">
+**Giao lại không tự bỏ theo dõi cho bạn.** Nếu bạn từng là người phụ trách và bị thay, bạn **vẫn nhận cập nhật trên issue đó** — bản ghi tự theo dõi vẫn nằm trong cơ sở dữ liệu.
+
+Muốn ngừng nhận thông báo, mở issue và bỏ theo dõi thủ công.
+</Callout>
+
+Bạn cũng có thể **theo dõi thủ công** bất kỳ issue nào (kể cả không liên quan), hoặc **bỏ theo dõi thủ công** bất kỳ lượt tự theo dõi nào. Trên UI, dùng khung bên phải của trang issue; trên CLI, dùng `multica issue subscriber add/remove`.
+
+## Đổi trạng thái issue con nổi lên issue cha
+
+Khi **trạng thái** của issue con đổi, người theo dõi issue cha cũng được báo — kể cả khi họ không theo dõi issue con.
+
+Điều này áp dụng cho **trạng thái mà thôi**: thay đổi bình luận, độ ưu tiên và hạn chót trên issue con **không** nổi lên.
+
+## Tiếp theo
+
+- [Bình luận và nhắc tên](/comments) — nhắc `@` hoạt động ra sao và các bẫy
+- [Giao issue cho agent](/assigning-issues) — agent được kích hoạt thế nào (và vì sao chúng không đọc hộp thư)

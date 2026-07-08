@@ -1,0 +1,116 @@
+---
+title: Task
+description: Đơn vị công việc của mỗi lượt agent chạy, với máy trạng thái rõ ràng, timeout và quy tắc thử lại.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Mermaid } from "@/components/mermaid";
+
+Một **task** là đơn vị của mỗi lượt [agent](/agents) chạy — [giao issue cho agent](/assigning-issues), [@nhắc agent trong bình luận](/mentioning-agents), gửi tin nhắn trong [chat](/chat), hay một [Autopilot](/autopilots) nổ theo lịch đều sinh ra một task. Multica đưa nó vào hàng đợi; một [daemon](/daemon-runtimes) nhận và chuyển cho [công cụ lập trình AI](/providers) tương ứng, rồi ghi kết quả về server khi xong.
+
+Task và [issue](/issues) là hai đối tượng khác nhau. Một issue có thể được giao, @nhắc và chạy lại thủ công nhiều lần — mỗi lần sinh một task **mới**.
+
+## Các trạng thái một task đi qua
+
+<Mermaid chart={`
+graph LR
+    Q["Xếp hàng<br/>queued"] -->|daemon nhận| D["Đã phát<br/>dispatched"]
+    D -->|agent bắt đầu| R["Đang chạy<br/>running"]
+    R -->|thành công| C["Hoàn thành<br/>completed"]
+    R -->|lỗi hoặc timeout| F["Thất bại<br/>failed"]
+    Q -->|người dùng hủy| X["Đã hủy<br/>cancelled"]
+    D -->|người dùng hủy| X
+    R -->|người dùng hủy| X
+    F -.lý do cho phép thử lại.-> Q
+`} />
+
+- **Queued** — task vừa được tạo, chờ daemon nhận
+- **Dispatched** — một daemon đã nhận và đang khởi chạy công cụ lập trình AI
+- **Running** — công cụ lập trình AI đang thực sự làm việc
+- **Completed** — hoàn thành; kết quả (bình luận, commit mã, thay đổi trạng thái) được ghi về server
+- **Failed** — bị dừng vì lỗi hoặc timeout; nếu lý do lỗi cho phép thử lại, task tự quay về `queued` để chạy thêm lần nữa
+- **Cancelled** — người dùng đã hủy
+
+## Điều gì xảy ra khi task timeout
+
+Multica server quét mỗi 30 giây. Hai loại timeout gây thất bại:
+
+| Tình huống | Timeout |
+|---|---|
+| Đã dispatched nhưng không khởi chạy (daemon nhận nhưng chưa bật công cụ AI) | **5 phút** |
+| Chạy quá lâu | **2,5 giờ** |
+
+Cả hai đều dùng lý do lỗi `timeout` và **tự thử lại** (mục kế tiếp). Về phép kiểm tra runtime missing liên quan, xem [Daemon và runtime → Khi runtime bị đánh dấu offline](/daemon-runtimes#when-a-runtime-is-marked-offline).
+
+## Lỗi nào tự thử lại, lỗi nào không
+
+Lỗi chia hai loại: **cho phép thử lại** và **không cho phép thử lại**.
+
+**Cho phép thử lại** (Multica tự xếp hàng lại):
+
+- `runtime_offline` — daemon mất tích sau khi task đã dispatched
+- `runtime_recovery` — daemon sập rồi khởi động lại, thu hồi các task chưa xong
+- `timeout` — timeout khi chạy hoặc khi dispatch
+
+**Không cho phép thử lại** (task nằm nguyên ở failed):
+
+- `agent_error` — bản thân công cụ lập trình AI báo lỗi (lỗi API, hết quota, bug nội bộ). Lỗi gốc không được thử lại — vì sẽ lặp vô hạn.
+
+Tự thử lại còn hai điều kiện phụ:
+
+1. **Tối đa 2 lần chạy** — 1 lần gốc + 1 lần thử lại. Nếu lần thử lại vẫn lỗi thì thôi, kể cả khi lý do cho phép thử lại.
+2. **Chỉ với task kích hoạt từ issue và chat** — task do Autopilot kích hoạt **không** tự thử lại.
+
+<Callout type="warning">
+**Task của Autopilot không tự thử lại** là chủ ý thiết kế. Autopilot có nhịp chạy riêng (ví dụ hằng ngày); tự thử lại khi lỗi sẽ chồng lên lần chạy kế theo lịch. Cần chạy lại ngay sau lỗi thì dùng chạy lại thủ công (mục kế tiếp).
+
+**Làm sao biết task của Autopilot lỗi**: một thông báo về [Hộp thư đến](/inbox), và trạng thái issue liên quan lùi từ `in_progress` về `todo`. Trang [Tự động hóa](/autopilots) cũng hiện kết quả lần chạy mới nhất của từng autopilot.
+</Callout>
+
+## Chạy lại thủ công vs. tự thử lại
+
+**Chạy lại thủ công** là do bạn kích hoạt từ CLI hoặc API (`POST /api/issues/{id}/rerun`):
+
+```bash
+multica issue rerun <issue-id>
+```
+
+Hành vi:
+
+- Mặc định nhắm vào **agent đang phụ trách issue** — hữu ích khi bạn muốn lần chạy lại bám theo phân công hiện tại, bất kể ai chạy task trước.
+- Nút thử lại trên một dòng trong nhật ký thực thi gửi kèm ID task của dòng đó, nên lần chạy lại nhắm vào **agent đã chạy đúng task đó** — không phải người phụ trách hiện tại. Điều này khiến thử lại theo dòng có ý nghĩa với worker của đội, các agent @nhắc song song, hoặc dòng có agent đã bị thay do phân công lại.
+- **Hủy** task đang xếp hàng hoặc đang chạy của agent mục tiêu trên issue này (nếu có). Task của agent khác trên cùng issue (ví dụ các lượt @nhắc song song) được để yên.
+- Tạo một task **hoàn toàn mới** — bộ đếm lần chạy về 1, kể cả khi task gốc đã chạm trần.
+- Bắt đầu **phiên agent mới** — ID phiên trước **không** được kế thừa. Chạy lại thủ công nghĩa là bạn đã đánh giá kết quả trước là tệ, nên nối lại cuộc trò chuyện cũ chỉ phát lại đúng trạng thái hỏng đó. (Ngược lại, tự thử lại kế thừa phiên — đường đó dành cho lỗi hạ tầng, không phải kết quả tệ.)
+
+So sánh:
+
+| Khía cạnh | Tự thử lại | Chạy lại thủ công |
+|---|---|---|
+| Kích hoạt | Hệ thống, theo lý do lỗi | Bạn, thủ công |
+| Trần | 2 lần chạy | Không giới hạn |
+| Nguồn áp dụng | Issue, chat | Issue có agent phụ trách |
+| Agent được chọn | Cùng agent với task lỗi | Agent của task nguồn (thử lại theo dòng trên UI) hoặc người phụ trách hiện tại (CLI / không có task_id) |
+| Kế thừa phiên | Có (nối phiên trước) | Không (phiên mới) |
+
+## Task lỗi ảnh hưởng trạng thái issue thế nào
+
+Nếu task kích hoạt từ issue thất bại (và không lần tự thử lại nào thành công) vì issue được giao cho agent, **trạng thái issue tự lùi từ `in_progress` về `todo`** — mở bảng là bạn thấy ngay "cái này cần xem lại". Xem [Issue và dự án](/issues).
+
+## Task có tiếp tục được từ ngữ cảnh trước không
+
+Có — miễn công cụ lập trình AI hỗ trợ khôi phục phiên.
+
+Multica ghim ID phiên **hai lần** trong một task: một lần lúc bắt đầu (khi công cụ AI trả về system message đầu tiên), một lần lúc kết thúc (hoàn thành hoặc thất bại). Lần đầu giúp daemon phục hồi nếu sập giữa chừng; lần sau dành cho lượt **tự thử lại** kế tiếp, nơi ID đó được truyền lại để agent nối tiếp cuộc trò chuyện và trạng thái file trước đó. **Chạy lại thủ công chủ ý bỏ qua bước này** và mở phiên mới — xem [Chạy lại thủ công vs. tự thử lại](#manual-rerun-vs-automatic-retry).
+
+Nhưng **công cụ nào thực sự hỗ trợ** thì khác nhau nhiều:
+
+- ✅ **Hỗ trợ thật** — Antigravity, Claude Code, Codex, Copilot, Cursor, Hermes, Kimi, Kiro CLI, OpenCode, OpenClaw, Pi
+- ❌ **Không hỗ trợ** — Gemini
+
+Xem [Ma trận provider → Khôi phục phiên](/providers#session-resumption-who-really-supports-it).
+
+## Tiếp theo
+
+- [Ma trận provider](/providers) — khác biệt năng lực giữa 14 công cụ lập trình AI (kèm hiện trạng khôi phục phiên chính xác)
+- [Giao issue cho agent](/assigning-issues) / [@nhắc agent trong bình luận](/mentioning-agents) / [Chat](/chat) / [Tự động hóa](/autopilots) — bốn cách kích hoạt một task

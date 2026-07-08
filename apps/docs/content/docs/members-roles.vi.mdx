@@ -1,0 +1,60 @@
+---
+title: Thành viên và vai trò
+description: Ba vai trò của không gian làm việc — owner, admin, member — làm được gì, và cách mời người vào.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Ai trong [không gian làm việc](/workspaces) cũng có một vai trò, và vai trò quyết định họ làm được gì. Multica có ba: **owner** (chủ không gian làm việc), **admin** và **member**. Hầu hết công việc hằng ngày — tạo [issue](/issues), viết [bình luận](/comments), dùng [agent](/agents) — cả ba vai trò đều làm được. **Khác biệt tập trung ở quản lý nhóm.**
+
+## Quyền hạn trong một bảng
+
+Bảng dưới liệt kê các khác biệt quan trọng nhất trong các thao tác quản lý nhóm:
+
+| Thao tác | owner | admin | member |
+|---|---|---|---|
+| Mời admin hoặc member mới | ✓ | ✓ | ✗ |
+| **Mời owner mới** | ✓ | ✗ | ✗ |
+| Hạ cấp / gỡ admin hoặc member | ✓ | ✓ | ✗ |
+| **Hạ cấp / gỡ một owner khác** | ✓ | ✗ | ✗ |
+| Xóa không gian làm việc | ✓ | ✗ | ✗ |
+
+**Member không mời được ai** — mời người là quyền của tầng admin. **Chỉ owner mới nâng được ai đó lên owner** — admin nâng và hạ được member hoặc admin khác, nhưng không tạo được owner mới. Tương tự, admin gỡ được member hoặc admin khác nhưng **không đụng được owner hiện có**. Mục đích là đảm bảo tầng cao nhất chỉ được cấp bởi người đã nắm nó — quyền không rò rỉ lên trên.
+
+<Callout type="info">
+Phạm vi hiển thị của agent có hai kiểu: "workspace" và "private". Agent private chỉ có owner và admin giao được vào issue — điều này bảo vệ những cấu hình dành cho một nhóm người cụ thể. Xem [Agent](/agents).
+</Callout>
+
+## Mời thành viên mới
+
+Multica mời thành viên mới qua email:
+
+1. Trong trang cài đặt không gian làm việc, bấm **Invite member**, nhập email và chọn vai trò.
+2. Multica gửi email mời chứa một liên kết duy nhất.
+3. Người nhận bấm liên kết, đăng nhập (hoặc đăng ký) và **chấp nhận lời mời** để tham gia không gian làm việc.
+
+Email được mời **không cần đăng ký Multica từ trước** — nếu chưa có tài khoản, tài khoản được tạo khi lời mời được chấp nhận.
+
+Nếu email mời gửi không tới (sai địa chỉ, dịch vụ mail trục trặc), bản ghi lời mời vẫn được giữ; bạn có thể gửi lại email từ cài đặt không gian làm việc, hoặc chia sẻ liên kết mời qua kênh khác.
+
+Lời mời **có hiệu lực 7 ngày**. Sau đó, bấm liên kết sẽ hiện thông báo "hết hạn" và người mời cần gửi lời mời mới.
+
+## Luôn có ít nhất một owner
+
+Mỗi không gian làm việc **luôn phải có ít nhất một owner**. Ràng buộc này tự chặn hai thao tác:
+
+- Owner cuối cùng không tự hạ cấp được.
+- Owner hoặc admin khác không gỡ được owner cuối cùng.
+
+<Callout type="warning">
+Nếu bạn là owner cuối cùng và sắp rời nhóm, **hãy chuyển vai trò owner cho thành viên khác trước**, rồi mới rời hoặc bàn giao không gian làm việc. Nếu không, thao tác sẽ bị từ chối.
+</Callout>
+
+## Gỡ thành viên
+
+Owner và admin gỡ được thành viên khác khỏi không gian làm việc. Thành viên bị gỡ mất quyền truy cập ngay lập tức; issue, bình luận và nội dung khác họ đã tạo vẫn được giữ trong không gian làm việc.
+
+## Tiếp theo
+
+- [Issue và dự án](/issues) — thứ mà thành viên làm việc trên đó
+- [Bình luận và nhắc tên](/comments) — cộng tác bên dưới một issue

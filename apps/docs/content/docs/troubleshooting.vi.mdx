@@ -1,0 +1,287 @@
+---
+title: Khắc phục sự cố
+description: Các vấn đề thường gặp khi tự vận hành Multica — triệu chứng, nguyên nhân, cách chẩn đoán, cách sửa.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Tra vấn đề theo triệu chứng. Mỗi mục gồm **triệu chứng / nguyên nhân khả dĩ / cách chẩn đoán / cách sửa**. Nếu tình huống của bạn không có ở đây, hãy liên hệ đội hỗ trợ.
+
+## Daemon không kết nối được server
+
+**Triệu chứng**: lệnh `status` của [`multica daemon`](/cli) hiện `offline` hoặc `connection refused`; log server không có request `/api/daemon/register` hay `/api/daemon/heartbeat` nào. Cơ chế daemon hoạt động ra sao, xem [Daemon và runtime](/daemon-runtimes).
+
+**Nguyên nhân khả dĩ**:
+
+1. **`MULTICA_SERVER_URL` trỏ sai địa chỉ** — mặc định là `ws://localhost:8080/ws`; tự vận hành phải đổi sang địa chỉ server của bạn
+2. **Mạng / firewall chặn** — daemon và server không cùng mạng, hoặc lưu lượng ra ngoài bị chặn
+3. **Token hết hạn hoặc không hợp lệ** — bạn chưa từng chạy `multica login`, hoặc PAT đã bị thu hồi
+4. **Server từ chối đăng ký** — tài khoản bạn đăng nhập không thuộc không gian làm việc mục tiêu (register trả 403)
+5. **Lỗi phân giải DNS** — hostname không phân giải được trên máy chạy daemon
+
+**Cách chẩn đoán**:
+
+```bash
+multica daemon logs --lines 100    # tìm lỗi phía daemon
+echo $MULTICA_SERVER_URL          # xác nhận địa chỉ đã đặt
+curl -i http://<server-host>:8080/health   # gọi thẳng server
+curl -i http://<server-host>:8080/readyz  # kèm độ sẵn sàng DB + migration
+cat ~/.multica/config.json        # kiểm tra api_token tồn tại
+multica workspace list            # xác nhận bạn là thành viên không gian làm việc mục tiêu
+```
+
+**Cách sửa**: xử lý từng nguyên nhân ở trên. Hai cách sửa phổ biến nhất là **đổi `MULTICA_SERVER_URL` và khởi động lại daemon** (`multica daemon restart`) và **đăng nhập lại** (`multica logout && multica login`).
+
+## Task kẹt ở `queued`
+
+**Triệu chứng**: giao issue cho agent xong, trạng thái issue lật sang `in_progress` ngay, nhưng mãi không thấy dấu hiệu agent thực thi trên trang; `multica daemon status` hiện daemon `online`.
+
+**Nguyên nhân khả dĩ** (xếp theo tần suất):
+
+1. **Chạm giới hạn đồng thời của agent** — `max_concurrent_tasks` của agent này (mặc định 6) đã bị các task đang chạy chiếm hết
+2. **Một task khác của cùng agent còn đang chạy trên cùng issue** — cùng agent × cùng issue bị ép chạy tuần tự (chống thực thi trùng)
+3. **Agent đã bị lưu trữ** — sau lưu trữ, task mới vẫn xếp hàng nhưng không được nhận, và timeout sau 5 phút (mã sự cố G-01)
+4. **Daemon chưa đăng ký runtime này trong không gian làm việc hiện tại** — khởi động lại daemon hoặc chọn lại runtime trên UI
+5. **Daemon mất kết nối** — không có heartbeat trong 45 giây gần nhất. `daemon status` báo `online` có thể phản ánh một cú rớt rất mới
+
+**Cách chẩn đoán**:
+
+```bash
+multica daemon status --output json       # danh sách runtime + last_seen_at
+multica agent list                         # kiểm tra trạng thái lưu trữ của agent
+multica issue show <issue-id>             # soi lịch sử task
+```
+
+Phía server (tự vận hành), grep `"no_tasks"` / `"no_capacity"` để xem kết quả nhận task.
+
+**Cách sửa**:
+
+- Đầy đồng thời → chờ task đang chạy xong, hoặc `multica agent update <id> --max-concurrent-tasks 10` để nâng trần
+- Tuần tự cùng issue → chờ task trước xong, hoặc giao lại cho agent khác
+- Agent lưu trữ → `multica agent restore <id>`
+- Runtime chưa đăng ký → `multica daemon restart`, daemon sẽ đăng ký lại
+
+## WebSocket không kết nối được
+
+**Triệu chứng**: console trình duyệt log `WebSocket is closed`; trang không hiện cập nhật thời gian thực (tiến độ task, bình luận, hộp thư) và phải tải lại mới thấy; task phía backend vẫn chạy.
+
+**Nguyên nhân khả dĩ**:
+
+1. **Lỗi kiểm tra Origin** — tên miền frontend của bạn không nằm trong danh sách CORS của server. Danh sách mặc định chỉ có `localhost:3000/5173/5174`; tự vận hành trên internet công cộng bắt buộc đặt `FRONTEND_ORIGIN`
+2. **Lệch giao thức** — frontend chạy `https://` thì cần `wss://`; HTTP dùng `ws://`
+3. **Reverse proxy chưa bật nâng cấp WebSocket** — Nginx / Envoy / HAProxy mặc định không chuyển tiếp header `Upgrade`
+4. **Cookie JWT hết hạn hoặc thiếu** — chưa đăng nhập lại sau hạn 30 ngày
+
+**Cách chẩn đoán**:
+
+- DevTools trình duyệt → Network → lọc "WS" và xem trạng thái kết nối cùng mã trạng thái
+- Grep log server tìm `"rejected origin"` / `"websocket"` — vấn đề origin tự nói tên
+- `curl -i http://<server-host>:8080/ws` phải trả `101 Switching Protocols` (kèm header `Upgrade`)
+
+**Cách sửa**:
+
+- Sai origin → đặt `FRONTEND_ORIGIN=https://multica.yourdomain.com` trong `.env` của server (hoặc `CORS_ALLOWED_ORIGINS` phân tách phẩy) và khởi động lại server
+- Lệch giao thức → đảm bảo giao thức của `FRONTEND_ORIGIN` khớp với frontend
+- Reverse proxy → với Nginx, thêm `proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade";`
+- Cookie hết hạn → tải lại trang và đăng nhập lại
+
+## Không nhận được email
+
+**Triệu chứng**: sau khi nhập email lúc đăng nhập hoặc nhận lời mời, cả hộp thư lẫn thư mục spam đều không có mã xác thực.
+
+**Trước tiên, xác nhận server nghĩ provider nào đang hoạt động.** Lúc khởi động backend in một trong các dòng:
+
+- `EmailService: SMTP relay <host>:<port> from=<addr>` — đang dùng SMTP (`SMTP_HOST` không rỗng thắng Resend)
+- `EmailService: Resend API from=<addr>` — đang dùng Resend
+- `EmailService: DEV mode — codes printed to stdout …` — chưa cấu hình provider nào
+
+```bash
+docker compose -f docker-compose.selfhost.yml logs backend | grep "EmailService:"
+```
+
+Nếu không thấy dòng bạn mong đợi, biến môi trường chưa vào tiến trình — kiểm tra `.env` và `docker compose -f docker-compose.selfhost.yml exec backend env | grep -E 'RESEND_|SMTP_'`. Thông tin đăng nhập không bao giờ bị log ở dòng khởi động này.
+
+### Khi Resend là provider đang hoạt động
+
+**Nguyên nhân khả dĩ**:
+
+1. **Chưa đặt `RESEND_API_KEY`** — server lặng lẽ lùi về và **ghi mã ra stdout của chính nó** không báo lỗi. Rất dễ vấp ở production
+2. **API key Resend không hợp lệ / hết quota** — log server hiện `"failed to send verification code"`
+3. **Tên miền của `RESEND_FROM_EMAIL` chưa xác minh trong Resend** — Resend từ chối gửi
+4. **Email đã gửi nhưng bị ISP người nhận đánh dấu spam** — kiểm tra bảng điều khiển Resend và thư mục spam
+
+**Cách chẩn đoán**:
+
+- Grep log server tìm `"[DEV] Verification code for"` — nếu có, Resend chưa cấu hình và mã đã được ghi ra stdout
+- [Bảng điều khiển Resend](https://resend.com/) → Emails xem lịch sử gửi
+- Xác nhận tên miền của `RESEND_FROM_EMAIL` có trong danh sách "Verified Domains" của console Resend
+
+**Cách sửa**:
+
+- Thiếu API key → làm theo [Thiết lập đăng nhập và đăng ký → Email hoạt động thế nào](/auth-setup#how-email--verification-code-sign-in-works) và khởi động lại server
+- Tên miền chưa xác minh → chạy luồng xác minh DNS trong console Resend (thêm bản ghi SPF / DKIM)
+- Trường hợp khẩn (test nội bộ) → chép mã in dưới `[DEV]` từ log server
+
+### Khi SMTP là provider đang hoạt động
+
+Đường SMTP bọc mỗi lỗi kèm giai đoạn nó thất bại, nên log server đã nói relay từ chối phiên ở đâu. Grep `"failed to send verification email"` / `"failed to send invitation email"` và xem lỗi được bọc:
+
+| Lỗi trong log | Nghĩa là gì | Cách sửa |
+|---|---|---|
+| `smtp dial <host>:<port>: dial tcp …: connect: connection refused` / `i/o timeout` | Container backend không tới được relay — sai host, sai cổng, firewall, hoặc relay không lắng nghe | Kiểm chứng `SMTP_HOST` / `SMTP_PORT` phân giải từ trong container (`docker compose -f docker-compose.selfhost.yml exec backend nslookup <host>` và `nc -vz <host> <port>`); mở firewall từ máy chạy Multica tới relay |
+| `smtp starttls: x509: certificate signed by unknown authority` (hoặc `certificate is not valid for any names`) | Relay dùng CA riêng / chứng chỉ tự ký và kho tin cậy của container từ chối | Hoặc cài CA vào container, hoặc đặt `SMTP_TLS_INSECURE=true` chỉ sau khi xác nhận relay nằm trên phân đoạn tin cậy |
+| `smtp auth: 535 5.7.8 Authentication credentials invalid` (hoặc `534`/`530`) | `SMTP_USERNAME` / `SMTP_PASSWORD` sai, hoặc relay đòi cơ chế xác thực khác `PLAIN` | Xác nhận lại thông tin tài khoản dịch vụ với quản trị mail; với relay nội bộ ẩn danh Exchange, để trống cả hai (`SMTP_USERNAME=`, `SMTP_PASSWORD=`) |
+| `smtp MAIL FROM: 550 5.7.1 Client does not have permissions to send as this sender` | Relay không nhận `RESEND_FROM_EMAIL` làm người gửi envelope — điển hình Exchange "anonymous users not allowed" hoặc vấn đề khớp DMARC | Đặt `RESEND_FROM_EMAIL` về tên miền relay chấp nhận; trên Exchange, cấp `ms-Exch-SMTP-Accept-Any-Sender` cho IP nguồn trên receive connector |
+| `smtp RCPT TO <addr>: 550 5.7.1 Unable to relay` | Receive connector của relay không cho subnet của bạn relay tới người nhận ngoài (phổ biến nhất với relay nội bộ ẩn danh gửi ra tên miền ngoài) | Hoặc giới hạn lời mời cho người nhận nội bộ, hoặc thêm subnet của máy Multica vào danh sách quyền "Anonymous Users → Relay" của Exchange |
+| `smtp DATA` / `smtp write body` / `smtp end data` | Phiên được nhận nhưng relay bỏ phần thân — thường do giới hạn kích thước, lọc nội dung, hoặc reset kết nối giữa chừng | Xem log của relay với cùng `Message-ID` (log dạng `<unixnano>@<host>`); nâng giới hạn kích thước nếu cần |
+
+Lỗi `MAIL FROM`, `RCPT TO` và `DATA` luôn được log kèm mã phản hồi của relay để bạn đối chiếu với log Exchange / Postfix phía bên kia. Mã xác thực và token mời **không bao giờ** nằm trong lỗi được bọc.
+
+**Cách chẩn đoán**:
+
+- Grep `"EmailService: SMTP relay"` một lần lúc khởi động, rồi `"failed to send"` cho lỗi runtime
+- Từ trong container backend, kiểm tra kết nối: `docker compose -f docker-compose.selfhost.yml exec backend sh -c 'nc -vz $SMTP_HOST $SMTP_PORT'`
+- Xác nhận env đã vào tiến trình: `docker compose -f docker-compose.selfhost.yml exec backend env | grep SMTP_` (mật khẩu sẽ hiện trong output — chỉ chạy trên shell tin cậy)
+
+**Cách sửa**:
+
+- Sai host / cổng → chỉnh `SMTP_HOST` / `SMTP_PORT` và khởi động lại backend; các chế độ relay được hỗ trợ xem [Thiết lập xác thực → Phương án B: SMTP relay](/auth-setup)
+- Lệch chứng chỉ → cài CA của relay vào container, hoặc tạm `SMTP_TLS_INSECURE=true` trên phân đoạn tin cậy
+- Lỗi xác thực → kiểm tra lại thông tin đăng nhập; với relay nội bộ ẩn danh, để trống `SMTP_USERNAME` và `SMTP_PASSWORD`
+- `Unable to relay` → hoặc giới hạn người nhận nội bộ, hoặc cấp quyền relay cho IP của máy Multica trên receive connector Exchange
+
+## Mã kiểm thử cục bộ cố định không hoạt động
+
+**Triệu chứng**: trên máy chủ tự vận hành, bạn thử đăng nhập bằng mã kiểm thử cố định như `888888` và bị từ chối với `invalid or expired code`.
+
+**Nguyên nhân khả dĩ** (loại trừ lẫn nhau):
+
+1. **`MULTICA_DEV_VERIFICATION_CODE` trống** — mã cố định mặc định là tắt
+2. **`APP_ENV=production`** — đây là cấu hình production **đúng**; mã kiểm thử cố định bị bỏ qua ở production
+3. **Mã cấu hình không phải 6 chữ số** — lối tắt chỉ nhận giá trị 6 chữ số
+
+**Cách chẩn đoán**:
+
+```bash
+cat .env | grep -E 'APP_ENV|MULTICA_DEV_VERIFICATION_CODE'
+docker exec <container> env | grep -E 'APP_ENV|MULTICA_DEV_VERIFICATION_CODE'
+```
+
+Kiểm tra hộp thư (cả spam) tìm mã xác thực thật.
+
+**Cách sửa**:
+
+- Ở production, để `MULTICA_DEV_VERIFICATION_CODE` trống — cấu hình Resend và dùng mã thật
+- Cho phát triển cục bộ hay test nội bộ, hoặc chép mã sinh ra từ log server, hoặc đặt `APP_ENV=development` cộng `MULTICA_DEV_VERIFICATION_CODE=888888` — không bao giờ bật mã cố định trên máy chủ công khai (xem [Thiết lập đăng nhập và đăng ký → Mã kiểm thử cục bộ cố định](/auth-setup#fixed-local-testing-codes))
+
+## Bảng usage đứng ở số 0
+
+**Triệu chứng**: agent hoàn thành task, usage token thô được ghi vào cơ sở dữ liệu, nhưng **Cài đặt → Usage** và **Cài đặt → Runtime** hiện 0 input / output / chi phí toàn bộ. Lỗi này im lặng — log backend không có lỗi nào.
+
+**Nguyên nhân khả dĩ**:
+
+1. **`rollup_task_usage_hourly()` không bao giờ được nhận** — bảng điều khiển Usage / Runtime đọc từ bảng dẫn xuất `task_usage_hourly`, do hàm đó ghi. Từ MUL-2957, backend chạy rollup trong tiến trình qua bộ lập lịch dựa trên DB (`sys_cron_executions`); build cũ, thiếu migration `113`, hoặc backend sập kéo dài không còn bản sao nào chạy có thể khiến bảng không có dòng SUCCESS gần đây.
+2. **`pg_cron` cấu hình cho tương thích nhưng trỏ sai cơ sở dữ liệu** — `pg_cron.database_name` mặc định là `postgres`; nếu database Multica của bạn tên khác, job theo lịch không bao giờ thấy `rollup_task_usage_hourly()`. Bộ lập lịch trong tiến trình không phụ thuộc cái này, nhưng nếu bạn gỡ nó và dựa vào `pg_cron`, tên DB phải khớp.
+3. **Handler được nhận nhưng lỗi lặng lẽ** — ví dụ hàm SQL thiếu do migration áp một phần, hoặc role DB / search_path cấu hình sai. Xem các dòng audit FAILED trong `sys_cron_executions`.
+
+**Cách chẩn đoán**:
+
+```sql
+-- Xác nhận sự kiện thô tồn tại nhưng bảng theo giờ rỗng.
+SELECT count(*) AS raw_rows FROM task_usage;
+SELECT count(*) AS hourly_rows FROM task_usage_hourly;
+
+-- Soi nhật ký audit của bộ lập lịch trong tiến trình.
+SELECT plan_time, status, attempt, runner_id,
+       error_code, error_msg, started_at, finished_at
+  FROM sys_cron_executions
+ WHERE job_name = 'rollup_task_usage_hourly'
+ ORDER BY plan_time DESC
+ LIMIT 20;
+
+-- Watermark — nếu là 1970-01-01, rollup chưa từng chạy.
+SELECT watermark_at FROM task_usage_hourly_rollup_state;
+
+-- Đường tương thích: nếu trước đây bạn đăng ký pg_cron, xác nhận
+-- nó có (hoặc không) khả dụng và trỏ đúng cơ sở dữ liệu.
+SELECT * FROM pg_available_extensions WHERE name = 'pg_cron';
+SHOW shared_preload_libraries;
+SELECT jobname, schedule, database, active FROM cron.job;
+```
+
+**Cách sửa**:
+
+- Xác nhận bộ lập lịch thực đang chạy trên ít nhất một bản sao backend — mỗi 30 giây nó phải thêm một dòng SUCCESS vào `sys_cron_executions` cho `rollup_task_usage_hourly`.
+- Gọi tay rollup một lần để kiểm chứng đường SQL: `SELECT rollup_task_usage_hourly();` — làm mới bảng điều khiển; nếu số hiện lên, hàm SQL ổn và vấn đề nằm ở đường nhận của bộ lập lịch.
+- Nếu migration `113_sys_cron_executions` chưa áp, khởi động lại backend để migration chạy, hoặc gọi `migrate up` thủ công.
+- Nếu bạn có lịch sử `pg_cron` cũ trước bộ lập lịch trong tiến trình, hàm SQL vẫn giữ advisory lock 4246 bên trong và hai đường không thể ghi trùng — xem [Bắt đầu nhanh tự vận hành → Tổng hợp usage](/self-host-quickstart#7-usage-rollup-no-operator-action-required) cho bước dọn `cron.unschedule` tùy chọn.
+
+## Migration `103` lỗi `refusing to drop legacy daily rollups`
+
+**Triệu chứng**: nâng cấp từ `v0.3.4` lên `v0.3.5+`, container backend không khởi động được (hoặc `migrate up` dừng) với:
+
+```text
+ERROR: refusing to drop legacy daily rollups:
+  task_usage_hourly_rollup_state.watermark_at (1970-01-01 ...) trails
+  task_usage latest event (...) by more than 01:00:00 — backfill is
+  incomplete or pg_cron is not running. Run cmd/backfill_task_usage_hourly
+  (and let pg_cron catch up) before re-running migrate
+```
+
+**Nguyên nhân khả dĩ**: đây là guard fail-closed của migration `103`. Nó từ chối xóa rollup theo ngày cũ tới khi `task_usage_hourly` đuổi kịp `task_usage` thô. Guard nổ khi có dòng dữ liệu sẵn và watermark của rollup vẫn ở epoch — tức là chưa gì cuộn lịch sử vào bảng theo giờ.
+
+Từ MUL-2957, lệnh migrate tự chạy backfill theo lát tháng idempotent (dưới advisory lock 4246) ngay trước khi áp migration `103`, nên nâng cấp thẳng v0.3.4 → v0.3.5+ hoàn tất trong một lần `migrate up`. Nếu bạn vẫn thấy lỗi này thì hoặc đang dùng binary trước MUL-2957, hoặc chính hook đó thất bại — xem log migrate tìm dòng `task_usage hourly rollup hook` sớm hơn.
+
+**Cách sửa**:
+
+1. Nếu đang dùng binary trước MUL-2957 và chưa nâng binary được, chạy backfill độc lập trên cùng database (idempotent, ngắt an toàn, chạy lại an toàn):
+
+   ```bash
+   # Docker Compose
+   docker compose -f docker-compose.selfhost.yml exec backend \
+     ./backfill_task_usage_hourly --sleep-between-slices=2s
+
+   # Kubernetes
+   kubectl -n multica exec deploy/multica-backend -- \
+     ./backfill_task_usage_hourly --sleep-between-slices=2s
+   ```
+
+2. Chạy lại nâng cấp — khởi động lại container backend là đủ, migration chạy lúc khởi động. Guard giờ thấy watermark hiện hành và cho `103` áp.
+3. Bộ lập lịch trong tiến trình sau đó giữ watermark tiến — xem [Bắt đầu nhanh tự vận hành → Tổng hợp usage](/self-host-quickstart#7-usage-rollup-no-operator-action-required).
+
+`--sleep-between-slices=2s` là mặc định lịch sự trên database production nhiều năm lịch sử. Dùng `--months-back N --force-partial` nếu chỉ muốn giữ N tháng gần nhất và chấp nhận bỏ vĩnh viễn các bucket cũ hơn.
+
+## Xung đột cổng
+
+**Triệu chứng**: `multica server` hoặc `multica daemon start` lỗi `address already in use`.
+
+**Nguyên nhân khả dĩ**:
+
+1. **Cổng server bị chiếm** (mặc định `8080`)
+2. **Cổng health của daemon bị chiếm** (mặc định `19514`, lệch theo hash mỗi profile)
+3. **Xung đột cổng dev server web** (`3000` / `5173`)
+4. **Thiếu quyền cho cổng** (bind cổng đặc quyền `< 1024` cần sudo)
+
+**Cách chẩn đoán**:
+
+```bash
+lsof -i :8080        # macOS / Linux
+netstat -ano | findstr :8080    # Windows
+```
+
+**Cách sửa**:
+
+- Kill tiến trình xung đột (`kill -9 <PID>`), hoặc đổi cổng qua `PORT=9000`
+- Muốn dùng 80 / 443 → đừng bind trực tiếp; đặt reverse proxy (Nginx / Caddy) phía trước, chuyển tiếp về cổng cao
+
+## Tìm log ở đâu
+
+| Thành phần | Vị trí | Lệnh |
+|---|---|---|
+| **Daemon** | `~/.multica/daemon.log` (chế độ nền) hoặc stdout tiền cảnh | `multica daemon logs -f --lines 100` |
+| **Server (Docker)** | stdout của container | `docker logs -f <container>` |
+| **Server (systemd)** | journal | `journalctl -u multica-server -f` |
+| **Frontend (dev)** | Terminal chạy `pnpm dev` | Đọc trực tiếp |
+| **Frontend (trình duyệt)** | DevTools → Console | Bấm `F12` |
+
+Muốn log daemon chi tiết hơn, chuyển từ nền sang tiền cảnh: `multica daemon stop && multica daemon start --foreground`.

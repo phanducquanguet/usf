@@ -1,0 +1,201 @@
+---
+title: Cài đặt runtime cho agent
+description: Multica điều khiển các công cụ lập trình AI có sẵn trên máy của bạn. Trang này hướng dẫn cài từng công cụ trong 14 công cụ được hỗ trợ để daemon phát hiện được chúng.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Một **runtime** trong Multica là daemon trên máy của bạn ghép với một công cụ lập trình AI mà daemon tìm thấy trên `PATH`. Nếu bước onboarding "Connect a runtime" hiện **No supported tools detected**, nghĩa là daemon đã quét `PATH` và không thấy công cụ nào trong 14 công cụ nó biết điều khiển. Cài một (hoặc vài) công cụ bên dưới, rồi quay lại bước đó và quét lại — runtime sẽ hiện lên trong vài giây.
+
+Trang này là phần cài đặt, đi kèm với:
+
+- [Daemon và runtime](/daemon-runtimes) — cơ chế phát hiện hoạt động ra sao
+- [Ma trận công cụ lập trình AI](/providers) — mỗi công cụ làm được và không làm được gì (khôi phục phiên, MCP, chọn model)
+
+<Callout type="info">
+Multica server không bao giờ nhìn thấy API key hay bản thân các công cụ. Mọi thứ bên dưới — cài đặt, xác thực, quyền truy cập model — đều nằm trên máy của bạn. Nếu có lỗi, gần như chắc chắn là lỗi cục bộ.
+</Callout>
+
+## Trước khi bắt đầu
+
+Hai điều kiện áp dụng cho **mọi** công cụ bên dưới:
+
+1. **Multica daemon phải đang chạy.** Chạy `multica daemon start` sau khi cài [Multica CLI](/cli). Không có daemon thì không có gì để phát hiện công cụ.
+2. **Binary của công cụ phải nằm trên `PATH`.** Daemon gọi từng công cụ theo tên (xem cột **Daemon tìm** trong mỗi mục). Nếu `which <name>` không tìm thấy trong terminal của bạn thì daemon cũng không tìm thấy. Sau khi cài, mở terminal mới (hoặc khởi động lại daemon) để `PATH` mới được nhận.
+
+Sau khi cài một công cụ, khởi động lại daemon:
+
+```bash
+multica daemon restart
+```
+
+Daemon quét lại `PATH` ở mỗi lần khởi động.
+
+## 14 công cụ được hỗ trợ
+
+Liệt kê xấp xỉ từ phổ biến nhất tới ít phổ biến nhất. Chọn công cụ nào bạn đã có sẵn tài khoản — không cần đủ cả 14.
+
+### Claude Code (Anthropic)
+
+Tích hợp hoàn chỉnh nhất. Khôi phục phiên hoạt động, MCP hoạt động, và nó dùng trường `mcp_config` trên agent (xem [ma trận](/providers#mcp-configuration-provider-specific-support)).
+
+| | |
+|---|---|
+| Daemon tìm | `claude` |
+| Cài đặt | Theo hướng dẫn chính thức tại [claude.com/claude-code](https://www.claude.com/claude-code). Cách chuẩn là gói npm `@anthropic-ai/claude-code` (cần Node.js 18+). |
+| Xác thực | Chạy `claude` một lần và làm theo luồng đăng nhập trong CLI, hoặc đặt `ANTHROPIC_API_KEY`. |
+| Ghi chú | Khuyến nghị hàng đầu cho người mới. |
+
+### Codex (OpenAI)
+
+Giao vận JSON-RPC 2.0 với các cổng phê duyệt chi tiết hơn. Cấu hình MCP được ghi vào `$CODEX_HOME/config.toml` theo từng task. **Khôi phục phiên hoạt động** qua `thread/resume` của Codex app-server; thread cũ hoặc mất sẽ tự chuyển sang thread mới.
+
+| | |
+|---|---|
+| Daemon tìm | `codex` |
+| Cài đặt | Theo hướng dẫn chính thức tại github.com/openai/codex. Cách chuẩn là gói npm `@openai/codex`. |
+| Xác thực | `codex login` (qua trình duyệt) hoặc `OPENAI_API_KEY`. |
+
+### Cursor (Anysphere)
+
+Bản CLI của trình soạn thảo Cursor. **Khôi phục phiên hoạt động** với các bản Cursor Agent hiện tại: Multica đọc `session_id` từ các sự kiện stream-json và truyền lại bằng `--resume <id>`.
+
+| | |
+|---|---|
+| Daemon tìm | `cursor-agent` |
+| Cài đặt | Cài [trình soạn thảo Cursor](https://cursor.com/) rồi cài CLI theo tài liệu tại [docs.cursor.com](https://docs.cursor.com/). Tên binary là `cursor-agent`, không phải `cursor`. |
+| Xác thực | Đăng nhập qua trình soạn thảo Cursor; CLI dùng lại phiên đó. |
+
+### GitHub Copilot
+
+Việc định tuyến model đi qua quyền lợi tài khoản GitHub của bạn — công cụ không tự chọn model; GitHub quyết định bạn được model nào.
+
+| | |
+|---|---|
+| Daemon tìm | `copilot` |
+| Cài đặt | Xem tài liệu CLI của GitHub tại github.com/github/copilot-cli. |
+| Xác thực | Đăng nhập GitHub qua trình duyệt từ CLI. |
+| Ghi chú | Cần gói GitHub Copilot còn hiệu lực trên tài khoản đã đăng nhập. |
+
+### OpenCode (SST)
+
+CLI agent mã nguồn mở. Tự khám phá các model khả dụng từ file cấu hình riêng — phù hợp cho người muốn tự mang danh mục model. Dùng trường `mcp_config` của agent qua `OPENCODE_CONFIG_CONTENT`.
+
+| | |
+|---|---|
+| Daemon tìm | `opencode` |
+| Cài đặt | Theo hướng dẫn chính thức tại [opencode.ai](https://opencode.ai/) hoặc repo github.com/sst/opencode. Cách thông dụng là script cài hoặc gói npm. |
+| Xác thực | Cấu hình nhà cung cấp model theo tài liệu của OpenCode (Anthropic, OpenAI, v.v.). |
+
+### Kiro CLI (Amazon)
+
+Giao vận ACP qua stdio. Khôi phục phiên hoạt động qua ACP `session/load`; cấu hình MCP truyền qua ACP `mcpServers`; skill được chép vào `.kiro/skills/`.
+
+| | |
+|---|---|
+| Daemon tìm | `kiro-cli` |
+| Cài đặt | Xem tài liệu Kiro tại [kiro.dev](https://kiro.dev/). Tên binary là `kiro-cli`, không phải `kiro`. |
+| Xác thực | Theo tài khoản AWS; làm theo onboarding của Kiro. |
+
+### Kimi (Moonshot)
+
+Agent giao thức ACP, chủ yếu nhắm thị trường Trung Quốc. Cấu hình MCP truyền qua ACP `mcpServers`; skill nằm trong `.kimi/skills/` (khám phá native).
+
+| | |
+|---|---|
+| Daemon tìm | `kimi` |
+| Cài đặt | Theo hướng dẫn chính thức tại github.com/MoonshotAI/kimi-cli. |
+| Xác thực | API key của Moonshot, cấu hình theo tài liệu nhà cung cấp. |
+
+### Hermes (Nous Research)
+
+Agent giao thức ACP (chung giao vận với Kimi). Khôi phục phiên hoạt động, cấu hình MCP truyền qua ACP `mcpServers`. Đường chèn skill dùng đường dự phòng chung `.agent_context/skills/` — hãy kiểm tra skill có nạp không trước khi phụ thuộc vào chúng.
+
+| | |
+|---|---|
+| Daemon tìm | `hermes` |
+| Cài đặt | Xem repository của Nous Research (github.com/NousResearch) để lấy bản CLI mới nhất. |
+| Xác thực | Theo tài liệu nhà cung cấp. |
+
+### OpenClaw
+
+Bộ điều phối CLI agent mã nguồn mở. Cấu hình MCP được vật thể hóa qua lớp bọc cấu hình theo từng task của Multica. **Model gắn ở tầng agent** (`openclaw agents add --model`) — không ghi đè được theo task, và bạn không truyền được `--model` hay `--system-prompt` từ Multica.
+
+| | |
+|---|---|
+| Daemon tìm | `openclaw` |
+| Cài đặt | Xem dự án github.com/openclaw-org/openclaw (do cộng đồng bảo trì). |
+| Xác thực | Cấu hình nhà cung cấp model bên dưới theo tài liệu của OpenClaw. |
+
+### Pi (Inflection AI)
+
+Tối giản. **Khôi phục phiên hơi khác thường** — id khôi phục là đường dẫn tới file phiên trên đĩa, không phải chuỗi id.
+
+| | |
+|---|---|
+| Daemon tìm | `pi` |
+| Cài đặt | Xem tài liệu CLI của Inflection tại [pi.ai](https://pi.ai/). |
+| Xác thực | Theo tài liệu nhà cung cấp. |
+
+### CodeBuddy (Tencent)
+
+CLI agent tương thích Claude Code. Multica điều khiển nó bằng đúng giao thức stream-json như Claude Code: khôi phục phiên qua `--resume`, cấu hình MCP truyền qua `--mcp-config`, skill nằm trong `.claude/skills/`. Model được khám phá động.
+
+| | |
+|---|---|
+| Daemon tìm | `codebuddy` |
+| Cài đặt | Xem tài liệu CLI chính thức tại [codebuddy.ai/cli](https://www.codebuddy.ai/cli). |
+| Xác thực | Theo tài liệu nhà cung cấp. |
+
+### Qoder (Alibaba)
+
+CLI lập trình agentic dùng giao thức ACP qua stdio (chung giao vận với Hermes, Kimi và Kiro CLI). Khôi phục phiên hoạt động qua ACP `session/resume`, cấu hình MCP truyền qua ACP `mcpServers`, model được khám phá động, và skill được chép vào `.qoder/skills/`.
+
+| | |
+|---|---|
+| Daemon tìm | `qodercli` |
+| Cài đặt | Xem tài liệu CLI chính thức tại [qoder.com/cli](https://qoder.com/cli). |
+| Xác thực | Theo tài liệu nhà cung cấp. |
+
+### Trae CLI (ByteDance)
+
+TRAE CLI chính thức của ByteDance (`traecli`, đi cặp với Trae IDE — **không phải** bản mã nguồn mở `bytedance/trae-agent`). Nó là ACP-native, nên Multica điều khiển qua stdio bằng `traecli acp serve --yolo`, chung giao vận với Hermes, Kimi, Kiro CLI và Qoder. Khôi phục phiên hoạt động qua ACP `session/load`, cấu hình MCP truyền qua ACP `mcpServers`, model được khám phá động (đổi theo task qua `session/set_model`), và skill được chép vào `.traecli/skills/`.
+
+| | |
+|---|---|
+| Daemon tìm | `traecli` |
+| Cài đặt | Xem tài liệu CLI chính thức tại [docs.trae.cn/cli](https://docs.trae.cn/cli). |
+| Xác thực | Chạy `traecli` một lần ở chế độ tương tác để hoàn tất đăng nhập doanh nghiệp qua trình duyệt (token lưu trong `~/.trae` và keyring hệ điều hành). Đăng nhập vào Trae **IDE** không đăng nhập CLI — hai thứ tách biệt. |
+| Ghi chú | traecli đọc quy tắc dự án từ `.trae/rules/` và không có cờ `--system-prompt`, nên Multica đưa phần chỉ dẫn runtime thẳng vào prompt. Đặt model mặc định toàn daemon bằng `MULTICA_TRAECLI_MODEL`. |
+
+### Antigravity (Google)
+
+Antigravity CLI của Google (`agy`). Ghép với dịch vụ Antigravity của Google và chạy các model nền Gemini. Multica khởi chạy bằng `agy -p`, chế độ không tương tác tương thích daemon; các bản Antigravity CLI hiện tại thực thi được công cụ từ chế độ đó, còn `agy -i` cần TTY. Khôi phục phiên hoạt động qua `--conversation <id>`, do daemon bắt từ file log của CLI. Việc chọn model được quản lý bên trong Antigravity CLI — Multica tắt bộ chọn model theo agent cho provider này. Skill được ghi vào `.agents/skills/` (CLI kế thừa bố cục skill của Gemini CLI — xem [tài liệu Antigravity](https://antigravity.google/docs/gcli-migration)).
+
+| | |
+|---|---|
+| Daemon tìm | `agy` |
+| Cài đặt | Theo hướng dẫn chính thức tại [antigravity.google/docs/cli-overview](https://antigravity.google/docs/cli-overview). CLI phát hành dạng pre-built — chạy `agy install` một lần để nối PATH và alias shell. |
+| Xác thực | Chạy `agy` một lần ở chế độ tương tác và hoàn tất đăng nhập tài khoản Google, hoặc đăng nhập qua app Antigravity — CLI dùng lại mục keyring mà GUI ghi. |
+| Ghi chú | CLI in văn bản trợ lý thuần ra stdout, không phải luồng sự kiện có cấu trúc; các dòng trung gian "I will run X" lẫn câu trả lời cuối đều được chuyển về Multica dưới dạng văn bản, và hiện chưa có telemetry theo công cụ. |
+
+## Sau khi cài
+
+1. **Xác nhận binary nằm trên `PATH`.** Mở terminal mới và chạy `which <name>` (ví dụ `which claude`, `which cursor-agent`, `which kiro-cli`, `which agy`). Nếu in ra đường dẫn, daemon sẽ tìm thấy. Nếu không in gì, sửa `PATH` của shell trước (nguyên nhân điển hình là file rc chưa được nạp lại).
+2. **Khởi động lại daemon.** `multica daemon restart`. Daemon chỉ quét `PATH` lúc khởi động.
+3. **Kiểm tra trang Runtime.** Trong giao diện Multica, trang **Runtime** giờ sẽ liệt kê một dòng cho mỗi tổ hợp `(không gian làm việc × công cụ)`. Nếu dòng ghi "offline", xem [Daemon và runtime → Khi runtime bị đánh dấu offline](/daemon-runtimes#when-a-runtime-is-marked-offline).
+4. **Quay lại onboarding.** Bước "Connect a runtime" tự poll và sẽ nhận runtime mới trong vài giây — không cần tải lại trang.
+
+## Khắc phục sự cố
+
+- **`which` tìm thấy binary nhưng daemon thì không.** Daemon được khởi động với `PATH` cũ. Khởi động lại nó.
+- **Binary tồn tại nhưng khởi chạy lỗi.** Chạy `--version` hoặc `--help` của chính công cụ đó từ terminal — đa số lỗi ở đây là thiếu xác thực, token hết hạn, hoặc lệch phiên bản Node.js / runtime.
+- **Trang Runtime hiện dòng, nhưng task lỗi ngay lập tức.** Xem `multica daemon logs -f` trong lúc kích hoạt task. Daemon hiển thị chính thông báo lỗi của công cụ.
+
+Các triệu chứng rộng hơn, xem [Hướng dẫn khắc phục sự cố](/troubleshooting).
+
+## Tiếp theo
+
+- [Daemon và runtime](/daemon-runtimes) — cơ chế phát hiện, heartbeat và xử lý offline
+- [Ma trận công cụ lập trình AI](/providers) — khác biệt năng lực khi công cụ đã kết nối
+- [Tạo và cấu hình agent](/agents-create) — chọn công cụ cho agent và bắt đầu chạy task

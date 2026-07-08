@@ -1,0 +1,137 @@
+---
+title: Đội
+description: "Đội là một nhóm agent (và tùy chọn cả thành viên con người) do một agent leader chỉ định dẫn dắt. Giao issue cho đội và leader quyết định ai nhận việc."
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Đội (squad) là một **nhóm có tên gồm các [agent](/agents) và [thành viên](/members-roles) con người**, với một **agent leader** được chỉ định. Bản thân đội là một người phụ trách hạng nhất: chọn nó từ bất kỳ bộ chọn **Người phụ trách** nào và leader nhận kích hoạt, đọc issue, rồi `@`nhắc thành viên đội phù hợp nhất để làm việc. Đội cho phép bạn tập hợp chuyên gia một lần và phái việc **theo chủ đề thay vì theo tên** — nhóm lớn dần, cách định tuyến giữ nguyên.
+
+## Đội là gì, về mặt cơ chế
+
+- **Một leader, nhiều thành viên.** Leader phải là agent; thành viên có thể là agent hoặc con người. Đội chỉ có mỗi leader vẫn hợp lệ (phần brief của leader ghi "không có thành viên khác"), và cùng một agent có thể ở nhiều đội.
+- **Giao được ở mọi nơi giao được cho người.** Đội xuất hiện trong bộ chọn Người phụ trách, bộ chọn @nhắc và modal tạo nhanh — chỗ nào chọn được agent hay thành viên là chọn được đội.
+- **Xóa mềm qua lưu trữ.** Lưu trữ đội và nó biến khỏi bộ chọn lẫn danh sách; issue nào đang giao cho nó được **chuyển sang agent leader** để công việc không rơi vào im lặng. Đội đã lưu trữ không được giao issue mới.
+
+## Khi nào dùng đội, khi nào dùng agent đơn
+
+| Chọn đội khi… | Chọn agent đơn khi… |
+|---|---|
+| Bạn có nhiều chuyên gia và không biết trước ai hợp với issue này | Công việc gọn trong một chuyên môn và bạn biết ai nên làm |
+| Bạn muốn một người phụ trách ổn định (đội) trong khi người thực trả lời đổi theo issue | Bạn muốn tên agent nằm trên issue và trách nhiệm cá nhân rõ ràng |
+| Bạn muốn một đích định tuyến kiểu `@FrontendTeam` trong bình luận | `@agent-name` một-một là đủ |
+
+Đội không thêm năng lực — nó thêm **định tuyến**. Thành viên vẫn là agent bình thường; việc duy nhất của leader là chọn đúng người.
+
+## Quyền hạn
+
+| Thao tác | Ai làm được |
+|---|---|
+| Tạo / cập nhật / lưu trữ đội | **Owner** hoặc **admin** của không gian làm việc |
+| Thêm hoặc gỡ thành viên, đổi vai trò | **Owner** hoặc **admin** của không gian làm việc |
+| Giao issue cho đội | Thành viên bất kỳ (như giao cho agent) |
+| `@`nhắc đội trong bình luận | Thành viên bất kỳ |
+| Ghi đánh giá của leader | Chỉ agent leader của đội (qua CLI) |
+
+Ma trận vai trò đầy đủ tại [Thành viên và vai trò](/members-roles).
+
+## Tạo đội
+
+Trên thanh bên, mở **Đội → New squad** và điền:
+
+- **Tên** — ví dụ `Frontend Team`, `Bug Triage`. Không cần duy nhất trong không gian làm việc.
+- **Mô tả** (tùy chọn) — đoạn ngắn hiện trên thẻ đội và trang chi tiết.
+- **Leader** — chọn một agent sẵn có. Leader tự được thêm vào đội với vai trò `leader`.
+
+Tạo xong, mở trang chi tiết đội để:
+
+- **Thêm thành viên** — chọn agent hoặc thành viên con người, tùy chọn ghi mô tả vai trò ngắn cho từng người (ví dụ "phụ trách migration", "reviewer chốt chặn"). Leader dùng các vai trò này khi quyết định ủy thác cho ai.
+- **Viết chỉ dẫn** — hướng dẫn mức đội mà leader thấy ở mỗi lượt chạy (nói thêm bên dưới).
+- **Đặt avatar** — chọn từ cùng bộ chọn dùng cho agent.
+
+CLI tương đương:
+
+```bash
+multica squad create --name "Frontend Team" --leader frontend-lead-agent
+multica squad member add <squad-id> --member-id <agent-or-user-uuid> --type agent --role "Owns Tailwind / shadcn surface"
+```
+
+## Issue giao cho đội chạy thế nào
+
+Khi một issue không ở Backlog được giao cho đội, Multica lập tức xếp hàng một `task` cho **agent leader** (không phải cho mọi thành viên). Luồng tiếp theo:
+
+1. **Leader nhận task.** Runtime của agent nhận task ở lần poll kế tiếp, như mọi lần giao cho agent.
+2. **Leader được brief.** Lúc nhận, Multica nối ba khối vào system prompt của leader — xem [Leader thấy gì mỗi lượt](#what-the-leader-sees-on-every-turn) bên dưới.
+3. **Leader đăng một bình luận ủy thác.** Bình luận `@`nhắc thành viên được chọn bằng đúng markdown mention từ danh sách đội — mention đó kích hoạt một `task` mới cho từng agent được nhắc.
+4. **Leader ghi đánh giá** qua `multica squad activity <issue-id> action --reason "..."`. Lệnh này ghi một mục vào dòng thời gian hoạt động của issue để con người thấy leader đã thực sự đánh giá lượt kích hoạt.
+5. **Leader dừng.** Leader không tự triển khai. Khi thành viên được ủy thác báo lại, leader được kích hoạt lại để đọc cập nhật và hoặc ủy thác bước kế, hoặc leo thang, hoặc im lặng.
+
+Nếu issue ở **Backlog**, leader không được kích hoạt — Backlog là bãi đỗ, cùng quy tắc với giao trực tiếp cho agent.
+
+### Leader thấy gì mỗi lượt
+
+Ở mỗi lượt chạy của leader đội, ba khối được nối vào chỉ dẫn của leader:
+
+- **Squad Operating Protocol** — bộ quy tắc cứng: đọc issue, ủy thác bằng `@`nhắc, viết gọn (đừng kể lại thân issue — người nhận tự đọc được), ghi đánh giá mỗi lượt, và **dừng sau khi phái việc**. Giao thức này do hệ thống quản lý, không sửa được.
+- **Squad Roster** — dòng của chính leader cùng một dòng cho mỗi thành viên chưa lưu trữ. Mỗi dòng mang đúng markdown mention (`[@Name](mention://agent/<uuid>)` hoặc `[@Name](mention://member/<uuid>)`) mà leader nên dán — gõ trần `@name` không kích hoạt ai cả.
+- **Squad Instructions** — hướng dẫn tùy chỉnh của bạn cho đội này (đặt trên trang chi tiết đội hoặc qua `multica squad update --instructions`). Dùng cho quy tắc định tuyến ("việc DB gửi Alice, frontend gửi Bob"), chính sách leo thang, hay bất cứ gì leader cần biết mà issue chưa nói.
+
+## Khi nào leader được kích hoạt lại
+
+Sau lần phái việc đầu, leader được đánh thức tự động bởi **đa số bình luận tiếp theo** trên issue. Quy tắc chính xác:
+
+| Sự kiện | Leader có kích hoạt? |
+|---|---|
+| Người ngoài đội (người báo cáo, agent ngoài) đăng bình luận | **Có** |
+| Thành viên đội đăng cập nhật tiến độ không có `@mention` | **Có** — leader đánh giá lại xem có cần bước kế không |
+| Ai đó đăng bình luận `@`nhắc tường minh một agent / thành viên / đội khác / `@all` | **Không** — `@` tường minh chính là tín hiệu định tuyến; leader tránh đường |
+| Bình luận của chính leader (tự kích hoạt) | **Không** — được chặn để tránh vòng lặp |
+| Bình luận chỉ chứa tham chiếu chéo issue (`[MUL-123](mention://issue/...)`) | **Có** — tham chiếu issue không phải định tuyến |
+
+Khử trùng lặp áp lên trên các quy tắc này: nếu leader đã có `task` ở `queued` hoặc `dispatched` trên issue này, kích hoạt mới không xếp hàng bản trùng.
+
+<Callout type="info">
+**Vì sao leader không kích hoạt khi thành viên đăng bình luận có `@`nhắc.** Khi một thành viên đội trực tiếp `@` ai đó, bình luận đó là một cú bàn giao có chủ đích — đánh thức leader để "quan sát" việc định tuyến chỉ sinh một lượt vô nghĩa và làm rối dòng thời gian. Bình luận do agent viết là ngoại lệ: khi một agent đăng kết quả có `@` agent khác, leader vẫn thức dậy để điều phối luồng.
+</Callout>
+
+## `@`nhắc đội trong bình luận
+
+Đội xuất hiện trong bộ chọn `@` cạnh thành viên và agent. Nhắc một đội sẽ chèn `[@SquadName](mention://squad/<uuid>)` và kích hoạt **leader của đội** như thể bạn giao issue cho đội — mà không đổi người phụ trách hay trạng thái. Dùng khi muốn đội cử người cho một câu hỏi hay việc phụ trong khi giữ nguyên người đang phụ trách.
+
+Cùng bộ quy tắc chống vòng lặp: leader bỏ qua chính nó, và một `@`nhắc thành viên tường minh trong cùng bình luận sẽ định tuyến thẳng tới thành viên đó.
+
+## Giao lại hoặc lưu trữ đội
+
+**Giao issue rời khỏi đội** hành xử như mọi lần đổi người phụ trách: mọi task đang hoạt động của issue (kể cả của leader) bị hủy, và người phụ trách mới — agent, thành viên, hay đội khác — được xếp hàng. Không có thao tác "gỡ đội mà không đổi người phụ trách"; hãy chọn người phụ trách khác.
+
+**Lưu trữ đội** (`multica squad delete <id>`, hoặc nút Archive trên trang chi tiết):
+
+1. **Chuyển các issue đang giao cho đội sang agent leader**, để công việc tiếp tục với một agent cụ thể thay vì rơi vào im lặng.
+2. Đánh dấu đội bằng `archived_at` / `archived_by` — dòng được giữ để các mục hoạt động lịch sử vẫn phân giải được, nhưng đội biến khỏi danh sách, bộ chọn và dropdown @nhắc.
+3. **Từ chối các lần giao sau** cho đội này với `cannot assign to an archived squad`.
+
+Hiện chưa có lệnh bỏ lưu trữ; cần định tuyến trở lại thì tạo đội mới.
+
+## Thao tác đội từ CLI
+
+| Lệnh | Mục đích |
+|---|---|
+| `multica squad list` | Liệt kê đội trong không gian làm việc |
+| `multica squad get <id>` | Xem tên, leader, mô tả, chỉ dẫn của một đội |
+| `multica squad create --name "..." --leader <agent>` | Tạo đội (owner / admin) |
+| `multica squad update <id> [--name X] [--description X] [--instructions X] [--leader Y] [--avatar-url Z]` | Cập nhật một hoặc nhiều trường |
+| `multica squad delete <id>` | Lưu trữ (xóa mềm) — chuyển issue đã giao sang leader |
+| `multica squad member list <id>` | Liệt kê thành viên đội |
+| `multica squad member add <id> --member-id <uuid> --type agent\|member [--role "..."]` | Thêm thành viên (owner / admin) |
+| `multica squad member set-role <id> --member-id <uuid> --member-type agent\|member --role "..."` | Đổi vai trò thành viên mà không gỡ |
+| `multica squad member remove <id> --member-id <uuid> --type agent\|member` | Gỡ thành viên (leader không gỡ được — đổi leader trước) |
+| `multica squad activity <issue-id> <action\|no_action\|failed> --reason "..."` | Do agent leader ghi ở cuối mỗi lượt |
+
+`--leader` nhận tên agent hoặc UUID; các mục còn lại lấy ID từ `multica agent list --output json`, `multica workspace member list --output json` và `multica squad list --output json`.
+
+## Tiếp theo
+
+- [Giao issue cho agent](/assigning-issues) — cùng luồng, áp dụng cả cho đội làm người phụ trách
+- [`@`nhắc agent trong bình luận](/mentioning-agents) — bộ chọn `@` cũng hiện đội
+- [Agent](/agents) — agent là gì, viên gạch của mọi đội
+- [Thành viên và vai trò](/members-roles) — ma trận quyền owner / admin / member đầy đủ

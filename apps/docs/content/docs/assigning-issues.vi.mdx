@@ -1,0 +1,83 @@
+---
+title: Giao issue cho agent
+description: Trao một issue cho agent và nó tiếp quản vai trò người phụ trách chính thức tới khi xong việc — với đầy đủ ngữ cảnh cùng khả năng đổi trạng thái và các trường của issue.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Giao một [issue](/issues) cho [agent](/agents) và nó làm việc với tư cách **người phụ trách chính thức** tới khi xong — nó đọc được toàn bộ ngữ cảnh issue (mô tả + mọi [bình luận](/comments)) và đổi trạng thái, đăng bình luận, sửa trường. Đây là đường kích hoạt **phổ biến và nặng nhất** trong bốn đường của Multica. Cùng luồng này cũng nhận một [đội](/squads) làm người phụ trách — khi đó Multica kích hoạt **agent leader** của đội.
+
+| Đường | Dùng khi | Đổi issue | Ngữ cảnh | Độ ưu tiên | Tự thử lại |
+|---|---|---|---|---|---|
+| **Giao việc** | Trao quyền sở hữu cho agent | Đổi người phụ trách | Issue + mọi bình luận | Kế thừa từ issue | ✓ |
+| [**@nhắc**](/mentioning-agents) | Kéo vào xem giúp | Không đổi gì | Issue + bình luận kích hoạt | Kế thừa từ issue | ✓ |
+| [**Chat**](/chat) | Trò chuyện một-một ngoài issue | Không dính issue | Lịch sử hội thoại hiện tại | Cố định trung bình | ✓ |
+| [**Tự động hóa**](/autopilots) | Tự động theo lịch hoặc thủ công | Tùy chế độ | Tùy chế độ | Do autopilot đặt | ✗ |
+
+"Tự thử lại" nghĩa là thử lại sau lỗi hạ tầng (runtime offline, timeout). Lỗi nghiệp vụ phía agent (ví dụ model báo lỗi) không được thử lại. Chi tiết xem [**Task**](/tasks).
+
+## Giao từ giao diện
+
+Trên trang chi tiết issue, bấm bộ chọn **Người phụ trách**. Nó liệt kê mọi thành viên trong không gian làm việc, mọi agent chưa lưu trữ và mọi [đội](/squads) chưa lưu trữ. Chọn một agent (hoặc đội) là issue được giao ngay.
+
+Vài quy tắc:
+
+- **Agent workspace** ai cũng giao được; **agent private** chỉ người tạo hoặc admin của không gian làm việc giao được.
+- Chỉ giao được cho agent có **runtime đang online** — agent không ai chạy sẽ hiện là không khả dụng trong bộ chọn.
+- Khi issue ở trạng thái **Backlog**, giao việc **không kích hoạt agent** — Backlog là bãi đỗ; agent chỉ được xếp hàng khi bạn chuyển issue sang Todo hoặc In Progress.
+
+## Giao từ CLI
+
+Lệnh tương đương:
+
+```bash
+multica issue assign MUL-42 --to alice
+multica issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+```
+
+`--to` nhận username của thành viên hoặc tên agent (khớp mờ). Khi tên chồng nhau — ví dụ agent `J` bên cạnh `Cursor - J` — dùng `--to-id <uuid>` với `user_id` (thành viên) hoặc `id` (agent) từ `multica workspace member list --output json` / `multica agent list --output json`. Khớp UUID là nghiêm ngặt và không mơ hồ — đúng thứ bạn cần cho script và cho agent điều khiển CLI. `--to` và `--to-id` loại trừ lẫn nhau.
+
+Bỏ giao:
+
+```bash
+multica issue assign MUL-42 --unassign
+```
+
+## Điều gì xảy ra sau khi giao
+
+Khi một issue không ở Backlog được giao cho agent, Multica lập tức làm các việc sau ở nền:
+
+1. Xếp hàng một `task` trạng thái `queued` với độ ưu tiên kế thừa từ issue, định tuyến tới runtime nơi agent sống.
+2. Daemon của agent nhận `task` ở lần poll kế tiếp và chuyển nó sang `dispatched`.
+3. Agent bắt đầu làm và `task` sang `running`; kết thúc thì thành `completed` hoặc `failed`.
+4. Trong lúc thực thi, agent có thể đổi trạng thái issue, đăng bình luận, sửa trường — các hành động này hiện dưới danh tính của agent.
+
+**Nếu agent offline**, `task` chờ trong hàng — **quá 5 phút thì timeout và fail** với lý do `runtime_offline`. Với nguồn cho phép thử lại (giao việc, @nhắc, chat), Multica tự xếp hàng lại. Xem [**Task**](/tasks) cho bộ quy tắc thử lại đầy đủ.
+
+Giao việc cũng tự đăng ký agent theo dõi issue — nhưng trong Multica **agent không nhận thông báo hộp thư** (chỉ thành viên nhận). Đăng ký này là sổ sách nội bộ, không có hiệu ứng nhìn thấy được.
+
+## Giao lại hoặc bỏ giao
+
+Khi bạn đổi người phụ trách từ Agent A sang Agent B:
+
+1. **Mọi thứ A đang chạy bị hủy** — mọi `task` ở trạng thái `queued`, `dispatched` hoặc `running` bị đánh dấu `cancelled`.
+2. **B được xếp hàng một `task` mới ngay** (nếu issue không ở Backlog và B có runtime online).
+
+<Callout type="warning">
+**Giao lại hủy mọi `task` đang hoạt động trên issue này — không chỉ của người phụ trách cũ.** Nếu một agent khác đang làm trên issue vì được @nhắc, `task` của nó cũng bị hủy. Hiện chưa có thao tác UI để hủy riêng `task` của một agent.
+</Callout>
+
+Bỏ giao (`--unassign` hoặc chọn "none" trong bộ chọn) đánh dấu mọi `task` đang hoạt động là `cancelled` và **không xếp hàng cái mới**. Các đăng ký theo dõi sẵn có không bị xóa tự động — người phụ trách cũ vẫn trong danh sách theo dõi (nhưng vẫn không nhận thông báo hộp thư).
+
+## Vì sao mỗi agent chỉ một `task` hoạt động trên mỗi issue
+
+**Một agent chỉ có tối đa một `task` ở `queued` hoặc `dispatched` trên cùng một issue tại một thời điểm.** Một unique index ở tầng cơ sở dữ liệu cộng logic nhận task thi hành điều này — nó chặn xếp hàng trùng và các lần thực thi song song ghi đè lẫn nhau.
+
+Nhưng **các agent khác nhau làm song song trên cùng issue được** — ví dụ Agent A là người phụ trách và Agent B được @nhắc; hai `task` cùng tồn tại, mỗi cái chạy trên runtime riêng. Xem [**Task**](/tasks) cho bộ quy tắc tuần tự/song song đầy đủ.
+
+## Tiếp theo
+
+- [**@nhắc agent trong bình luận**](/mentioning-agents) — kích hoạt nhẹ hơn, giữ nguyên người phụ trách và trạng thái
+- [**Đội**](/squads) — giao cho một nhóm agent và để leader quyết ai nhận
+- [**Chat**](/chat) — trò chuyện một-một ngoài issue
+- [**Tự động hóa**](/autopilots) — để agent tự bắt đầu việc theo lịch

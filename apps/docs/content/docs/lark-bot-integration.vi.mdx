@@ -1,0 +1,95 @@
+---
+title: Tích hợp Lark Bot
+description: Buộc một agent Multica vào một Bot Lark (飞书), rồi trò chuyện với nó từ DM hoặc nhóm Lark — @nhắc nó, chat tự nhiên, hoặc gõ /issue để tạo issue Multica mà không rời Lark.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Buộc bất kỳ [agent](/agents) nào vào một Bot Lark (飞书) và nhóm của bạn làm việc với nó ngay trong Lark — DM cho Bot, @nhắc nó trong nhóm, hoặc gõ `/issue` để tạo một [issue Multica](/issues) mà không phải mở app. Câu trả lời của agent stream ngược về cuộc chat dưới dạng thẻ động cập nhật trong lúc nó làm việc.
+
+Mỗi Bot buộc **một-một** với một agent Multica. Buộc agent thứ hai sẽ tạo Bot thứ hai; một agent không bao giờ có hai Bot.
+
+## Tích hợp làm gì
+
+| Bề mặt | Hành vi |
+|---|---|
+| **Agent → Integrations** | Trang chi tiết agent có tab **Integrations** (và mục tương ứng ở thanh bên trái). Owner và admin thấy **Bind to Lark** ở đó; buộc xong nó chuyển thành huy hiệu **Connected to Lark** kèm liên kết **Manage in Lark**. |
+| **DM cho Bot** | Một thành viên nhắn thẳng cho Bot trong Lark. Mỗi cuộc trò chuyện thành một phiên [chat](/chat) Multica với agent; agent trả lời trong luồng. |
+| **@nhắc trong nhóm** | Thêm Bot vào nhóm Lark và @nhắc nó. Chỉ tin nhắn có nhắc mới được đọc — Bot không nghe cả nhóm. |
+| **Lệnh `/issue`** | Gõ `/issue <tiêu đề>` (tùy chọn kèm phần thân) tạo một issue Multica mới trong không gian làm việc, đứng tên bạn. |
+| **Thẻ trả lời động** | Bot đăng một thẻ tương tác và liên tục vá nó trong lúc agent chạy — tiến độ, câu trả lời cuối, hoặc lỗi. |
+
+## Buộc một agent (owner / admin)
+
+Việc buộc dùng luồng quét-để-cài — không chép app secret, không bước developer console.
+
+1. Mở agent trong **Agent → _agent của bạn_**.
+2. Vào tab **Integrations** (hoặc mục **Integrations** ở thanh bên trái) và bấm **Bind to Lark**.
+3. Một mã QR hiện ra. Trên điện thoại, mở **Lark → Scan**, rồi cấp quyền cho Bot PersonalAgent mới.
+4. Quét xong, hộp thoại đóng và agent hiện **Connected to Lark**. Danh tính Lark của chính bạn được buộc tự động vào tài khoản Multica, nên bạn chat được với Bot ngay.
+
+<Callout type="info">
+Mã QR dùng một lần và hết hạn sau khoảng ngắn. Nếu nó hết hạn trước khi bạn cấp quyền, bấm **Scan again** để lấy mã mới.
+</Callout>
+
+Khi agent đã kết nối, nút **Bind to Lark** được thay bằng liên kết **Manage in Lark**. Dùng nó để mở trang app của Bot trong Lark khi cần chỉnh scope, đổi tên, hoặc xin thêm quyền — quét lại bị chủ ý vô hiệu để bạn không bỏ rơi Bot hiện có.
+
+## Dùng Bot (thành viên)
+
+### Tin nhắn đầu tiên: buộc danh tính Lark
+
+Lần đầu bạn nhắn Bot, nó trả lời bằng một thẻ đề nghị **buộc danh tính Lark của bạn**. Bấm liên kết, đăng nhập Multica, và tài khoản Lark của bạn được nối với tư cách thành viên Multica. Đây là thứ cho phép agent hành động thay bạn — ví dụ, `/issue` tạo issue đứng tên bạn.
+
+<Callout type="warning">
+Chỉ **thành viên của không gian làm việc** dùng được Bot. Nếu bạn không phải thành viên, hoặc bỏ qua bước buộc danh tính, Bot sẽ không trả lời — tin nhắn của bạn bị bỏ (và ghi lại để kiểm toán, không kèm nội dung).
+</Callout>
+
+### Chat và `/issue`
+
+- **Hỏi agent bất cứ gì** — DM cho Bot hoặc @nhắc nó trong nhóm. Cuộc trò chuyện là một phiên chat agent bình thường; agent trả lời trong thẻ.
+- **Tạo issue** — gửi `/issue Fix the login redirect` và Multica tạo issue đó trong không gian làm việc, được giao như mọi issue mới. Thêm dòng sau tiêu đề để làm mô tả.
+- **Xem nó làm việc** — thẻ trả lời tự vá trong lúc agent chạy, nên bạn thấy tiến độ và kết quả tại chỗ.
+
+Nếu agent **offline** (runtime của nó không kết nối) hoặc **đã lưu trữ**, Bot trả lời một thông báo trạng thái ngắn thay vì lặng lẽ bỏ tin nhắn của bạn.
+
+## Quản lý và ngắt kết nối
+
+Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integrations**:
+
+- **Connected bots** liệt kê mọi Bot trong không gian làm việc và agent mà từng Bot buộc vào. Danh sách này mọi thành viên đều thấy.
+- **Disconnect** chỉ dành cho **owner / admin**. Ngắt kết nối làm Bot ngừng nhận tin nhắn Lark và gỡ kết nối của nó; bản ghi installation được giữ để kiểm toán, và bạn có thể buộc lại chính agent đó về sau.
+
+## Quyền
+
+- **Buộc / ngắt** cần **owner** hoặc **admin** của không gian làm việc. Member thấy danh sách bot đã kết nối nhưng không có nút buộc hay ngắt.
+- **Nói chuyện với Bot** cần là thành viên không gian làm việc có danh tính Lark đã buộc. Ai khác bị bỏ.
+- Tích hợp không bao giờ lưu nội dung tin nhắn bị bỏ — chỉ lý do bỏ, để kiểm toán.
+
+## Thiết lập tự vận hành
+
+Trên Multica Cloud tích hợp đã sẵn sàng — bỏ qua mục này.
+
+Với tự vận hành, Lark **tắt cho tới khi bạn đặt khóa mã hóa at-rest**. Khóa mã hóa app secret của từng Bot trước khi chạm cơ sở dữ liệu.
+
+1. Sinh một khóa 32 byte và đặt trên API server:
+
+   ```dotenv
+   MULTICA_LARK_SECRET_KEY=<khóa 32 byte mã hóa base64>
+   ```
+
+2. Khởi động lại API. Chừng nào khóa chưa đặt, **Cài đặt → Integrations** hiện thông báo "Lark integration not enabled" và các lối vào **Bind to Lark** vẫn ẩn.
+
+<Callout type="info">
+**Feishu và Lark quốc tế, song song.** Đám mây mà từng Bot thuộc về — Feishu đại lục (`open.feishu.cn`) hay Lark quốc tế (`open.larksuite.com`) — được phát hiện tự động khi bạn quét QR, lưu trên installation và dùng cho mọi lệnh gọi tới Bot đó. Một bản triển khai phục vụ cả hai cùng lúc, nên đội ở tenant nào cũng buộc được mà không cần cấu hình thêm.
+
+Các biến env `MULTICA_LARK_HTTP_BASE_URL` / `MULTICA_LARK_CALLBACK_BASE_URL` chỉ còn là ghi đè toàn triển khai tùy chọn (proxy hoặc mock); để trống trong vận hành bình thường để mỗi installation tự tới đúng đám mây của nó.
+
+**Nâng cấp từ thiết lập một đám mây?** Nếu bạn từng chạy bản Lark quốc tế bằng cách đặt các biến đó về `https://open.larksuite.com`, server sẽ gắn lại nhãn các installation sẵn có sang vùng Lark ở lần khởi động đầu sau nâng cấp — sau đó bạn xóa được phần ghi đè. Triển khai đại lục không cần làm gì.
+</Callout>
+
+## Tiếp theo
+
+- [Agent](/agents) — mỗi Bot buộc với đúng một agent
+- [Chat](/chat) — cuộc trò chuyện với Bot ánh xạ thành gì trong Multica
+- [Issue](/issues) — `/issue` tạo ra gì
+- [Biến môi trường](/environment-variables) — tham chiếu cấu hình tự vận hành đầy đủ

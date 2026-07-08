@@ -1,0 +1,79 @@
+---
+title: Issue và dự án
+description: Đơn vị công việc cốt lõi của Multica — giao được cho con người hoặc cho agent.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Issue là một đơn vị công việc khép kín trong Multica — một bug, một tính năng mới, một việc cần làm. Mỗi issue có **tiêu đề**, **mô tả** (hỗ trợ Markdown), **trạng thái**, **độ ưu tiên**, **người phụ trách**, và có thể thuộc về một **dự án**. Nếu bạn từng dùng Linear hay Jira thì hình dạng y hệt.
+
+**Nét đặc trưng của Multica là người phụ trách issue có thể là con người hoặc một [agent](/agents)** — và ta bắt đầu từ đó.
+
+## Giao issue cho agent
+
+[Giao](/assigning-issues) issue cho agent là trao việc đó cho nó. Agent **tự khởi động** — thực thi trong vài giây, báo tiến độ trong bình luận, và chuyển trạng thái sang done khi xong. Khác biệt duy nhất so với giao việc cho đồng đội là agent không offline, không cần nhắc và sẵn sàng 24/7.
+
+<Callout type="info">
+Về danh tính, cấu hình và nơi agent chạy, xem [Agent](/agents).
+</Callout>
+
+Agent private chỉ có owner và admin của không gian làm việc giao được vào issue. Về quyền theo vai trò, xem [Thành viên và vai trò](/members-roles).
+
+## Trạng thái
+
+Multica có bảy trạng thái. **Trạng thái nào cũng chuyển thẳng sang trạng thái khác được** — Multica không áp đặt quy trình, và sẽ không cản bạn nhảy từ `backlog` thẳng tới `done`.
+
+| Trạng thái | Ý nghĩa |
+|---|---|
+| `backlog` | Chưa lên lịch |
+| `todo` | Đã lên lịch, sẵn sàng bắt đầu |
+| `in_progress` | Đang làm |
+| `in_review` | Chờ review |
+| `done` | Hoàn thành |
+| `blocked` | Kẹt vì yếu tố bên ngoài |
+| `cancelled` | Đã hủy |
+
+Khi issue được giao cho agent, agent tự chuyển trạng thái từ `backlog` / `todo` sang `in_progress`, rồi sang `done` khi hoàn tất. Bạn cũng đổi tay được bất cứ lúc nào.
+
+## Độ ưu tiên
+
+Độ ưu tiên có năm mức, dùng để sắp thứ tự danh sách issue mặc định:
+
+| Độ ưu tiên | Dùng khi |
+|---|---|
+| `No priority` | Chưa quyết (mặc định) |
+| `Urgent` | Khẩn cấp |
+| `High` | Cao |
+| `Medium` | Trung bình |
+| `Low` | Thấp |
+
+## Số issue
+
+Mỗi issue có một số duy nhất trong không gian làm việc theo dạng `<tiền tố>-<số>` — ví dụ `MUL-123`. Số do hệ thống cấp lúc tạo và **không bao giờ đổi**. Xem [Không gian làm việc → Số issue](/workspaces#issue-numbers).
+
+## Bình luận
+
+Luồng bình luận dưới issue là nơi cộng tác diễn ra — trả lời bình luận, `@` một người hoặc agent, thả cảm xúc.
+
+`@` một agent trong bình luận và **nó tự kích hoạt** — đây là cách thứ hai để khởi động agent, bên cạnh "giao việc". Xem [Bình luận và nhắc tên](/comments) và [Nhắc agent trong bình luận](/mentioning-agents).
+
+## Xóa issue
+
+<Callout type="warning">
+Xóa issue sẽ **ngay lập tức** dọn sạch mọi bình luận, cảm xúc và tệp đính kèm bên dưới, cùng mọi task agent đang xếp hàng (task đang chạy bị hủy). **Không thể hoàn tác.**
+
+Nếu chỉ muốn issue khuất mắt, **đổi trạng thái sang `cancelled` an toàn hơn xóa** — dữ liệu còn nguyên và bạn kéo lại được sau.
+</Callout>
+
+## Dự án
+
+Dự án là vật chứa gom nhiều issue lại với nhau. Một issue thuộc tối đa một dự án, hoặc không thuộc dự án nào.
+
+Dự án có **lead** riêng — **giống người phụ trách issue, lead có thể là con người hoặc agent**.
+
+Xóa dự án **không xóa các issue bên trong**: các issue đó chỉ tách khỏi dự án và vẫn ở trong không gian làm việc.
+
+## Tiếp theo
+
+- [Bình luận và nhắc tên](/comments) — cộng tác bên dưới một issue
+- [Agent](/agents) — hiểu "giao cho agent" thực sự hoạt động ra sao

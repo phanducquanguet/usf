@@ -16,8 +16,17 @@
     "trigger": "Trợ giúp",
     "docs": "Tài liệu",
     "changelog": "Nhật ký thay đổi",
-    "discord": "Discord",
-    "feedback": "Phản hồi"
+    "feedback": "Phản hồi",
+    "sections": {
+      "workspace_team": "Không gian làm việc & nhóm",
+      "agents": "Agent",
+      "how_agents_run": "Cách agent hoạt động",
+      "collaborating_with_agents": "Cộng tác với agent",
+      "inbox": "Hộp thư đến",
+      "integrations": "Tích hợp",
+      "self_hosting_ops": "Tự vận hành & triển khai",
+      "reference": "Tham khảo"
+    }
   },
   "workspace_loader": {
     "loading_workspace": "Đang tải không gian làm việc…",
@@ -37,11 +46,6 @@
     "pinned_label": "Đã ghim",
     "workspace_group": "Không gian làm việc",
     "configure_group": "Cấu hình",
-    "unread_overflow": "99+",
-    "discord_card": {
-      "title": "Tham gia Discord của chúng tôi",
-      "description": "Trò chuyện cùng đội ngũ và những người dùng khác.",
-      "dismiss": "Đóng"
-    }
+    "unread_overflow": "99+"
   }
 }

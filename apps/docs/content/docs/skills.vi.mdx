@@ -1,0 +1,73 @@
+---
+title: Skills
+description: Gắn "gói tri thức" cho agent — tương thích chuẩn mở Anthropic Agent Skills.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Skill là một **gói tri thức** cho [agent](/agents) — một `SKILL.md` cùng các file hỗ trợ tùy chọn (script, cấu hình, mẫu tham chiếu) nói với agent "gặp loại task này thì tư duy và hành động thế này." Multica theo chuẩn mở [Anthropic Agent Skills](https://agentskills.io), nên bất kỳ Skill nào tuân chuẩn — từ kho chính thức của Anthropic, ClawHub, hay skills.sh — đều nhập thẳng được.
+
+## Skill của không gian làm việc vs. skill cục bộ
+
+Multica hỗ trợ hai nguồn skill:
+
+- **Skill của không gian làm việc** — lưu trên cloud của Multica. Sau khi gắn vào agent, nó được đồng bộ xuống daemon của bạn lúc thực thi task. Đây là **cách chuẩn để chia sẻ skill trong nhóm**.
+- **Skill cục bộ** — nằm trong một thư mục trên máy bạn. Theo yêu cầu của bạn, [daemon](/daemon-runtimes) quét máy và bạn tự chọn cái nào đưa vào không gian làm việc. Daemon kiểm **hai gốc, theo thứ tự ưu tiên**: trước là thư mục skill riêng của runtime (mỗi công cụ lập trình AI có đường dẫn mặc định quy ước, ví dụ `~/.claude/skills/` của Claude Code), sau là thư mục vạn năng liên công cụ `~/.agents/skills/` — vị trí chung mà các hệ sinh thái như Codex và Gemini CLI dùng. Khi cùng tên skill có ở cả hai, **thư mục riêng của provider thắng**, nên gốc vạn năng chỉ bổ sung skill *thêm* chứ không đổi cách một skill sẵn có được phân giải.
+
+Đa phần bạn sẽ muốn **skill của không gian làm việc**: nhập một lần, agent của mọi đồng đội dùng được. Skill cục bộ hợp khi bạn muốn thử trên máy trước, hoặc nội dung liên quan tài liệu cục bộ nhạy cảm.
+
+## Skill theo phạm vi repository
+
+Skill trong phạm vi repo là hành vi được kỳ vọng. Một số công cụ lập trình AI khám phá **skill mức dự án commit ngay trong repository**, như `.claude/skills/`, `.cursor/skills/`, `.opencode/skills/` hay `.agents/skills/`. Khi một task của Multica checkout repository đó, các file này vẫn nằm trong workdir và công cụ bên dưới nạp được qua quy tắc khám phá gốc của nó. Bạn **không** cần nhập các skill repo đó vào Multica chỉ để dùng trong repo đó; Multica **không** tự nhập chúng vào sổ skill của không gian làm việc.
+
+Skill của không gian làm việc vẫn đồng bộ vào đúng vị trí native của provider với các công cụ hỗ trợ khám phá mức dự án. Nếu một skill không gian làm việc đụng độ với thư mục skill sẵn có của repo, Multica ghi bản của không gian làm việc sang tên anh em như `review-helper-multica` thay vì ghi đè file của repo. Công cụ khi đó có thể thấy cả hai skill, bản của không gian làm việc mang tên đã điều chỉnh.
+
+## Nhập skill
+
+Skill của không gian làm việc tới từ bốn nguồn:
+
+- **Tạo mới** — viết `SKILL.md` và các file liên quan ngay trong UI
+- **Từ GitHub** — dán URL repo (ví dụ `https://github.com/owner/repo/tree/main/skills/my-skill`) và Multica kéo `SKILL.md` cùng mọi file trong thư mục đó
+- **Từ ClawHub** — tìm và nhập từ chợ công khai [ClawHub](https://clawhub.io), có chọn phiên bản
+- **Từ máy** — daemon quét các thư mục skill trên máy bạn, và bạn chọn cái nào đưa vào không gian làm việc
+
+Cả file lẻ lẫn nguyên gói skill đều có trần dung lượng (trần một file khoảng 1 MB khi nhập từ GitHub). Quy tắc chính xác hiện trong hộp thoại nhập — vượt trần sẽ báo lỗi.
+
+## Gắn vào agent
+
+Nhập xong, skill phải được **gắn vào một agent cụ thể** mới có hiệu lực. Một agent gắn được nhiều skill, và một skill gắn được nhiều agent.
+
+Sau khi gắn, agent nhận skill ở lần bắt đầu task kế tiếp — mỗi công cụ lập trình AI có đường khám phá skill riêng (Claude Code dùng `.claude/skills/`, Cursor dùng `.cursor/skills/`, Antigravity dùng `.agents/skills/`, v.v.), và Multica tự thả file vào đúng chỗ. **Tuy nhiên, ba công cụ (Gemini, Hermes, OpenClaw) hiện dùng đường dự phòng chung `.agent_context/skills/` — các công cụ này có thật sự đọc skill từ đường đó không là tùy công cụ.** Bản đồ đường dẫn đầy đủ và phân biệt khám-phá-native vs. dự phòng nằm ở [So sánh công cụ lập trình AI → File skill đi đâu](/providers#where-skill-files-go).
+
+Sau khi bạn sửa nội dung skill, **chỉ task tạo mới nhận bản mới** — task đang chạy tiếp tục với skill cũ.
+
+## An toàn với skill bên thứ ba
+
+Skill nhập từ GitHub hay ClawHub có thể chứa script và nội dung thực thi được. Bản thân Multica **không ký, không kiểm toán, không sandbox chúng** — nội dung skill được trao nguyên vẹn cho công cụ lập trình AI tương ứng, còn công cụ có coi chúng là thực thi được hay không là chuyện của công cụ.
+
+<Callout type="warning">
+**Trước khi nhập skill bên thứ ba, hãy review `SKILL.md` và từng file đi kèm.**
+
+Tháng 2/2026, sự cố "ClawHavoc" — chỉ dẫn độc hại cài trong một gói skill phổ biến đã đánh cắp API key của người dùng bị ảnh hưởng. ClawHub từ đó đã thêm quét VirusTotal, nhưng **quét tự động không thay được việc bạn tự review**.
+
+**Chỉ nhập từ nguồn bạn tin.** Với dự án có dữ liệu nhạy cảm, cân nhắc chỉ dùng skill cục bộ do chính bạn viết.
+</Callout>
+
+## Skill vs. MCP
+
+Cả hai đều mở rộng khả năng của agent, nhưng theo hai hướng khác nhau:
+
+- **Skill** = một **gói tri thức** có cấu trúc (nội dung tĩnh + chỉ dẫn). Agent đọc skill để học "gặp vấn đề X thì tư duy thế nào, làm gì."
+- **MCP** (Model Context Protocol) = một **kênh công cụ**. Agent dùng MCP để kết nối dịch vụ ngoài (cơ sở dữ liệu, hệ thống file, API bên thứ ba) và **gọi** chúng.
+
+Hai thứ bổ trợ nhau. Trong Multica hiện tại, hỗ trợ MCP là **theo từng provider**: Claude Code, Codex, Cursor, Hermes, Kimi, Kiro CLI, OpenCode và OpenClaw dùng `mcp_config`; các công cụ khác nhận trường này nhưng không thực dùng. Mục MCP chuyên biệt sẽ tới trong bản phát hành sau.
+
+---
+
+Tới đây bạn đã biết agent là gì, tạo ra sao, gắn skill thế nào. Câu hỏi kế tiếp: **nó thực sự chạy ở đâu, và vì sao agent của tôi thỉnh thoảng bị kẹt?** Chương tiếp theo nói về kiến trúc thực thi — daemon, runtime và cách task vận hành cùng nhau.
+
+## Bước tiếp theo
+
+- [Daemon và runtime](/daemon-runtimes) — agent thực chạy ở đâu, và phân biệt online với offline
+- [Thực thi task](/tasks) — vòng đời đầy đủ của một "phiên làm việc agent"
+- [So sánh công cụ lập trình AI](/providers) — so sánh đầy đủ 14 công cụ (kèm đường chèn skill của từng cái)

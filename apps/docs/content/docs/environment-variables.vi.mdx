@@ -1,0 +1,249 @@
+---
+title: Biến môi trường
+description: Danh sách đầy đủ các biến môi trường để chạy một Multica server tự vận hành.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Một Multica [server](/self-host-quickstart) tự vận hành đọc cấu hình từ biến môi trường lúc khởi động — cơ sở dữ liệu, đăng nhập, email, lưu trữ, danh sách cho phép đăng ký đều nằm đây. Trang này nhóm mọi biến theo mục đích: mỗi mục nói rõ **điều gì xảy ra nếu bạn bỏ trống** và **biến nào bắt buộc phải đặt ở production**. Cách cấu hình cụ thể các biến liên quan xác thực, xem [Thiết lập đăng nhập và đăng ký](/auth-setup).
+
+## Biến lõi của server
+
+Đây là các biến lõi cần cân nhắc trước khi triển khai — vài biến có mặc định đủ để server chạy, nhưng ở production bạn nên đặt tường minh các biến bắt buộc.
+
+| Biến | Mặc định | Bắt buộc ở production? |
+|---|---|---|
+| `DATABASE_URL` | `postgres://multica:multica@localhost:5432/multica?sslmode=disable` | **Có** |
+| `PORT` | `8080` | Không (trừ khi đổi cổng) |
+| `JWT_SECRET` | `multica-dev-secret-change-in-production` | **Có** (mặc định không an toàn) |
+| `APP_ENV` | trống | **Có** (phải là `production`) |
+| `FRONTEND_ORIGIN` | trống | **Có** (tự vận hành phải đặt tên miền riêng) |
+| `MULTICA_DEV_VERIFICATION_CODE` | trống | Không (phải để trống ở production) |
+
+<Callout type="warning">
+**Giữ `MULTICA_DEV_VERIFICATION_CODE` trống ở production.** Mã kiểm thử cục bộ cố định mặc định là tắt, nhưng nếu bạn bật với `MULTICA_DEV_VERIFICATION_CODE=888888`, bất kỳ ai xin được mã đều đăng nhập được bằng giá trị cố định đó khi `APP_ENV` không phải production. Lối tắt này bị bỏ qua khi `APP_ENV=production`.
+</Callout>
+
+### Pool kết nối cơ sở dữ liệu
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `DATABASE_MAX_CONNS` | `25` | Số kết nối tối đa của pgxpool. Daemon poll thường xuyên (mỗi 3s) và dùng kết nối; triển khai lớn có thể cần giá trị cao hơn |
+| `DATABASE_MIN_CONNS` | `5` | Số kết nối nhàn rỗi tối thiểu |
+
+**Khi bỏ trống**, các giá trị trên được dùng — **không phải** mặc định 4/NumCPU của pgx, thứ từng gây cạn pool ở production.
+
+## Cấu hình email
+
+Multica hỗ trợ hai backend gửi mail — [Resend](https://resend.com/) cho triển khai cloud, hoặc SMTP relay cho mạng nội bộ / on-premise. `SMTP_HOST` được ưu tiên hơn `RESEND_API_KEY` khi đặt cả hai.
+
+### Resend
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `RESEND_API_KEY` | trống | API key của Resend |
+| `RESEND_FROM_EMAIL` | `noreply@multica.ai` | Địa chỉ gửi (phải là tên miền đã xác minh trong tài khoản Resend của bạn; cũng dùng lại làm header `From:` khi dùng SMTP) |
+
+### SMTP relay
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `SMTP_HOST` | trống | Hostname của SMTP relay. Đặt biến này kích hoạt chế độ SMTP và ghi đè Resend |
+| `SMTP_PORT` | `25` | Cổng SMTP. Dùng `587` cho gửi STARTTLS, hoặc `465` cho SMTPS (TLS ngầm định, tự bật) |
+| `SMTP_USERNAME` | trống | Username SMTP. Để trống cho relay không xác thực |
+| `SMTP_PASSWORD` | trống | Mật khẩu SMTP |
+| `SMTP_TLS` | `starttls` | Chế độ TLS. `implicit` (bí danh `smtps`, `ssl`) ép bắt tay TLS ngay khi kết nối (SMTPS); cổng `465` tự bật. Bỏ trống / `starttls` nâng cấp qua STARTTLS sau khi kết nối |
+| `SMTP_TLS_INSECURE` | `false` | Đặt `true` để bỏ kiểm chứng chứng chỉ TLS (chỉ với CA riêng / tự ký) |
+| `SMTP_EHLO_NAME` | hostname của máy | Tên EHLO/HELO công bố với relay. Đặt FQDN thật khi relay nghiêm ngặt (ví dụ Google Workspace `smtp-relay.gmail.com`) từ chối lời chào mặc định từ IP công cộng — nếu không relay ngắt kết nối và hiện thành lỗi `EOF` khó hiểu ở một lệnh sau |
+
+STARTTLS tự nâng cấp khi server quảng bá. Timeout quay số là 10s và cả phiên SMTP có hạn 30s, nên một relay "hố đen" không treo được handler xác thực.
+
+**Hành vi khi không đặt gì**: server không báo lỗi, nhưng mọi email đáng lẽ được gửi (mã xác thực, liên kết mời) **chỉ được ghi ra stdout của server**. Tiện cho phát triển cục bộ — chép mã từ log server; **ở production, quên đặt sẽ tạo hố đen im lặng**: người dùng không bao giờ nhận email và không lỗi nào hiện ra.
+
+## Cấu hình Google OAuth
+
+Tùy chọn. Bỏ trống nếu chỉ dùng email + mã xác thực; cấu hình để thêm "Đăng nhập với Google" trên trang đăng nhập.
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `GOOGLE_CLIENT_ID` | trống | OAuth client ID của Google Cloud |
+| `GOOGLE_CLIENT_SECRET` | trống | OAuth secret của Google Cloud |
+| `GOOGLE_REDIRECT_URI` | `http://localhost:3000/auth/callback` | URL callback OAuth (tự vận hành: thay bằng tên miền frontend của bạn) |
+
+**Có hiệu lực lúc chạy**: frontend đọc các thiết lập này qua `/api/config` lúc runtime, nên **đổi chúng không cần build hay deploy lại frontend** — khởi động lại server là áp dụng.
+
+Thiết lập đầy đủ (gồm các bước Google Cloud Console) ở [Thiết lập đăng nhập và đăng ký](/auth-setup#google-oauth-configuration).
+
+## Cấu hình lưu trữ file
+
+Multica lưu tệp đính kèm người dùng tải lên (ảnh và file trong bình luận). **Ưu tiên S3**; nếu chưa cấu hình S3 thì lùi về đĩa cục bộ.
+
+### S3 / lưu trữ tương thích S3
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `S3_BUCKET` | trống | **Chỉ tên bucket** (ví dụ `my-bucket`). **Đừng** kèm hậu tố `.s3.<region>.amazonaws.com` — server tự dựng host công khai từ `S3_BUCKET` + `S3_REGION`. Đặt biến này bật lưu trữ S3 |
+| `S3_REGION` | `us-west-2` | Vùng AWS. Phải khớp vùng thật của bucket — dùng cho cả ký SDK lẫn dựng URL công khai |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | trống | Thông tin đăng nhập tĩnh. Khi cả hai trống, chuỗi credential mặc định của AWS SDK được dùng (IAM role / credential môi trường) |
+| `AWS_ENDPOINT_URL` | trống | Endpoint tương thích S3 tùy chỉnh (ví dụ [MinIO](https://min.io/)). Đặt nó chuyển sang URL kiểu path-style |
+| `ATTACHMENT_DOWNLOAD_MODE` | `auto` | Đường tải tệp đính kèm: `auto`, `cloudfront`, `presign`, hoặc `proxy`. Ở `auto`, CloudFront được ưu tiên khi cấu hình đủ; endpoint nội bộ/riêng dùng proxy của server; endpoint tương thích S3 công cộng dùng presigned GET URL khi hỗ trợ |
+| `ATTACHMENT_DOWNLOAD_URL_TTL` | `30m` | TTL cho URL ký CloudFront và URL presigned S3. Nhận chuỗi duration của Go |
+
+**Khi `S3_BUCKET` trống**: server log `"S3_BUCKET not set, cloud upload disabled"` lúc khởi động, và mọi upload lùi về đĩa cục bộ.
+
+**URL của object đã lưu** được dựng theo thứ tự ưu tiên:
+
+1. `https://<CLOUDFRONT_DOMAIN>/<key>` nếu đặt `CLOUDFRONT_DOMAIN`.
+2. `<AWS_ENDPOINT_URL>/<S3_BUCKET>/<key>` (path-style) nếu đặt `AWS_ENDPOINT_URL`.
+3. `https://<S3_BUCKET>.s3.<S3_REGION>.amazonaws.com/<key>` (virtual-hosted-style). Khi `S3_BUCKET` chứa dấu chấm, server lùi về `https://s3.<S3_REGION>.amazonaws.com/<S3_BUCKET>/<key>` (path-style) vì chứng chỉ TLS wildcard của AWS không hợp lệ với host bucket có dấu chấm.
+
+Giá trị `download_url` của API dùng `GET /api/attachments/{id}/download` trừ khi cấu hình ký CloudFront. Endpoint chuyển hướng tới URL presigned CloudFront/S3 khi an toàn, hoặc stream qua server cho endpoint riêng/nội bộ như `http://rustfs:9000`. Với kho object chỉ trong Docker/VPC, đặt `ATTACHMENT_DOWNLOAD_MODE=proxy` nếu tự phát hiện chưa đủ bảo thủ cho mạng của bạn.
+
+### Đĩa cục bộ (khi chưa cấu hình S3)
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `LOCAL_UPLOAD_DIR` | `./data/uploads` | Thư mục lưu cục bộ |
+| `LOCAL_UPLOAD_BASE_URL` | trống (trả đường dẫn tương đối) | URL gốc công khai — bỏ trống thì frontend không dựng được URL đầy đủ cho tệp đính kèm |
+
+### CloudFront (tùy chọn)
+
+Nếu bạn đặt CloudFront trước S3, có ba biến: `CLOUDFRONT_DOMAIN`, `CLOUDFRONT_KEY_PAIR_ID`, `CLOUDFRONT_PRIVATE_KEY` (hoặc `CLOUDFRONT_PRIVATE_KEY_SECRET` để đọc từ Secrets Manager). Không dùng CloudFront thì bỏ qua — chúng không xung đột với cấu hình S3.
+
+### Domain của cookie
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `COOKIE_DOMAIN` | trống | Phạm vi của cookie phiên |
+
+- **Trống**: cookie chỉ hợp lệ đúng trên host được truy cập (đúng cho triển khai một host)
+- **Đặt `.example.com`**: cookie chia sẻ giữa các subdomain (`app.example.com` và `api.example.com` dùng chung phiên đăng nhập)
+- Cảnh báo: không được là địa chỉ IP (trình duyệt bỏ qua)
+
+## Giới hạn ai được đăng ký
+
+Ba lớp danh sách cho phép kết hợp theo ưu tiên. **Nếu lớp nào được đặt giá trị không rỗng, email không khớp bị từ chối** — kể cả `ALLOW_SIGNUP=true` cũng không vượt được.
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `ALLOWED_EMAILS` | trống | Danh sách email tường minh (phân tách phẩy). Khi không rỗng, chỉ email trong danh sách đăng ký được |
+| `ALLOWED_EMAIL_DOMAINS` | trống | Danh sách tên miền (phân tách phẩy). Khi không rỗng, chỉ tên miền trong danh sách đăng ký được |
+| `ALLOW_SIGNUP` | `true` | Công tắc tổng đăng ký. Đặt `false` để tắt hẳn đăng ký |
+
+**Phần dễ hiểu nhầm**: `ALLOWED_EMAIL_DOMAINS=company.io` + `ALLOW_SIGNUP=true` **không** nghĩa là "cho company.io hoặc mọi người" — nó nghĩa là **chỉ cho company.io**. Các lớp danh sách theo ngữ nghĩa AND — cây quyết định đầy đủ ở [Thiết lập đăng nhập và đăng ký → Danh sách cho phép đăng ký](/auth-setup#restricting-who-can-sign-up).
+
+**Bản thân luồng mời không kiểm tra danh sách đăng ký** — nhưng người được mời vẫn phải **đăng nhập được** trước khi chấp nhận lời mời. Nếu họ đã có tài khoản Multica (ví dụ từ không gian làm việc khác), họ chấp nhận thẳng, không bị ảnh hưởng bởi danh sách; **nếu chưa từng đăng ký**, bước đầu của đăng nhập (xin mã xác thực) vẫn qua kiểm tra danh sách, và email bị `ALLOW_SIGNUP=false` hay `ALLOWED_EMAILS` / `ALLOWED_EMAIL_DOMAINS` từ chối **không hoàn tất được đăng ký, do đó không chấp nhận được lời mời**.
+
+## Khóa việc tạo không gian làm việc
+
+`ALLOW_SIGNUP=false` chặn tài khoản mới, nhưng **không** chặn người đã đăng nhập tạo thêm không gian làm việc qua `POST /api/workspaces`. Trên máy chủ tự vận hành nơi mọi issue, repo và agent phải trong tầm mắt của admin nền tảng, đặt `DISABLE_WORKSPACE_CREATION=true` để đóng khe hở đó.
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `DISABLE_WORKSPACE_CREATION` | `false` | Khi `true`, mọi lệnh gọi `POST /api/workspaces` trả `403 workspace creation is disabled for this instance`. Web UI ẩn mọi nút "Tạo không gian làm việc" qua `/api/config`. Không có ngoại lệ theo vai trò/owner — cổng chặn là toàn máy chủ |
+
+Trình tự khởi tạo khuyến nghị:
+
+1. Khởi động máy chủ với `DISABLE_WORKSPACE_CREATION` bỏ trống (mặc định).
+2. Đăng nhập admin và tạo không gian làm việc dùng chung.
+3. Đặt `DISABLE_WORKSPACE_CREATION=true` và khởi động lại backend. Từ đây, người dùng chỉ vào qua lời mời.
+
+Nếu bạn cũng muốn giữ `ALLOW_SIGNUP=true` để người được mời hoàn tất đăng ký với mã xác thực đầu tiên, kết hợp `DISABLE_WORKSPACE_CREATION=true` với `ALLOWED_EMAIL_DOMAINS` / `ALLOWED_EMAILS` để khoanh vùng địa chỉ nào đăng ký được. Đặt `ALLOW_SIGNUP=false` sẽ chặn luôn cả người được mời đang chờ tạo tài khoản — chỉ hữu ích trên máy chủ mà mọi thành viên đã có tài khoản Multica.
+
+## Giới hạn tần suất (Redis tùy chọn)
+
+Các endpoint xác thực công khai — `/auth/send-code`, `/auth/verify-code`, `/auth/google` — có giới hạn tần suất theo IP theo cửa sổ cố định. Bộ giới hạn dùng Redis. Khi `REDIS_URL` trống, middleware là **no-op** (fail-open) và backend log `rate limiting disabled: REDIS_URL not configured` lúc khởi động.
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `REDIS_URL` | trống | URL kết nối Redis (ví dụ `redis://localhost:6379/0`). Bỏ trống thì giới hạn tần suất trên endpoint xác thực bị tắt. Cùng Redis này cũng được dùng bởi fan-out của hub realtime, cache PAT và cache daemon-token — tất cả lùi về chế độ in-memory / truy DB trực tiếp khi trống |
+| `REDIS_DISABLE_CLIENT_NAME` | `false` | Đặt `true` để bỏ handshake `CLIENT SETNAME` trên mỗi kết nối Redis. **Bắt buộc** với các Redis được quản lý chặn lệnh `CLIENT`, như GCP Memorystore hay AWS ElastiCache với ACL hạn chế. Khi bật, kết nối mất tên mô tả trong `CLIENT LIST` nhưng tương thích với các nhà cung cấp hạn chế |
+| `RATE_LIMIT_AUTH` | `5` | Số request tối đa mỗi IP mỗi phút với `/auth/send-code` và `/auth/google` |
+| `RATE_LIMIT_AUTH_VERIFY` | `20` | Số request tối đa mỗi IP mỗi phút với `/auth/verify-code` |
+| `RATE_LIMIT_TRUSTED_PROXIES` | trống | Các CIDR (phân tách phẩy) mà bộ giới hạn được phép tin header `X-Forwarded-For` của chúng. Trống (mặc định) nghĩa là **không bao giờ tin XFF** — bộ giới hạn chỉ dùng `RemoteAddr` của kết nối trực tiếp |
+
+Khi request vượt giới hạn, server trả `429 Too Many Requests`, `Retry-After: 60`, và body `{"error":"too many requests"}`.
+
+<Callout type="warning">
+**Sau reverse proxy, bạn phải đặt `RATE_LIMIT_TRUSTED_PROXIES`.** Nếu không, mọi người dùng thật chia chung IP của proxy dưới góc nhìn backend, cả triển khai dồn vào một xô, và `/auth/send-code` thành 5 req/phút cho cả site. Giá trị điển hình: `127.0.0.1/32,::1/128` cho Caddy / Nginx cùng máy; dải IP công bố của CDN cho Cloudflare / ALB / CloudFront. Chỉ IP có `RemoteAddr` nằm trong các CIDR này mới được dùng `X-Forwarded-For` để nhận diện client.
+</Callout>
+
+`RATE_LIMIT_TRUSTED_PROXIES` này **không** giống `MULTICA_TRUSTED_PROXIES`, thứ điều khiển bộ giới hạn webhook autopilot (`/api/webhooks/autopilots/{token}`). Mỗi bộ giới hạn parse danh sách riêng, nên triển khai sau proxy nên đặt cả hai.
+
+## Tham số tinh chỉnh daemon
+
+Daemon chạy trên máy của người dùng, cấu hình của nó cũng đọc từ biến môi trường cục bộ. Các biến hay dùng:
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `MULTICA_SERVER_URL` | `ws://localhost:8080/ws` | Địa chỉ server (tự vận hành: thay bằng tên miền của bạn) |
+| `MULTICA_DAEMON_HEARTBEAT_INTERVAL` | `15s` | Chu kỳ heartbeat |
+| `MULTICA_DAEMON_POLL_INTERVAL` | `3s` | Chu kỳ poll task |
+| `MULTICA_DAEMON_MAX_CONCURRENT_TASKS` | `20` | Số task đồng thời tối đa |
+| `MULTICA_<PROVIDER>_PATH` | trùng tên CLI | Đường dẫn tới file thực thi của từng công cụ lập trình AI (ví dụ `MULTICA_CLAUDE_PATH`) |
+| `MULTICA_<PROVIDER>_MODEL` | trống | Model mặc định cho từng công cụ lập trình AI |
+| `MULTICA_<PROVIDER>_ARGS` | trống | Đối số CLI mặc định toàn daemon cho một backend, áp cho mọi task trước `custom_args` riêng của từng agent. Hỗ trợ `MULTICA_CLAUDE_ARGS`, `MULTICA_CODEX_ARGS` và `MULTICA_CODEBUDDY_ARGS` |
+
+Giải thích đầy đủ từng tham số ảnh hưởng hành vi daemon thế nào, xem [Daemon và runtime](/daemon-runtimes).
+
+### Đối số mặc định cho agent (`MULTICA_<PROVIDER>_ARGS`)
+
+Các biến này đặt lớp cờ CLI **mặc định toàn đội** cho một backend — cách tiện để áp mặt bằng chi phí hoặc tài nguyên mặc định (ví dụ `--max-turns`) cho mọi agent trên một daemon mà không phải sửa `custom_args` từng con. Đây là lớp mặc định, không phải trần cứng: `custom_args` theo agent được nối vào sau và ghi đè được (xem **Thứ tự ưu tiên** bên dưới).
+
+- **Thứ tự ưu tiên:** đối số mặc định áp trước, rồi `custom_args` riêng của từng agent nối sau. Với cờ nhận giá trị, trình parse của chính CLI hạ nguồn quyết định (đa số công cụ lấy lần xuất hiện cuối), nên một agent riêng lẻ nâng được mặc định của daemon, nhưng mặc định vẫn áp ở nơi agent không ghi đè.
+- **Parse:** giá trị được tách theo quy tắc shell-word POSIX, nên trích dẫn hoạt động — `MULTICA_CLAUDE_ARGS='--append-system-prompt "multi word"'` parse thành hai token.
+- **An toàn:** cả lớp đối số mặc định lẫn `custom_args` theo agent đều qua cùng bộ lọc cờ bị chặn, nên cờ trọng yếu của giao thức (như `-p`, `--output-format`, `--input-format`, `--permission-mode`, `--mcp-config` với Claude, và `--listen` với Codex) không tiêm được qua lớp nào.
+- **Trống** nghĩa là không đổi hành vi.
+
+## Kiểm soát truy cập frontend
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `FRONTEND_ORIGIN` | trống | Địa chỉ frontend. Liên kết trong email mời, danh sách CORS và domain cookie đều suy từ đây. Bỏ trống thì liên kết email mời lùi về tên miền hosted `https://app.multica.ai` — tự vận hành phải đặt tường minh |
+| `MULTICA_APP_URL` | trống | URL frontend cho luồng đăng nhập CLI. Web UI cũng dùng để hiện lệnh thiết lập daemon tự vận hành với tên miền của bạn; với triển khai cùng origin, nó cũng được dùng làm `server_url` cho daemon khi `MULTICA_PUBLIC_URL` trống |
+| `MULTICA_PUBLIC_URL` | trống | URL API công khai, không có gạch chéo cuối. Dùng cho URL webhook autopilot và bởi web UI làm `server_url` cho daemon |
+| `CORS_ALLOWED_ORIGINS` | trống | Các origin CORS được phép thêm (phân tách phẩy) |
+| `ALLOWED_ORIGINS` | trống | Danh sách origin riêng cho WebSocket (phân tách phẩy); khi trống, thứ tự lùi là `CORS_ALLOWED_ORIGINS` → `FRONTEND_ORIGIN` → `localhost:3000/5173/5174` |
+
+<Callout type="warning">
+**Bỏ trống `FRONTEND_ORIGIN` tạo hai lỗi im lặng**: (1) liên kết email mời trỏ về `https://app.multica.ai` (tên miền hosted), bấm vào không đưa người dùng về máy chủ tự vận hành của bạn; (2) kiểm tra Origin của WebSocket lùi về `localhost:3000 / 5173 / 5174`, nên mọi kết nối WebSocket ở production bị từ chối và frontend trông như "mất cập nhật thời gian thực."
+</Callout>
+
+## Tích hợp GitHub
+
+[Tích hợp GitHub PR ↔ issue](/github-integration) cần hai biến. Đặt cả hai để bật Connect GitHub trong Cài đặt và nhận webhook. Hai biến bổ sung là tùy chọn nhưng điền được tên tài khoản kết nối ngay lúc cài.
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `GITHUB_APP_SLUG` | trống | Slug của GitHub App của bạn (đuôi của `https://github.com/apps/<slug>`). Điều khiển URL nút cài ở Cài đặt → GitHub |
+| `GITHUB_WEBHOOK_SECRET` | trống | Webhook secret bạn đặt trên GitHub App. Dùng cho xác minh HMAC-SHA256 của mọi lượt giao `pull_request` / `installation`, và làm khóa HMAC cho state token của callback thiết lập |
+| `GITHUB_APP_ID` | trống | Tùy chọn. App ID dạng số từ trang cài đặt App. Kết hợp với `GITHUB_APP_PRIVATE_KEY`, cho callback thiết lập lấy tên tài khoản kết nối từ GitHub ngay lúc cài |
+| `GITHUB_APP_PRIVATE_KEY` | trống | Tùy chọn. Nguyên khối PEM của RSA private key của App (gồm dòng `-----BEGIN/END-----`, giữ xuống dòng). Dùng để đúc JWT ngắn hạn mà GitHub yêu cầu cho các lệnh REST xác thực bằng App |
+
+**Hành vi khi thiếu một trong hai biến bắt buộc:**
+
+- Nút `Connect GitHub` trong Cài đặt → GitHub bị **vô hiệu** và hiện gợi ý "not configured" cho admin.
+- Endpoint `/api/webhooks/github` trả **`503 github webhooks not configured`** — Multica từ chối xử lý sự kiện khi không có secret thay vì coi mọi chữ ký là hợp lệ.
+
+**Hành vi khi `GITHUB_APP_ID` / `GITHUB_APP_PRIVATE_KEY` tùy chọn bỏ trống:**
+
+- Thẻ kết nối hiện tạm `Connected to unknown` sau khi cài. Multica cập nhật dòng thành tên org/người dùng thật ngay khi GitHub giao webhook `installation.created` (thường trong vài giây), và phát cập nhật realtime để tab Cài đặt → GitHub đang mở phản ánh thay đổi mà không cần tải lại.
+
+**Lưu ý:** `GITHUB_WEBHOOK_SECRET` được dùng lại làm khóa ký cho state token của luồng cài, nên người vận hành chỉ cần quản lý một secret. Nó **không phải** *Client* secret của GitHub App — Client secret thuộc OAuth và tích hợp này không dùng. Xem [Tích hợp GitHub → Thiết lập tự vận hành](/github-integration#self-host-setup) cho hướng dẫn đầy đủ.
+
+## Phân tích sử dụng
+
+Mặc định, server báo về máy chủ PostHog chính thức của Multica. Để tắt, đặt `ANALYTICS_DISABLED=true`.
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `ANALYTICS_DISABLED` | `false` | Đặt `true` để tắt hẳn analytics phía backend |
+| `POSTHOG_API_KEY` | key mặc định có sẵn | Đặt khi trỏ về máy chủ PostHog của riêng bạn |
+| `POSTHOG_HOST` | `https://us.i.posthog.com` | Đổi sang host của bạn nếu tự vận hành PostHog |
+
+## Tiếp theo
+
+- [Thiết lập đăng nhập và đăng ký](/auth-setup) — cách cấu hình cụ thể các biến xác thực ở trên và bẫy nằm đâu
+- [Tích hợp GitHub](/github-integration) — cách dựng GitHub App đứng sau `GITHUB_APP_SLUG` / `GITHUB_WEBHOOK_SECRET`
+- [Khắc phục sự cố](/troubleshooting) — triệu chứng và cách sửa cho các cấu hình sai phổ biến
+- [Daemon và runtime](/daemon-runtimes) — các tham số `MULTICA_DAEMON_*` thực sự làm gì
