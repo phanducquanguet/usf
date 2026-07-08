@@ -24,7 +24,7 @@ import { cn } from "@multica/ui/lib/utils";
 import { useCreateWorkspace } from "@multica/core/workspace/mutations";
 import type { Workspace } from "@multica/core/types";
 import { isImeComposing } from "@multica/core/utils";
-import { useConfigStore } from "@multica/core/config";
+import { useConfigStore, useWorkspaceCreationDisabled } from "@multica/core/config";
 import { workspaceUrlHost } from "@multica/core/workspace/workspace-url";
 import { DragStrip } from "@multica/views/platform";
 import { useLogout } from "../../auth";
@@ -83,7 +83,7 @@ export function StepWorkspace({
   const { t } = useT("onboarding");
   const mainRef = useRef<HTMLElement>(null);
   const fadeStyle = useScrollFade(mainRef);
-  const workspaceCreationDisabled = useConfigStore((s) => s.workspaceCreationDisabled);
+  const workspaceCreationDisabled = useWorkspaceCreationDisabled();
   const urlHost = workspaceUrlHost(useConfigStore((s) => s.daemonAppUrl));
   // Single source of truth for "can the user reach the create path on this
   // instance?" — drives the resume-mode picker, the eyebrow/headline/lede

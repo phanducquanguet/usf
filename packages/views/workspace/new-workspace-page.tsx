@@ -3,7 +3,7 @@
 import { ArrowLeft, LogOut } from "lucide-react";
 import { Button } from "@multica/ui/components/ui/button";
 import type { Workspace } from "@multica/core/types";
-import { useConfigStore } from "@multica/core/config";
+import { useWorkspaceCreationDisabled } from "@multica/core/config";
 import { useLogout } from "../auth";
 import { DragStrip } from "../platform";
 import { useT } from "../i18n";
@@ -31,7 +31,7 @@ export function NewWorkspacePage({
 }) {
   const { t } = useT("workspace");
   const logout = useLogout();
-  const workspaceCreationDisabled = useConfigStore((s) => s.workspaceCreationDisabled);
+  const workspaceCreationDisabled = useWorkspaceCreationDisabled();
 
   return (
     <div className="relative flex min-h-svh flex-col bg-background">

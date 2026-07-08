@@ -11,7 +11,7 @@ import {
   DialogDescription,
 } from "@multica/ui/components/ui/dialog";
 import { paths } from "@multica/core/paths";
-import { useConfigStore } from "@multica/core/config";
+import { useWorkspaceCreationDisabled } from "@multica/core/config";
 import { CreateWorkspaceForm } from "../workspace/create-workspace-form";
 import { useT } from "../i18n";
 
@@ -19,7 +19,7 @@ export function CreateWorkspaceModal({ onClose }: { onClose: () => void }) {
   const { t } = useT("modals");
   const tWorkspace = useT("workspace").t;
   const router = useNavigation();
-  const workspaceCreationDisabled = useConfigStore((s) => s.workspaceCreationDisabled);
+  const workspaceCreationDisabled = useWorkspaceCreationDisabled();
 
   return (
     <Dialog

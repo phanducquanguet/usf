@@ -34,6 +34,12 @@ vi.mock("../../auth", () => ({
 vi.mock("@multica/core/config", () => ({
   useConfigStore: (selector: (state: MockConfigState) => unknown) =>
     mockUseConfigStore(selector),
+  // Route the per-user hook through the same mock state so the existing
+  // `renderStep({ disabled })` helper keeps driving both read paths.
+  useWorkspaceCreationDisabled: () =>
+    mockUseConfigStore(
+      (s: MockConfigState) => s.workspaceCreationDisabled,
+    ) as boolean,
 }));
 
 vi.mock("@multica/core/workspace/mutations", () => ({
