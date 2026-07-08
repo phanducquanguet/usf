@@ -312,6 +312,38 @@ describe("UserSchema timezone drift", () => {
   });
 });
 
+// Per-user workspace-creation permission (self-host allowlist gate). The
+// field is optional so older backends that omit it keep working — readers
+// treat `undefined` as not-allowed and defer to the instance-wide
+// /api/config flag.
+describe("UserSchema can_create_workspace", () => {
+  const base = {
+    id: "11111111-1111-1111-1111-111111111111",
+    name: "Ada",
+    email: "ada@example.com",
+  };
+
+  it("passes the field through when the server sends it", () => {
+    const parsed = UserSchema.parse({ ...base, can_create_workspace: true });
+    expect(parsed.can_create_workspace).toBe(true);
+  });
+
+  it("leaves the field undefined for older backends that omit it", () => {
+    const parsed = UserSchema.parse(base);
+    expect(parsed.can_create_workspace).toBeUndefined();
+  });
+
+  it("falls back to EMPTY_USER when the field is the wrong type", () => {
+    const parsed = parseWithFallback(
+      { ...base, can_create_workspace: "yes" },
+      UserSchema,
+      EMPTY_USER,
+      { endpoint: "GET /api/me" },
+    );
+    expect(parsed).toBe(EMPTY_USER);
+  });
+});
+
 describe("SquadListSchema member preview drift", () => {
   const baseSquad = {
     id: "squad-1",

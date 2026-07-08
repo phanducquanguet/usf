@@ -48,6 +48,12 @@ export interface User {
    * Kept as `string | null` for forward compatibility.
    */
   starter_content_state: string | null;
+  /**
+   * Self-host creation gate, per user: true when this user may create
+   * workspaces (gate off, or email allowlisted via
+   * WORKSPACE_CREATION_ALLOWED_EMAILS). Optional — older backends omit it.
+   */
+  can_create_workspace?: boolean;
   /** Preferred UI language. null means "follow client/system". */
   language: string | null;
   /**

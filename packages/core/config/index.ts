@@ -1,5 +1,6 @@
 import { createStore } from "zustand/vanilla";
 import { useStore } from "zustand";
+import { useAuthStore } from "../auth";
 
 interface ConfigState {
   cdnDomain: string;
@@ -64,4 +65,17 @@ export function useFeatureEnabled(key: string, defaultValue = false): boolean {
   return useConfigStore((state) =>
     featureFlagEnabled(state.featureFlags, key, defaultValue),
   );
+}
+
+/**
+ * Effective "hide Create workspace affordances" flag for the current user:
+ * the instance-wide public-config gate minus the per-user allowlist
+ * exception carried on /api/me (`can_create_workspace`). Missing field
+ * (old backend, user not loaded yet) counts as not-allowed, which keeps
+ * the instance-wide flag's blanket behavior.
+ */
+export function useWorkspaceCreationDisabled(): boolean {
+  const disabled = useConfigStore((s) => s.workspaceCreationDisabled);
+  const canCreate = useAuthStore((s) => s.user?.can_create_workspace === true);
+  return disabled && !canCreate;
 }

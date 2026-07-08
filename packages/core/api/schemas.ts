@@ -954,6 +954,10 @@ export const UserSchema = z.object({
   language: z.string().nullable().default(null),
   profile_description: z.string().default(""),
   timezone: z.string().nullable().default(null),
+  // Per-user workspace-creation permission under the self-host gate.
+  // Optional: older backends omit it; readers must treat missing as
+  // "not allowed" and let the instance-wide /api/config flag decide.
+  can_create_workspace: z.boolean().optional(),
   created_at: z.string().default(""),
   updated_at: z.string().default(""),
 }).loose();
