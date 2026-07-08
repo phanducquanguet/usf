@@ -110,21 +110,9 @@ describe("PreferencesTab — Language switcher", () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<PreferencesTab />, { wrapper: I18nWrapper });
 
-    await user.click(screen.getByRole("radio", { name: "한국어" }));
+    await user.click(screen.getByRole("radio", { name: "Tiếng Việt" }));
 
-    expect(mockPersist).toHaveBeenCalledWith("ko");
-    expect(mockUpdateMe).not.toHaveBeenCalled();
-    expect(mockReload).toHaveBeenCalledTimes(1);
-    expect(mockToastWarning).not.toHaveBeenCalled();
-  });
-
-  it("when not logged in: selecting Japanese persists ja + reloads, no PATCH", async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<PreferencesTab />, { wrapper: I18nWrapper });
-
-    await user.click(screen.getByRole("radio", { name: "日本語" }));
-
-    expect(mockPersist).toHaveBeenCalledWith("ja");
+    expect(mockPersist).toHaveBeenCalledWith("vi");
     expect(mockUpdateMe).not.toHaveBeenCalled();
     expect(mockReload).toHaveBeenCalledTimes(1);
     expect(mockToastWarning).not.toHaveBeenCalled();
@@ -136,10 +124,10 @@ describe("PreferencesTab — Language switcher", () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<PreferencesTab />, { wrapper: I18nWrapper });
 
-    await user.click(screen.getByRole("radio", { name: "中文" }));
+    await user.click(screen.getByRole("radio", { name: "Tiếng Việt" }));
 
-    expect(mockPersist).toHaveBeenCalledWith("zh-Hans");
-    expect(mockUpdateMe).toHaveBeenCalledWith({ language: "zh-Hans" });
+    expect(mockPersist).toHaveBeenCalledWith("vi");
+    expect(mockUpdateMe).toHaveBeenCalledWith({ language: "vi" });
     expect(mockToastWarning).not.toHaveBeenCalled();
     expect(mockReload).toHaveBeenCalledTimes(1);
   });
@@ -150,11 +138,11 @@ describe("PreferencesTab — Language switcher", () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<PreferencesTab />, { wrapper: I18nWrapper });
 
-    await user.click(screen.getByRole("radio", { name: "中文" }));
+    await user.click(screen.getByRole("radio", { name: "Tiếng Việt" }));
 
     // Local persist still happened so the reload below sees the new locale.
-    expect(mockPersist).toHaveBeenCalledWith("zh-Hans");
-    expect(mockUpdateMe).toHaveBeenCalledWith({ language: "zh-Hans" });
+    expect(mockPersist).toHaveBeenCalledWith("vi");
+    expect(mockUpdateMe).toHaveBeenCalledWith({ language: "vi" });
     // Toast surfaced the sync failure.
     expect(mockToastWarning).toHaveBeenCalledTimes(1);
     // Reload deferred so the toast is visible.

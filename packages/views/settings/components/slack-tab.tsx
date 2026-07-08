@@ -241,19 +241,10 @@ function InstallationRow({
 // shows how to create the Slack app + copy its two tokens is recorded.
 const SLACK_BYO_VIDEO_URL = "";
 
-// slackDocsUrl points at the Slack integration guide on the docs site,
-// localized to the viewer's language. The docs site uses /<lang>/ path
-// prefixes (English has none), matching the convention used elsewhere in the
-// app for doc links (e.g. the autopilots webhook docs link).
-function slackDocsUrl(lang: string | undefined): string {
-  const prefix = lang?.startsWith("zh")
-    ? "/zh"
-    : lang?.startsWith("ja")
-      ? "/ja"
-      : lang?.startsWith("ko")
-        ? "/ko"
-        : "";
-  return `https://multica.ai/docs${prefix}/slack-bot-integration`;
+// slackDocsUrl points at the Slack integration guide on the docs site.
+// Docs ship in English only for the supported app locales (vi falls back).
+function slackDocsUrl(_lang: string | undefined): string {
+  return `https://multica.ai/docs/slack-bot-integration`;
 }
 
 // SlackAgentBindButton is the per-agent CTA exposed from the agent detail page.

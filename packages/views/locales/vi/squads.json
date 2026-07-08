@@ -1,0 +1,99 @@
+{
+  "page": {
+    "title": "Đội",
+    "new_button": "Tạo đội mới",
+    "empty_no_squads": "Chưa có đội nào. Hãy tạo một đội để bắt đầu.",
+    "empty_no_match": "Không có đội nào khớp với bộ lọc.",
+    "table": {
+      "name": "Đội",
+      "leader": "Đội trưởng",
+      "members": "Thành viên",
+      "creator": "Người tạo",
+      "created": "Ngày tạo"
+    },
+    "no_matches": "Không có đội nào khớp",
+    "row_menu": "Thao tác với đội",
+    "archive_action": "Lưu trữ"
+  },
+  "inspector": {
+    "details_section": "Chi tiết",
+    "archive_button": "Lưu trữ"
+  },
+  "archive_dialog": {
+    "title": "Lưu trữ đội này?",
+    "description": "\"{{name}}\" sẽ được lưu trữ. Các issue đang giao cho đội này sẽ được chuyển cho đội trưởng. Thao tác này không thể hoàn tác — hãy tạo đội mới nếu bạn cần định tuyến lại.",
+    "cancel": "Hủy",
+    "confirm": "Lưu trữ",
+    "archiving": "Đang lưu trữ…",
+    "success": "Đã lưu trữ đội"
+  },
+  "name_editor": {
+    "cancel": "Hủy"
+  },
+  "add_member_dialog": {
+    "title": "Thêm thành viên",
+    "description": "Thêm một thành viên hoặc agent trong không gian làm việc vào đội này.",
+    "label_member": "Thành viên",
+    "label_role": "Vai trò",
+    "label_optional": "(không bắt buộc)",
+    "placeholder_role_inline": "Thêm vai trò…",
+    "cancel": "Hủy"
+  },
+  "description_dialog": {
+    "title": "Sửa mô tả",
+    "placeholder_empty": "Thêm mô tả",
+    "cancel": "Hủy"
+  },
+  "discard_changes_dialog": {
+    "title": "Bỏ các thay đổi chưa lưu?",
+    "description": "Bạn có thay đổi chưa lưu ở thẻ này. Chuyển thẻ sẽ làm mất các thay đổi đó.",
+    "keep_editing": "Tiếp tục chỉnh sửa",
+    "discard_button": "Bỏ thay đổi"
+  },
+  "members_tab": {
+    "section_title": "Thành viên",
+    "section_count_other": "{{count}} thành viên trong đội này",
+    "add_member_button": "Thêm thành viên",
+    "create_agent_button": "Tạo agent",
+    "leader_chip": "Đội trưởng",
+    "view_agent_tooltip": "Mở chi tiết agent",
+    "make_leader_tooltip": "Đặt làm đội trưởng",
+    "remove_member_tooltip": "Xóa khỏi đội",
+    "status_working": "Đang làm việc",
+    "status_idle": "Đang rảnh",
+    "status_offline": "Ngoại tuyến",
+    "status_unstable": "Không ổn định",
+    "status_archived": "Đã lưu trữ",
+    "issue_status_blocked": "blocked",
+    "active_issue_more": "và {{count}} issue khác",
+    "last_active_label": "hoạt động lần cuối {{time}}"
+  },
+  "profile_card": {
+    "unavailable": "Không có thông tin đội",
+    "detail_link": "Chi tiết →",
+    "archived": "Đã lưu trữ",
+    "member_count_other": "{{count}} thành viên",
+    "members_section": "Thành viên",
+    "more_members_other": "+{{count}} nữa"
+  },
+  "instructions_tab": {
+    "description": "Chỉ dẫn của đội được đưa vào prompt của agent đội trưởng mỗi khi nó xử lý issue được giao cho đội. Dùng để truyền cho đội trưởng các hướng dẫn chung, quy ước làm việc, hoặc ngữ cảnh cần tuân theo trong mọi task.",
+    "unsaved_changes": "Có thay đổi chưa lưu",
+    "save_button": "Lưu"
+  },
+  "scope": {
+    "mine": "Của tôi",
+    "all": "Tất cả"
+  },
+  "toolbar": {
+    "display": "Hiển thị",
+    "sort_by": "Sắp xếp theo",
+    "direction_asc": "Tăng dần",
+    "direction_desc": "Giảm dần",
+    "section_columns": "Cột",
+    "result_count_title": "Đội khớp bộ lọc / tổng số đội",
+    "filter_label": "Bộ lọc",
+    "filter_active_count_other": "{{count}} bộ lọc",
+    "clear_filters": "Xóa bộ lọc"
+  }
+}

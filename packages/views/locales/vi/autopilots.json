@@ -1,0 +1,412 @@
+{
+  "page": {
+    "title": "Autopilot",
+    "new_autopilot": "Tạo autopilot mới",
+    "start_blank": "Bắt đầu từ đầu",
+    "table": {
+      "name": "Tên",
+      "agent": "Agent",
+      "created_by": "Người tạo",
+      "mode": "Chế độ",
+      "status": "Trạng thái",
+      "last_run": "Lần chạy gần nhất",
+      "assignee": "Người được giao",
+      "trigger": "Kích hoạt",
+      "next_run": "Lần chạy tiếp theo",
+      "created": "Ngày tạo"
+    },
+    "last_run_empty": "--",
+    "empty": {
+      "title": "Chưa có autopilot nào",
+      "hint": "Lên lịch task định kỳ cho các agent AI của bạn. Chọn một mẫu hoặc bắt đầu từ đầu."
+    },
+    "scope_all": "Tất cả",
+    "no_matches": "Không có automation nào khớp",
+    "retry": "Thử lại"
+  },
+  "status": {
+    "active": "Đang hoạt động",
+    "paused": "Tạm dừng",
+    "archived": "Đã lưu trữ"
+  },
+  "execution_mode": {
+    "create_issue": "Tạo issue",
+    "run_only": "Chỉ chạy"
+  },
+  "relative_date": {
+    "today": "Hôm nay",
+    "one_day_ago": "1 ngày trước",
+    "days_ago": "{{count}} ngày trước",
+    "months_ago": "{{count}} tháng trước"
+  },
+  "templates": {
+    "daily_news": {
+      "title": "Bản tin hằng ngày",
+      "summary": "Tìm kiếm và tóm tắt tin tức trong ngày cho cả nhóm"
+    },
+    "pr_review": {
+      "title": "Nhắc review PR",
+      "summary": "Đánh dấu các pull request tồn đọng cần review"
+    },
+    "bug_triage": {
+      "title": "Phân loại bug",
+      "summary": "Đánh giá và xếp độ ưu tiên các báo cáo bug mới"
+    },
+    "weekly_progress": {
+      "title": "Báo cáo tiến độ hằng tuần",
+      "summary": "Tổng hợp tóm tắt tiến độ của nhóm theo tuần"
+    },
+    "dependency_audit": {
+      "title": "Kiểm tra dependency",
+      "summary": "Quét lỗ hổng bảo mật và các gói đã lỗi thời"
+    },
+    "documentation_check": {
+      "title": "Kiểm tra tài liệu",
+      "summary": "Rà soát các thay đổi gần đây để tìm thiếu sót trong tài liệu"
+    }
+  },
+  "detail": {
+    "not_found": "Không tìm thấy autopilot",
+    "pause_aria": "Tạm dừng autopilot",
+    "activate_aria": "Kích hoạt autopilot",
+    "edit": "Sửa",
+    "run_now": "Chạy ngay",
+    "running": "Đang chạy...",
+    "toast_triggered": "Đã kích hoạt autopilot",
+    "toast_trigger_failed": "Không thể kích hoạt autopilot",
+    "section_properties": "Thuộc tính",
+    "section_triggers": "Kích hoạt",
+    "section_run_history": "Lịch sử chạy",
+    "section_danger": "Vùng nguy hiểm",
+    "field_agent": "Agent",
+    "field_created_by": "Người tạo",
+    "field_output_mode": "Chế độ đầu ra",
+    "field_project": "Dự án",
+    "no_project": "Không thuộc dự án",
+    "project_unavailable": "Dự án không khả dụng",
+    "field_prompt": "Prompt",
+    "field_subscribers": "Người theo dõi",
+    "field_subscribers_none": "Không có",
+    "add_trigger": "Thêm kích hoạt",
+    "no_triggers": "Chưa cấu hình kích hoạt nào. Thêm lịch để chạy tự động.",
+    "no_runs": "Chưa có lần chạy nào. Nhấn \"Chạy ngay\" để kích hoạt thủ công.",
+    "delete_button": "Xóa autopilot",
+    "toast_deleted": "Đã xóa autopilot",
+    "toast_delete_failed": "Không thể xóa autopilot",
+    "delete_dialog": {
+      "title": "Xóa autopilot",
+      "description": "\"{{title}}\" cùng các kích hoạt và lịch sử chạy sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xóa",
+      "deleting": "Đang xóa..."
+    }
+  },
+  "access": {
+    "title": "Quản lý quyền truy cập",
+    "description": "Thành viên bạn thêm có thể sửa, chạy và quản lý kích hoạt cũng như webhook của autopilot này.",
+    "current_label": "Có quyền truy cập",
+    "add": "Thêm thành viên",
+    "search_placeholder": "Tìm thành viên…",
+    "no_results": "Không tìm thấy thành viên nào",
+    "remove_tooltip": "Gỡ quyền truy cập",
+    "empty": "Chưa có ai được cấp quyền truy cập.",
+    "toast_granted": "Đã cấp quyền truy cập",
+    "toast_revoked": "Đã gỡ quyền truy cập",
+    "toast_failed": "Không thể cập nhật quyền truy cập",
+    "owner_note": "Người tạo và quản trị viên của không gian làm việc luôn có quyền truy cập."
+  },
+  "run_status": {
+    "issue_created": "Đã tạo issue",
+    "running": "Đang chạy",
+    "skipped": "Đã bỏ qua",
+    "completed": "Hoàn thành",
+    "failed": "Thất bại"
+  },
+  "run_source": {
+    "schedule": "Theo lịch",
+    "manual": "Thủ công",
+    "webhook": "Webhook",
+    "api": "API"
+  },
+  "run": {
+    "issue_linked": "Đã liên kết issue",
+    "view_log": "Xem nhật ký thực thi",
+    "skipped_group": {
+      "label": "Đã bỏ qua",
+      "summary": "{{count}} lần chạy bị bỏ qua"
+    }
+  },
+  "webhook_payload": {
+    "label": "Sự kiện webhook:",
+    "unknown_event": "webhook.received",
+    "payload": "Payload",
+    "content_type": "Content-Type: {{type}}",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép payload webhook",
+    "copied_short": "Đã sao chép",
+    "copy_failed": "Sao chép thất bại",
+    "truncated_marker": "[đã cắt bớt — nhấn Sao chép để lấy toàn bộ payload]"
+  },
+  "trigger_kind": {
+    "schedule": "Theo lịch",
+    "webhook": "Webhook",
+    "api": "API"
+  },
+  "trigger_row": {
+    "disabled_badge": "Đã tắt",
+    "deprecated_badge": "Ngừng hỗ trợ",
+    "next_label": "Tiếp theo: {{date}}",
+    "webhook_url_label": "URL webhook",
+    "copy_url": "Sao chép URL",
+    "url_copied": "Đã sao chép URL webhook",
+    "url_copy_failed": "Sao chép thất bại",
+    "rotate_url": "Thay URL mới",
+    "rotate_confirm_title": "Thay URL webhook",
+    "rotate_confirm_description": "URL hiện tại sẽ ngừng hoạt động ngay lập tức. Mọi hệ thống bên ngoài đang gọi nó phải được cập nhật sang URL mới. Tiếp tục?",
+    "rotate_confirm_cancel": "Hủy",
+    "rotate_confirm_action": "Thay URL",
+    "rotate_in_progress": "Đang thay...",
+    "toast_rotated": "Đã thay URL webhook",
+    "toast_rotate_failed": "Không thể thay URL",
+    "toast_deleted": "Đã xóa kích hoạt",
+    "toast_delete_failed": "Không thể xóa kích hoạt",
+    "delete_dialog": {
+      "title": "Xóa kích hoạt",
+      "description": "Kích hoạt này sẽ bị gỡ và autopilot sẽ ngừng chạy theo lịch này. Thao tác này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xóa",
+      "deleting": "Đang xóa..."
+    }
+  },
+  "deliveries": {
+    "section_title": "Lượt gửi webhook",
+    "empty": "Chưa có lượt gửi webhook nào. Gửi POST đến URL webhook để thấy dữ liệu ở đây.",
+    "row": {
+      "attempts": "{{count}} lần thử",
+      "replay_badge": "Gửi lại"
+    },
+    "status": {
+      "queued": "Trong hàng đợi",
+      "dispatched": "Đã chuyển",
+      "rejected": "Bị từ chối",
+      "ignored": "Bị bỏ qua",
+      "failed": "Thất bại"
+    },
+    "signature": {
+      "not_required": "Không có chữ ký",
+      "valid": "Chữ ký hợp lệ",
+      "invalid": "Chữ ký không hợp lệ",
+      "missing": "Thiếu chữ ký"
+    },
+    "detail": {
+      "title": "Lượt gửi",
+      "received_at": "Nhận lúc",
+      "last_attempt_at": "Lần thử gần nhất",
+      "attempt_count": "Số lần thử",
+      "response_status": "Phản hồi",
+      "dedupe_key": "Khóa chống trùng",
+      "dedupe_source": "Nguồn chống trùng",
+      "content_type": "Content-Type",
+      "replayed_from": "Gửi lại từ",
+      "error_label": "Lỗi",
+      "raw_body": "Nội dung thô",
+      "selected_headers": "Header",
+      "response_body": "Nội dung phản hồi"
+    },
+    "replay": {
+      "action": "Gửi lại",
+      "in_progress": "Đang gửi lại...",
+      "toast_success": "Đã gửi lại",
+      "toast_failed": "Gửi lại thất bại",
+      "disabled_invalid_signature": "Không thể gửi lại — chữ ký không hợp lệ",
+      "disabled_rejected": "Không thể gửi lại lượt gửi bị từ chối",
+      "disabled_queued": "Còn trong hàng đợi — hãy gửi lại sau khi xử lý xong"
+    }
+  },
+  "add_trigger_dialog": {
+    "title": "Thêm kích hoạt",
+    "type_label": "Loại",
+    "type_schedule": "Theo lịch",
+    "type_webhook": "Webhook",
+    "label_field": "Nhãn (không bắt buộc)",
+    "label_placeholder": "vd. Sáng ngày làm việc",
+    "webhook_help": "UniAI sẽ tạo URL webhook sau khi bạn lưu. Gửi POST bất kỳ JSON nào đến đó để chạy autopilot này.",
+    "submit": "Thêm kích hoạt",
+    "submitting": "Đang thêm...",
+    "toast_added_schedule": "Đã thêm kích hoạt theo lịch",
+    "toast_added_webhook": "Đã thêm kích hoạt webhook",
+    "toast_add_failed": "Không thể thêm kích hoạt"
+  },
+  "dialog": {
+    "sr_create": "Autopilot mới",
+    "sr_edit": "Sửa autopilot",
+    "header_create": "Autopilot mới",
+    "header_edit": "Sửa autopilot",
+    "subtitle": "Một task AI định kỳ",
+    "expand": "Mở rộng",
+    "collapse": "Thu gọn",
+    "close": "Đóng",
+    "title_placeholder": "Tên autopilot",
+    "runbook_label": "Runbook",
+    "runbook_hint": "Agent đọc nội dung này ở mỗi lần chạy",
+    "description_placeholder": "# Mục tiêu\nAgent cần hoàn thành điều gì?\n\n# Ngữ cảnh\nDành cho ai? Có ràng buộc gì không?\n\n# Các bước\n1. …\n2. …",
+    "auto_run_hint": "Sau khi lưu, sẽ tự động chạy cho đến khi tạm dừng.",
+    "cancel": "Hủy",
+    "create": "Tạo autopilot",
+    "save": "Lưu",
+    "creating": "Đang tạo...",
+    "saving": "Đang lưu...",
+    "toast_created": "Đã tạo autopilot",
+    "toast_create_partial": "Đã tạo autopilot, nhưng lưu lịch thất bại",
+    "toast_create_partial_with_reason": "Đã tạo autopilot, nhưng lưu lịch thất bại: {{reason}}",
+    "toast_create_failed": "Không thể tạo autopilot",
+    "toast_updated": "Đã cập nhật autopilot",
+    "toast_update_partial": "Đã cập nhật autopilot, nhưng lưu lịch thất bại",
+    "toast_update_partial_with_reason": "Đã cập nhật autopilot, nhưng lưu lịch thất bại: {{reason}}",
+    "toast_update_failed": "Không thể cập nhật autopilot",
+    "section_agent": "Agent",
+    "section_assignee": "Người được giao",
+    "select_agent": "Chọn agent",
+    "select_assignee": "Chọn agent hoặc đội",
+    "section_project": "Dự án",
+    "no_project": "Không thuộc dự án",
+    "section_output_mode": "Chế độ đầu ra",
+    "section_subscribers": "Người theo dõi",
+    "subscribers_hint": "Tự động theo dõi mọi issue mà autopilot này tạo ra",
+    "subscribers_empty": "Chưa có người theo dõi — thêm đồng đội để thông báo cho họ ở mỗi lần chạy",
+    "subscribers_add": "Thêm người theo dõi",
+    "subscribers_search_placeholder": "Tìm thành viên theo tên…",
+    "subscribers_no_results": "Không có thành viên nào khớp",
+    "subscribers_remove_tooltip": "Gỡ bỏ",
+    "section_schedule": "Lịch chạy",
+    "section_trigger_kind": "Kích hoạt",
+    "trigger_kind_schedule": "Theo lịch",
+    "trigger_kind_webhook": "Webhook",
+    "section_webhook": "Webhook",
+    "webhook_help_create": "UniAI sẽ tạo URL webhook sau khi autopilot này được tạo. Gửi POST bất kỳ JSON nào đến URL đó để chạy nó.",
+    "webhook_help_edit": "Autopilot này được kích hoạt bằng webhook. Quản lý URL (sao chép / thay mới) trong trang chi tiết của autopilot.",
+    "webhook_created_title": "Autopilot webhook đã sẵn sàng",
+    "webhook_created_description": "Gửi POST bất kỳ JSON nào đến URL bên dưới để chạy autopilot. Hãy sao chép ngay — bạn cũng có thể xem và thay URL trong trang chi tiết của autopilot.",
+    "webhook_created_warning": "Hãy giữ URL này như mật khẩu. Bất kỳ ai có nó đều có thể kích hoạt autopilot.",
+    "webhook_created_done": "Xong",
+    "event_filter_label": "Bộ lọc sự kiện",
+    "event_filter_docs_link_label": "Tìm hiểu cách bộ lọc sự kiện hoạt động",
+    "event_filter_event_placeholder": "vd. workflow_run",
+    "event_filter_actions_placeholder": "completed, failed",
+    "event_filter_hint": "Chỉ xử lý webhook khớp các sự kiện này. Để trống để chấp nhận tất cả.",
+    "schedule_disabled_reason": "Autopilot này có nhiều lịch — hãy sửa chúng trong trang chi tiết.",
+    "next_run_label": "Lần chạy tiếp theo:",
+    "output_modes": {
+      "create_issue": {
+        "label": "Tạo issue",
+        "description": "Mỗi lần chạy tạo một issue được theo dõi"
+      },
+      "run_only": {
+        "label": "Chỉ chạy",
+        "description": "Chạy âm thầm, không tạo issue"
+      }
+    },
+    "frequency_long": {
+      "hourly": "Mỗi giờ",
+      "daily": "Mỗi ngày",
+      "weekdays": "Mỗi ngày làm việc",
+      "weekly": "Mỗi tuần",
+      "custom": "Cron tùy chỉnh"
+    },
+    "days": {
+      "sunday": "Chủ nhật",
+      "monday": "Thứ hai",
+      "tuesday": "Thứ ba",
+      "wednesday": "Thứ tư",
+      "thursday": "Thứ năm",
+      "friday": "Thứ sáu",
+      "saturday": "Thứ bảy"
+    }
+  },
+  "trigger_config": {
+    "frequencies": {
+      "hourly": "Mỗi giờ",
+      "daily": "Mỗi ngày",
+      "weekdays": "Ngày làm việc",
+      "weekly": "Theo ngày",
+      "custom": "Tùy chỉnh"
+    },
+    "days_short": {
+      "sun": "CN",
+      "mon": "T2",
+      "tue": "T3",
+      "wed": "T4",
+      "thu": "T5",
+      "fri": "T6",
+      "sat": "T7"
+    },
+    "cron_label": "Biểu thức cron",
+    "cron_hint": "Cron chuẩn 5 trường (phút giờ ngày tháng thứ)",
+    "minute_label": "Phút",
+    "time_label": "Giờ",
+    "timezone_label": "Múi giờ",
+    "days_label": "Ngày",
+    "summary": {
+      "hourly": "Mỗi giờ · :{{min}}",
+      "daily": "Hằng ngày {{time}}",
+      "weekdays": "Ngày làm việc {{time}}",
+      "weekly": "{{days}} {{time}}",
+      "custom": "Cron tùy chỉnh",
+      "no_days": "—"
+    },
+    "describe": {
+      "hourly": "Chạy mỗi giờ vào phút :{{min}}",
+      "daily": "Chạy hằng ngày lúc {{time}} {{offset}}",
+      "weekdays": "Chạy các ngày làm việc lúc {{time}} {{offset}}",
+      "weekly": "Chạy vào {{days}} lúc {{time}} {{offset}}",
+      "custom": "Lịch tùy chỉnh: {{cron}}"
+    },
+    "countdown": {
+      "days_hours": "{{days}} ngày {{hours}} giờ",
+      "hours_minutes": "{{hours}} giờ {{minutes}} phút",
+      "minutes": "{{minutes}} phút",
+      "less_than_minute": "<1 phút"
+    }
+  },
+  "agent_picker": {
+    "filter_placeholder": "Lọc agent hoặc đội...",
+    "select_agent": "Chọn agent",
+    "select_assignee": "Chọn agent hoặc đội",
+    "agents_group": "Agent",
+    "squads_group": "Đội"
+  },
+  "timezone_picker": {
+    "search_placeholder": "Tìm múi giờ..."
+  },
+  "toolbar": {
+    "result_count_title": "Automation khớp bộ lọc / tổng số automation",
+    "filter_label": "Bộ lọc",
+    "filter_active_count_other": "{{count}} bộ lọc",
+    "clear_filters": "Xóa bộ lọc",
+    "section_assignee": "Người được giao",
+    "section_mode": "Chế độ",
+    "section_trigger": "Kích hoạt",
+    "section_creator": "Người tạo",
+    "display": "Hiển thị",
+    "sort_by": "Sắp xếp theo",
+    "direction_asc": "Tăng dần",
+    "direction_desc": "Giảm dần",
+    "section_columns": "Cột"
+  },
+  "actions": {
+    "row_menu": "Thao tác với automation",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "delete": "Xóa",
+    "selected_other": "Đã chọn {{count}}",
+    "clear_selection": "Bỏ chọn",
+    "delete_dialog": {
+      "title": "Xóa automation?",
+      "description_other": "{{count}} automation cùng lịch sử chạy sẽ bị xóa vĩnh viễn.",
+      "warning": "Thao tác này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xóa vĩnh viễn",
+      "deleting": "Đang xóa…"
+    }
+  }
+}

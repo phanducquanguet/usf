@@ -1,0 +1,44 @@
+{
+  "title": "Tìm kiếm",
+  "description": "Tìm trang, issue, dự án và thành viên",
+  "placeholder": "Nhập lệnh hoặc từ khóa tìm kiếm...",
+  "groups": {
+    "pages": "Trang",
+    "commands": "Lệnh",
+    "members": "Thành viên",
+    "projects": "Dự án",
+    "issues": "Issues",
+    "recent": "Gần đây"
+  },
+  "pages": {
+    "inbox": "Hộp thư đến",
+    "my_issues": "Issue của tôi",
+    "issues": "Issues",
+    "projects": "Dự án",
+    "agents": "Agent",
+    "runtimes": "Runtime",
+    "skills": "Skills",
+    "settings": "Cài đặt"
+  },
+  "commands": {
+    "current_theme_aria": "Giao diện hiện tại",
+    "new_issue": "Tạo issue mới",
+    "new_project": "Tạo dự án mới",
+    "copy_issue_link": "Sao chép liên kết issue",
+    "copy_identifier": "Sao chép mã định danh ({{identifier}})",
+    "switch_to_light": "Chuyển sang giao diện sáng",
+    "switch_to_dark": "Chuyển sang giao diện tối",
+    "use_system_theme": "Theo giao diện hệ thống"
+  },
+  "toast": {
+    "link_copied": "Đã sao chép liên kết",
+    "copied_identifier": "Đã sao chép {{identifier}}"
+  },
+  "empty": {
+    "no_results": "Không tìm thấy kết quả nào.",
+    "type_to_search": "Nhập để tìm issue và dự án"
+  },
+  "trigger": {
+    "label": "Tìm kiếm..."
+  }
+}

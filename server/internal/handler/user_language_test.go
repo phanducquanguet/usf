@@ -37,7 +37,7 @@ func TestUpdateMeAcceptsLanguage(t *testing.T) {
 	userID := newLanguageTestUser(t, "lang-set@multica.ai")
 
 	w := httptest.NewRecorder()
-	req := newPatchMeRequest(userID, `{"language":"zh-Hans"}`)
+	req := newPatchMeRequest(userID, `{"language":"vi"}`)
 	testHandler.UpdateMe(w, req)
 
 	if w.Code != http.StatusOK {
@@ -50,56 +50,16 @@ func TestUpdateMeAcceptsLanguage(t *testing.T) {
 	).Scan(&lang); err != nil {
 		t.Fatalf("lookup user: %v", err)
 	}
-	if lang == nil || *lang != "zh-Hans" {
-		t.Fatalf("expected language=zh-Hans, got %v", lang)
+	if lang == nil || *lang != "vi" {
+		t.Fatalf("expected language=vi, got %v", lang)
 	}
 
 	var resp map[string]any
 	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
-	if got, _ := resp["language"].(string); got != "zh-Hans" {
-		t.Fatalf("expected response language=zh-Hans, got %v", resp["language"])
-	}
-}
-
-func TestUpdateMeAcceptsKoreanLanguage(t *testing.T) {
-	userID := newLanguageTestUser(t, "lang-ko@multica.ai")
-
-	w := httptest.NewRecorder()
-	req := newPatchMeRequest(userID, `{"language":"ko"}`)
-	testHandler.UpdateMe(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
-	}
-
-	var resp map[string]any
-	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
-		t.Fatalf("decode response: %v", err)
-	}
-	if got, _ := resp["language"].(string); got != "ko" {
-		t.Fatalf("expected response language=ko, got %v", resp["language"])
-	}
-}
-
-func TestUpdateMeAcceptsJapaneseLanguage(t *testing.T) {
-	userID := newLanguageTestUser(t, "lang-ja@multica.ai")
-
-	w := httptest.NewRecorder()
-	req := newPatchMeRequest(userID, `{"language":"ja"}`)
-	testHandler.UpdateMe(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
-	}
-
-	var resp map[string]any
-	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
-		t.Fatalf("decode response: %v", err)
-	}
-	if got, _ := resp["language"].(string); got != "ja" {
-		t.Fatalf("expected response language=ja, got %v", resp["language"])
+	if got, _ := resp["language"].(string); got != "vi" {
+		t.Fatalf("expected response language=vi, got %v", resp["language"])
 	}
 }
 
@@ -112,6 +72,22 @@ func TestUpdateMeRejectsUnsupportedLanguage(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Fatalf("expected 400, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+// Locales the app no longer ships must be rejected like any other
+// unsupported tag, so a stale client can't persist them.
+func TestUpdateMeRejectsDroppedLocales(t *testing.T) {
+	userID := newLanguageTestUser(t, "lang-dropped@multica.ai")
+
+	for _, lang := range []string{"zh-Hans", "ko", "ja"} {
+		w := httptest.NewRecorder()
+		req := newPatchMeRequest(userID, `{"language":"`+lang+`"}`)
+		testHandler.UpdateMe(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Fatalf("expected 400 for %q, got %d: %s", lang, w.Code, w.Body.String())
+		}
 	}
 
 	var lang *string

@@ -1,0 +1,44 @@
+{
+  "page": {
+    "breadcrumb": "Issue của tôi",
+    "workspace_fallback": "Không gian làm việc",
+    "empty_title": "Chưa có issue nào được giao cho bạn",
+    "empty_description": "Các issue bạn tạo hoặc được giao sẽ hiển thị ở đây."
+  },
+  "header": {
+    "scope": {
+      "all_label": "Tất cả",
+      "all_description": "Được giao cho tôi, do tôi tạo, hoặc liên quan đến agent và đội của tôi",
+      "assigned_label": "Được giao",
+      "assigned_description": "Issue được giao cho tôi",
+      "created_label": "Đã tạo",
+      "created_description": "Issue do tôi tạo",
+      "agents_label": "Agent và đội của tôi",
+      "agents_description": "Issue được giao cho agent của tôi"
+    },
+    "filter_button": "Bộ lọc",
+    "filter_status": "Trạng thái",
+    "filter_priority": "Độ ưu tiên",
+    "issue_count_other": "{{count}} issue",
+    "reset_filters": "Đặt lại tất cả bộ lọc",
+    "display_settings": "Cài đặt hiển thị",
+    "grouping": "Nhóm theo",
+    "group_status": "Trạng thái",
+    "group_assignee": "Người phụ trách",
+    "ordering": "Sắp xếp",
+    "ascending": "Tăng dần",
+    "descending": "Giảm dần",
+    "card_properties": "Thuộc tính thẻ",
+    "view_board": "Dạng bảng Kanban",
+    "view_list": "Dạng danh sách",
+    "view_swimlane": "Dạng swimlane",
+    "view_label": "Chế độ xem",
+    "view_board_short": "Bảng",
+    "view_list_short": "Danh sách",
+    "view_swimlane_short": "Swimlane",
+    "sort_manual": "Thủ công"
+  },
+  "errors": {
+    "move_failed": "Không thể di chuyển issue"
+  }
+}

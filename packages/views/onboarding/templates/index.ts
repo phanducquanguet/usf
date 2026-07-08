@@ -31,10 +31,9 @@ export {
 type ContentLang = "en" | "zh" | "ko" | "ja";
 
 const CONTENT_LANG_BY_LOCALE: Record<SupportedLocale, ContentLang> = {
+  // No Vietnamese onboarding content yet; fall back to English templates.
+  vi: "en",
   en: "en",
-  "zh-Hans": "zh",
-  ko: "ko",
-  ja: "ja",
 };
 
 /**

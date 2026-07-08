@@ -1,0 +1,60 @@
+{
+  "title": "Mức sử dụng",
+  "subtitle": "Chi tiêu token và hoạt động của agent trong không gian làm việc này.",
+  "filter": {
+    "project_label": "Dự án",
+    "all_projects": "Tất cả dự án",
+    "period_label": "Khoảng thời gian"
+  },
+  "kpi": {
+    "cost_label": "Chi phí · {{days}} ngày",
+    "tokens_label": "Token · {{days}} ngày",
+    "tokens_hint": "Đầu vào {{input}} · Đầu ra {{output}}",
+    "run_time_label": "Thời gian chạy · {{days}} ngày",
+    "run_time_hint": "Trên {{tasks}} task",
+    "tasks_label": "Task · {{days}} ngày",
+    "tasks_hint": "{{failed}} thất bại"
+  },
+  "dim": {
+    "label": "Chiều thống kê",
+    "daily": "Theo ngày",
+    "weekly": "Theo tuần"
+  },
+  "daily": {
+    "title_cost": "Chi phí theo ngày",
+    "title_tokens": "Token theo ngày",
+    "title_time": "Thời gian chạy theo ngày",
+    "title_tasks": "Task theo ngày",
+    "metric_cost": "Chi phí",
+    "metric_tokens": "Token",
+    "metric_time": "Thời gian",
+    "metric_tasks": "Task",
+    "no_data": "Không có dữ liệu sử dụng trong khoảng này."
+  },
+  "weekly": {
+    "title_cost": "Chi phí theo tuần",
+    "title_tokens": "Token theo tuần",
+    "title_time": "Thời gian chạy theo tuần",
+    "title_tasks": "Task theo tuần",
+    "partial_label": "{{range}} (chưa trọn tuần · {{covered}} / 7 ngày)"
+  },
+  "leaderboard": {
+    "title": "Bảng xếp hạng",
+    "caption": "{{count}} agent",
+    "caption_with_deleted": "{{count}} agent · {{deleted}} đã xóa",
+    "deleted_agents": "Agent đã xóa",
+    "header_agent": "Agent",
+    "header_tokens": "Token",
+    "header_cost": "Chi phí",
+    "header_time": "Thời gian",
+    "header_tasks": "Task",
+    "no_data": "Không có hoạt động agent nào trong khoảng này."
+  },
+  "empty": {
+    "title": "Chưa có dữ liệu sử dụng",
+    "body": "Khi các agent bắt đầu chạy task ở đây, chi tiêu token và thời gian chạy của chúng sẽ hiển thị trong trang này."
+  },
+  "duration": {
+    "less_than_minute": "<1 phút"
+  }
+}

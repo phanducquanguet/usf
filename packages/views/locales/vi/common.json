@@ -1,0 +1,43 @@
+{
+  "save": "Lưu",
+  "cancel": "Hủy",
+  "delete": "Xóa",
+  "confirm": "Xác nhận",
+  "loading": "Đang tải...",
+  "time": {
+    "just_now": "vừa xong",
+    "minutes_ago": "{{count}} phút trước",
+    "hours_ago": "{{count}} giờ trước",
+    "days_ago": "{{count}} ngày trước"
+  },
+  "lark_bind": {
+    "page_title": "Liên kết tài khoản Lark của bạn",
+    "redeeming": "Đang xử lý mã liên kết…",
+    "needs_auth_description": "Đăng nhập vào UniAI để hoàn tất liên kết. Mã trong đường dẫn sẽ gắn tài khoản Lark với người dùng UniAI này, nên bạn cần đăng nhập trước.",
+    "sign_in": "Đăng nhập",
+    "done_title": "Đã liên kết xong.",
+    "done_description": "Tin nhắn tiếp theo bạn gửi cho Bot trong Lark sẽ đến thẳng Agent. Bạn có thể đóng thẻ này.",
+    "error_title": "Không thể hoàn tất liên kết",
+    "error_admin_hint": "Nếu lỗi lặp lại, hãy đề nghị quản trị viên không gian làm việc gửi lại đường dẫn liên kết từ Lark.",
+    "error_missing_token": "Đường dẫn thiếu mã liên kết. Hãy nhắn Bot trong Lark gửi một đường dẫn mới.",
+    "error_expired": "Đường dẫn liên kết không hợp lệ hoặc đã hết hạn (hiệu lực 15 phút). Hãy nhắn Bot gửi một đường dẫn mới.",
+    "error_already_bound": "Tài khoản Lark này đã được liên kết với một người dùng UniAI khác. Muốn chuyển tài khoản, bạn cần hủy liên kết cũ trước.",
+    "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải thành viên của không gian làm việc này.",
+    "error_unknown": "Đã có lỗi xảy ra. Hãy thử lại; nếu vẫn không được, liên hệ quản trị viên không gian làm việc."
+  },
+  "slack_bind": {
+    "page_title": "Liên kết tài khoản Slack của bạn",
+    "redeeming": "Đang liên kết tài khoản…",
+    "needs_auth_description": "Đăng nhập vào UniAI để hoàn tất liên kết. Mã trong đường dẫn sẽ gắn tài khoản Slack với người dùng UniAI này, nên bạn cần đăng nhập trước.",
+    "sign_in": "Đăng nhập",
+    "done_title": "Đã liên kết xong.",
+    "done_description": "Tin nhắn tiếp theo bạn gửi cho bot trong Slack sẽ đến thẳng agent. Bạn có thể đóng thẻ này.",
+    "error_title": "Không thể hoàn tất liên kết",
+    "error_admin_hint": "Nếu lỗi lặp lại, hãy nhắn bot trong Slack một lần nữa để nhận đường dẫn mới.",
+    "error_missing_token": "Đường dẫn thiếu mã liên kết. Hãy nhắn bot trong Slack để nhận đường dẫn mới.",
+    "error_expired": "Đường dẫn không hợp lệ hoặc đã hết hạn (hiệu lực 15 phút). Hãy nhắn bot một lần nữa để nhận đường dẫn mới.",
+    "error_already_bound": "Tài khoản Slack này đã được liên kết với một người dùng UniAI khác. Muốn chuyển tài khoản, bạn cần hủy liên kết cũ trước.",
+    "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải thành viên của không gian làm việc này.",
+    "error_unknown": "Đã có lỗi xảy ra. Hãy thử lại; nếu vẫn không được, liên hệ quản trị viên không gian làm việc."
+  }
+}

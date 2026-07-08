@@ -4,9 +4,8 @@ import { pickContentLang } from "./index";
 describe("pickContentLang", () => {
   it("uses the shared locale matcher before selecting persisted content", () => {
     expect(pickContentLang("en-US")).toBe("en");
-    expect(pickContentLang("zh-Hant")).toBe("zh");
-    expect(pickContentLang("ko-KR")).toBe("ko");
-    expect(pickContentLang("ja-JP")).toBe("ja");
+    // No Vietnamese onboarding content yet — vi falls back to English.
+    expect(pickContentLang("vi-VN")).toBe("en");
   });
 
   it("falls back to English for unsupported or missing languages", () => {

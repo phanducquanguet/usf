@@ -6,10 +6,6 @@ import { I18nProvider } from "@multica/core/i18n/react";
 import type { SupportedLocale } from "@multica/core/i18n";
 import enOnboarding from "../locales/en/onboarding.json";
 import enCommon from "../locales/en/common.json";
-import koOnboarding from "../locales/ko/onboarding.json";
-import koCommon from "../locales/ko/common.json";
-import jaOnboarding from "../locales/ja/onboarding.json";
-import jaCommon from "../locales/ja/common.json";
 import { NavigationProvider } from "../navigation";
 import type { NavigationAdapter } from "../navigation";
 import { useWelcomeStore } from "@multica/core/onboarding";
@@ -17,8 +13,6 @@ import { WelcomeAfterOnboarding } from "./welcome-after-onboarding";
 
 const TEST_RESOURCES = {
   en: { common: enCommon, onboarding: enOnboarding },
-  ko: { common: koCommon, onboarding: koOnboarding },
-  ja: { common: jaCommon, onboarding: jaOnboarding },
 };
 
 // `useAuthStore` is a singleton Proxy that requires `registerAuthStore`
@@ -298,101 +292,6 @@ describe("WelcomeAfterOnboarding", () => {
       );
     });
 
-    it("uses Korean persisted Helper and starter issue artifacts under ko locale", async () => {
-      mockListAgents.mockResolvedValueOnce([]);
-      mockCreateAgent.mockResolvedValueOnce({
-        id: "agent-1",
-        name: "UniAI Helper",
-        description: "",
-        avatar_url: null,
-        visibility: "workspace",
-      });
-      mockCreateIssue.mockResolvedValueOnce({
-        id: "issue-intro",
-        workspace_id: "ws-1",
-      });
-      useWelcomeStore.getState().set({
-        workspaceId: "ws-1",
-        choice: "runtime",
-        runtimeId: "rt-1",
-      });
-
-      renderWelcome({ locale: "ko" });
-
-      await waitFor(() =>
-        expect(
-          screen.getByText("UniAI를 간단히 소개해 주세요"),
-        ).toBeInTheDocument(),
-      );
-
-      expect(mockCreateAgent).toHaveBeenCalledTimes(1);
-      const [agentArgs] = mockCreateAgent.mock.calls[0]!;
-      expect(agentArgs.description).toContain("UniAI 사용 어시스턴트");
-      expect(agentArgs.instructions).toContain(
-        "당신은 이 UniAI 워크스페이스에 내장된 AI 어시스턴트",
-      );
-
-      fireEvent.click(screen.getByText("UniAI를 간단히 소개해 주세요"));
-      fireEvent.click(
-        await screen.findByRole("button", { name: /작업 1개를 나에게 할당/i }),
-      );
-
-      await waitFor(() => expect(mockCreateIssue).toHaveBeenCalledTimes(1));
-      const [issueArgs] = mockCreateIssue.mock.calls[0]!;
-      expect(issueArgs.title).toBe("UniAI를 간단히 소개해 주세요");
-      expect(issueArgs.description).toContain(
-        "UniAI를 1-2문단으로 간단히 소개해 주세요",
-      );
-    });
-
-    it("uses Japanese persisted Helper and starter issue artifacts under ja locale", async () => {
-      mockListAgents.mockResolvedValueOnce([]);
-      mockCreateAgent.mockResolvedValueOnce({
-        id: "agent-1",
-        name: "UniAI Helper",
-        description: "",
-        avatar_url: null,
-        visibility: "workspace",
-      });
-      mockCreateIssue.mockResolvedValueOnce({
-        id: "issue-intro",
-        workspace_id: "ws-1",
-      });
-      useWelcomeStore.getState().set({
-        workspaceId: "ws-1",
-        choice: "runtime",
-        runtimeId: "rt-1",
-      });
-
-      renderWelcome({ locale: "ja" });
-
-      await waitFor(() =>
-        expect(
-          screen.getByText("UniAI を簡単に紹介してください"),
-        ).toBeInTheDocument(),
-      );
-
-      expect(mockCreateAgent).toHaveBeenCalledTimes(1);
-      const [agentArgs] = mockCreateAgent.mock.calls[0]!;
-      expect(agentArgs.description).toContain("UniAI の使い方アシスタント");
-      expect(agentArgs.instructions).toContain(
-        "あなたは UniAI Helper、この UniAI ワークスペースに組み込まれた AI アシスタント",
-      );
-
-      fireEvent.click(screen.getByText("UniAI を簡単に紹介してください"));
-      fireEvent.click(
-        await screen.findByRole("button", {
-          name: /1 件のタスクを私に割り当てる/,
-        }),
-      );
-
-      await waitFor(() => expect(mockCreateIssue).toHaveBeenCalledTimes(1));
-      const [issueArgs] = mockCreateIssue.mock.calls[0]!;
-      expect(issueArgs.title).toBe("UniAI を簡単に紹介してください");
-      expect(issueArgs.description).toContain(
-        "UniAI を1〜2段落で簡単に紹介してください",
-      );
-    });
   });
 
   describe("skip path", () => {
@@ -478,106 +377,5 @@ describe("WelcomeAfterOnboarding", () => {
       expect(screen.queryByText(/Welcome to UniAI/i)).not.toBeInTheDocument();
     });
 
-    it("uses Korean persisted skip-path issue and comment artifacts under ko locale", async () => {
-      mockCreateIssue
-        .mockResolvedValueOnce({
-          id: "issue-install",
-          identifier: "MUL-1",
-          workspace_id: "ws-1",
-        })
-        .mockResolvedValueOnce({
-          id: "issue-agent",
-          identifier: "MUL-2",
-          workspace_id: "ws-1",
-        });
-      mockCreateComment.mockResolvedValueOnce({ id: "comment-1" });
-
-      useWelcomeStore.getState().set({
-        workspaceId: "ws-1",
-        choice: "skip",
-      });
-
-      renderWelcome({ locale: "ko" });
-
-      await waitFor(() => {
-        expect(screen.getByText(/UniAI에 오신 것을 환영합니다/i)).toBeInTheDocument();
-      });
-
-      expect(mockCreateIssue).toHaveBeenCalledTimes(2);
-      const [installCall, guideCall] = mockCreateIssue.mock.calls;
-      expect(installCall![0].title).toBe(
-        "1단계 — agent를 사용하려면 runtime 연결하기",
-      );
-      expect(installCall![0].description).toContain(
-        "UniAI에 오신 것을 환영합니다.",
-      );
-      expect(guideCall![0].title).toBe(
-        "2단계 — 첫 UniAI Agent 만들기",
-      );
-      expect(guideCall![0].description).toContain(
-        "runtime이 online 상태가 되면",
-      );
-      expect(guideCall![0].description).toContain(
-        "[MUL-1](mention://issue/issue-install)",
-      );
-
-      const [commentIssueId, commentContent] =
-        mockCreateComment.mock.calls[0]!;
-      expect(commentIssueId).toBe("issue-install");
-      expect(commentContent).toContain("다음 단계:");
-      expect(commentContent).toContain(
-        "[MUL-2](mention://issue/issue-agent)",
-      );
-    });
-
-    it("uses Japanese persisted skip-path issue and comment artifacts under ja locale", async () => {
-      mockCreateIssue
-        .mockResolvedValueOnce({
-          id: "issue-install",
-          identifier: "MUL-1",
-          workspace_id: "ws-1",
-        })
-        .mockResolvedValueOnce({
-          id: "issue-agent",
-          identifier: "MUL-2",
-          workspace_id: "ws-1",
-        });
-      mockCreateComment.mockResolvedValueOnce({ id: "comment-1" });
-
-      useWelcomeStore.getState().set({
-        workspaceId: "ws-1",
-        choice: "skip",
-      });
-
-      renderWelcome({ locale: "ja" });
-
-      await waitFor(() => {
-        expect(
-          screen.getByText(/UniAI へようこそ/),
-        ).toBeInTheDocument();
-      });
-
-      expect(mockCreateIssue).toHaveBeenCalledTimes(2);
-      const [installCall, guideCall] = mockCreateIssue.mock.calls;
-      expect(installCall![0].title).toBe(
-        "ステップ1 — agent を使うために runtime を接続する",
-      );
-      expect(installCall![0].description).toContain("UniAI へようこそ。");
-      expect(guideCall![0].title).toBe(
-        "ステップ2 — 最初の UniAI Agent を作成する",
-      );
-      expect(guideCall![0].description).toContain("runtime が online になったら");
-      expect(guideCall![0].description).toContain(
-        "[MUL-1](mention://issue/issue-install)",
-      );
-
-      const [commentIssueId, commentContent] =
-        mockCreateComment.mock.calls[0]!;
-      expect(commentIssueId).toBe("issue-install");
-      expect(commentContent).toContain("次のステップ:");
-      expect(commentContent).toContain(
-        "[MUL-2](mention://issue/issue-agent)",
-      );
-    });
   });
 });

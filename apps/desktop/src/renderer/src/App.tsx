@@ -27,10 +27,8 @@ import { RESOURCES } from "@multica/views/locales";
 // right language AND the Japanese-scoped CJK font override in globals.css
 // (`html[lang|="ja"]`) can take effect.
 const HTML_LANG: Record<SupportedLocale, string> = {
+  vi: "vi-VN",
   en: "en",
-  "zh-Hans": "zh-CN",
-  ko: "ko-KR",
-  ja: "ja-JP",
 };
 
 

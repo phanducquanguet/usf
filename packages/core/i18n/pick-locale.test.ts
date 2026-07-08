@@ -15,57 +15,48 @@ function makeAdapter(
 
 describe("matchLocale", () => {
   it("returns DEFAULT_LOCALE when given an empty list", () => {
-    expect(matchLocale([])).toBe("en");
+    expect(matchLocale([])).toBe("vi");
   });
 
   it("matches a clean supported tag", () => {
-    expect(matchLocale(["zh-Hans"])).toBe("zh-Hans");
-    expect(matchLocale(["ko"])).toBe("ko");
-    expect(matchLocale(["ja"])).toBe("ja");
     expect(matchLocale(["en"])).toBe("en");
+    expect(matchLocale(["vi"])).toBe("vi");
   });
 
   it("collapses region-tagged BCP-47 to the supported base", () => {
     expect(matchLocale(["en-US"])).toBe("en");
-    expect(matchLocale(["zh-Hans-CN"])).toBe("zh-Hans");
-    expect(matchLocale(["ko-KR"])).toBe("ko");
-    expect(matchLocale(["ja-JP"])).toBe("ja");
+    expect(matchLocale(["vi-VN"])).toBe("vi");
   });
 
   it("falls back to DEFAULT_LOCALE when no candidate matches", () => {
-    expect(matchLocale(["fr", "de"])).toBe("en");
-  });
-
-  it("zh-Hant (traditional) collapses to zh-Hans — same base subtag, better UX than English fallback", () => {
-    expect(matchLocale(["zh-Hant"])).toBe("zh-Hans");
+    expect(matchLocale(["fr", "de"])).toBe("vi");
   });
 
   it("uses the first supported candidate when multiple appear", () => {
-    expect(matchLocale(["fr", "zh-Hans", "en"])).toBe("zh-Hans");
-    expect(matchLocale(["fr", "ko-KR", "en"])).toBe("ko");
-    expect(matchLocale(["fr", "ja-JP", "en"])).toBe("ja");
+    expect(matchLocale(["fr", "en-US", "vi"])).toBe("en");
+    expect(matchLocale(["fr", "vi-VN", "en"])).toBe("vi");
   });
 
   it("returns DEFAULT_LOCALE for malformed BCP-47 tags rather than throwing", () => {
-    expect(matchLocale(["----"])).toBe("en");
-    expect(matchLocale(["x-private-only"])).toBe("en");
+    expect(matchLocale(["----"])).toBe("vi");
+    expect(matchLocale(["x-private-only"])).toBe("vi");
   });
 });
 
 describe("pickLocale", () => {
   it("prefers explicit user choice over system signal", () => {
     const adapter = makeAdapter({
-      getUserChoice: () => "zh-Hans",
-      getSystemPreferences: () => ["en-US"],
+      getUserChoice: () => "en",
+      getSystemPreferences: () => ["vi-VN"],
     });
-    expect(pickLocale(adapter)).toBe("zh-Hans");
+    expect(pickLocale(adapter)).toBe("en");
   });
 
   it("falls back to system preferences when no user choice", () => {
     const adapter = makeAdapter({
-      getSystemPreferences: () => ["zh-Hans-CN", "en-US"],
+      getSystemPreferences: () => ["en-US", "vi-VN"],
     });
-    expect(pickLocale(adapter)).toBe("zh-Hans");
+    expect(pickLocale(adapter)).toBe("en");
   });
 
   it("returns DEFAULT_LOCALE when neither choice nor preference yields a match", () => {
@@ -73,14 +64,14 @@ describe("pickLocale", () => {
       getUserChoice: () => null,
       getSystemPreferences: () => ["fr", "de"],
     });
-    expect(pickLocale(adapter)).toBe("en");
+    expect(pickLocale(adapter)).toBe("vi");
   });
 
   it("ignores empty-string user choice and falls through to system", () => {
     const adapter = makeAdapter({
       getUserChoice: () => "",
-      getSystemPreferences: () => ["zh-Hans"],
+      getSystemPreferences: () => ["en"],
     });
-    expect(pickLocale(adapter)).toBe("zh-Hans");
+    expect(pickLocale(adapter)).toBe("en");
   });
 });

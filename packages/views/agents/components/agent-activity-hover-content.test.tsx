@@ -102,11 +102,11 @@ describe("AgentActivityHoverContent", () => {
     expect(screen.getByText("1 task working")).toBeInTheDocument();
   });
 
-  it("renders the requested Chinese task copy", () => {
+  it("renders the requested Vietnamese task copy", () => {
     renderWithI18n(<AgentActivityHoverContent tasks={threeTasksTwoAgents} />, {
-      locale: "zh-Hans",
+      locale: "vi",
     });
 
-    expect(screen.getByText("3 个 task 工作中")).toBeInTheDocument();
+    expect(screen.getByText("3 task đang chạy")).toBeInTheDocument();
   });
 });

@@ -164,14 +164,14 @@ describe("IssueAgentHeaderChip", () => {
     expect(mockState.taskMessagesOptions).not.toHaveBeenCalled();
   });
 
-  it("uses the requested Chinese single-agent copy", () => {
+  it("uses the requested Vietnamese single-agent copy", () => {
     mockState.tasks = [makeTask({})];
 
     renderWithI18n(<IssueAgentHeaderChip issueId="issue-1" />, {
-      locale: "zh-Hans",
+      locale: "vi",
     });
 
-    expect(screen.getByText("Walt 在工作")).toBeInTheDocument();
+    expect(screen.getByText("Walt đang làm việc")).toBeInTheDocument();
   });
 
   it("does not render when the issue has only terminal tasks", () => {

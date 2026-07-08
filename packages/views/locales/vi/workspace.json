@@ -1,0 +1,34 @@
+{
+  "create_form": {
+    "name_label": "Tên không gian làm việc",
+    "name_placeholder": "Không gian của tôi",
+    "url_label": "URL không gian làm việc",
+    "url_placeholder": "khong-gian-cua-toi",
+    "submit": "Tạo không gian làm việc",
+    "submitting": "Đang tạo...",
+    "errors": {
+      "slug_format": "Chỉ dùng chữ thường, số và dấu gạch ngang",
+      "slug_taken": "URL không gian làm việc này đã được sử dụng.",
+      "slug_reserved": "URL không gian làm việc này đã được hệ thống dành riêng, không thể sử dụng.",
+      "slug_conflict_toast": "Hãy chọn một URL không gian làm việc khác",
+      "create_failed": "Không thể tạo không gian làm việc"
+    }
+  },
+  "new_page": {
+    "back": "Quay lại",
+    "log_out": "Đăng xuất",
+    "title": "Chào mừng đến với UniAI",
+    "description": "Một không gian làm việc nơi bạn và các đồng đội AI làm việc cùng nhau — nhận issue, để lại bình luận, chia sẻ cùng một ngữ cảnh.",
+    "invite_hint": "Bạn có thể mời đồng đội sau khi không gian làm việc sẵn sàng."
+  },
+  "creation_disabled": {
+    "title": "Tính năng tạo không gian làm việc đã bị tắt",
+    "description": "Phiên bản UniAI này không cho phép tạo không gian làm việc mới. Hãy đề nghị quản trị viên gửi lời mời vào một không gian làm việc hiện có."
+  },
+  "no_access": {
+    "title": "Không gian làm việc không khả dụng",
+    "description": "Không gian làm việc này không tồn tại hoặc bạn không có quyền truy cập.",
+    "go_to_workspaces": "Về danh sách không gian làm việc",
+    "sign_in_different": "Đăng nhập bằng tài khoản khác"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "bubble_menu": {
+    "bold": "Đậm",
+    "italic": "Nghiêng",
+    "strikethrough": "Gạch ngang",
+    "code": "Mã",
+    "highlight": "Đánh dấu",
+    "link": "Liên kết",
+    "list": "Danh sách",
+    "task_list": "Danh sách việc cần làm",
+    "quote": "Trích dẫn",
+    "url_aria_label": "URL",
+    "heading_dropdown": {
+      "text": "Văn bản",
+      "normal_text": "Văn bản thường",
+      "heading_1": "Tiêu đề 1",
+      "heading_2": "Tiêu đề 2",
+      "heading_3": "Tiêu đề 3"
+    },
+    "list_dropdown": {
+      "bullet_list": "Danh sách chấm đầu dòng",
+      "ordered_list": "Danh sách đánh số",
+      "task_list": "Danh sách việc cần làm"
+    },
+    "sub_issue": {
+      "tooltip": "Tạo issue con từ phần được chọn",
+      "created": "Đã tạo {{identifier}}",
+      "create_failed": "Không thể tạo issue con"
+    }
+  },
+  "image": {
+    "view": "Xem ảnh",
+    "download": "Tải xuống",
+    "copy_link": "Sao chép liên kết",
+    "delete": "Xóa",
+    "link_copied": "Đã sao chép liên kết",
+    "copy_link_failed": "Không thể sao chép liên kết"
+  },
+  "attachment": {
+    "download_failed": "Không lấy được liên kết tải xuống. Hãy thử lại sau giây lát.",
+    "preview": "Xem trước",
+    "preview_loading": "Đang tải bản xem trước…",
+    "preview_failed": "Không thể tải bản xem trước",
+    "preview_too_large": "Tệp quá lớn để xem trước. Vui lòng tải xuống.",
+    "preview_unsupported": "Loại tệp này không hỗ trợ xem trước.",
+    "close": "Đóng",
+    "open_in_new_tab": "Mở trong thẻ mới",
+    "remove": "Gỡ tệp đính kèm"
+  },
+  "link_hover": {
+    "copy_link": "Sao chép liên kết",
+    "open_link": "Mở liên kết",
+    "link_copied": "Đã sao chép liên kết",
+    "copy_failed": "Không thể sao chép"
+  },
+  "mention": {
+    "group_users": "Người dùng",
+    "group_issues": "Issues",
+    "all_members": "Tất cả thành viên",
+    "searching": "Đang tìm...",
+    "no_results": "Không có kết quả",
+    "group_current": "Trang hiện tại",
+    "group_recent": "Đã xem gần đây",
+    "group_search": "Kết quả tìm kiếm"
+  },
+  "slash_command": {
+    "no_skills_configured": "Chưa cấu hình skill nào",
+    "no_results": "Không có skill phù hợp",
+    "commands": {
+      "note": "Thêm ghi chú — không kích hoạt agent nào"
+    }
+  },
+  "code_block": {
+    "copy_code": "Sao chép mã",
+    "show_preview": "Hiện bản xem trước",
+    "show_source": "Hiện mã nguồn",
+    "fullscreen": "Toàn màn hình"
+  },
+  "file_card": {
+    "uploading": "Đang tải lên {{filename}}"
+  },
+  "title_editor": {
+    "title_aria_label": "Tiêu đề"
+  },
+  "mermaid": {
+    "render_error": "Không thể hiển thị sơ đồ Mermaid.",
+    "rendering": "Đang vẽ sơ đồ…"
+  }
+}

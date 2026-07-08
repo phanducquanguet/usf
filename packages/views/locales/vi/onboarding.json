@@ -1,0 +1,382 @@
+{
+  "step_header": {
+    "step_of": "Bước {{current}} / {{total}}"
+  },
+  "welcome": {
+    "wordmark": "Chào mừng đến với UniAI",
+    "headline_line1": "Đồng đội AI của bạn,",
+    "headline_line2": "trong",
+    "headline_emphasis": "một không gian làm việc.",
+    "lede": "Giao việc cho họ như giao cho đồng nghiệp — họ nhận việc, cập nhật trạng thái và bình luận khi xong.",
+    "lede_web": "Bản desktop tích hợp sẵn runtime — không cần cài gì thêm. Tiếp tục trên web để kết nối CLI của riêng bạn.",
+    "lede_desktop": "Kết thúc phần này, một agent thật sẽ trả lời issue đầu tiên của bạn.",
+    "download_desktop": "Tải bản Desktop",
+    "continue_on_web": "Tiếp tục trên web",
+    "start_exploring": "Bắt đầu khám phá",
+    "skip_existing": "Tôi đã làm bước này rồi",
+    "illustration_caption": "Mọi issue, mọi cuộc thảo luận, mọi quyết định — được chia sẻ giữa nhóm của bạn và các agent.",
+    "illustration": {
+      "card1_actor_name": "Bạn",
+      "card1_actor_initial": "N",
+      "card1_body_prefix": " viết giúp mình một bài đăng ra mắt ngắn nhé? Lấy dữ liệu từ kết quả phỏng vấn của ",
+      "card1_body_suffix": ".",
+      "card1_mention_content": "@Content Agent",
+      "card1_mention_research": "@Research Agent",
+      "card2_actor_name": "Content Agent",
+      "card2_body": "Nhận việc. Đang lấy trích dẫn từ Research, viết nháp theo hướng \"tiết kiệm thời gian\"…",
+      "card3_actor_name": "Research Agent",
+      "card3_body": "Đã tóm tắt các buổi phỏng vấn người dùng tuần này — 12 cuộc gọi, 4 chủ đề lặp lại, 3 trích dẫn nổi bật.",
+      "card3_timestamp": "15 phút trước",
+      "card4_actor_name": "Review Agent",
+      "card4_body": "Đã review bản nháp hôm thứ Hai — để lại 4 ghi chú về giọng văn. Sẵn sàng cho bản mới.",
+      "card5_actor_name": "Coding Agent",
+      "card5_body_prefix": "Đã hoàn thành tính năng xuất dữ liệu mà ",
+      "card5_body_suffix": " đề xuất. Liên kết xem trước có trong PR.",
+      "card5_mention_you": "@bạn",
+      "card5_timestamp": "vừa xong"
+    }
+  },
+  "common": {
+    "back": "Quay lại",
+    "continue": "Tiếp tục",
+    "skip": "Bỏ qua",
+    "cancel": "Hủy",
+    "close": "Đóng"
+  },
+  "source_backfill": {
+    "eyebrow": "Một câu hỏi nhanh",
+    "lede": "Có vẻ bạn chưa chọn mục này khi đăng ký — nó giúp chúng tôi hiểu ai thấy UniAI hữu ích. Một câu hỏi thôi, rồi bạn quay lại công việc ngay.",
+    "submit": "Gửi",
+    "hint_ready": "Ổn rồi. Nhấn Gửi khi bạn sẵn sàng."
+  },
+  "questions": {
+    "eyebrow_about_you": "Về bạn",
+    "source": {
+      "question": "Bạn biết đến UniAI từ đâu?",
+      "friends_colleagues": "Bạn bè hoặc đồng nghiệp",
+      "search": "Google / tìm kiếm",
+      "social_x": "X / Twitter",
+      "social_linkedin": "LinkedIn",
+      "social_youtube": "YouTube",
+      "social_github": "GitHub",
+      "social_misc": "Mạng xã hội khác",
+      "blog_newsletter": "Blog / bản tin",
+      "ai_assistant": "ChatGPT / Claude / Cursor",
+      "from_work": "Tại nơi làm việc",
+      "event_conference": "Hội thảo / meetup",
+      "dont_remember": "Không nhớ",
+      "other": "Khác",
+      "other_placeholder": "vd. một podcast tôi hay nghe"
+    },
+    "role": {
+      "question": "Mô tả nào đúng với bạn nhất?",
+      "engineer": "Kỹ sư / lập trình viên",
+      "product": "Quản lý sản phẩm",
+      "designer": "Nhà thiết kế",
+      "founder": "Nhà sáng lập / lãnh đạo",
+      "marketing": "Marketing / tăng trưởng",
+      "writer": "Người viết / nội dung",
+      "research": "Nhà nghiên cứu / phân tích",
+      "ops": "Vận hành / quản lý dự án",
+      "student": "Sinh viên / dùng cá nhân",
+      "other": "Khác",
+      "other_placeholder": "vd. giáo viên, trưởng nhóm hỗ trợ"
+    },
+    "use_case": {
+      "question": "Bạn muốn dùng UniAI để làm gì?",
+      "ship_code": "Viết và giao code với agent AI",
+      "manage_team": "Quản lý task cho nhóm của tôi",
+      "personal_tasks": "Sắp xếp task cá nhân",
+      "plan_research": "Lập kế hoạch, brainstorm, nghiên cứu",
+      "write_publish": "Viết, biên tập, xuất bản",
+      "automate_ops": "Tự động hóa vận hành & quy trình",
+      "evaluate": "Chỉ đang khám phá",
+      "other": "Khác",
+      "other_placeholder": "vd. điều phối nhóm học tập"
+    }
+  },
+  "option_card": {
+    "other_label": "Khác",
+    "other_aria": "Mô tả lựa chọn khác"
+  },
+  "step_question": {
+    "hint_pick": "Chọn một mục để tiếp tục — hoặc bỏ qua nếu bạn không muốn trả lời.",
+    "hint_continue": "Ổn rồi. Nhấn Tiếp tục khi bạn sẵn sàng."
+  },
+  "runtime_aside": {
+    "what_eyebrow": "Agent runtime là gì?",
+    "what_prefix": "\"Máy tính\" bạn kết nối là thứ chúng tôi gọi nội bộ là ",
+    "what_term": "agent runtime",
+    "what_suffix": ": một tiến trình chạy nền nhỏ trên máy, gắn với một công cụ lập trình AI — Claude Code, Codex, v.v. Một công cụ, một agent runtime. Agent runtime chính là thứ thực thi các task mà agent của bạn nhận.",
+    "good_eyebrow": "Nên biết",
+    "swap_title": "Đổi bất cứ lúc nào",
+    "swap_body": "Runtime của mỗi agent chỉ là một thiết lập. Đổi lúc nào cũng được.",
+    "add_more_title": "Thêm sau cũng được",
+    "add_more_body": "Bạn có thể kết nối máy khác cho đồng đội, hoặc một máy riêng cho từng agent.",
+    "learn_more": "Tìm hiểu về agent runtime →"
+  },
+  "cli_install": {
+    "copy_aria": "Sao chép",
+    "intro": "Bạn cần một agent runtime trên máy này (Claude Code, Codex, Cursor, …) để nó chạy agent của bạn. Cũng hoạt động trên server và máy dev từ xa.",
+    "step1_label": "Cài đặt UniAI CLI",
+    "step2_label": "Khởi động daemon"
+  },
+  "cloud_waitlist": {
+    "intro_main": "Runtime đám mây chưa ra mắt. Hãy để lại email và chúng tôi sẽ liên hệ khi sẵn sàng.",
+    "intro_warning": "Lưu ý: agent không thể thực thi task nếu không có runtime — nếu bạn nhấn Bỏ qua bây giờ, không gian làm việc của bạn sẽ ở chế độ chỉ xem cho đến khi bạn quay lại cài một runtime.",
+    "email_label": "Email",
+    "email_placeholder": "you@work.com",
+    "reason_label": "Vì sao chọn đám mây?",
+    "optional": "Không bắt buộc",
+    "reason_placeholder": "vd. chúng tôi muốn agent chạy 24/7, hoặc nhóm tôi làm việc trên nhiều thiết bị khác nhau.",
+    "join": "Tham gia danh sách chờ",
+    "on_list": "Bạn đã có trong danh sách",
+    "success_toast": "Bạn đã có trong danh sách. Chúng tôi sẽ email khi runtime đám mây ra mắt.",
+    "failed_toast": "Không thể tham gia danh sách chờ"
+  },
+  "first_issue": {
+    "error_title": "Đã xảy ra lỗi",
+    "retry": "Thử lại",
+    "retry_failed": "Thử lại thất bại",
+    "finishing": "Đang hoàn tất",
+    "opening": "Sắp xong — đang mở không gian làm việc của bạn."
+  },
+  "step_agent": {
+    "eyebrow": "Agent đầu tiên của bạn",
+    "headline": "Gặp đồng đội đầu tiên của bạn.",
+    "lede_prefix": "Câu trả lời của bạn gợi ý một ",
+    "lede_suffix": ". Chọn bất kỳ mẫu nào trong bốn mẫu phù hợp với bạn — mỗi mẫu đều sẵn sàng nhận issue đầu tiên. Bạn có thể tinh chỉnh chỉ dẫn của nó trong trang cài đặt agent sau.",
+    "footer_hint": "Một agent là đủ để bắt đầu. Thêm agent khác từ thanh bên sau.",
+    "create_action": "Tạo {{name}}",
+    "create_failed": "Không thể tạo agent",
+    "recommended_badge": "Được đề xuất",
+    "templates": {
+      "coding": {
+        "label": "Agent lập trình",
+        "blurb": "Viết, refactor và giao code. Đọc được repo của bạn.",
+        "instructions": "Bạn là Agent lập trình trong một nhóm sản phẩm. Nhận các issue về lập trình — hiện thực tính năng, sửa bug, viết test và mở pull request. Đọc repository trước khi bắt đầu, tuân theo quy ước code hiện có và giữ diff tập trung. Hỏi lại khi tiêu chí nghiệm thu chưa rõ ràng."
+      },
+      "planning": {
+        "label": "Agent lập kế hoạch",
+        "blurb": "Chia nhỏ công việc, soạn spec, giữ bảng việc gọn gàng.",
+        "instructions": "Bạn là Agent lập kế hoạch. Biến các ý tưởng rời rạc và issue đang mở thành công việc có phạm vi rõ ràng, sẵn sàng thực thi: chia nhỏ thành task con, viết tiêu chí nghiệm thu, đề xuất người phụ trách và thứ tự thực hiện. Ưu tiên sự rõ ràng hơn tốc độ. Khi thiếu ngữ cảnh, hãy hỏi một câu cụ thể thay vì đoán."
+      },
+      "writing": {
+        "label": "Agent viết lách",
+        "blurb": "Soạn thảo, tóm tắt, nghiên cứu. Hợp với nội dung dài.",
+        "instructions": "Bạn là Agent viết lách. Soạn tài liệu, tóm tắt nội dung dài và nghiên cứu chủ đề trên web khi cần. Trình bày kết quả dưới dạng văn hoàn chỉnh mà người đọc dùng được ngay — không phải dàn ý. Trích nguồn khi bạn tham khảo. Bám theo giọng văn mà người dùng thiết lập trong issue."
+      },
+      "assistant": {
+        "label": "Trợ lý",
+        "blurb": "Đa dụng. Lựa chọn mặc định tốt khi task chưa rõ ràng.",
+        "instructions": "Bạn là một đồng đội đa năng. Xử lý các task đa dạng — lập trình nhẹ, viết lách, nghiên cứu, lập kế hoạch — và giữ phạm vi thực tế. Khi task chưa rõ, hãy hỏi một câu làm rõ trước khi bắt tay vào. Ưu tiên kết quả ngắn gọn, hữu ích thay vì dài dòng."
+      }
+    },
+    "about_eyebrow": "Agent là gì",
+    "about_headline": "Một đồng đội AI sống trong không gian làm việc của bạn.",
+    "about_body": "Agent xuất hiện trong mọi ô chọn người được giao, như bất kỳ đồng nghiệp nào khác — chỉ khác là chúng có thể làm việc 24/7 trên runtime bạn cấp cho.",
+    "ways_eyebrow": "Các cách làm việc với agent",
+    "way_assign_title": "Giao cho nó một issue",
+    "way_assign_body": "Nó nhận task và báo cáo lại trong cuộc thảo luận.",
+    "way_mention_title": "@nhắc đến trong bình luận",
+    "way_mention_body": "Kéo nó vào cuộc trò chuyện để xin ý kiến nhanh.",
+    "way_chat_title": "Trò chuyện riêng",
+    "way_chat_body": "Hỏi nhanh mà không cần tạo issue.",
+    "way_autopilot_title": "Đặt nó vào Autopilot",
+    "way_autopilot_body": "Phân loại hằng ngày, tổng hợp hằng tuần, kiểm tra hằng tháng — theo lịch.",
+    "add_more_hint": "Thêm agent bất cứ lúc nào. Một nhóm nhỏ các agent chuyên biệt tốt hơn một agent đa năng.",
+    "docs_link": "Tạo agent đầu tiên của bạn →"
+  },
+  "welcome_after_onboarding": {
+    "loading_helper": "Đang chuẩn bị Helper của bạn…",
+    "error_title": "Không thể hoàn tất thiết lập",
+    "error_generic": "Đã xảy ra lỗi. Hãy thử lại.",
+    "retry": "Thử lại",
+    "dismiss_error": "Bỏ qua",
+    "error_close": "Đóng",
+    "user_context_heading": "Về tôi",
+    "user_context_role_label": "Vai trò",
+    "user_context_use_case_label": "Điều tôi muốn làm với UniAI",
+    "runtime": {
+      "greeting": "Chào bạn, chào mừng đến với UniAI",
+      "subtitle": "Mình là trợ lý Agent đầu tiên của bạn.",
+      "capabilities": "Hỏi mình bất cứ điều gì về cách dùng UniAI. Bạn cũng có thể nhờ mình làm việc trong không gian làm việc — tạo issue, thiết lập task định kỳ, xây agent mới…",
+      "section_label": "Chọn một hoặc nhiều task để bắt đầu:",
+      "assign_empty": "Chọn một hoặc nhiều",
+      "assign_count": "Giao {{count}} task cho mình →",
+      "assign_count_plural": "Giao {{count}} task cho mình →",
+      "cards": {
+        "intro": {
+          "subtitle": "Để mình giải thích trong 1–2 đoạn UniAI là gì và làm được gì."
+        },
+        "tour": {
+          "subtitle": "Mình sẽ dẫn bạn xem issue, agent, đội, autopilot kết hợp với nhau ra sao."
+        },
+        "welcome_page": {
+          "subtitle": "Mình sẽ dựng cho bạn một bộ slide HTML trong một tệp — theo đúng vai trò của bạn, sẵn sàng sao chép và mở trong trình duyệt."
+        }
+      },
+      "success": {
+        "title": "Xong rồi!",
+        "subtitle": "Chờ chút — {{agentName}} của bạn đang xử lý ☕",
+        "tip_inbox": "Khi có tiến triển, bạn sẽ thấy trong Hộp thư đến.",
+        "tip_chat": "Muốn trò chuyện trực tiếp? Nhấn bong bóng chat ở góc dưới bên phải.",
+        "got_it": "Đã hiểu →"
+      }
+    },
+    "skip": {
+      "loading": "Đang thiết lập không gian làm việc của bạn…",
+      "title": "Chào mừng đến với UniAI!",
+      "subtitle": "Chúng tôi đã thêm hai task để giúp bạn ở bước tiếp theo.",
+      "got_it": "Đã hiểu",
+      "status_in_progress": "Đang thực hiện",
+      "status_todo": "Cần làm",
+      "cards": {
+        "install_runtime": {
+          "title": "Kết nối một runtime",
+          "subtitle": "Cài Codex hoặc Kimi để đưa agent trực tuyến."
+        },
+        "create_agent": {
+          "title": "Tạo agent đầu tiên của bạn",
+          "subtitle": "Khi runtime đã trực tuyến, hãy xây agent UniAI đầu tiên."
+        }
+      }
+    }
+  },
+  "step_workspace": {
+    "eyebrow_first": "Không gian làm việc đầu tiên của bạn",
+    "eyebrow_resume": "Tiếp tục hoặc bắt đầu mới",
+    "headline_first": "Đặt tên không gian làm việc.",
+    "headline_resume": "Tiếp tục với {{name}}, hoặc tạo cái khác.",
+    "lede_first": "Không gian làm việc là nơi chứa issue, agent và dự án của bạn. Bạn có thể mời đồng đội hoặc tạo thêm không gian làm việc sau.",
+    "lede_resume": "Tiếp tục thiết lập với không gian làm việc bạn đã có, hoặc tạo cái mới song song — bạn có thể thuộc bao nhiêu không gian làm việc cũng được.",
+    "name_label": "Tên không gian làm việc",
+    "name_placeholder": "Acme Inc, Lab của tôi, Dự án phụ…",
+    "url_label": "URL",
+    "slug_placeholder": "acme",
+    "issue_prefix_label": "Tiền tố issue",
+    "issue_prefix_prefix": "Issue sẽ có dạng ",
+    "issue_prefix_suffix": ". Bạn có thể đổi sau trong cài đặt.",
+    "create_new_title": "Tạo không gian làm việc mới",
+    "create_new_subtitle": "Bắt đầu mới — một không gian riêng cho một mảng công việc khác.",
+    "hint_opening": "Đang mở {{name}}.",
+    "hint_creating": "Đang tạo {{name}}.",
+    "hint_creating_pending": "Đang tạo {{name}}…",
+    "hint_creating_fallback": "không gian làm việc của bạn",
+    "hint_name_first": "Đặt tên không gian làm việc để tạo.",
+    "hint_pick": "Chọn không gian làm việc của bạn hoặc tạo cái mới.",
+    "cta_open": "Mở {{name}}",
+    "cta_create_named": "Tạo {{name}}",
+    "cta_create_workspace": "Tạo không gian làm việc",
+    "cta_creating": "Đang tạo…",
+    "slug_format_error": "Chỉ dùng chữ thường, số và dấu gạch ngang",
+    "slug_taken_error": "URL không gian làm việc này đã có người dùng.",
+    "slug_reserved_error": "URL không gian làm việc này đã được bảo lưu và không thể dùng.",
+    "slug_conflict_toast": "Hãy chọn URL không gian làm việc khác",
+    "create_failed_toast": "Không thể tạo không gian làm việc",
+    "side_create_eyebrow": "Bên trong một không gian làm việc có gì",
+    "side_existing_eyebrow": "Không gian làm việc của bạn",
+    "side_things_eyebrow": "Những việc bạn sẽ làm ở đây",
+    "side_next_eyebrow": "Tiếp theo là gì",
+    "side_preview_name": "Không gian làm việc của bạn",
+    "side_preview_slug": "workspace",
+    "perk_assign": "Giao issue cho agent như giao cho đồng đội",
+    "perk_chat": "Trò chuyện với agent bất kỳ mà không cần tạo issue",
+    "perk_invite": "Mời đồng đội — họ chỉ thấy không gian làm việc này",
+    "perk_switch": "Chuyển sang không gian làm việc khác bất cứ lúc nào từ góc trên bên trái",
+    "next_runtime": "Kết nối một máy tính để agent của bạn có chỗ chạy",
+    "next_agent": "Tạo UniAI Helper từ runtime đã kết nối",
+    "next_starter": "Mở một issue hướng dẫn cho bước tiếp theo của bạn",
+    "preview": {
+      "inbox_label": "Hộp thư đến",
+      "inbox_meta": "thông báo của bạn",
+      "issues_label": "Issues",
+      "issues_meta": "bảng task chung",
+      "agents_label": "Agent",
+      "agents_meta": "đồng đội AI của bạn",
+      "projects_label": "Dự án",
+      "projects_meta": "nhóm các issue liên quan",
+      "autopilot_label": "Autopilot",
+      "autopilot_meta": "tự động hóa theo lịch",
+      "runtimes_label": "Runtime",
+      "runtimes_meta": "nơi agent chạy",
+      "skills_label": "Skills",
+      "skills_meta": "playbook tái sử dụng",
+      "more_label": "Và hơn thế",
+      "more_meta": "và hơn thế nữa"
+    },
+    "creation_disabled_eyebrow": "Tạo không gian làm việc đã bị tắt",
+    "creation_disabled_headline": "Hãy xin lời mời từ quản trị viên của bạn.",
+    "creation_disabled_lede": "Phiên bản UniAI này không cho phép tạo không gian làm việc mới. Khi quản trị viên mời bạn vào một không gian làm việc, hãy chấp nhận lời mời và tải lại trang để tiếp tục.",
+    "creation_disabled_logout": "Đăng xuất",
+    "creation_disabled_eyebrow_resume": "Không gian làm việc của bạn",
+    "creation_disabled_headline_resume": "Tiếp tục với {{name}}.",
+    "creation_disabled_lede_resume": "Tạo không gian làm việc đã bị tắt trên phiên bản này, nên bạn sẽ tiếp tục vào không gian làm việc hiện có."
+  },
+  "step_runtime": {
+    "scanning_headline": "Đang kết nối máy tính này…",
+    "scanning_lede_prefix": "Agent của bạn làm việc thông qua công cụ lập trình AI bạn đã có — như ",
+    "scanning_lede_suffix": ", và nhiều công cụ khác. Chúng tôi đang kiểm tra máy này xem bạn đã cài công cụ nào.",
+    "found_headline": "Máy tính này đã được kết nối. Hãy chọn một agent runtime.",
+    "found_lede": "Đây là các agent runtime chúng tôi tìm thấy trên máy này. Chọn một cái cho agent đầu tiên của bạn — bạn có thể đổi hoặc thêm sau.",
+    "runtime_count_other": "{{count}} agent runtime",
+    "status_all_online": "tất cả trực tuyến",
+    "status_none_online": "không có cái nào trực tuyến",
+    "status_n_online": "{{count}} trực tuyến",
+    "online_label": "trực tuyến",
+    "offline_label": "ngoại tuyến",
+    "empty_headline": "Chưa tìm thấy agent runtime nào trên máy này.",
+    "empty_lede_prefix": "Agent runtime là công cụ lập trình AI mà chúng tôi kết nối tới — như ",
+    "empty_lede_suffix": ". Hãy cài một cái rồi làm mới, hoặc chọn một hướng bên dưới.",
+    "empty_skip_title": "Bỏ qua lúc này",
+    "empty_skip_subtitle": "Vào không gian làm việc ở chế độ chỉ xem. Agent của bạn không thể chạy task cho đến khi một agent runtime được kết nối trên máy này — nhưng bạn vẫn có thể xem, lên kế hoạch và mời đồng đội.",
+    "empty_skip_action": "Bỏ qua",
+    "empty_waitlist_title": "Dùng máy tính đám mây",
+    "empty_waitlist_subtitle": "Chúng tôi sẽ chạy một máy tính cho bạn trên đám mây. Chưa ra mắt.",
+    "empty_waitlist_action": "Sắp ra mắt",
+    "skip": "Bỏ qua lúc này",
+    "refresh": "Làm mới",
+    "refreshing": "Đang làm mới…",
+    "hint_selected": "Đã chọn: {{name}}",
+    "hint_pick": "Chọn một agent runtime ở trên để tiếp tục.",
+    "hint_waiting": "Đang chờ kết quả đầu tiên…",
+    "hint_skip_or_refresh": "Làm mới sau khi cài, hoặc bỏ qua để vào không gian làm việc.",
+    "start_exploring": "Bắt đầu khám phá"
+  },
+  "step_platform": {
+    "eyebrow": "Kết nối máy tính",
+    "headline": "Kết nối một máy tính để chạy agent của bạn.",
+    "lede": "Agent của bạn chạy trên một máy tính thật mà bạn kết nối với UniAI. Chọn cách bạn muốn kết nối.",
+    "hint_default": "Chọn một cách kết nối — hoặc bỏ qua và kết nối máy tính sau.",
+    "hint_downloaded": "Hoàn tất thiết lập trên trang tải xuống, rồi quay lại thẻ này.",
+    "download_title": "Dùng máy tính này",
+    "download_title_after": "Đang mở trang tải xuống…",
+    "download_subtitle": "Cài ứng dụng desktop của chúng tôi để kết nối máy này. Không cần thiết lập gì — chọn nền tảng của bạn ở trang tiếp theo.",
+    "download_subtitle_after": "Đã mở trong thẻ mới. Chọn bộ cài ở đó, rồi hoàn tất thiết lập trên desktop.",
+    "download_button": "Tải xuống",
+    "cli_title": "Kết nối từ terminal",
+    "cli_subtitle": "Kết nối server, máy dev từ xa, hoặc bất kỳ máy nào không có màn hình. Cần terminal.",
+    "cli_action": "Xem các bước",
+    "cloud_title": "Dùng máy tính đám mây",
+    "cloud_subtitle": "Chúng tôi sẽ chạy một máy tính cho bạn trên đám mây. Chưa ra mắt.",
+    "cloud_action": "Sắp ra mắt",
+    "cli_dialog_title": "Kết nối từ terminal",
+    "cli_dialog_description": "Kết nối giống Desktop, nhưng thiết lập từ terminal. Dùng cho server, máy dev từ xa, hoặc bất kỳ máy nào không có màn hình.",
+    "cli_dialog_pick_hint": "Chọn một máy tính ở trên.",
+    "cli_dialog_connect": "Kết nối & tiếp tục",
+    "runtimes_connected_other": "Đã kết nối {{count}} máy tính",
+    "live_listening": "Trực tiếp · Đang chờ máy tính của bạn",
+    "stage_normal_prefix": "Chạy lệnh ở trên. Ngay khi ",
+    "stage_normal_suffix": " hoàn tất đăng nhập bằng trình duyệt, máy tính của bạn sẽ tự động xuất hiện tại đây (thường 10–30 giây).",
+    "stage_midway_prefix": "Vẫn đang lắng nghe. Hãy chắc bạn đã hoàn tất thẻ trình duyệt mà ",
+    "stage_midway_suffix": " mở ra — nó cần bạn phê duyệt đăng nhập trước khi máy tính có thể kết nối.",
+    "stage_slow_prefix": "Lâu hơn bình thường. Hãy kiểm tra lỗi trong terminal nơi bạn chạy ",
+    "stage_slow_suffix": ".",
+    "stage_stalled_prefix": "Vẫn chưa có gì. Nếu bạn không quen dùng terminal, ",
+    "stage_stalled_term": "Desktop",
+    "stage_stalled_suffix": " là con đường mượt hơn — một cú nhấp và máy này được kết nối. Đóng hộp thoại này và chọn Desktop, hoặc nhấn Bỏ qua để tiếp tục."
+  },
+  "errors": {
+    "skip_failed": "Không thể hoàn tất phần khởi đầu"
+  }
+}
