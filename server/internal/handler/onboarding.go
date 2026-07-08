@@ -124,7 +124,7 @@ func (h *Handler) CompleteOnboarding(w http.ResponseWriter, r *http.Request) {
 		))
 	}
 
-	writeJSON(w, http.StatusOK, userToResponse(user))
+	writeJSON(w, http.StatusOK, h.userToResponse(user))
 }
 
 type patchOnboardingRequest struct {
@@ -280,7 +280,7 @@ func (h *Handler) PatchOnboarding(w http.ResponseWriter, r *http.Request) {
 		))
 	}
 
-	writeJSON(w, http.StatusOK, userToResponse(user))
+	writeJSON(w, http.StatusOK, h.userToResponse(user))
 }
 
 type joinCloudWaitlistRequest struct {
@@ -342,5 +342,5 @@ func (h *Handler) JoinCloudWaitlist(w http.ResponseWriter, r *http.Request) {
 
 	obsmetrics.RecordEvent(h.Analytics, h.Metrics, analytics.CloudWaitlistJoined(userID, reason != ""))
 
-	writeJSON(w, http.StatusOK, userToResponse(user))
+	writeJSON(w, http.StatusOK, h.userToResponse(user))
 }

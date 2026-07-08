@@ -61,8 +61,14 @@ type UserResponse struct {
 	OnboardingQuestionnaire json.RawMessage `json:"onboarding_questionnaire"`
 	StarterContentState     *string         `json:"starter_content_state"`
 	ProfileDescription      string          `json:"profile_description"`
-	CreatedAt               string          `json:"created_at"`
-	UpdatedAt               string          `json:"updated_at"`
+	// CanCreateWorkspace reflects the self-host creation gate for THIS user:
+	// true when DISABLE_WORKSPACE_CREATION is off, or when the user's email
+	// is in WORKSPACE_CREATION_ALLOWED_EMAILS. The UI combines it with the
+	// instance-wide flag from /api/config to decide whether to show "Create
+	// workspace" affordances.
+	CanCreateWorkspace bool   `json:"can_create_workspace"`
+	CreatedAt          string `json:"created_at"`
+	UpdatedAt          string `json:"updated_at"`
 }
 
 // MaxProfileDescriptionLen caps the user-supplied profile_description body.
@@ -71,7 +77,7 @@ type UserResponse struct {
 // doesn't move the needle on prompt cost.
 const MaxProfileDescriptionLen = 2000
 
-func userToResponse(u db.User) UserResponse {
+func (h *Handler) userToResponse(u db.User) UserResponse {
 	// JSONB column is []byte with DEFAULT '{}', so it's never nil at the DB
 	// level. Defensive coalesce just in case a future ALTER makes the column
 	// nullable and some row comes back with no default applied.
@@ -90,6 +96,7 @@ func userToResponse(u db.User) UserResponse {
 		OnboardingQuestionnaire: json.RawMessage(q),
 		StarterContentState:     textToPtr(u.StarterContentState),
 		ProfileDescription:      u.ProfileDescription,
+		CanCreateWorkspace:      h.canCreateWorkspace(u.Email),
 		CreatedAt:               timestampToString(u.CreatedAt),
 		UpdatedAt:               timestampToString(u.UpdatedAt),
 	}
@@ -414,7 +421,7 @@ func (h *Handler) VerifyCode(w http.ResponseWriter, r *http.Request) {
 	slog.Info("user logged in", append(logger.RequestAttrs(r), "user_id", uuidToString(user.ID), "email", user.Email)...)
 	writeJSON(w, http.StatusOK, LoginResponse{
 		Token: tokenString,
-		User:  userToResponse(user),
+		User:  h.userToResponse(user),
 	})
 }
 
@@ -430,7 +437,7 @@ func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, userToResponse(user))
+	writeJSON(w, http.StatusOK, h.userToResponse(user))
 }
 
 type UpdateMeRequest struct {
@@ -608,7 +615,7 @@ func (h *Handler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	slog.Info("user logged in via google", append(logger.RequestAttrs(r), "user_id", uuidToString(user.ID), "email", user.Email)...)
 	writeJSON(w, http.StatusOK, LoginResponse{
 		Token: tokenString,
-		User:  userToResponse(user),
+		User:  h.userToResponse(user),
 	})
 }
 
@@ -716,5 +723,5 @@ func (h *Handler) UpdateMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, userToResponse(updatedUser))
+	writeJSON(w, http.StatusOK, h.userToResponse(updatedUser))
 }
