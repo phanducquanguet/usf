@@ -1023,6 +1023,13 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 				})
 			})
 
+			// Customer portal configuration (owner-only).
+			r.Route("/api/portal/config", func(r chi.Router) {
+				r.Use(middleware.RequireWorkspaceRole(queries, "owner"))
+				r.Get("/", h.GetPortalAdminConfig)
+				r.Put("/", h.UpdatePortalAdminConfig)
+			})
+
 			// Projects
 			r.Route("/api/projects", func(r chi.Router) {
 				r.Get("/search", h.SearchProjects)
