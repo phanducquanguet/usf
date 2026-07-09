@@ -1,11 +1,11 @@
 ---
 title: Tham chiếu lệnh CLI
-description: Tổng quan một trang cho mọi lệnh cấp cao của UniAI CLI. Cách dùng đầy đủ, chạy `multica <command> --help`.
+description: Tổng quan trên một trang về mọi lệnh chính của UniAI CLI. Để xem cách dùng đầy đủ, chạy `multica <command> --help`.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-UniAI CLI phản chiếu gần như mọi thứ Web UI làm được (tạo [issue](/issues), giao [agent](/agents), khởi động [daemon](/daemon-runtimes) và hơn nữa). Trang này liệt kê mọi lệnh cấp cao với mô tả một dòng. Bộ cờ và ví dụ đầy đủ, chạy `multica <command> --help`.
+UniAI CLI làm được gần như mọi thứ Web UI làm được (tạo [issue](/issues), giao việc cho [agent](/agents), khởi động [daemon](/daemon-runtimes) và nhiều thao tác khác). Trang này liệt kê mọi lệnh chính kèm mô tả một dòng. Để xem đầy đủ cờ và ví dụ, chạy `multica <command> --help`.
 
 ## Xác thực lần đầu
 
@@ -18,7 +18,7 @@ multica login
 Trình duyệt của bạn tự mở. Sau khi bạn phê duyệt trong web app, CLI lưu PAT (tiền tố `mul_`) vào `~/.multica/config.json`. Mọi lệnh sau đó xác thực bằng PAT này.
 
 <Callout type="tip">
-Với CI hoặc môi trường không màn hình, bỏ qua luồng trình duyệt: tạo PAT trong web app ở **Cài đặt → Personal Access Tokens**, rồi chạy `multica login --token <mul_...>` để đưa trực tiếp.
+Với CI hoặc môi trường headless, bỏ qua bước mở trình duyệt: tạo PAT trong web app ở **Cài đặt → Personal Access Tokens**, rồi chạy `multica login --token <mul_...>` để cung cấp token trực tiếp.
 </Callout>
 
 Khác biệt giữa các loại token, xem [Xác thực và token](/auth-tokens).
@@ -30,8 +30,8 @@ Khác biệt giữa các loại token, xem [Xác thực và token](/auth-tokens)
 | `multica login` | Đăng nhập và lưu PAT |
 | `multica auth status` | Xem trạng thái đăng nhập, người dùng và không gian làm việc hiện tại |
 | `multica auth logout` | Xóa PAT cục bộ |
-| `multica setup cloud` | Thiết lập một phát cho UniAI Cloud (đăng nhập + cài daemon) |
-| `multica setup self-host` | Thiết lập một phát cho backend tự vận hành |
+| `multica setup cloud` | Thiết lập UniAI Cloud trong một bước (đăng nhập + cài daemon) |
+| `multica setup self-host` | Thiết lập backend tự vận hành trong một bước |
 
 ## Không gian làm việc và thành viên
 
@@ -62,13 +62,13 @@ Các lệnh `list` (`multica issue list`, `autopilot list`, `project list`, v.v.
 | `multica issue runs <id>` | Xem các lượt chạy agent trên một issue |
 | `multica issue run-messages <task-id>` | Xem tin nhắn của một lần thực thi |
 | `multica issue usage <id>` | Xem usage token tổng hợp của một issue |
-| `multica issue rerun <id>` | Xếp hàng một task mới cho agent đang phụ trách issue |
+| `multica issue rerun <id>` | Đưa một task mới vào hàng đợi cho agent đang phụ trách issue |
 | `multica issue cancel-task <task-id>` | Hủy task đang xếp hàng hoặc đang chạy |
-| `multica issue comment <id> ...` | Lồng: xem / đăng bình luận |
+| `multica issue comment <id> ...` | Nhóm lệnh con: xem / đăng bình luận |
 | `multica issue comment resolve/unresolve <comment-id>` | Đánh dấu luồng bình luận đã/chưa xử lý |
-| `multica issue subscriber <id> ...` | Lồng: theo dõi / bỏ theo dõi |
-| `multica issue metadata <id> ...` | Lồng: đọc / ghi metadata của issue |
-| `multica issue label <id> ...` | Lồng: quản lý nhãn trên issue |
+| `multica issue subscriber <id> ...` | Nhóm lệnh con: theo dõi / bỏ theo dõi |
+| `multica issue metadata <id> ...` | Nhóm lệnh con: đọc / ghi metadata của issue |
+| `multica issue label <id> ...` | Nhóm lệnh con: quản lý nhãn trên issue |
 | `multica project list/get/create/update/delete/status` | CRUD dự án |
 | `multica label list/create/update/delete` | CRUD nhãn của không gian làm việc |
 
@@ -83,12 +83,12 @@ Các lệnh `list` (`multica issue list`, `autopilot list`, `project list`, v.v.
 | `multica agent archive <slug>` | Lưu trữ |
 | `multica agent restore <slug>` | Khôi phục agent đã lưu trữ |
 | `multica agent tasks <slug>` | Xem lịch sử task của agent |
-| `multica agent avatar <slug>` | Tải avatar cho agent |
+| `multica agent avatar <slug>` | Tải lên avatar cho agent |
 | `multica agent env <slug> ...` | Đọc hoặc thay biến môi trường tùy chỉnh của agent |
-| `multica agent skills ...` | Lồng: gắn / gỡ skill |
+| `multica agent skills ...` | Nhóm lệnh con: gắn / gỡ skill |
 | `multica skill list/get/create/update/delete` | CRUD skill |
 | `multica skill import ...` | Nhập skill từ GitHub, ClawHub hoặc máy cục bộ |
-| `multica skill files ...` | Lồng: quản lý file của skill |
+| `multica skill files ...` | Nhóm lệnh con: quản lý file của skill |
 
 ### Xung đột khi nhập skill
 
@@ -112,7 +112,7 @@ multica skill import --url https://skills.sh/acme/repo/review-helper --on-confli
 | `multica squad create --name "..." --leader <agent>` | Tạo đội (owner / admin) |
 | `multica squad update <id> ...` | Cập nhật tên, mô tả, chỉ dẫn, leader hoặc avatar |
 | `multica squad delete <id>` | Lưu trữ (xóa mềm) — chuyển issue đã giao sang leader |
-| `multica squad member list/add/remove/set-role <squad-id>` | Quản lý thành viên đội và cập nhật vai trò tại chỗ |
+| `multica squad member list/add/remove/set-role <squad-id>` | Quản lý thành viên đội và đổi vai trò trực tiếp |
 | `multica squad activity <issue-id> <action\|no_action\|failed> --reason "..."` | Agent leader dùng để ghi đánh giá mỗi lượt |
 
 Mô hình đầy đủ xem [Đội](/squads).
@@ -129,7 +129,7 @@ Mô hình đầy đủ xem [Đội](/squads).
 | `multica autopilot runs <id>` | Xem lịch sử chạy |
 | `multica autopilot trigger <id>` | Kích hoạt một lượt chạy thủ công |
 | `multica autopilot trigger-add/update/delete <id>` | Quản lý trigger theo lịch hoặc webhook |
-| `multica autopilot trigger-rotate-url <id> <trigger-id>` | Xoay URL của trigger webhook |
+| `multica autopilot trigger-rotate-url <id> <trigger-id>` | Cấp lại URL cho trigger webhook |
 
 `multica autopilot create/update` cũng nhận `--subscriber` để đặt người theo dõi mặc định cho issue do autopilot `create_issue` tạo; update nhận `--clear-subscribers` để gỡ.
 
@@ -137,7 +137,7 @@ Mô hình đầy đủ xem [Đội](/squads).
 
 | Lệnh | Mục đích |
 |---|---|
-| `multica daemon start` | Khởi động daemon (mặc định chạy nền; thêm `--foreground` để chạy tiền cảnh) |
+| `multica daemon start` | Khởi động daemon (mặc định chạy nền; thêm `--foreground` để chạy ở chế độ foreground) |
 | `multica daemon stop` | Dừng daemon |
 | `multica daemon restart` | Khởi động lại daemon |
 | `multica daemon status` | Kiểm tra daemon online chưa và mức đồng thời |
@@ -145,7 +145,7 @@ Mô hình đầy đủ xem [Đội](/squads).
 | `multica runtime list` | Liệt kê runtime trong không gian làm việc hiện tại |
 | `multica runtime usage` | Xem mức dùng tài nguyên |
 | `multica runtime activity` | Nhật ký hoạt động gần đây |
-| `multica runtime update <id> ...` | Khởi phát cập nhật CLI trên một runtime |
+| `multica runtime update <id> ...` | Kích hoạt cập nhật CLI trên một runtime |
 | `multica runtime delete <id> [--cascade]` | Xóa runtime, tùy chọn lưu trữ các agent gắn kèm |
 | `multica runtime profile ...` | Quản lý runtime profile tùy chỉnh và ghi đè đường dẫn cục bộ |
 
@@ -173,5 +173,5 @@ v2 sẽ có trang tham chiếu chi tiết riêng cho từng lệnh.
 ## Bước tiếp theo
 
 - [Xác thực và token](/auth-tokens) — PAT vs. JWT vs. daemon token
-- [Daemon và runtime](/daemon-runtimes) — các lệnh `daemon` hoạt động thế nào bên dưới
+- [Daemon và runtime](/daemon-runtimes) — cơ chế vận hành bên dưới của các lệnh `daemon`
 - [Tạo và cấu hình agent](/agents-create) — mọi tùy chọn của `multica agent create`

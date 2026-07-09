@@ -5,13 +5,13 @@ description: Trò chuyện một-một với agent ngoài mọi issue — sandbo
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-**Chat là cuộc trò chuyện một-một giữa bạn và một [agent](/agents)** — bước ra ngoài bảng [issue](/issues). Agent không thấy issue nào và không đổi được issue nào, và toàn bộ cuộc trò chuyện **hoàn toàn riêng tư** (không ai khác trong [không gian làm việc](/workspaces), kể cả admin, thấy được). Nó hợp để bàn hướng làm với agent, brainstorm, hoặc hỏi một câu không thuộc issue nào.
+**Chat là cuộc trò chuyện một-một giữa bạn và một [agent](/agents)** — bước ra ngoài bảng [issue](/issues). Agent không thấy issue nào và không đổi được issue nào, và toàn bộ cuộc trò chuyện **hoàn toàn riêng tư** (không ai khác trong [không gian làm việc](/workspaces), kể cả admin, thấy được). Chat hợp cho những lúc cần bàn hướng làm với agent, brainstorm, hay hỏi một câu không thuộc issue nào.
 
 ## Sao không @nhắc agent luôn?
 
-[@nhắc](/mentioning-agents) **kéo agent vào** ngữ cảnh của một issue — nó đọc mô tả issue và mọi bình luận lịch sử, và có thể đổi issue. Chat đảo ngược: **nó kéo bạn ra khỏi** issue — agent chỉ thấy đúng cuộc trò chuyện này, không biết gì về issue nào, và không có lối vào để sửa issue.
+[@nhắc](/mentioning-agents) **kéo agent vào** ngữ cảnh của một issue — nó đọc mô tả issue và mọi bình luận lịch sử, và có thể đổi issue. Chat thì ngược lại: **kéo bạn ra khỏi** issue — agent chỉ thấy đúng cuộc trò chuyện này, không biết gì về issue nào, và cũng không có cách nào để sửa issue.
 
-Hai quy tắc ngón tay cái:
+Hai nguyên tắc chọn nhanh:
 
 - Muốn phản hồi bám ngữ cảnh của một issue cụ thể → [@nhắc](/mentioning-agents)
 - Muốn bàn một chủ đề không liên quan issue nào (hoặc không muốn ai khác thấy cuộc bàn luận) → Chat
@@ -36,25 +36,25 @@ Agent chạy ở chế độ **sandbox hoàn toàn** trong cuộc trò chuyện.
 - **Thấy issue** — prompt agent nhận không có ID issue nào, và lệnh như `multica issue list` trả về rỗng
 - **Đổi issue** — không có ngữ cảnh issue, các lệnh gọi API bị chặn bởi kiểm tra quyền
 - **Thấy cuộc trò chuyện khác** — các cuộc trò chuyện cách ly hoàn toàn
-- **@nhắc ai hay agent nào** — chat là không gian riêng, không có đường thông báo người khác
+- **@nhắc bất kỳ ai hay agent nào** — chat là không gian riêng, không có cách nào để thông báo cho người khác
 
 ## Ngữ cảnh nhiều lượt được giữ thế nào
 
-Chat giữ ngữ cảnh nhiều lượt qua **khôi phục phiên của provider** — agent lập một phiên provider ở câu trả lời đầu (ví dụ một phiên Claude), và ID phiên được lưu. Ở tin nhắn kế, lượt phát task truyền ID đó lại để agent **tiếp nối từ chỗ dừng** mà không phải đọc lại lịch sử mỗi lần.
+Chat giữ ngữ cảnh nhiều lượt qua **khôi phục phiên của provider** — agent lập một phiên provider ở câu trả lời đầu (ví dụ một phiên Claude), và ID phiên được lưu. Ở tin nhắn kế tiếp, ID đó được truyền lại khi phát task, để agent **tiếp nối từ chỗ đang dừng** mà không phải đọc lại lịch sử mỗi lần.
 
 Nếu **một lượt lỗi**, UniAI tra ngược task trước đó từng lập ID phiên (dù task đó thành công hay thất bại) và thử nối lại — một lần lỗi giữa chừng không làm mất trí nhớ của cả cuộc trò chuyện.
 
-Lưu ý: không phải provider nào cũng thực sự có khôi phục phiên — xem [**Ma trận provider**](/providers) cho hiện trạng hỗ trợ.
+Lưu ý: không phải provider nào cũng thực sự có khôi phục phiên — xem hiện trạng hỗ trợ trong [**Ma trận provider**](/providers).
 
 ## Lưu trữ cuộc trò chuyện
 
-Cuộc trò chuyện không muốn thấy nữa có thể lưu trữ — chuột phải trong danh sách hoặc dùng nút "Archive" trên trang chi tiết. Sau khi lưu trữ:
+Cuộc trò chuyện nào không muốn thấy nữa, bạn có thể lưu trữ — chuột phải trong danh sách hoặc dùng nút "Archive" trên trang chi tiết. Sau khi lưu trữ:
 
-- Cuộc trò chuyện biến khỏi danh sách hoạt động (vẫn tìm được trong khung nhìn "Archived")
+- Cuộc trò chuyện biến mất khỏi danh sách đang hoạt động (vẫn tìm được trong mục "Archived")
 - Tin nhắn lịch sử, ID phiên và thư mục làm việc đều được giữ — không gì bị xóa
 
 <Callout type="warning">
-**Không có nút "khôi phục" sau khi lưu trữ.** Hiện chưa có lối đưa cuộc trò chuyện đã lưu trữ về lại hoạt động. Muốn tiếp tục mạch chuyện, bạn phải mở cuộc trò chuyện mới. Muốn xem lại nội dung đã lưu trữ, mở khung nhìn "Archived" và đọc lịch sử.
+**Không có nút "khôi phục" sau khi lưu trữ.** Hiện chưa có cách đưa cuộc trò chuyện đã lưu trữ trở lại danh sách hoạt động. Muốn tiếp tục mạch chuyện, bạn phải mở cuộc trò chuyện mới. Muốn xem lại nội dung cũ, mở mục "Archived" và đọc lại lịch sử.
 </Callout>
 
 ## Tiếp theo

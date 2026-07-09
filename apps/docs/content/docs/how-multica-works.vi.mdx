@@ -11,7 +11,7 @@ UniAI là một nền tảng **phân tán**. Giao diện web bạn nhìn thấy 
 
 <ArchitectureDiagram />
 
-- **UniAI server** — không gian làm việc, danh sách issue và các luồng bình luận bạn thấy đều nằm trong cơ sở dữ liệu của nó. Nó cũng là hub WebSocket đẩy cập nhật thời gian thực giữa bạn và đồng đội. Nó **không** thực thi bất kỳ task nào của agent.
+- **UniAI server** — không gian làm việc, danh sách issue và các luồng bình luận bạn thấy đều nằm trong cơ sở dữ liệu của server. Server cũng là hub WebSocket đẩy cập nhật thời gian thực giữa bạn và đồng đội, nhưng **không** thực thi bất kỳ task nào của agent.
 - **Daemon** — một phần của UniAI CLI, chạy trên máy của bạn. Khi khởi động, nó phát hiện các công cụ lập trình AI đã cài trên máy, đăng ký với server, rồi bắt đầu poll task mỗi 3 giây và gửi heartbeat mỗi 15 giây.
 - **Công cụ lập trình AI** — một trong 14 công cụ (hoặc nhiều công cụ chạy song song): [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). Sau khi daemon nhận task, nó dùng các công cụ này để thực sự làm việc.
 
@@ -24,7 +24,7 @@ Lấy kịch bản phổ biến nhất — bạn giao một issue cho agent:
 1. Bạn bấm giao việc trên giao diện web. Trình duyệt gửi một request HTTP tới UniAI server.
 2. Server đặt người phụ trách issue đó là agent, đồng thời tạo một task thực thi trong hàng đợi với trạng thái `queued`.
 3. Daemon trên máy bạn nhận task ở lần poll kế tiếp (trong vòng 3 giây). Trạng thái task chuyển thành `dispatched`.
-4. Daemon tạo một thư mục làm việc cách ly trên máy và gọi công cụ lập trình AI tương ứng. Trạng thái task chuyển thành `running`.
+4. Daemon tạo một thư mục làm việc tách biệt trên máy và gọi công cụ lập trình AI tương ứng. Trạng thái task chuyển thành `running`.
 5. AI viết mã trên máy, chạy test và gửi bình luận ngược về server.
 6. Kết thúc thực thi. Daemon báo kết quả (thành công / thất bại) về server, trạng thái task chuyển thành `completed` hoặc `failed`. Bạn thấy tiến độ cập nhật thời gian thực trên giao diện web (qua WebSocket).
 

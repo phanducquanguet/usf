@@ -5,19 +5,19 @@ description: Đơn vị công việc cốt lõi của UniAI — giao được ch
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Issue là một đơn vị công việc khép kín trong UniAI — một bug, một tính năng mới, một việc cần làm. Mỗi issue có **tiêu đề**, **mô tả** (hỗ trợ Markdown), **trạng thái**, **độ ưu tiên**, **người phụ trách**, và có thể thuộc về một **dự án**. Nếu bạn từng dùng Linear hay Jira thì hình dạng y hệt.
+Issue là một đơn vị công việc khép kín trong UniAI — một bug, một tính năng mới, một việc cần làm. Mỗi issue có **tiêu đề**, **mô tả** (hỗ trợ Markdown), **trạng thái**, **độ ưu tiên**, **người phụ trách**, và có thể thuộc về một **dự án**. Nếu bạn từng dùng Linear hay Jira thì sẽ thấy cấu trúc này quen thuộc.
 
 **Nét đặc trưng của UniAI là người phụ trách issue có thể là con người hoặc một [agent](/agents)** — và ta bắt đầu từ đó.
 
 ## Giao issue cho agent
 
-[Giao](/assigning-issues) issue cho agent là trao việc đó cho nó. Agent **tự khởi động** — thực thi trong vài giây, báo tiến độ trong bình luận, và chuyển trạng thái sang done khi xong. Khác biệt duy nhất so với giao việc cho đồng đội là agent không offline, không cần nhắc và sẵn sàng 24/7.
+[Giao](/assigning-issues) issue cho agent là trao việc đó cho nó. Agent **tự khởi động** — bắt tay vào việc chỉ sau vài giây, báo tiến độ trong bình luận, và chuyển trạng thái sang done khi xong. Khác biệt duy nhất so với giao việc cho đồng đội là agent không offline, không cần nhắc và sẵn sàng 24/7.
 
 <Callout type="info">
 Về danh tính, cấu hình và nơi agent chạy, xem [Agent](/agents).
 </Callout>
 
-Agent private chỉ có owner và admin của không gian làm việc giao được vào issue. Về quyền theo vai trò, xem [Thành viên và vai trò](/members-roles).
+Chỉ owner và admin của không gian làm việc mới giao được issue cho agent private. Về quyền theo vai trò, xem [Thành viên và vai trò](/members-roles).
 
 ## Trạng thái
 
@@ -33,7 +33,7 @@ UniAI có bảy trạng thái. **Trạng thái nào cũng chuyển thẳng sang 
 | `blocked` | Kẹt vì yếu tố bên ngoài |
 | `cancelled` | Đã hủy |
 
-Khi issue được giao cho agent, agent tự chuyển trạng thái từ `backlog` / `todo` sang `in_progress`, rồi sang `done` khi hoàn tất. Bạn cũng đổi tay được bất cứ lúc nào.
+Khi issue được giao cho agent, agent tự chuyển trạng thái từ `backlog` / `todo` sang `in_progress`, rồi sang `done` khi hoàn tất. Bạn cũng có thể tự đổi trạng thái bất cứ lúc nào.
 
 ## Độ ưu tiên
 
@@ -60,14 +60,14 @@ Luồng bình luận dưới issue là nơi cộng tác diễn ra — trả lờ
 ## Xóa issue
 
 <Callout type="warning">
-Xóa issue sẽ **ngay lập tức** dọn sạch mọi bình luận, cảm xúc và tệp đính kèm bên dưới, cùng mọi task agent đang xếp hàng (task đang chạy bị hủy). **Không thể hoàn tác.**
+Xóa issue sẽ **ngay lập tức** dọn sạch mọi bình luận, cảm xúc và tệp đính kèm bên dưới, cùng mọi task agent đang chờ trong hàng đợi (task đang chạy bị hủy). **Không thể hoàn tác.**
 
-Nếu chỉ muốn issue khuất mắt, **đổi trạng thái sang `cancelled` an toàn hơn xóa** — dữ liệu còn nguyên và bạn kéo lại được sau.
+Nếu chỉ muốn issue khuất mắt, **đổi trạng thái sang `cancelled` an toàn hơn xóa** — dữ liệu còn nguyên và bạn có thể lấy lại sau.
 </Callout>
 
 ## Dự án
 
-Dự án là vật chứa gom nhiều issue lại với nhau. Một issue thuộc tối đa một dự án, hoặc không thuộc dự án nào.
+Dự án là nơi gom nhiều issue lại với nhau. Một issue thuộc tối đa một dự án, hoặc không thuộc dự án nào.
 
 Dự án có **lead** riêng — **giống người phụ trách issue, lead có thể là con người hoặc agent**.
 

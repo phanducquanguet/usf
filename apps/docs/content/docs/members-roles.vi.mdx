@@ -7,7 +7,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 Ai trong [không gian làm việc](/workspaces) cũng có một vai trò, và vai trò quyết định họ làm được gì. UniAI có ba: **owner** (chủ không gian làm việc), **admin** và **member**. Hầu hết công việc hằng ngày — tạo [issue](/issues), viết [bình luận](/comments), dùng [agent](/agents) — cả ba vai trò đều làm được. **Khác biệt tập trung ở quản lý nhóm.**
 
-## Quyền hạn trong một bảng
+## Tổng quan quyền hạn
 
 Bảng dưới liệt kê các khác biệt quan trọng nhất trong các thao tác quản lý nhóm:
 
@@ -19,10 +19,10 @@ Bảng dưới liệt kê các khác biệt quan trọng nhất trong các thao 
 | **Hạ cấp / gỡ một owner khác** | ✓ | ✗ | ✗ |
 | Xóa không gian làm việc | ✓ | ✗ | ✗ |
 
-**Member không mời được ai** — mời người là quyền của tầng admin. **Chỉ owner mới nâng được ai đó lên owner** — admin nâng và hạ được member hoặc admin khác, nhưng không tạo được owner mới. Tương tự, admin gỡ được member hoặc admin khác nhưng **không đụng được owner hiện có**. Mục đích là đảm bảo tầng cao nhất chỉ được cấp bởi người đã nắm nó — quyền không rò rỉ lên trên.
+**Member không mời được ai** — mời người là quyền từ cấp admin trở lên. **Chỉ owner mới nâng được ai đó lên owner** — admin nâng và hạ được member hoặc admin khác, nhưng không tạo được owner mới. Tương tự, admin gỡ được member hoặc admin khác nhưng **không đụng được owner hiện có**. Mục đích là đảm bảo vai trò cao nhất chỉ do người đang giữ nó trao lại — không ai leo lên được cấp cao hơn quyền mình có.
 
 <Callout type="info">
-Phạm vi hiển thị của agent có hai kiểu: "workspace" và "private". Agent private chỉ có owner và admin giao được vào issue — điều này bảo vệ những cấu hình dành cho một nhóm người cụ thể. Xem [Agent](/agents).
+Phạm vi hiển thị của agent có hai kiểu: "workspace" và "private". Với agent private, chỉ owner và admin mới giao được vào issue — điều này bảo vệ những cấu hình dành cho một nhóm người cụ thể. Xem [Agent](/agents).
 </Callout>
 
 ## Mời thành viên mới
@@ -33,7 +33,7 @@ UniAI mời thành viên mới qua email:
 2. UniAI gửi email mời chứa một liên kết duy nhất.
 3. Người nhận bấm liên kết, đăng nhập (hoặc đăng ký) và **chấp nhận lời mời** để tham gia không gian làm việc.
 
-Email được mời **không cần đăng ký UniAI từ trước** — nếu chưa có tài khoản, tài khoản được tạo khi lời mời được chấp nhận.
+Địa chỉ email được mời **không cần có tài khoản UniAI từ trước** — nếu chưa có, tài khoản sẽ được tạo khi lời mời được chấp nhận.
 
 Nếu email mời gửi không tới (sai địa chỉ, dịch vụ mail trục trặc), bản ghi lời mời vẫn được giữ; bạn có thể gửi lại email từ cài đặt không gian làm việc, hoặc chia sẻ liên kết mời qua kênh khác.
 
@@ -56,5 +56,5 @@ Owner và admin gỡ được thành viên khác khỏi không gian làm việc.
 
 ## Tiếp theo
 
-- [Issue và dự án](/issues) — thứ mà thành viên làm việc trên đó
+- [Issue và dự án](/issues) — đối tượng công việc hằng ngày của thành viên
 - [Bình luận và nhắc tên](/comments) — cộng tác bên dưới một issue

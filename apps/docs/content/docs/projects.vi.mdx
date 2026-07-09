@@ -5,31 +5,31 @@ description: Gom các issue liên quan và theo dõi như một khối — với
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-**Dự án** trong UniAI là vật chứa cho các [issue](/issues) liên quan. Dùng nó khi một khối công việc lớn hơn một issue nhưng nhỏ hơn cả không gian làm việc — một đợt ra mắt, một cuộc di trú, một tính năng nhiều phần, một cuộc điều tra rẽ thành nhiều nhánh.
+**Dự án** trong UniAI là nơi gom các [issue](/issues) liên quan lại với nhau. Dùng nó khi một khối công việc lớn hơn một issue nhưng nhỏ hơn cả không gian làm việc — một đợt ra mắt, một đợt migration, một tính năng nhiều phần, một chủ đề cần tìm hiểu rẽ thành nhiều nhánh.
 
 Mỗi dự án có tên, biểu tượng, mô tả, một **lead** (thành viên hoặc [agent](/agents)), một **trạng thái** (`planned` / `in_progress` / `paused` / `completed` / `cancelled`), một **độ ưu tiên** (`urgent` / `high` / `medium` / `low` / `none`), và một tỉ lệ **tiến độ** tự suy ra từ trạng thái các issue đã liên kết.
 
 ## Dự án quan hệ với issue thế nào
 
-Dự án và issue là hai đối tượng độc lập với quan hệ nhiều-về-một: một issue thuộc **tối đa một** dự án; một dự án chứa **bao nhiêu issue cũng được**. Liên kết và gỡ liên kết đảo ngược được bất cứ lúc nào — kéo trong khung bảng, hoặc dùng bộ chọn dự án ở bảng thuộc tính bên phải của issue.
+Dự án và issue là hai đối tượng độc lập với quan hệ nhiều-về-một: một issue thuộc **tối đa một** dự án; một dự án chứa **bao nhiêu issue cũng được**. Bạn có thể liên kết hoặc gỡ liên kết bất cứ lúc nào — kéo thả trong khung bảng, hoặc dùng bộ chọn dự án ở bảng thuộc tính bên phải của issue.
 
-Thanh tiến độ của dự án được tính từ các issue liên kết — càng nhiều issue chạm `done`, thanh càng đầy. Issue `cancelled` bị loại khỏi phép đếm; issue ở `backlog` tính vào mẫu số nhưng không tính vào tử số.
+Thanh tiến độ của dự án được tính từ các issue liên kết — càng nhiều issue đạt `done`, thanh càng đầy. Issue `cancelled` bị loại khỏi phép đếm; issue ở `backlog` tính vào mẫu số nhưng không tính vào tử số.
 
 ## Ghim vào thanh bên
 
-Bấm biểu tượng ghim ở góc trên phải của dự án để thêm nó vào danh sách ghim trên thanh bên. Dự án đã ghim luôn cách một cú bấm dù bạn đang ở đâu trong không gian làm việc; mỗi người trong nhóm ghim độc lập — ghim là của cá nhân.
+Bấm biểu tượng ghim ở góc trên phải của dự án để thêm nó vào danh sách ghim trên thanh bên. Dự án đã ghim luôn chỉ cách một cú bấm dù bạn đang ở đâu trong không gian làm việc; mỗi người trong nhóm ghim độc lập — ghim là thiết lập cá nhân.
 
-Liên kết **Không gian làm việc → Dự án** trên thanh bên luôn hiện mọi dự án trong không gian làm việc; ghim chỉ là lối tắt cá nhân đặt bên trên.
+Liên kết **Không gian làm việc → Dự án** trên thanh bên luôn hiện mọi dự án trong không gian làm việc; ghim chỉ là lối tắt cá nhân bổ sung thêm.
 
 ## Đính kèm tài nguyên
 
 Mỗi dự án có mục **Tài nguyên** để bạn đính kèm các repository GitHub. Sau khi đính kèm, mọi [agent](/agents) được giao issue trong dự án này có thể đọc và ghi các repo đó khi thực thi task — UniAI truyền URL repo làm ngữ cảnh cho [daemon](/daemon-runtimes).
 
-Tài nguyên tính theo dự án; nếu nhiều dự án dùng chung một repo, đính kèm vào từng dự án.
+Tài nguyên gắn theo từng dự án; nếu nhiều dự án dùng chung một repo, hãy đính kèm vào từng dự án.
 
 ## Xóa dự án
 
-Xóa dự án **không xóa các issue của nó**. Các issue liên kết chỉ bị gỡ liên kết và quay về danh sách issue phẳng của không gian làm việc. Đây là chủ ý — công việc từng thuộc một dự án hiếm khi là đồ bỏ, kể cả khi khung dự án thay đổi.
+Xóa dự án **không xóa các issue của nó**. Các issue liên kết chỉ bị gỡ liên kết và quay về danh sách issue phẳng của không gian làm việc. Đây là chủ ý — công việc từng thuộc một dự án hiếm khi đáng vứt bỏ, kể cả khi cách tổ chức dự án thay đổi.
 
 <Callout type="info">
 Nếu muốn xóa cả công việc, hãy lưu trữ hoặc xóa các issue trước, rồi mới xóa dự án.
@@ -37,13 +37,13 @@ Nếu muốn xóa cả công việc, hãy lưu trữ hoặc xóa các issue trư
 
 ## Lead của dự án
 
-Lead là người — hoặc agent — chịu trách nhiệm về dự án. Đây là tín hiệu mềm, không phải kiểm soát truy cập: thành viên nào của không gian làm việc cũng sửa được dự án bất kể ai là lead. Lead của dự án có thể là:
+Lead là người — hoặc agent — chịu trách nhiệm về dự án. Đây chỉ là dấu hiệu về trách nhiệm, không phải cơ chế kiểm soát truy cập: thành viên nào của không gian làm việc cũng sửa được dự án, bất kể ai là lead. Lead của dự án có thể là:
 
 - Một thành viên không gian làm việc (đồng đội con người)
-- Một [agent](/agents) — hữu ích khi công việc của dự án chủ yếu ủy thác cho agent (ví dụ "Phân loại bug hằng tuần" do một agent phân loại đứng đầu)
+- Một [agent](/agents) — hữu ích khi công việc của dự án chủ yếu ủy thác cho agent (ví dụ "Phân loại bug hằng tuần" do một agent chuyên phân loại làm lead)
 
 ## Tiếp theo
 
-- [Issue](/issues) — đơn vị công việc sống bên trong dự án
+- [Issue](/issues) — đơn vị công việc nằm bên trong dự án
 - [Agent làm lead dự án](/agents) — khi nào agent là người phụ trách phù hợp
 - [Cách UniAI hoạt động](/how-multica-works) — bức tranh rộng hơn

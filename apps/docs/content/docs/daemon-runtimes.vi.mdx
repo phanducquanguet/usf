@@ -6,7 +6,7 @@ description: Agent không chạy trên máy chủ của UniAI — chúng chạy 
 import { Callout } from "fumadocs-ui/components/callout";
 import { Mermaid } from "@/components/mermaid";
 
-Trong UniAI, [agent](/agents) **không** chạy trên máy chủ của chúng tôi — chúng chạy trên máy của bạn, được điều khiển bởi một chương trình nhỏ gọi là **daemon** chuyên gọi các [công cụ lập trình AI](/providers) cài trên máy. UniAI server chỉ điều phối: lưu [issue](/issues), xếp hàng [task](/tasks) và phát chúng tới đúng **runtime** (runtime = daemon × một công cụ lập trình AI).
+Trong UniAI, [agent](/agents) **không** chạy trên máy chủ của chúng tôi — chúng chạy trên máy của bạn, được điều khiển bởi một chương trình nhỏ gọi là **daemon** chuyên gọi các [công cụ lập trình AI](/providers) cài trên máy. UniAI server chỉ điều phối: lưu [issue](/issues), xếp hàng [task](/tasks) và điều phối chúng tới đúng **runtime** (runtime = daemon × một công cụ lập trình AI).
 
 Cấu trúc này là khác biệt lớn nhất giữa UniAI với Linear / Jira: **API key, bộ công cụ và thư mục mã nguồn ở lại trên máy của bạn** — UniAI server không bao giờ nhìn thấy chúng. Vì thế "agent của tôi không chạy" gần như luôn là vấn đề cục bộ — daemon chưa chạy, công cụ AI chưa cài, key hết hạn. Kiểm tra trên máy trước; xem Khắc phục sự cố.
 
@@ -29,7 +29,7 @@ Các lệnh thường dùng:
 
 | Lệnh | Mục đích |
 |---|---|
-| `multica daemon start` | Khởi động (mặc định chạy nền; thêm `--foreground` để chạy tiền cảnh) |
+| `multica daemon start` | Khởi động (mặc định chạy nền; thêm `--foreground` để chạy ở chế độ foreground) |
 | `multica daemon stop` | Dừng |
 | `multica daemon restart` | Khởi động lại |
 | `multica daemon status` | Xem trạng thái |
@@ -58,7 +58,7 @@ graph TD
 
 ## Runtime profile tùy chỉnh
 
-Cơ chế phát hiện provider có sẵn đã phủ các công cụ phổ biến, nhưng đội của bạn cũng có thể định nghĩa **runtime profile tùy chỉnh** cho các AI CLI nói một trong các họ giao thức UniAI hỗ trợ và cần lệnh khởi chạy riêng theo không gian làm việc. Profile được quản lý từ giao diện Runtime hoặc CLI:
+Cơ chế phát hiện provider có sẵn đã phủ các công cụ phổ biến, nhưng đội của bạn cũng có thể định nghĩa **runtime profile tùy chỉnh** cho các AI CLI dùng một trong các họ giao thức UniAI hỗ trợ và cần lệnh khởi chạy riêng theo không gian làm việc. Profile được quản lý từ giao diện Runtime hoặc CLI:
 
 ```bash
 multica runtime profile list
@@ -67,16 +67,16 @@ multica runtime profile update <profile-id> --command-name agent
 multica runtime profile delete <profile-id>
 ```
 
-Lệnh theo hướng argv, không phải chuỗi shell. UniAI lưu tên file thực thi cùng các đối số cố định, rồi daemon khởi chạy trực tiếp bằng `exec.Command(command_name, fixed_args...)`. Hỗ trợ đối số thường, dấu nháy và escape bằng backslash; không hỗ trợ pipe, redirect, `&&`, `;`, backtick và mở rộng `$VAR` / `$(...)`. Dùng script bọc khi runtime cần hành vi shell. Hiện giao diện Runtime đảm nhận phân tích lệnh-và-đối-số; các lệnh profile của CLI quản lý bản ghi profile và ghi đè đường dẫn cục bộ.
+Lệnh được định nghĩa theo dạng argv, không phải một chuỗi shell. UniAI lưu tên file thực thi cùng các đối số cố định, rồi daemon khởi chạy trực tiếp bằng `exec.Command(command_name, fixed_args...)`. Hỗ trợ đối số thường, dấu nháy và escape bằng backslash; không hỗ trợ pipe, redirect, `&&`, `;`, backtick và mở rộng `$VAR` / `$(...)`. Khi runtime cần hành vi shell, hãy dùng một script bọc ngoài. Hiện việc phân tích lệnh và đối số do giao diện Runtime đảm nhận; các lệnh profile của CLI quản lý bản ghi profile và ghi đè đường dẫn cục bộ.
 
-Nếu daemon không tìm thấy một lệnh vốn chạy được trong terminal của bạn, ghim đường dẫn tuyệt đối trên máy đó:
+Nếu daemon được khởi chạy từ ứng dụng desktop không tìm thấy một lệnh vốn chạy được trong terminal của bạn, ghim đường dẫn tuyệt đối trên máy đó:
 
 ```bash
 multica runtime profile set-path <profile-id> --path /abs/path/to/agent
 multica runtime profile unset-path <profile-id>
 ```
 
-Sửa lệnh hoặc đối số của profile chỉ áp dụng cho task nhận mới sau khi daemon đăng ký lại. Task đang chạy giữ nguyên đối số khởi chạy ban đầu. Với triển khai hỗn hợp, nâng cấp server trước khi tung daemon mới: giao diện Runtime phía server lưu `fixed_args`, và server là nơi hiển thị báo cáo đăng ký `failed_profiles`. Các thành phần cũ có thể lặng lẽ bỏ qua trường chúng không hiểu thay vì báo lỗi rõ ràng, nên coi nâng cấp server là bước đầu tiên giúp đợt rollout luôn quan sát được.
+Sửa lệnh hoặc đối số của profile chỉ áp dụng cho task nhận mới sau khi daemon đăng ký lại. Task đang chạy giữ nguyên đối số khởi chạy ban đầu. Với triển khai hỗn hợp, hãy nâng cấp server trước khi triển khai daemon phiên bản mới: giao diện Runtime phía server lưu `fixed_args`, và server là nơi hiển thị báo cáo đăng ký `failed_profiles`. Các thành phần cũ có thể lặng lẽ bỏ qua trường chúng không hiểu thay vì báo lỗi rõ ràng, nên nâng cấp server trước sẽ giúp bạn luôn theo dõi được đợt rollout.
 
 ## Khi runtime bị đánh dấu offline
 
@@ -101,15 +101,15 @@ UniAI giới hạn đồng thời ở hai tầng:
 - **Tầng daemon**: mặc định **20 task đồng thời** (chỉnh bằng biến môi trường `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`)
 - **Tầng agent**: mặc định **6 task đồng thời mỗi agent** (cấu hình theo từng agent)
 
-Giới hạn chặt hơn thắng. Nếu daemon đã chạy 20 task, task mới phải chờ dù agent vẫn còn chỗ.
+Giới hạn nào chặt hơn sẽ được áp dụng. Nếu daemon đã chạy 20 task, task mới phải chờ dù agent vẫn còn chỗ.
 
-Nếu bạn thấy task kẹt ở `queued` không sang `dispatched`, thường là một trong hai giới hạn này đã bão hòa.
+Nếu bạn thấy task kẹt ở `queued` không sang `dispatched`, thường là một trong hai giới hạn này đã chạm trần.
 
 ## Task đang chạy ra sao sau khi daemon sập
 
 Khi daemon sập hoặc bị kill, các task nó đã nhận bị bỏ lại ở `dispatched` hoặc `running`. Ở lần khởi động kế tiếp, daemon báo server: "các task này không còn của tôi, hãy đánh dấu failed." Server chuyển chúng sang `failed` với lý do `runtime_recovery` — với các nguồn cho phép thử lại, task được tự xếp hàng lại.
 
-Kể cả khi bước này thất bại do lỗi mạng, phía server có một lượt quét **mỗi 30 giây** làm lưới đỡ: runtime nào không có heartbeat quá 45 giây bị đánh dấu missing, và các task của nó được thu hồi theo.
+Kể cả khi bước này thất bại do lỗi mạng, phía server còn một lượt quét **mỗi 30 giây** làm lưới an toàn: runtime nào không có heartbeat quá 45 giây bị đánh dấu missing, và các task của nó được thu hồi theo.
 
 ## Chẩn đoán agent không hoạt động
 

@@ -1,54 +1,54 @@
 ---
 title: Tích hợp Lark Bot
-description: Buộc một agent UniAI vào một Bot Lark (飞书), rồi trò chuyện với nó từ DM hoặc nhóm Lark — @nhắc nó, chat tự nhiên, hoặc gõ /issue để tạo issue UniAI mà không rời Lark.
+description: Gắn một agent UniAI vào một Bot Lark (飞书), rồi trò chuyện với nó từ DM hoặc nhóm Lark — @nhắc nó, chat tự nhiên, hoặc gõ /issue để tạo issue UniAI mà không rời Lark.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Buộc bất kỳ [agent](/agents) nào vào một Bot Lark (飞书) và nhóm của bạn làm việc với nó ngay trong Lark — DM cho Bot, @nhắc nó trong nhóm, hoặc gõ `/issue` để tạo một [issue UniAI](/issues) mà không phải mở app. Câu trả lời của agent stream ngược về cuộc chat dưới dạng thẻ động cập nhật trong lúc nó làm việc.
+Gắn bất kỳ [agent](/agents) nào vào một Bot Lark (飞书) và nhóm của bạn làm việc được với nó ngay trong Lark — DM cho Bot, @nhắc nó trong nhóm, hoặc gõ `/issue` để tạo một [issue UniAI](/issues) mà không phải mở app. Câu trả lời của agent stream thẳng về cuộc chat dưới dạng thẻ động, cập nhật liên tục trong lúc agent làm việc.
 
-Mỗi Bot buộc **một-một** với một agent UniAI. Buộc agent thứ hai sẽ tạo Bot thứ hai; một agent không bao giờ có hai Bot.
+Mỗi Bot gắn **một-một** với một agent UniAI. Gắn agent thứ hai sẽ tạo Bot thứ hai; một agent không bao giờ có hai Bot.
 
 ## Tích hợp làm gì
 
-| Bề mặt | Hành vi |
+| Vị trí | Hành vi |
 |---|---|
-| **Agent → Integrations** | Trang chi tiết agent có tab **Integrations** (và mục tương ứng ở thanh bên trái). Owner và admin thấy **Bind to Lark** ở đó; buộc xong nó chuyển thành huy hiệu **Connected to Lark** kèm liên kết **Manage in Lark**. |
+| **Agent → Integrations** | Trang chi tiết agent có tab **Integrations** (và mục tương ứng ở thanh bên trái). Owner và admin thấy **Bind to Lark** ở đó; gắn xong, nút chuyển thành huy hiệu **Connected to Lark** kèm liên kết **Manage in Lark**. |
 | **DM cho Bot** | Một thành viên nhắn thẳng cho Bot trong Lark. Mỗi cuộc trò chuyện thành một phiên [chat](/chat) UniAI với agent; agent trả lời trong luồng. |
 | **@nhắc trong nhóm** | Thêm Bot vào nhóm Lark và @nhắc nó. Chỉ tin nhắn có nhắc mới được đọc — Bot không nghe cả nhóm. |
 | **Lệnh `/issue`** | Gõ `/issue <tiêu đề>` (tùy chọn kèm phần thân) tạo một issue UniAI mới trong không gian làm việc, đứng tên bạn. |
-| **Thẻ trả lời động** | Bot đăng một thẻ tương tác và liên tục vá nó trong lúc agent chạy — tiến độ, câu trả lời cuối, hoặc lỗi. |
+| **Thẻ trả lời động** | Bot đăng một thẻ tương tác và liên tục cập nhật nó trong lúc agent chạy — tiến độ, câu trả lời cuối, hoặc lỗi. |
 
-## Buộc một agent (owner / admin)
+## Gắn một agent (owner / admin)
 
-Việc buộc dùng luồng quét-để-cài — không chép app secret, không bước developer console.
+Việc gắn dùng luồng quét mã để cài — không phải chép app secret, không cần thao tác trên developer console.
 
 1. Mở agent trong **Agent → _agent của bạn_**.
 2. Vào tab **Integrations** (hoặc mục **Integrations** ở thanh bên trái) và bấm **Bind to Lark**.
 3. Một mã QR hiện ra. Trên điện thoại, mở **Lark → Scan**, rồi cấp quyền cho Bot PersonalAgent mới.
-4. Quét xong, hộp thoại đóng và agent hiện **Connected to Lark**. Danh tính Lark của chính bạn được buộc tự động vào tài khoản UniAI, nên bạn chat được với Bot ngay.
+4. Quét xong, hộp thoại đóng và agent hiện **Connected to Lark**. Danh tính Lark của chính bạn được tự động liên kết với tài khoản UniAI, nên bạn chat được với Bot ngay.
 
 <Callout type="info">
-Mã QR dùng một lần và hết hạn sau khoảng ngắn. Nếu nó hết hạn trước khi bạn cấp quyền, bấm **Scan again** để lấy mã mới.
+Mã QR dùng một lần và hết hạn sau một khoảng thời gian ngắn. Nếu mã hết hạn trước khi bạn cấp quyền, bấm **Scan again** để lấy mã mới.
 </Callout>
 
-Khi agent đã kết nối, nút **Bind to Lark** được thay bằng liên kết **Manage in Lark**. Dùng nó để mở trang app của Bot trong Lark khi cần chỉnh scope, đổi tên, hoặc xin thêm quyền — quét lại bị chủ ý vô hiệu để bạn không bỏ rơi Bot hiện có.
+Khi agent đã kết nối, nút **Bind to Lark** được thay bằng liên kết **Manage in Lark**. Dùng nó để mở trang app của Bot trong Lark khi cần chỉnh scope, đổi tên, hoặc xin thêm quyền — tính năng quét lại được chủ đích tắt để Bot hiện có không bị bỏ lửng.
 
 ## Dùng Bot (thành viên)
 
-### Tin nhắn đầu tiên: buộc danh tính Lark
+### Tin nhắn đầu tiên: liên kết danh tính Lark
 
-Lần đầu bạn nhắn Bot, nó trả lời bằng một thẻ đề nghị **buộc danh tính Lark của bạn**. Bấm liên kết, đăng nhập UniAI, và tài khoản Lark của bạn được nối với tư cách thành viên UniAI. Đây là thứ cho phép agent hành động thay bạn — ví dụ, `/issue` tạo issue đứng tên bạn.
+Lần đầu bạn nhắn Bot, nó trả lời bằng một thẻ đề nghị **liên kết danh tính Lark của bạn**. Bấm liên kết, đăng nhập UniAI, và tài khoản Lark của bạn được nối với tài khoản thành viên UniAI. Nhờ đó agent có thể hành động thay bạn — ví dụ, `/issue` tạo issue đứng tên bạn.
 
 <Callout type="warning">
-Chỉ **thành viên của không gian làm việc** dùng được Bot. Nếu bạn không phải thành viên, hoặc bỏ qua bước buộc danh tính, Bot sẽ không trả lời — tin nhắn của bạn bị bỏ (và ghi lại để kiểm toán, không kèm nội dung).
+Chỉ **thành viên của không gian làm việc** dùng được Bot. Nếu bạn không phải thành viên, hoặc bỏ qua bước liên kết danh tính, Bot sẽ không trả lời — tin nhắn của bạn bị bỏ qua (và được ghi lại để kiểm toán, không kèm nội dung).
 </Callout>
 
 ### Chat và `/issue`
 
 - **Hỏi agent bất cứ gì** — DM cho Bot hoặc @nhắc nó trong nhóm. Cuộc trò chuyện là một phiên chat agent bình thường; agent trả lời trong thẻ.
 - **Tạo issue** — gửi `/issue Fix the login redirect` và UniAI tạo issue đó trong không gian làm việc, được giao như mọi issue mới. Thêm dòng sau tiêu đề để làm mô tả.
-- **Xem nó làm việc** — thẻ trả lời tự vá trong lúc agent chạy, nên bạn thấy tiến độ và kết quả tại chỗ.
+- **Xem agent làm việc** — thẻ trả lời tự cập nhật trong lúc agent chạy, nên bạn thấy tiến độ và kết quả ngay tại chỗ.
 
 Nếu agent **offline** (runtime của nó không kết nối) hoặc **đã lưu trữ**, Bot trả lời một thông báo trạng thái ngắn thay vì lặng lẽ bỏ tin nhắn của bạn.
 
@@ -56,20 +56,20 @@ Nếu agent **offline** (runtime của nó không kết nối) hoặc **đã lư
 
 Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integrations**:
 
-- **Connected bots** liệt kê mọi Bot trong không gian làm việc và agent mà từng Bot buộc vào. Danh sách này mọi thành viên đều thấy.
-- **Disconnect** chỉ dành cho **owner / admin**. Ngắt kết nối làm Bot ngừng nhận tin nhắn Lark và gỡ kết nối của nó; bản ghi installation được giữ để kiểm toán, và bạn có thể buộc lại chính agent đó về sau.
+- **Connected bots** liệt kê mọi Bot trong không gian làm việc và agent mà từng Bot gắn vào. Danh sách này mọi thành viên đều thấy.
+- **Disconnect** chỉ dành cho **owner / admin**. Ngắt kết nối làm Bot ngừng nhận tin nhắn Lark và gỡ kết nối của nó; bản ghi installation được giữ để kiểm toán, và bạn có thể gắn lại chính agent đó về sau.
 
 ## Quyền
 
-- **Buộc / ngắt** cần **owner** hoặc **admin** của không gian làm việc. Member thấy danh sách bot đã kết nối nhưng không có nút buộc hay ngắt.
-- **Nói chuyện với Bot** cần là thành viên không gian làm việc có danh tính Lark đã buộc. Ai khác bị bỏ.
-- Tích hợp không bao giờ lưu nội dung tin nhắn bị bỏ — chỉ lý do bỏ, để kiểm toán.
+- **Gắn / ngắt kết nối** cần **owner** hoặc **admin** của không gian làm việc. Member thấy danh sách bot đã kết nối nhưng không có nút gắn hay ngắt.
+- **Nói chuyện với Bot** yêu cầu là thành viên của không gian làm việc và đã liên kết danh tính Lark. Tin nhắn của những người khác đều bị bỏ qua.
+- Tích hợp không bao giờ lưu nội dung của tin nhắn bị bỏ qua — chỉ lưu lý do, để kiểm toán.
 
 ## Thiết lập tự vận hành
 
 Trên UniAI Cloud tích hợp đã sẵn sàng — bỏ qua mục này.
 
-Với tự vận hành, Lark **tắt cho tới khi bạn đặt khóa mã hóa at-rest**. Khóa mã hóa app secret của từng Bot trước khi chạm cơ sở dữ liệu.
+Với tự vận hành, Lark **tắt cho tới khi bạn đặt khóa mã hóa at-rest**. Khóa này mã hóa app secret của từng Bot trước khi ghi vào cơ sở dữ liệu.
 
 1. Sinh một khóa 32 byte và đặt trên API server:
 
@@ -77,19 +77,19 @@ Với tự vận hành, Lark **tắt cho tới khi bạn đặt khóa mã hóa a
    MULTICA_LARK_SECRET_KEY=<khóa 32 byte mã hóa base64>
    ```
 
-2. Khởi động lại API. Chừng nào khóa chưa đặt, **Cài đặt → Integrations** hiện thông báo "Lark integration not enabled" và các lối vào **Bind to Lark** vẫn ẩn.
+2. Khởi động lại API. Chừng nào khóa chưa đặt, **Cài đặt → Integrations** hiện thông báo "Lark integration not enabled" và các nút **Bind to Lark** vẫn bị ẩn.
 
 <Callout type="info">
-**Feishu và Lark quốc tế, song song.** Đám mây mà từng Bot thuộc về — Feishu đại lục (`open.feishu.cn`) hay Lark quốc tế (`open.larksuite.com`) — được phát hiện tự động khi bạn quét QR, lưu trên installation và dùng cho mọi lệnh gọi tới Bot đó. Một bản triển khai phục vụ cả hai cùng lúc, nên đội ở tenant nào cũng buộc được mà không cần cấu hình thêm.
+**Feishu và Lark quốc tế, song song.** Đám mây mà từng Bot thuộc về — Feishu đại lục (`open.feishu.cn`) hay Lark quốc tế (`open.larksuite.com`) — được phát hiện tự động khi bạn quét QR, lưu trên installation và dùng cho mọi lệnh gọi tới Bot đó. Một bản triển khai phục vụ cả hai cùng lúc, nên nhóm ở tenant nào cũng gắn được mà không cần cấu hình thêm.
 
-Các biến env `MULTICA_LARK_HTTP_BASE_URL` / `MULTICA_LARK_CALLBACK_BASE_URL` chỉ còn là ghi đè toàn triển khai tùy chọn (proxy hoặc mock); để trống trong vận hành bình thường để mỗi installation tự tới đúng đám mây của nó.
+Các biến env `MULTICA_LARK_HTTP_BASE_URL` / `MULTICA_LARK_CALLBACK_BASE_URL` chỉ còn dùng làm cơ chế ghi đè tùy chọn cho toàn bộ triển khai (proxy hoặc mock); để trống trong vận hành bình thường để mỗi installation kết nối đúng đám mây của nó.
 
-**Nâng cấp từ thiết lập một đám mây?** Nếu bạn từng chạy bản Lark quốc tế bằng cách đặt các biến đó về `https://open.larksuite.com`, server sẽ gắn lại nhãn các installation sẵn có sang vùng Lark ở lần khởi động đầu sau nâng cấp — sau đó bạn xóa được phần ghi đè. Triển khai đại lục không cần làm gì.
+**Nâng cấp từ thiết lập một đám mây?** Nếu bạn từng chạy bản Lark quốc tế bằng cách đặt các biến đó về `https://open.larksuite.com`, server sẽ tự chuyển các installation sẵn có sang vùng Lark ở lần khởi động đầu sau nâng cấp — sau đó bạn có thể xóa phần ghi đè. Triển khai đại lục không cần làm gì.
 </Callout>
 
 ## Tiếp theo
 
-- [Agent](/agents) — mỗi Bot buộc với đúng một agent
+- [Agent](/agents) — mỗi Bot gắn với đúng một agent
 - [Chat](/chat) — cuộc trò chuyện với Bot ánh xạ thành gì trong UniAI
 - [Issue](/issues) — `/issue` tạo ra gì
 - [Biến môi trường](/environment-variables) — tham chiếu cấu hình tự vận hành đầy đủ

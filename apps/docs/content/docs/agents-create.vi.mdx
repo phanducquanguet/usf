@@ -5,7 +5,7 @@ description: Các trường tối thiểu để tạo agent, cùng mọi thiết
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Tạo một [agent](/agents) chỉ cần hai thứ: **một cái tên** và **một [công cụ lập trình AI](/providers)**. Còn lại đều tùy chọn — chỉ dẫn hệ thống, model, biến môi trường, đối số CLI, phạm vi hiển thị, giới hạn đồng thời — mặc định là dùng tốt. Cho chạy trước, tinh chỉnh sau; trường nào cũng đổi được bất cứ lúc nào.
+Tạo một [agent](/agents) chỉ cần hai thứ: **một cái tên** và **một [công cụ lập trình AI](/providers)**. Còn lại đều tùy chọn — chỉ dẫn hệ thống, model, biến môi trường, đối số CLI, phạm vi hiển thị, giới hạn đồng thời — giá trị mặc định là đủ dùng. Cho chạy trước, tinh chỉnh sau; trường nào cũng đổi được bất cứ lúc nào.
 
 ## Tạo agent
 
@@ -21,17 +21,17 @@ Biểu mẫu chỉ có hai trường bắt buộc: **tên** (duy nhất trong kh
 
 ## Chọn công cụ lập trình AI
 
-Mỗi runtime được chống lưng bởi một công cụ lập trình AI cụ thể. UniAI hỗ trợ 14 công cụ. Các lựa chọn phổ biến nhất:
+Đằng sau mỗi runtime là một công cụ lập trình AI cụ thể. UniAI hỗ trợ 14 công cụ. Các lựa chọn phổ biến nhất:
 
 | Công cụ | Hợp với |
 |---|---|
-| **Claude Code** | Công cụ chính thức của Anthropic, bộ tính năng đầy đủ nhất; **lựa chọn đầu tiên tốt nhất** |
-| **Codex** | OpenAI, phương án chủ lưu thay thế |
+| **Claude Code** | Công cụ chính thức của Anthropic, bộ tính năng đầy đủ nhất; **nên chọn đầu tiên** |
+| **Codex** | OpenAI, phương án thay thế phổ biến nhất |
 | **Cursor** | Người dùng hệ sinh thái editor Cursor |
 | **Copilot** | Đội tận dụng quyền lợi tài khoản GitHub |
 | **CodeBuddy** | Đội dùng CLI tương thích Claude Code của Tencent |
 
-Chín công cụ còn lại (Antigravity, Hermes, Kimi, Kiro CLI, OpenCode, Pi, OpenClaw, Qoder, Trae CLI), cùng ma trận năng lực đầy đủ của từng công cụ (khôi phục phiên, MCP, đường chèn skill, chọn model), xem tại [So sánh công cụ lập trình AI](/providers).
+Chín công cụ còn lại (Antigravity, Hermes, Kimi, Kiro CLI, OpenCode, Pi, OpenClaw, Qoder, Trae CLI), cùng ma trận năng lực đầy đủ của từng công cụ (khôi phục phiên, MCP, vị trí chèn skill, chọn model), xem tại [So sánh công cụ lập trình AI](/providers).
 
 ## Viết chỉ dẫn hệ thống
 
@@ -64,9 +64,9 @@ ANTHROPIC_BASE_URL = https://my-proxy.example.com
 Các biến trọng yếu của hệ thống không ghi đè được: `PATH`, `HOME`, `USER`, `SHELL`, `TERM`, `CODEX_HOME` và mọi khóa bắt đầu bằng `MULTICA_*` bị daemon lặng lẽ bỏ qua (có log cảnh báo — không báo lỗi).
 
 <Callout type="warning">
-**Giá trị trong `custom_env` được lưu dạng plaintext trong cơ sở dữ liệu server của UniAI.** Phản hồi list/get agent không còn mang giá trị env — chỉ một con số đếm. Đọc giá trị đòi hỏi owner hoặc admin của không gian làm việc gọi endpoint chuyên biệt có kiểm toán `GET /api/agents/{id}/env` (CLI: `multica agent env get <id>`). Agent đang chạy task KHÔNG dùng được thông tin đăng nhập owner của máy chủ nó để lộ env của agent khác — endpoint từ chối phiên agent-actor.
+**Giá trị trong `custom_env` được lưu dạng plaintext trong cơ sở dữ liệu server của UniAI.** Phản hồi list/get agent không còn mang giá trị env — chỉ một con số đếm. Đọc giá trị đòi hỏi owner hoặc admin của không gian làm việc gọi endpoint chuyên biệt có kiểm toán `GET /api/agents/{id}/env` (CLI: `multica agent env get <id>`). Agent đang chạy task KHÔNG thể mượn thông tin đăng nhập của owner trên máy đang chạy nó để xem env của agent khác — endpoint từ chối phiên agent-actor.
 
-**Đừng đặt bí mật giá trị cao vào `custom_env`** (mật khẩu cơ sở dữ liệu production, token quyền root, v.v.). Dùng **thông tin đăng nhập chuyên biệt, phạm vi hẹp** cho agent (API key chỉ đọc, PAT một phạm vi), và xoay vòng đều đặn. Bản sao lưu và kiểm toán DB vẫn là bề mặt lộ đáng kể.
+**Đừng đặt những bí mật quan trọng vào `custom_env`** (mật khẩu cơ sở dữ liệu production, token quyền root, v.v.). Dùng **thông tin đăng nhập chuyên biệt, phạm vi hẹp** cho agent (API key chỉ đọc, PAT một phạm vi), và thay mới định kỳ. Lưu ý dữ liệu vẫn có thể bị lộ qua bản sao lưu và các truy vấn kiểm toán DB.
 </Callout>
 
 ## Đối số CLI tùy chỉnh (custom_args)
@@ -86,7 +86,7 @@ claude --model <model> --max-turns 100 --append-system-prompt "always respond in
 Đối số được truyền nguyên vẹn, không qua shell (không rủi ro injection), nhưng cờ nào được nhận ra là chuyện của chính công cụ lập trình AI — các công cụ khác nhau đáng kể ở điểm này.
 
 <Callout type="tip">
-`custom_env` và `custom_args` không có trần cứng, nhưng thực tế **giữ mỗi cái dưới 10 mục**. Nhiều quá làm dòng lệnh dài, khởi động chậm và khó bảo trì.
+`custom_env` và `custom_args` không có giới hạn cứng, nhưng thực tế **nên giữ mỗi cái dưới 10 mục**. Nhiều quá làm dòng lệnh dài, khởi động chậm và khó bảo trì.
 </Callout>
 
 ## Phạm vi hiển thị
@@ -102,7 +102,7 @@ Agent mới mặc định là `private`.
 
 **Giới hạn đồng thời** (`max_concurrent_tasks`) kiểm soát agent này chạy song song được bao nhiêu task một lúc. Mặc định là **6**. Task mới chạm trần thì xếp hàng — không bị từ chối.
 
-Đây mới là "tầng agent" của giới hạn hai tầng — bản thân daemon có trần rộng hơn (mặc định 20), và cái chặt hơn thắng. Chi tiết tại [Daemon và runtime → Bao nhiêu task chạy song song được](/daemon-runtimes#how-many-tasks-can-run-in-parallel).
+Đây chỉ là "tầng agent" trong cơ chế giới hạn hai tầng — bản thân daemon có trần rộng hơn (mặc định 20), và giới hạn nào chặt hơn sẽ được áp dụng. Chi tiết tại [Daemon và runtime → Bao nhiêu task chạy song song được](/daemon-runtimes#how-many-tasks-can-run-in-parallel).
 
 Đổi giá trị này **không hủy task đang chạy** — chỉ áp dụng cho task sắp được nhận kế tiếp.
 
@@ -112,7 +112,7 @@ Agent tạo xong có thể gắn **Skills** — các **gói tri thức** (`SKILL
 
 ## Lưu trữ và khôi phục
 
-Agent không dùng nữa có thể **lưu trữ** — chúng biến khỏi các khung nhìn thường nhật, nhưng dữ liệu lịch sử (task đã chạy, bình luận đã đăng) được giữ nguyên vẹn. **Khôi phục** bất cứ lúc nào để đưa chúng trở lại làm việc.
+Agent không dùng nữa có thể **lưu trữ** — chúng biến khỏi các màn hình thường ngày, nhưng dữ liệu lịch sử (task đã chạy, bình luận đã đăng) được giữ nguyên vẹn. **Khôi phục** bất cứ lúc nào để đưa chúng trở lại làm việc.
 
 <Callout type="warning">
 **Lưu trữ lập tức hủy mọi task chưa xong của agent** — task đang chạy, đã dispatched và đang xếp hàng đều bị đánh dấu `cancelled` và không tiếp tục. Có task quan trọng đang chạy thì để nó xong rồi hãy lưu trữ.

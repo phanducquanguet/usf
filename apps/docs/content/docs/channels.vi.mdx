@@ -6,9 +6,9 @@ description: Cách UniAI nối agent với các nền tảng chat — một bộ
 import { Callout } from "fumadocs-ui/components/callout";
 import { Mermaid } from "@/components/mermaid";
 
-Một **kênh** nối một [agent](/agents) UniAI với một nền tảng chat để nhóm của bạn làm việc với nó ngay nơi họ vẫn trò chuyện. Hiện có hai kênh — Lark (飞书) và Slack — và cả hai chạy trên **cùng một bộ máy**: lõi trung lập nền tảng cộng một adapter mỏng theo nền tảng. Thêm nền tảng mới là "viết adapter", không phải "xây lại pipeline".
+Một **kênh** nối một [agent](/agents) UniAI với một nền tảng chat để nhóm của bạn làm việc với nó ngay nơi họ vẫn trò chuyện. Hiện có hai kênh — Lark (飞书) và Slack — và cả hai chạy trên **cùng một bộ máy**: một lõi độc lập với nền tảng, cộng một adapter mỏng cho từng nền tảng. Thêm nền tảng mới là "viết adapter", không phải "xây lại pipeline".
 
-Một **installation** là đơn vị gắn kết mọi thứ: một bot buộc vào một cặp `(không gian làm việc, agent)`. Tin nhắn gửi vào được định tuyến tới một installation, rồi qua pipeline chung; câu trả lời của agent được gửi lại đúng cuộc chat.
+Một **installation** là đơn vị gắn kết mọi thứ: một bot gắn với một cặp `(không gian làm việc, agent)`. Tin nhắn gửi vào được định tuyến tới một installation, rồi qua pipeline chung; câu trả lời của agent được gửi lại đúng cuộc chat.
 
 ## Kiến trúc
 
@@ -20,7 +20,7 @@ flowchart LR
   end
   subgraph ENG["Bộ máy kênh (trung lập nền tảng)"]
     direction TB
-    SUP["Supervisor<br/>một kết nối sống cho mỗi installation"]
+    SUP["Supervisor<br/>một kết nối thường trực cho mỗi installation"]
     ROU["Pipeline router:<br/>route → dedup → auth → session → trigger"]
   end
   LK -->|kết nối dài| SUP
@@ -34,50 +34,50 @@ flowchart LR
 
 ## Pipeline nhận tin (chung)
 
-Mọi tin nhắn gửi vào — Lark hay Slack — chạy qua cùng các bước theo thứ tự trong `Router` của bộ máy. Adapter nền tảng chỉ cấp các mảnh theo nền tảng (`ResolverSet`); chính sách nằm trong bộ máy.
+Mọi tin nhắn gửi vào — Lark hay Slack — chạy qua cùng các bước theo thứ tự trong `Router` của bộ máy. Adapter chỉ cung cấp phần đặc thù của từng nền tảng (`ResolverSet`); phần chính sách nằm trong bộ máy.
 
 1. **Định tuyến tới installation** — ánh xạ sự kiện tới một `channel_installation` (→ không gian làm việc + agent). Lark định tuyến theo `app_id`; Slack theo app id mang trên sự kiện.
-2. **Lọc theo cách xưng hô** — trong nhóm/kênh, chỉ tin nhắn **@nhắc bot** mới đi tiếp; chuyện phiếm trong nhóm bị bỏ (không đọc).
-3. **Khử trùng lặp** — cơ chế nhận hai pha theo `(installation, message_id)` đảm bảo xử lý đúng-một-lần, kể cả qua nhiều bản sao server.
-4. **Danh tính + ủy quyền** — phân giải id người gửi trên nền tảng về một người dùng UniAI ([liên kết tài khoản](#authorization)), rồi kiểm tra lại tư cách thành viên không gian làm việc. Người chưa liên kết nhận lời nhắc "liên kết tài khoản"; người ngoài bị bỏ.
+2. **Lọc @nhắc** — trong nhóm/kênh, chỉ tin nhắn **@nhắc bot** mới đi tiếp; chuyện phiếm trong nhóm bị bỏ qua (không đọc).
+3. **Khử trùng lặp** — cơ chế nhận xử lý hai pha theo `(installation, message_id)` đảm bảo mỗi tin chỉ được xử lý đúng một lần, kể cả khi chạy nhiều bản sao server.
+4. **Danh tính + ủy quyền** — phân giải id người gửi trên nền tảng về một người dùng UniAI ([liên kết tài khoản](#authorization)), rồi kiểm tra lại tư cách thành viên không gian làm việc. Người chưa liên kết nhận lời nhắc "liên kết tài khoản"; tin nhắn của người ngoài bị bỏ qua.
 5. **Phiên** — tìm hoặc tạo một [phiên chat](/chat) cho cuộc trò chuyện này và nối tin nhắn vào (xem [Phiên](#sessions-and-context)).
 6. **Kích hoạt** — xếp hàng một [task](/tasks) cho agent; một [daemon](/daemon-runtimes) chạy agent và câu trả lời được gửi lại vào cuộc chat.
 
 ## Phiên và ngữ cảnh
 
-Ngữ cảnh của agent là **bản ghi phiên chat** — các tin nhắn đã nạp vào phiên đó theo thời gian. Mô hình bản ghi này là chung (mọi kênh dùng). Khác nhau theo nền tảng là **khóa cách ly phiên** mà adapter ghép:
+Ngữ cảnh của agent là **bản ghi phiên chat** — các tin nhắn đã nạp vào phiên đó theo thời gian. Mô hình bản ghi này dùng chung cho mọi kênh. Điểm khác nhau giữa các nền tảng là **khóa cách ly phiên** mà adapter ghép nên:
 
-| Nền tảng | Khóa cách ly | Hiệu ứng |
+| Nền tảng | Khóa cách ly | Kết quả |
 |---|---|---|
 | **Lark / 飞书** | id cuộc chat | Một phiên cho mỗi chat/nhóm — các lượt liên tiếp trong cùng chat dồn vào một bản ghi (nhớ nhiều lượt). |
 | **Slack** | DM: kênh; kênh: `kênh + gốc thread` | Mỗi DM là một phiên; **mỗi thread @bot là phiên riêng**, nên hai thread trong một kênh không trộn lẫn. |
 
 <Callout type="info">
-Trong nhóm, chỉ tin nhắn **@nhắc bot** được nạp. Hiện cả hai kênh đều không đọc các tin nhắn khác (không @) hay lịch sử cũ của kênh, nên agent không thấy tin nhắn nó không được gọi tên. Lấy lịch sử xung quanh làm ngữ cảnh là cải tiến đã lên kế hoạch.
+Trong nhóm, chỉ tin nhắn **@nhắc bot** được nạp. Hiện cả hai kênh đều không đọc các tin nhắn khác (không @) hay lịch sử cũ của kênh, nên agent không thấy những tin nhắn không nhắc tới nó. Việc lấy các tin nhắn xung quanh làm ngữ cảnh là cải tiến đã nằm trong kế hoạch.
 </Callout>
 
 ## Ủy quyền
 
-Hai cổng độc lập bảo vệ bot trong nhóm chung — cả hai do bộ máy thi hành cho mọi tin nhắn, giống hệt cho Lark và Slack:
+Hai lớp kiểm soát độc lập bảo vệ bot trong nhóm chung — cả hai đều do bộ máy kênh thực thi trên mọi tin nhắn, giống hệt nhau giữa Lark và Slack:
 
-- **Liên kết tài khoản (xác thực)** — id người gửi trên nền tảng phải được liên kết với một người dùng UniAI. Lần đầu ai đó nhắn bot, họ nhận một liên kết một lần để buộc danh tính với tài khoản UniAI **của chính họ**; trước đó không agent nào chạy.
-- **Tư cách thành viên (ủy quyền)** — người dùng UniAI đã liên kết phải là thành viên của không gian làm việc của installation, kiểm tra lại ở mỗi tin nhắn. Người ngoài bị bỏ lặng lẽ.
+- **Liên kết tài khoản (xác thực)** — id người gửi trên nền tảng phải được liên kết với một người dùng UniAI. Lần đầu ai đó nhắn cho bot, họ nhận một liên kết dùng một lần để gắn danh tính với tài khoản UniAI **của chính họ**; chưa liên kết xong thì agent sẽ không chạy.
+- **Tư cách thành viên (ủy quyền)** — người dùng UniAI đã liên kết phải là thành viên của không gian làm việc của installation, kiểm tra lại ở mỗi tin nhắn. Tin nhắn của người ngoài bị âm thầm bỏ qua.
 
-Nên thêm bot vào kênh công khai vẫn an toàn: chỉ thành viên đã liên kết danh tính mới điều khiển được agent, và từng người gửi được kiểm tra độc lập. Xem trang từng nền tảng cho các lời nhắc phía người dùng.
+Vì vậy, thêm bot vào kênh công khai vẫn an toàn: chỉ thành viên đã liên kết danh tính mới điều khiển được agent, và từng người gửi được kiểm tra độc lập. Xem trang của từng nền tảng để biết các lời nhắc hiển thị cho người dùng.
 
 ## Hai kênh
 
 <Callout type="info">
-**Lark (飞书) — quét để cài.** Admin của không gian làm việc buộc một agent bằng cách quét QR bằng app Lark; không cần bước developer console nào. Mỗi agent một Bot.
+**Lark (飞书) — quét mã là cài xong.** Admin của không gian làm việc gắn một agent bằng cách quét mã QR bằng app Lark; không cần thao tác gì trong developer console. Mỗi agent một Bot.
 </Callout>
 
 <Callout type="info">
-**Slack — tự mang app.** Admin của không gian làm việc tạo một app Slack, cài vào Slack workspace của mình, rồi dán bot token + app-level token vào UniAI. Mỗi agent có app Slack riêng, nên nhiều agent có thể mỗi con một bot riêng trong một Slack workspace.
+**Slack — tự mang app.** Admin của không gian làm việc tạo một app Slack, cài vào Slack workspace của mình, rồi dán bot token + app-level token vào UniAI. Mỗi agent có app Slack riêng, nên nhiều agent có thể cùng hoạt động trong một Slack workspace, mỗi agent một bot riêng.
 </Callout>
 
 ## Tự vận hành
 
-Mỗi kênh **tắt cho tới khi bạn đặt khóa mã hóa at-rest của nó** (khóa mã hóa token của từng bot trước khi chạm cơ sở dữ liệu):
+Mỗi kênh **mặc định tắt cho tới khi bạn đặt khóa mã hóa at-rest cho nó** (khóa này mã hóa token của từng bot trước khi ghi vào cơ sở dữ liệu):
 
 ```dotenv
 MULTICA_LARK_SECRET_KEY=<khóa 32 byte mã hóa base64>

@@ -35,7 +35,7 @@ make selfhost
 3. Bật toàn bộ dịch vụ bằng `docker-compose.selfhost.yml`
 4. Chờ tới khi endpoint `/health` của backend sẵn sàng
 
-Với probe production sau khi khởi động, dùng `/readyz` khi bạn muốn phép kiểm tra thất bại khi có vấn đề về cơ sở dữ liệu hoặc migration.
+Với các probe production chạy định kỳ sau khi khởi động, hãy dùng `/readyz` nếu bạn muốn phép kiểm tra báo lỗi khi cơ sở dữ liệu hoặc migration gặp vấn đề.
 
 Container backend **tự chạy migration cơ sở dữ liệu** khi khởi động (`docker/entrypoint.sh` chạy `./migrate up` trước khi server bật) — bạn sẽ thấy log migration trong log backend. Nâng cấp phiên bản cũng được xử lý theo cùng cách.
 
@@ -154,7 +154,7 @@ Lệnh này trỏ CLI về `http://localhost:8080` (backend) và `http://localho
 
 ### 5b. Khác máy: đặt reverse proxy phía trước
 
-Vì bộ compose chỉ lắng nghe trên `127.0.0.1`, daemon trên máy khác không thể truy cập thẳng `http://<server-ip>:8080` — và bạn cũng không nên muốn thế, vì secret của server sẽ bị phơi ra internet. Đặt một reverse proxy trên máy chủ để chấm dứt TLS và chuyển tiếp về `127.0.0.1:8080` (backend) và `127.0.0.1:3000` (frontend), rồi trỏ CLI về URL HTTPS công khai:
+Vì bộ compose chỉ lắng nghe trên `127.0.0.1`, daemon trên máy khác không thể truy cập thẳng `http://<server-ip>:8080` — và cũng không nên để như vậy, vì secret của server sẽ bị phơi ra internet. Đặt một reverse proxy trên máy chủ đảm nhận TLS và chuyển tiếp về `127.0.0.1:8080` (backend) và `127.0.0.1:3000` (frontend), rồi trỏ CLI về URL HTTPS công khai:
 
 ```bash
 multica setup self-host \
@@ -190,7 +190,7 @@ multica.example.com {
 
 Sau khi bật proxy, đặt `FRONTEND_ORIGIN=https://multica.example.com` trong `.env` của server rồi khởi động lại backend — nếu không, phép kiểm tra origin của WebSocket sẽ từ chối trình duyệt (Khắc phục sự cố → WebSocket không kết nối được).
 
-[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) cũng là một lựa chọn tốt — nó cho bạn TLS và hostname công khai mà không phải mở cổng nào trên máy. Cấu hình Nginx tương đương (tách hostname `app.` / `api.`, `proxy_set_header Upgrade` cho WebSocket) cũng dùng tốt; yêu cầu then chốt là chấm dứt TLS và chuyển tiếp header `Upgrade` trên `/ws`.
+[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) cũng là một lựa chọn tốt — nó cho bạn TLS và hostname công khai mà không phải mở cổng nào trên máy. Cấu hình Nginx tương đương (tách hostname `app.` / `api.`, `proxy_set_header Upgrade` cho WebSocket) cũng dùng tốt; yêu cầu then chốt là proxy đảm nhận TLS (TLS termination) và chuyển tiếp header `Upgrade` trên `/ws`.
 
 ## 6. Tạo agent + giao task đầu tiên
 
@@ -202,7 +202,7 @@ Cùng quy trình với Cloud — xem [Bắt đầu nhanh với Cloud → Bước
 Bảng điều khiển Usage / Runtime đọc từ bảng dẫn xuất `task_usage_hourly` do `rollup_task_usage_hourly()` ghi. Từ MUL-2957, backend chạy rollup này ngay trong tiến trình qua bộ lập lịch dựa trên DB — không cần `pg_cron` nữa, và cron ngoài / systemd timer cũng không còn là cách khuyến nghị. Image `pgvector/pgvector:pg17` đi kèm dùng được luôn, không cần chỉnh.
 </Callout>
 
-Bộ lập lịch trong tiến trình tick mỗi 30 giây và nhận một kế hoạch 5 phút theo UTC qua bảng `sys_cron_executions`. Nhiều bản sao backend vẫn an toàn — khóa duy nhất `(job_name, scope_kind, scope_id, plan_time)` đảm bảo mỗi kế hoạch chỉ một bản thắng. Triển khai mới không cần thiết lập gì.
+Bộ lập lịch trong tiến trình tick mỗi 30 giây và nhận một kế hoạch 5 phút theo UTC qua bảng `sys_cron_executions`. Nhiều bản sao backend vẫn an toàn — khóa duy nhất `(job_name, scope_kind, scope_id, plan_time)` đảm bảo mỗi kế hoạch chỉ có một bản sao giành được quyền chạy. Triển khai mới không cần thiết lập gì.
 
 **Tương thích — các đăng ký `pg_cron` sẵn có.** Nếu trước đây bạn đã đăng ký rollup bằng job `pg_cron` (`SELECT cron.schedule('rollup_task_usage_hourly', '*/5 * * * *', …)`), bạn không cần gỡ — hàm SQL giữ advisory lock 4246 bên trong, nên bộ lập lịch của app và `pg_cron` không thể ghi trùng. Để xóa mục thừa:
 
@@ -211,9 +211,9 @@ SELECT cron.unschedule('rollup_task_usage_hourly')
   FROM cron.job WHERE jobname = 'rollup_task_usage_hourly';
 ```
 
-**Nâng cấp từ `v0.3.4 → v0.3.5+`.** Bản trước yêu cầu người vận hành chạy tay `cmd/backfill_task_usage_hourly` trước khi áp migration 103, nếu không guard fail-closed của migration sẽ chặn `migrate up`. Từ MUL-2957 việc này là tự động: lệnh migrate chạy backfill theo lát tháng có tính idempotent (dưới advisory lock 4246) ngay trước khi áp migration 103, rồi tiếp tục. Bạn vẫn có thể chạy backfill độc lập trên DB bận để giảm áp lực đọc bằng `--sleep-between-slices=2s`, nhưng không còn bắt buộc.
+**Nâng cấp từ `v0.3.4 → v0.3.5+`.** Bản trước yêu cầu người vận hành chạy tay `cmd/backfill_task_usage_hourly` trước khi áp migration 103, nếu không guard fail-closed của migration sẽ chặn `migrate up`. Từ MUL-2957 việc này là tự động: lệnh migrate chạy backfill idempotent theo từng lát dữ liệu tháng (dưới advisory lock 4246) ngay trước khi áp migration 103, rồi tiếp tục. Bạn vẫn có thể chạy backfill độc lập trên DB bận để giảm áp lực đọc bằng `--sleep-between-slices=2s`, nhưng không còn bắt buộc.
 
-Tham chiếu đầy đủ — gồm ghi chú vận hành và hình dạng triển khai Kubernetes — nằm trong [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/multica-ai/multica/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup) của repo.
+Tham chiếu đầy đủ — gồm ghi chú vận hành và cấu trúc triển khai Kubernetes — nằm trong [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/multica-ai/multica/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup) của repo.
 
 ## Triển khai Kubernetes (phương án thay thế)
 
@@ -241,9 +241,9 @@ cd multica
 helm install multica deploy/helm/multica -n multica
 ```
 
-Mặc định giả định hostname `multica.dev.lan` (web) và `api.multica.dev.lan` (backend). Thêm chúng vào `/etc/hosts` (hoặc DNS cục bộ) trỏ về IP node bất kỳ nơi Ingress truy cập được. Để dùng hostname khác, chép `deploy/helm/multica/values.yaml`, sửa `ingress.frontend.host` / `ingress.backend.host` và các mục tương ứng `backend.config.appUrl` / `frontendOrigin` / `localUploadBaseUrl` / `googleRedirectUri`, rồi cài với `-f my-values.yaml`.
+Mặc định giả định hostname `multica.dev.lan` (web) và `api.multica.dev.lan` (backend). Thêm chúng vào `/etc/hosts` (hoặc DNS cục bộ), trỏ về IP của bất kỳ node nào mà Ingress của bạn nhận được truy cập. Để dùng hostname khác, chép `deploy/helm/multica/values.yaml`, sửa `ingress.frontend.host` / `ingress.backend.host` và các mục tương ứng `backend.config.appUrl` / `frontendOrigin` / `localUploadBaseUrl` / `googleRedirectUri`, rồi cài với `-f my-values.yaml`.
 
-Trên cụm nguội, backend có thể ở trạng thái `Running` nhưng chưa `Ready` trong vài phút khi chờ Postgres và chạy migration — startupProbe hấp thụ khoảng này nên pod sẽ không restart. Khi đã `Ready`:
+Trên cụm vừa khởi động, backend có thể ở trạng thái `Running` nhưng chưa `Ready` trong vài phút khi chờ Postgres và chạy migration — startupProbe đã tính đến khoảng chờ này nên pod sẽ không restart. Khi đã `Ready`:
 
 ```bash
 curl -H "Host: api.multica.dev.lan" http://<ingress-ip>/healthz
@@ -260,7 +260,7 @@ multica setup self-host \
 
 Để kéo image mới nhất mà không đổi chart: `kubectl -n multica rollout restart deploy/multica-backend deploy/multica-frontend`. Để ghim một bản phát hành UniAI cụ thể, đặt `images.backend.tag` / `images.frontend.tag` trong values file rồi `helm upgrade`. `helm -n multica uninstall multica` gỡ workload nhưng giữ PVC và Secret; `kubectl delete namespace multica` xóa sạch tất cả.
 
-Tham chiếu đầy đủ — ba chế độ đăng nhập, workaround ExternalName `backend` cho `REMOTE_API_URL` bị nướng lúc build trong image web, giới hạn tài nguyên và TLS — nằm trong [`SELF_HOSTING.md`](https://github.com/multica-ai/multica/blob/main/SELF_HOSTING.md#kubernetes-deployment-alternative) của repo.
+Tham chiếu đầy đủ — ba chế độ đăng nhập, workaround ExternalName `backend` cho `REMOTE_API_URL` bị gắn cứng lúc build trong image web, giới hạn tài nguyên và TLS — nằm trong [`SELF_HOSTING.md`](https://github.com/multica-ai/multica/blob/main/SELF_HOSTING.md#kubernetes-deployment-alternative) của repo.
 
 ## Sự cố thường gặp
 

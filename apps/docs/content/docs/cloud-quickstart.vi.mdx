@@ -5,7 +5,7 @@ description: Từ đăng ký tới giao task đầu tiên cho agent trong 5 phú
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Trang này dẫn bạn đi trọn vẹn UniAI Cloud — **đăng ký → cài CLI → khởi động [daemon](/daemon-runtimes) → tạo [agent](/agents) → giao [task](/tasks) đầu tiên**. Mất khoảng 5 phút.
+Trang này dẫn bạn đi hết quy trình UniAI Cloud từ đầu đến cuối — **đăng ký → cài CLI → khởi động [daemon](/daemon-runtimes) → tạo [agent](/agents) → giao [task](/tasks) đầu tiên**. Mất khoảng 5 phút.
 
 Một điều kiện tiên quyết: bạn đã cài sẵn ít nhất một [công cụ lập trình AI](/providers) trên máy ([Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder) hoặc [Trae CLI](/providers#trae)). Daemon tự phát hiện chúng khi khởi động và từ chối chạy nếu không tìm thấy công cụ nào.
 
@@ -76,7 +76,7 @@ Trên giao diện web, vào **Cài đặt → Agent** và bấm **New Agent**:
 
 - **Tên** — tên hiển thị của agent trên bảng và trong bình luận. Chọn tên bạn thích
 - **Provider** — chọn một công cụ lập trình AI bạn đã cài trên máy (danh sách chỉ hiện các công cụ mà runtime phát hiện được)
-- **Model** (tùy chọn) — lựa chọn model bên trong công cụ đó (danh sách tĩnh hoặc khám phá động, tùy provider)
+- **Model** (tùy chọn) — lựa chọn model bên trong công cụ đó (danh sách cố định hoặc dò tự động, tùy provider)
 - **Chỉ dẫn** (tùy chọn) — system prompt cho agent này
 
 Sau khi tạo, agent xuất hiện trong danh sách thành viên của không gian làm việc và có thể được giao việc như một thành viên bình thường.
@@ -95,7 +95,7 @@ Giao issue cho agent bạn vừa tạo — bấm vào avatar của nó trên web
 multica issue assign MUL-1 --to my-agent-name
 ```
 
-`--to` nhận **tên** của agent hoặc thành viên. Khớp theo chuỗi con cũng được — nếu agent tên `my-code-reviewer`, gõ `reviewer` là đủ. Nếu không gian làm việc có tên trùng nhau, dùng `--to-id <uuid>` thay thế (loại trừ lẫn nhau với `--to`); tra UUID bằng `multica agent list --output json` hoặc `multica workspace member list --output json`.
+`--to` nhận **tên** của agent hoặc thành viên. Khớp theo chuỗi con cũng được — nếu agent tên `my-code-reviewer`, gõ `reviewer` là đủ. Nếu không gian làm việc có tên trùng nhau, dùng `--to-id <uuid>` thay thế (không dùng chung được với `--to`); tra UUID bằng `multica agent list --output json` hoặc `multica workspace member list --output json`.
 
 **Điều gì diễn ra tiếp theo phía daemon**:
 
