@@ -171,6 +171,7 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 		DisableWorkspaceCreation:       os.Getenv("DISABLE_WORKSPACE_CREATION") == "true",
 		WorkspaceCreationAllowedEmails: splitAndTrim(os.Getenv("WORKSPACE_CREATION_ALLOWED_EMAILS")),
 		PublicURL:                      strings.TrimRight(strings.TrimSpace(os.Getenv("MULTICA_PUBLIC_URL")), "/"),
+		PortalWorkspaceSlug:            strings.TrimSpace(os.Getenv("PORTAL_WORKSPACE_SLUG")),
 		TrustedProxies:                 parseTrustedProxies(os.Getenv("MULTICA_TRUSTED_PROXIES")),
 		CloudRuntimeFleetURL:           cloudRuntimeFleetURLFromEnv(),
 		CloudRuntimeFleetTimeout:       envDuration("MULTICA_CLOUD_FLEET_TIMEOUT", 35*time.Second),
@@ -689,6 +690,21 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 	// Public API
 	r.Get("/api/config", h.GetConfig)
 	r.With(contactSalesRL).Post("/api/contact-sales", h.CreateContactSales)
+
+	// Public customer portal (guest access; identity = bearer guest token in URL).
+	portalSessionRL := middleware.RateLimit(rdb, envPositiveInt("RATE_LIMIT_PORTAL_SESSIONS", 5), time.Hour, trustedProxies)
+	portalMessageRL := middleware.RateLimit(rdb, envPositiveInt("RATE_LIMIT_PORTAL_MESSAGES", 20), time.Minute, trustedProxies)
+	r.Route("/portal", func(r chi.Router) {
+		r.Get("/config", h.GetPortalPublicConfig)
+		r.With(portalSessionRL).Post("/sessions", h.CreatePortalGuestSession)
+		// Guest messaging routes are registered in the next commit.
+		// r.Route("/sessions/{token}", func(r chi.Router) {
+		// 	r.Get("/messages", h.ListPortalMessages)
+		// 	r.With(portalMessageRL).Post("/messages", h.SendPortalMessage)
+		// 	r.With(portalMessageRL).Post("/confirm", h.ConfirmPortalSession)
+		// })
+		_ = portalMessageRL
+	})
 
 	// Webhook ingress for autopilots. Outside the authenticated group on
 	// purpose: the bearer token in the URL path IS the credential. Workspace

@@ -82,6 +82,9 @@ type Config struct {
 	// the server into minting webhook URLs pointing at an attacker-controlled
 	// host.
 	PublicURL string
+	// PortalWorkspaceSlug selects the workspace the public customer portal is
+	// bound to. Empty disables the portal entirely.
+	PortalWorkspaceSlug string
 	// TrustedProxies are CIDRs whose source IP we trust to set
 	// X-Forwarded-For / X-Real-IP. Empty means "trust nothing": the rate
 	// limiter uses r.RemoteAddr exclusively. Populated via the
