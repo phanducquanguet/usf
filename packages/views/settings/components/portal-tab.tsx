@@ -96,7 +96,7 @@ export function PortalTab() {
         </div>
         <div className="space-y-2">
           <Label>{t(($) => $.portal.agent)}</Label>
-          <Select value={agentId} onValueChange={setAgentId}>
+          <Select value={agentId} onValueChange={(value) => setAgentId(value ?? "")}>
             <SelectTrigger>
               <SelectValue placeholder={t(($) => $.portal.agent_placeholder)} />
             </SelectTrigger>
