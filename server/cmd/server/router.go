@@ -697,13 +697,11 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 	r.Route("/portal", func(r chi.Router) {
 		r.Get("/config", h.GetPortalPublicConfig)
 		r.With(portalSessionRL).Post("/sessions", h.CreatePortalGuestSession)
-		// Guest messaging routes are registered in the next commit.
-		// r.Route("/sessions/{token}", func(r chi.Router) {
-		// 	r.Get("/messages", h.ListPortalMessages)
-		// 	r.With(portalMessageRL).Post("/messages", h.SendPortalMessage)
-		// 	r.With(portalMessageRL).Post("/confirm", h.ConfirmPortalSession)
-		// })
-		_ = portalMessageRL
+		r.Route("/sessions/{token}", func(r chi.Router) {
+			r.Get("/messages", h.ListPortalMessages)
+			r.With(portalMessageRL).Post("/messages", h.SendPortalMessage)
+			r.With(portalMessageRL).Post("/confirm", h.ConfirmPortalSession)
+		})
 	})
 
 	// Webhook ingress for autopilots. Outside the authenticated group on

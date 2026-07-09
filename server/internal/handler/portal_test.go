@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -238,5 +239,138 @@ func TestPortalGuestSession_CreateFailsWhenDisabled(t *testing.T) {
 	testHandler.CreatePortalGuestSession(rec, httptest.NewRequest("POST", "/portal/sessions", nil))
 	if rec.Code != 404 {
 		t.Fatalf("expected 404, got %d", rec.Code)
+	}
+}
+
+func createPortalGuestSessionForTest(t *testing.T) (token string) {
+	t.Helper()
+	rec := httptest.NewRecorder()
+	testHandler.CreatePortalGuestSession(rec, httptest.NewRequest("POST", "/portal/sessions", nil))
+	if rec.Code != 201 {
+		t.Fatalf("create guest session: %d %s", rec.Code, rec.Body.String())
+	}
+	var resp struct {
+		Token string `json:"token"`
+	}
+	json.Unmarshal(rec.Body.Bytes(), &resp)
+	t.Cleanup(func() {
+		testPool.Exec(context.Background(),
+			`DELETE FROM chat_session WHERE id IN (SELECT chat_session_id FROM portal_session WHERE guest_token_hash = $1)`,
+			hashPortalToken(resp.Token))
+	})
+	return resp.Token
+}
+
+func TestPortalSendMessage_InvalidToken(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	enablePortalForTests(t)
+	rec, req := portalTokenRequest(t, "POST", "/portal/sessions/pgt_bogus/messages", "pgt_bogus", map[string]any{"content": "hi"})
+	testHandler.SendPortalMessage(rec, req)
+	if rec.Code != 401 {
+		t.Fatalf("expected 401, got %d", rec.Code)
+	}
+}
+
+func TestPortalSendMessage_EnqueuesAndPrefixesFirstMessage(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	enablePortalForTests(t)
+	token := createPortalGuestSessionForTest(t)
+	rec, req := portalTokenRequest(t, "POST", "/portal/sessions/"+token+"/messages", token, map[string]any{"content": "Tôi muốn làm phần mềm quản lý kho"})
+	testHandler.SendPortalMessage(rec, req)
+	if rec.Code != 202 {
+		t.Fatalf("expected 202, got %d: %s", rec.Code, rec.Body.String())
+	}
+	// Stored first message carries the [PORTAL] preamble; a task is linked.
+	var content string
+	var taskID *string
+	err := testPool.QueryRow(context.Background(), `
+		SELECT cm.content, cm.task_id::text FROM chat_message cm
+		JOIN portal_session ps ON ps.chat_session_id = cm.chat_session_id
+		WHERE ps.guest_token_hash = $1 AND cm.role = 'user'
+		ORDER BY cm.created_at DESC LIMIT 1`, hashPortalToken(token)).Scan(&content, &taskID)
+	if err != nil {
+		t.Fatalf("load stored message: %v", err)
+	}
+	if !strings.HasPrefix(content, "[PORTAL]") {
+		t.Fatalf("first message not prefixed: %q", content)
+	}
+	if taskID == nil || *taskID == "" {
+		t.Fatal("message not linked to an enqueued task")
+	}
+	// List response strips the preamble for the guest.
+	lrec, lreq := portalTokenRequest(t, "GET", "/portal/sessions/"+token+"/messages", token, nil)
+	testHandler.ListPortalMessages(lrec, lreq)
+	var list struct {
+		Messages []struct {
+			Content string `json:"content"`
+		} `json:"messages"`
+		Pending bool   `json:"pending"`
+		Status  string `json:"status"`
+	}
+	json.Unmarshal(lrec.Body.Bytes(), &list)
+	if len(list.Messages) != 1 || strings.Contains(list.Messages[0].Content, "[PORTAL]") {
+		t.Fatalf("unexpected list: %s", lrec.Body.String())
+	}
+	if !list.Pending || list.Status != "active" {
+		t.Fatalf("expected pending active session, got %s", lrec.Body.String())
+	}
+}
+
+func TestPortalSendMessage_RejectsWhilePending(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	agentID, _ := enablePortalForTests(t)
+	token := createPortalGuestSessionForTest(t)
+	var chatSessionID string
+	testPool.QueryRow(context.Background(),
+		`SELECT chat_session_id::text FROM portal_session WHERE guest_token_hash = $1`,
+		hashPortalToken(token)).Scan(&chatSessionID)
+	insertPendingChatTask(t, agentID, chatSessionID, "queued")
+	rec, req := portalTokenRequest(t, "POST", "/portal/sessions/"+token+"/messages", token, map[string]any{"content": "again"})
+	testHandler.SendPortalMessage(rec, req)
+	if rec.Code != 409 {
+		t.Fatalf("expected 409, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestPortalConfirm_PersistsContactAndAppendsMarkerMessage(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	enablePortalForTests(t)
+	token := createPortalGuestSessionForTest(t)
+	rec, req := portalTokenRequest(t, "POST", "/portal/sessions/"+token+"/confirm", token,
+		map[string]any{"name": "Nguyễn Văn A", "email": "a@example.com", "phone": "0900000000"})
+	testHandler.ConfirmPortalSession(rec, req)
+	if rec.Code != 200 {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+	var status, name, email string
+	testPool.QueryRow(context.Background(),
+		`SELECT status, contact_name, contact_email FROM portal_session WHERE guest_token_hash = $1`,
+		hashPortalToken(token)).Scan(&status, &name, &email)
+	if status != "confirmed" || name != "Nguyễn Văn A" || email != "a@example.com" {
+		t.Fatalf("contact not persisted: %s %s %s", status, name, email)
+	}
+	var content string
+	testPool.QueryRow(context.Background(), `
+		SELECT cm.content FROM chat_message cm
+		JOIN portal_session ps ON ps.chat_session_id = cm.chat_session_id
+		WHERE ps.guest_token_hash = $1 ORDER BY cm.created_at DESC LIMIT 1`,
+		hashPortalToken(token)).Scan(&content)
+	if !strings.HasPrefix(content, "[KHÁCH XÁC NHẬN]") {
+		t.Fatalf("confirmation message missing marker: %q", content)
+	}
+	// Second confirm → 409.
+	rec2, req2 := portalTokenRequest(t, "POST", "/portal/sessions/"+token+"/confirm", token,
+		map[string]any{"name": "B", "email": "b@example.com"})
+	testHandler.ConfirmPortalSession(rec2, req2)
+	if rec2.Code != 409 {
+		t.Fatalf("expected 409 on double confirm, got %d", rec2.Code)
 	}
 }

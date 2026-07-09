@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
@@ -145,4 +146,200 @@ func (h *Handler) loadPortalSession(w http.ResponseWriter, r *http.Request) (db.
 		return db.PortalSession{}, false
 	}
 	return ps, true
+}
+
+type portalChatMessage struct {
+	ID        string `json:"id"`
+	Role      string `json:"role"`
+	Content   string `json:"content"`
+	CreatedAt string `json:"created_at"`
+}
+
+type portalMessagesResponse struct {
+	Messages []portalChatMessage `json:"messages"`
+	Pending  bool                `json:"pending"`
+	Status   string              `json:"status"`
+}
+
+func portalMessageToResponse(m db.ChatMessage) portalChatMessage {
+	content := m.Content
+	if strings.HasPrefix(content, portalFirstMessagePreamble) {
+		// The preamble is agent-facing context, not something the guest wrote.
+		if idx := strings.Index(content, "\n\n"); idx >= 0 {
+			content = content[idx+2:]
+		}
+	}
+	return portalChatMessage{
+		ID:        uuidToString(m.ID),
+		Role:      m.Role,
+		Content:   content,
+		CreatedAt: timestampToString(m.CreatedAt),
+	}
+}
+
+func (h *Handler) SendPortalMessage(w http.ResponseWriter, r *http.Request) {
+	_, cfg, _, err := h.loadPortalContext(r.Context())
+	if err != nil {
+		writeError(w, http.StatusNotFound, "portal_disabled")
+		return
+	}
+	ps, ok := h.loadPortalSession(w, r)
+	if !ok {
+		return
+	}
+	if ps.Status != "active" {
+		writeError(w, http.StatusConflict, "session_confirmed")
+		return
+	}
+	var req struct {
+		Content string `json:"content"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	content := strings.TrimSpace(req.Content)
+	if content == "" {
+		writeError(w, http.StatusBadRequest, "content is required")
+		return
+	}
+	if len(content) > portalMaxMessageLen {
+		writeError(w, http.StatusBadRequest, "message too long")
+		return
+	}
+	// One guest turn ⇒ one agent turn: refuse while a task is in flight.
+	if _, err := h.Queries.GetPendingChatTask(r.Context(), ps.ChatSessionID); err == nil {
+		writeError(w, http.StatusConflict, "agent_busy")
+		return
+	}
+	count, err := h.Queries.CountChatMessages(r.Context(), ps.ChatSessionID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to load session")
+		return
+	}
+	if count == 0 {
+		// Mark the session as a portal intake for the agent (see the
+		// multica-portal-intake builtin skill) without a wasted bootstrap run.
+		content = portalFirstMessagePreamble + " Đây là phiên tư vấn với khách vãng lai trên portal công khai. Hãy làm theo skill multica-portal-intake.\n\n" + content
+	}
+	h.appendPortalMessageAndEnqueue(w, r, ps, cfg, content, http.StatusAccepted)
+}
+
+// appendPortalMessageAndEnqueue persists a guest-authored message and triggers
+// the agent run, sharing the tail of SendPortalMessage and ConfirmPortalSession.
+func (h *Handler) appendPortalMessageAndEnqueue(w http.ResponseWriter, r *http.Request, ps db.PortalSession, cfg db.WorkspacePortalConfig, content string, okStatus int) {
+	msg, err := h.Queries.CreateChatMessage(r.Context(), db.CreateChatMessageParams{
+		ChatSessionID: ps.ChatSessionID,
+		Role:          "user",
+		Content:       content,
+	})
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to save message")
+		return
+	}
+	session, err := h.Queries.GetChatSession(r.Context(), ps.ChatSessionID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to load session")
+		return
+	}
+	task, err := h.TaskService.EnqueueChatTask(r.Context(), session, cfg.ServiceUserID, false)
+	if err != nil {
+		writeError(w, http.StatusServiceUnavailable, "agent_unavailable")
+		return
+	}
+	// Mirror SendChatMessage's link call so the assistant reply lands on this
+	// message's task.
+	if err := h.Queries.LinkChatMessageToTask(r.Context(), db.LinkChatMessageToTaskParams{
+		ID:     msg.ID,
+		TaskID: task.ID,
+	}); err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to link task")
+		return
+	}
+	_ = h.Queries.TouchPortalSession(r.Context(), ps.ID)
+	writeJSON(w, okStatus, map[string]any{"message": portalMessageToResponse(msg)})
+}
+
+func (h *Handler) ListPortalMessages(w http.ResponseWriter, r *http.Request) {
+	ps, ok := h.loadPortalSession(w, r)
+	if !ok {
+		return
+	}
+	var msgs []db.ChatMessage
+	var err error
+	if after := r.URL.Query().Get("after"); after != "" {
+		ts, perr := time.Parse(time.RFC3339Nano, after)
+		if perr != nil {
+			writeError(w, http.StatusBadRequest, "invalid after cursor")
+			return
+		}
+		msgs, err = h.Queries.ListChatMessagesAfter(r.Context(), db.ListChatMessagesAfterParams{
+			ChatSessionID: ps.ChatSessionID,
+			CreatedAt:     pgtype.Timestamptz{Time: ts, Valid: true},
+		})
+	} else {
+		msgs, err = h.Queries.ListChatMessages(r.Context(), ps.ChatSessionID)
+	}
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to load messages")
+		return
+	}
+	pending := false
+	if _, perr := h.Queries.GetPendingChatTask(r.Context(), ps.ChatSessionID); perr == nil {
+		pending = true
+	}
+	items := make([]portalChatMessage, 0, len(msgs))
+	for _, m := range msgs {
+		items = append(items, portalMessageToResponse(m))
+	}
+	writeJSON(w, http.StatusOK, portalMessagesResponse{Messages: items, Pending: pending, Status: ps.Status})
+}
+
+func (h *Handler) ConfirmPortalSession(w http.ResponseWriter, r *http.Request) {
+	_, cfg, _, err := h.loadPortalContext(r.Context())
+	if err != nil {
+		writeError(w, http.StatusNotFound, "portal_disabled")
+		return
+	}
+	ps, ok := h.loadPortalSession(w, r)
+	if !ok {
+		return
+	}
+	if ps.Status != "active" {
+		writeError(w, http.StatusConflict, "already_confirmed")
+		return
+	}
+	var req struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+		Phone string `json:"phone"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	name := strings.TrimSpace(req.Name)
+	email := strings.TrimSpace(req.Email)
+	phone := strings.TrimSpace(req.Phone)
+	if name == "" || email == "" || !strings.Contains(email, "@") {
+		writeError(w, http.StatusBadRequest, "name and a valid email are required")
+		return
+	}
+	confirmed, err := h.Queries.ConfirmPortalSession(r.Context(), db.ConfirmPortalSessionParams{
+		ID:           ps.ID,
+		ContactName:  name,
+		ContactEmail: email,
+		ContactPhone: phone,
+	})
+	if err != nil {
+		writeError(w, http.StatusConflict, "already_confirmed")
+		return
+	}
+	content := portalConfirmMarker + "\n" +
+		"Họ tên: " + name + "\n" +
+		"Email: " + email + "\n" +
+		"SĐT: " + phone + "\n\n" +
+		"Khách đã xác nhận bản tóm tắt. Hãy tạo dự án ngay theo hướng dẫn trong skill multica-portal-intake, " +
+		"kèm thông tin liên hệ này ở cuối mô tả dự án."
+	h.appendPortalMessageAndEnqueue(w, r, confirmed, cfg, content, http.StatusOK)
 }
