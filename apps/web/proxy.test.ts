@@ -64,8 +64,8 @@ describe("proxy legacy workspace route redirects", () => {
 });
 
 describe("proxy root path redirects", () => {
-  it("sends logged-out visitors to login", () => {
-    expect(redirectLocation("/")).toBe("https://app.multica.test/login");
+  it("serves the portal to logged-out visitors (no redirect)", () => {
+    expect(redirectLocation("/")).toBeNull();
   });
 
   it("sends logged-in users with a last workspace cookie to that workspace", () => {
@@ -77,9 +77,7 @@ describe("proxy root path redirects", () => {
     ).toBe("https://app.multica.test/acme/issues");
   });
 
-  it("sends logged-in users without a last workspace cookie to login", () => {
-    expect(redirectLocation("/", { multica_logged_in: "1" })).toBe(
-      "https://app.multica.test/login",
-    );
+  it("serves the portal to logged-in users without a last workspace cookie", () => {
+    expect(redirectLocation("/", { multica_logged_in: "1" })).toBeNull();
   });
 });
