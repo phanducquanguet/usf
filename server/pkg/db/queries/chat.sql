@@ -219,3 +219,11 @@ SELECT * FROM chat_message
 WHERE chat_session_id = $1 AND role = 'user'
 ORDER BY created_at DESC
 LIMIT 1;
+
+-- name: CountChatMessages :one
+SELECT count(*) FROM chat_message WHERE chat_session_id = $1;
+
+-- name: ListChatMessagesAfter :many
+SELECT * FROM chat_message
+WHERE chat_session_id = $1 AND created_at > $2
+ORDER BY created_at ASC;

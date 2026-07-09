@@ -677,6 +677,19 @@ type PinnedItem struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
+type PortalSession struct {
+	ID             pgtype.UUID        `json:"id"`
+	WorkspaceID    pgtype.UUID        `json:"workspace_id"`
+	ChatSessionID  pgtype.UUID        `json:"chat_session_id"`
+	GuestTokenHash string             `json:"guest_token_hash"`
+	ContactName    string             `json:"contact_name"`
+	ContactEmail   string             `json:"contact_email"`
+	ContactPhone   string             `json:"contact_phone"`
+	Status         string             `json:"status"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	LastActivityAt pgtype.Timestamptz `json:"last_activity_at"`
+}
+
 type Project struct {
 	ID          pgtype.UUID        `json:"id"`
 	WorkspaceID pgtype.UUID        `json:"workspace_id"`
@@ -954,4 +967,14 @@ type WorkspaceInvitation struct {
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
 	ExpiresAt     pgtype.Timestamptz `json:"expires_at"`
+}
+
+type WorkspacePortalConfig struct {
+	WorkspaceID   pgtype.UUID        `json:"workspace_id"`
+	Enabled       bool               `json:"enabled"`
+	AgentID       pgtype.UUID        `json:"agent_id"`
+	ServiceUserID pgtype.UUID        `json:"service_user_id"`
+	HeroContent   []byte             `json:"hero_content"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
 }
