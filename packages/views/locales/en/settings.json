@@ -33,7 +33,8 @@
       "github": "GitHub",
       "integrations": "Integrations",
       "labs": "Labs",
-      "members": "Members"
+      "members": "Members",
+      "portal": "Customer portal"
     }
   },
   "account": {
@@ -447,5 +448,19 @@
         "description": "Create and work on issues"
       }
     }
+  },
+  "portal": {
+    "title": "Customer portal",
+    "description": "Public consultation page: customers describe the software they need, the agent surveys them and creates a project once they confirm.",
+    "owner_only": "Only the workspace owner can configure the portal.",
+    "enable": "Enable portal",
+    "agent": "Consulting agent",
+    "agent_placeholder": "Select an agent",
+    "agent_required": "Pick a consulting agent before enabling the portal.",
+    "headline": "Page headline",
+    "subheadline": "Short description",
+    "greeting": "Chat opening greeting",
+    "contact_email": "Contact email (shown when the portal is off)",
+    "save": "Save configuration"
   }
 }

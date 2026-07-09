@@ -33,7 +33,8 @@
       "github": "GitHub",
       "integrations": "Tích hợp",
       "labs": "Thử nghiệm",
-      "members": "Thành viên"
+      "members": "Thành viên",
+      "portal": "Portal khách hàng"
     }
   },
   "account": {
@@ -447,5 +448,19 @@
         "description": "Tạo và xử lý issue"
       }
     }
+  },
+  "portal": {
+    "title": "Portal khách hàng",
+    "description": "Trang tư vấn công khai: khách mô tả phần mềm họ cần, agent khảo sát và tạo dự án sau khi khách xác nhận.",
+    "owner_only": "Chỉ chủ sở hữu không gian làm việc mới cấu hình được portal.",
+    "enable": "Bật portal",
+    "agent": "Agent tư vấn",
+    "agent_placeholder": "Chọn agent",
+    "agent_required": "Cần chọn agent tư vấn trước khi bật portal.",
+    "headline": "Tiêu đề trang",
+    "subheadline": "Mô tả ngắn",
+    "greeting": "Lời chào mở đầu chat",
+    "contact_email": "Email liên hệ (hiện khi portal tắt)",
+    "save": "Lưu cấu hình"
   }
 }
