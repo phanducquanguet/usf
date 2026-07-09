@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "headline": "Software built exactly the way you want",
+    "subheadline": "Describe what you need to our AI assistant. After the consultation, the UNICOM team receives a complete requirements brief and gets back to you right away.",
+    "cta": "Start a consultation",
+    "login": "Sign in"
+  },
+  "features": {
+    "title": "How we work",
+    "items": [
+      { "title": "Tell the AI your idea", "body": "The assistant asks what matters: your business, features, users, integrations." },
+      { "title": "Approve the brief", "body": "You get a clear project summary and confirm it before anything is sent." },
+      { "title": "Our team picks it up", "body": "The project lands directly in our management system — no request gets lost." }
+    ]
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": [
+      { "q": "Does the consultation cost anything?", "a": "No. The AI survey session is completely free." },
+      { "q": "What should I prepare?", "a": "Just describe your problem in your own words — the assistant asks the rest." },
+      { "q": "What happens after I confirm?", "a": "Your request becomes a project in our system; the team contacts you at the details you left." }
+    ]
+  },
+  "chat": {
+    "title": "Consulting assistant",
+    "placeholder": "Describe the software you want to build…",
+    "thinking": "The assistant is writing a reply…",
+    "wait_note": "Please wait for the assistant to finish before sending the next message.",
+    "agent_unavailable": "The assistant is busy right now — please try again in a few minutes."
+  },
+  "confirm": {
+    "title": "Confirm the summary and leave your contact details",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone number (optional)",
+    "submit": "Confirm & submit request"
+  },
+  "thankyou": {
+    "title": "Thank you!",
+    "body": "Your request has been recorded as a project. We will contact you shortly."
+  },
+  "disabled": {
+    "title": "The consultation portal is temporarily closed",
+    "body": "Please reach us by email."
+  },
+  "footer": {
+    "copyright": "© UNICOM. Custom software, on request."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "headline": "Xây phần mềm theo đúng ý bạn",
+    "subheadline": "Mô tả nhu cầu của bạn với trợ lý AI của chúng tôi. Sau buổi tư vấn, đội ngũ UNICOM sẽ nhận được bản yêu cầu đầy đủ và liên hệ lại ngay.",
+    "cta": "Bắt đầu tư vấn",
+    "login": "Đăng nhập"
+  },
+  "features": {
+    "title": "Cách chúng tôi làm việc",
+    "items": [
+      { "title": "Kể cho AI nghe ý tưởng", "body": "Trợ lý AI hỏi đúng trọng tâm: nghiệp vụ, tính năng, người dùng, tích hợp." },
+      { "title": "Chốt bản yêu cầu", "body": "Bạn nhận bản tóm tắt dự án rõ ràng và xác nhận trước khi gửi." },
+      { "title": "Đội ngũ tiếp nhận ngay", "body": "Dự án được tạo thẳng vào hệ thống quản lý của chúng tôi, không thất lạc yêu cầu." }
+    ]
+  },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "items": [
+      { "q": "Tư vấn có mất phí không?", "a": "Không. Buổi khảo sát với trợ lý AI hoàn toàn miễn phí." },
+      { "q": "Tôi cần chuẩn bị gì?", "a": "Chỉ cần mô tả bài toán của bạn bằng lời — trợ lý sẽ hỏi phần còn lại." },
+      { "q": "Sau khi xác nhận thì sao?", "a": "Yêu cầu của bạn thành một dự án trong hệ thống; đội ngũ sẽ liên hệ qua thông tin bạn để lại." }
+    ]
+  },
+  "chat": {
+    "title": "Trợ lý tư vấn",
+    "placeholder": "Mô tả phần mềm bạn muốn xây dựng…",
+    "thinking": "Trợ lý đang soạn trả lời…",
+    "wait_note": "Vui lòng đợi trợ lý trả lời xong rồi gửi tin tiếp theo.",
+    "agent_unavailable": "Trợ lý đang bận, bạn vui lòng thử lại sau ít phút."
+  },
+  "confirm": {
+    "title": "Xác nhận bản tóm tắt và để lại thông tin liên hệ",
+    "name": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại (không bắt buộc)",
+    "submit": "Xác nhận & gửi yêu cầu"
+  },
+  "thankyou": {
+    "title": "Cảm ơn bạn!",
+    "body": "Yêu cầu của bạn đã được ghi nhận thành dự án. Chúng tôi sẽ liên hệ trong thời gian sớm nhất."
+  },
+  "disabled": {
+    "title": "Portal tư vấn đang tạm đóng",
+    "body": "Vui lòng liên hệ chúng tôi qua email."
+  },
+  "footer": {
+    "copyright": "© UNICOM. Đặt làm phần mềm theo yêu cầu."
+  }
+}
