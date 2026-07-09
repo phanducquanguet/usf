@@ -13,5 +13,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 export default function PortalLayout({ children }: { children: ReactNode }) {
-  return <div className={beVietnamPro.variable}>{children}</div>;
+  // `portal-document-scroll` marks this route tree as a document-flow page:
+  // app/custom.css uses it to lift the root layout's body scroll lock.
+  return <div className={`${beVietnamPro.variable} portal-document-scroll`}>{children}</div>;
 }

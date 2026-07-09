@@ -53,6 +53,11 @@ const nextConfig: NextConfig = {
           destination: `${remoteApiUrl}/api/:path*`,
         },
         {
+          // Public customer portal (guest endpoints, no /api prefix).
+          source: "/portal/:path*",
+          destination: `${remoteApiUrl}/portal/:path*`,
+        },
+        {
           source: "/ws",
           destination: `${remoteApiUrl}/ws`,
         },

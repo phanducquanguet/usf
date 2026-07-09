@@ -44,6 +44,16 @@
     --scrollbar-track: transparent;
 }
 
+/* The root layout locks body scrolling (`h-full overflow-hidden`) for the
+ * dashboard app shell, where each pane scrolls internally. The portal route
+ * tree is a document-flow marketing page: restore native window scrolling so
+ * wheel/trackpad/keyboard scroll works and window.scrollY-driven features
+ * (ScrollProgress, back-to-top) keep working. `visible` (not `auto`) so the
+ * overflow propagates to the viewport instead of making <body> the scroller. */
+body:has(.portal-document-scroll) {
+    overflow: visible;
+}
+
 /* =============================================================================
  * Customer portal landing (/)
  * The portal landing is intentionally always-dark with a navy tint, styled
