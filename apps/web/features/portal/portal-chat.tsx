@@ -24,9 +24,9 @@ export function PortalChat({
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { hasSession, starting, startSession } = chat;
+  const { hasSession, starting, startFailed, startSession } = chat;
   useEffect(() => {
-    if (!hasSession && !starting) startSession();
+    if (!hasSession && !starting && !startFailed) startSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasSession]);
 
@@ -40,6 +40,35 @@ export function PortalChat({
     chat.send(content);
     setDraft("");
   };
+
+  // No session yet: show an explicit connecting / failed state instead of an
+  // empty panel with a live composer (sending without a token is impossible).
+  if (!hasSession) {
+    return (
+      <PortalShell onClose={onClose} title={agentName ?? t(($) => $.chat.title)}>
+        <div
+          className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center"
+          role="status"
+        >
+          {startFailed ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {t(($) => $.chat.start_failed)}
+              </p>
+              <Button variant="outline" onClick={startSession}>
+                {t(($) => $.chat.retry)}
+              </Button>
+            </>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {t(($) => $.chat.connecting)}
+            </div>
+          )}
+        </div>
+      </PortalShell>
+    );
+  }
 
   if (chat.status === "confirmed") {
     return (
@@ -57,7 +86,7 @@ export function PortalChat({
   return (
     <PortalShell onClose={onClose} title={agentName ?? t(($) => $.chat.title)}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
-        {greeting ? <AgentBubble content={greeting} /> : null}
+        <AgentBubble content={greeting || t(($) => $.chat.greeting)} />
         {chat.messages.map((m) =>
           m.role === "user" ? (
             <UserBubble key={m.id} content={m.content} />
@@ -128,6 +157,7 @@ export function PortalChat({
           />
           <Button
             size="icon"
+            aria-label={t(($) => $.chat.send)}
             onClick={submit}
             disabled={chat.pending || chat.sendBusy || !draft.trim()}
           >
@@ -153,14 +183,34 @@ function PortalShell({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const { t } = useT("portal");
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      className="fixed inset-0 z-50 flex flex-col bg-background pb-[env(safe-area-inset-bottom)]"
+    >
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5" />
           <span className="font-medium">{title}</span>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t(($) => $.chat.close)}
+          onClick={onClose}
+        >
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -170,10 +220,12 @@ function PortalShell({
 }
 
 function UserBubble({ content, pending }: { content: string; pending?: boolean }) {
+  // Brand-tinted, matching the landing hero's ChatPreview bubbles so the
+  // product delivers exactly what the preview promises.
   return (
     <div className="flex justify-end">
       <div
-        className={`max-w-[80%] rounded-2xl bg-muted px-3.5 py-2 text-sm ${pending ? "opacity-60" : ""}`}
+        className={`max-w-[80%] rounded-2xl rounded-br-sm bg-brand/15 px-3.5 py-2 text-sm text-foreground ${pending ? "opacity-60" : ""}`}
       >
         {content}
       </div>

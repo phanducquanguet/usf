@@ -1,32 +1,212 @@
 {
+  "nav": {
+    "solutions": "Giải pháp",
+    "services": "Dịch vụ",
+    "process": "Quy trình",
+    "faq": "FAQ",
+    "menu": "Menu"
+  },
   "hero": {
-    "headline": "Xây phần mềm theo đúng ý bạn",
-    "subheadline": "Mô tả nhu cầu của bạn với trợ lý AI của chúng tôi. Sau buổi tư vấn, đội ngũ UNICOM sẽ nhận được bản yêu cầu đầy đủ và liên hệ lại ngay.",
-    "cta": "Bắt đầu tư vấn",
+    "badge": "AI-Powered Software Production",
+    "headline": "AI Software Factory",
+    "tagline": "Phần mềm may đo cho SME – chi phí & vận hành như SaaS",
+    "subs": [
+      "Không lệ thuộc nền tảng SaaS cứng nhắc.",
+      "Hệ thống riêng, triển khai trong 7 ngày, tích hợp AI thực dụng.",
+      "Không cần đội IT nội bộ – vận hành 24/7."
+    ],
+    "cta": "Nhận tư vấn miễn phí",
+    "cta_secondary": "Xem giải pháp",
     "login": "Đăng nhập"
   },
-  "features": {
-    "title": "Cách chúng tôi làm việc",
+  "preview": {
+    "title": "Trợ lý UNICOM",
+    "status": "Trực tuyến",
+    "m1": "Xin chào! Bạn đang cần xây dựng phần mềm gì?",
+    "m2": "Mình cần hệ thống quản lý kho cho chuỗi 5 cửa hàng.",
+    "m3": "Tuyệt! Cho mình hỏi thêm về quy trình nhập – xuất hàng hiện tại của bạn nhé…",
+    "outcome_label": "Dự án được tạo trong hệ thống UNICOM",
+    "outcome_title": "Quản lý kho — chuỗi 5 cửa hàng",
+    "outcome_meta": "UNI-108 · Đã tiếp nhận"
+  },
+  "problem": {
+    "title": "SME đang gặp những vấn đề gì?",
     "items": [
-      { "title": "Kể cho AI nghe ý tưởng", "body": "Trợ lý AI hỏi đúng trọng tâm: nghiệp vụ, tính năng, người dùng, tích hợp." },
-      { "title": "Chốt bản yêu cầu", "body": "Bạn nhận bản tóm tắt dự án rõ ràng và xác nhận trước khi gửi." },
-      { "title": "Đội ngũ tiếp nhận ngay", "body": "Dự án được tạo thẳng vào hệ thống quản lý của chúng tôi, không thất lạc yêu cầu." }
+      {
+        "title": "Quản lý bằng Excel rời rạc",
+        "body": "Dữ liệu phân tán, khó tổng hợp và dễ sai sót khi vận hành thủ công."
+      },
+      {
+        "title": "Lệ thuộc SaaS cứng nhắc",
+        "body": "Nền tảng SaaS không linh hoạt theo đặc thù doanh nghiệp, không sở hữu dữ liệu."
+      },
+      {
+        "title": "Không có đội IT nội bộ",
+        "body": "Không đủ nguồn lực để xây dựng và duy trì hệ thống công nghệ riêng."
+      },
+      {
+        "title": "AI chỉ dừng ở mức thử nghiệm",
+        "body": "Chưa biết cách tích hợp AI vào phần mềm nội bộ để tạo giá trị thực."
+      }
+    ]
+  },
+  "solution": {
+    "title": "Mô hình 3 tầng của AI Software Factory",
+    "layers": [
+      {
+        "label": "Layer 1",
+        "title": "Digital & AI Consulting",
+        "body": "Tư vấn chuyển đổi số & AI thực dụng – phân tích quy trình, đề xuất giải pháp dùng được ngay."
+      },
+      {
+        "label": "Layer 2",
+        "title": "Rapid Custom Software",
+        "body": "Xây dựng phần mềm may đo theo đặc thù doanh nghiệp – chi phí tối ưu, vận hành như SaaS."
+      },
+      {
+        "label": "Layer 3",
+        "title": "AI Integration & Optimization",
+        "body": "Tích hợp AI trực tiếp vào hệ thống nội bộ khách hàng – tự động hóa & nâng cao hiệu suất."
+      }
+    ]
+  },
+  "advantages": {
+    "title": "Lợi thế cạnh tranh",
+    "items": [
+      "Bàn giao dưới 7 ngày",
+      "Hệ thống riêng, chi phí như SaaS",
+      "Không cần đội IT nội bộ",
+      "Hỗ trợ vận hành 24/7"
+    ]
+  },
+  "services": {
+    "title": "Bắt đầu theo cách phù hợp với bạn",
+    "items": [
+      {
+        "title": "Tư vấn chuyển đổi số & AI",
+        "body": "Chuyên gia phân tích quy trình, đề xuất giải pháp AI thực dụng tích hợp vào hệ thống nội bộ.",
+        "cta": "Đặt lịch tư vấn"
+      },
+      {
+        "title": "Phần mềm may đo tinh gọn",
+        "body": "Hệ thống riêng theo đặc thù doanh nghiệp – không lệ thuộc SaaS, chi phí tối ưu.",
+        "cta": "Tìm hiểu thêm"
+      },
+      {
+        "title": "Xem demo & dùng thử",
+        "body": "Trải nghiệm trực tiếp hệ thống trước khi quyết định.",
+        "cta": "Xem demo"
+      },
+      {
+        "title": "Tích hợp AI vào hệ thống có sẵn",
+        "body": "Đưa AI vào phần mềm nội bộ đang vận hành – dùng được, đo lường được.",
+        "cta": "Gửi yêu cầu"
+      }
+    ]
+  },
+  "target_fit": {
+    "title": "Phù hợp với doanh nghiệp",
+    "items": [
+      "10–200 nhân sự",
+      "Đang vận hành thủ công hoặc Excel",
+      "Muốn có phần mềm riêng, không lệ thuộc SaaS",
+      "Ngân sách CNTT giới hạn",
+      "Muốn tích hợp AI vào vận hành thực tế"
+    ]
+  },
+  "pricing": {
+    "title": "Mô hình hợp tác & chi phí",
+    "items": [
+      {
+        "title": "Implementation Fee",
+        "body": "Phí triển khai ban đầu cho mỗi dự án."
+      },
+      {
+        "title": "Managed Operations",
+        "body": "Phí vận hành hàng tháng – chi phí như SaaS, hệ thống riêng."
+      },
+      {
+        "title": "AI Upgrade Packages",
+        "body": "Gói tích hợp AI thực dụng theo nhu cầu mở rộng."
+      },
+      {
+        "title": "Support Contracts",
+        "body": "Hợp đồng hỗ trợ vận hành dài hạn."
+      }
+    ]
+  },
+  "process": {
+    "title": "Quy trình triển khai",
+    "highlight": "Dưới 7 ngày cho gói tiêu chuẩn",
+    "steps": [
+      {
+        "title": "Khảo sát & phân tích",
+        "body": "Đánh giá quy trình và nhu cầu hiện tại."
+      },
+      {
+        "title": "Thiết kế giải pháp",
+        "body": "Thiết kế hệ thống may đo phù hợp đặc thù."
+      },
+      {
+        "title": "Xây dựng & tùy chỉnh",
+        "body": "Phát triển phần mềm riêng, tích hợp AI."
+      },
+      {
+        "title": "Bàn giao & vận hành",
+        "body": "Đào tạo, bàn giao và hỗ trợ vận hành liên tục."
+      }
+    ]
+  },
+  "consult": {
+    "title": "Bắt đầu chỉ bằng một cuộc trò chuyện",
+    "items": [
+      {
+        "title": "Kể cho AI nghe ý tưởng",
+        "body": "Trợ lý AI hỏi đúng trọng tâm: nghiệp vụ, tính năng, người dùng, tích hợp."
+      },
+      {
+        "title": "Chốt bản yêu cầu",
+        "body": "Bạn nhận bản tóm tắt dự án rõ ràng và xác nhận trước khi gửi."
+      },
+      {
+        "title": "Đội ngũ tiếp nhận ngay",
+        "body": "Dự án được tạo thẳng vào hệ thống quản lý của chúng tôi, không thất lạc yêu cầu."
+      }
     ]
   },
   "faq": {
     "title": "Câu hỏi thường gặp",
     "items": [
-      { "q": "Tư vấn có mất phí không?", "a": "Không. Buổi khảo sát với trợ lý AI hoàn toàn miễn phí." },
-      { "q": "Tôi cần chuẩn bị gì?", "a": "Chỉ cần mô tả bài toán của bạn bằng lời — trợ lý sẽ hỏi phần còn lại." },
-      { "q": "Sau khi xác nhận thì sao?", "a": "Yêu cầu của bạn thành một dự án trong hệ thống; đội ngũ sẽ liên hệ qua thông tin bạn để lại." }
+      {
+        "q": "Tư vấn có mất phí không?",
+        "a": "Không. Buổi khảo sát với trợ lý AI hoàn toàn miễn phí."
+      },
+      {
+        "q": "Tôi cần chuẩn bị gì?",
+        "a": "Chỉ cần mô tả bài toán của bạn bằng lời — trợ lý sẽ hỏi phần còn lại."
+      },
+      {
+        "q": "Sau khi xác nhận thì sao?",
+        "a": "Yêu cầu của bạn thành một dự án trong hệ thống; đội ngũ sẽ liên hệ qua thông tin bạn để lại."
+      }
     ]
+  },
+  "cta_section": {
+    "title": "Bắt đầu chuyển đổi số & AI cho doanh nghiệp của bạn ngay hôm nay",
+    "body": "Dành vài phút mô tả bài toán của bạn — trợ lý AI sẽ hỏi đúng trọng tâm và lo phần còn lại."
   },
   "chat": {
     "title": "Trợ lý tư vấn",
+    "greeting": "Xin chào! Hãy kể cho mình nghe về phần mềm bạn cần — mình sẽ hỏi đúng trọng tâm.",
     "placeholder": "Mô tả phần mềm bạn muốn xây dựng…",
     "thinking": "Trợ lý đang soạn trả lời…",
     "wait_note": "Vui lòng đợi trợ lý trả lời xong rồi gửi tin tiếp theo.",
-    "agent_unavailable": "Trợ lý đang bận, bạn vui lòng thử lại sau ít phút."
+    "agent_unavailable": "Trợ lý đang bận, bạn vui lòng thử lại sau ít phút.",
+    "connecting": "Đang kết nối với trợ lý…",
+    "start_failed": "Chưa kết nối được cuộc trò chuyện. Bạn kiểm tra mạng và thử lại nhé.",
+    "retry": "Thử lại",
+    "send": "Gửi tin nhắn",
+    "close": "Đóng cửa sổ tư vấn"
   },
   "confirm": {
     "title": "Xác nhận bản tóm tắt và để lại thông tin liên hệ",
@@ -41,9 +221,11 @@
   },
   "disabled": {
     "title": "Portal tư vấn đang tạm đóng",
-    "body": "Vui lòng liên hệ chúng tôi qua email."
+    "body": "Vui lòng liên hệ chúng tôi qua email.",
+    "body_generic": "Bạn vui lòng quay lại sau ít lâu nhé."
   },
   "footer": {
+    "tagline": "Phần mềm may đo & AI thực dụng cho doanh nghiệp SME",
     "copyright": "© UNICOM. Đặt làm phần mềm theo yêu cầu."
   }
 }

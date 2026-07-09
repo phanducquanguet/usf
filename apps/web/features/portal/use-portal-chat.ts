@@ -68,6 +68,7 @@ export function usePortalChat() {
   }
 
   const send = useMutation({
+    // Callers are gated on hasSession, so token is non-null here.
     mutationFn: (content: string) => api.sendPortalMessage(token as string, content),
     onMutate: (content) => {
       setOutgoing(content);
@@ -102,15 +103,20 @@ export function usePortalChat() {
     hasSession: token != null,
     startSession: () => start.mutate(),
     starting: start.isPending,
+    startFailed: start.isError,
     messages,
     outgoing,
     pending,
     status,
     summaryReady,
     agentUnavailable,
-    send: (content: string) => send.mutate(content),
+    send: (content: string) => {
+      if (token != null) send.mutate(content);
+    },
     sendBusy: send.isPending,
-    confirm: (contact: PortalContact) => confirm.mutate(contact),
+    confirm: (contact: PortalContact) => {
+      if (token != null) confirm.mutate(contact);
+    },
     confirming: confirm.isPending,
   };
 }

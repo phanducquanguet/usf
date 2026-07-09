@@ -1,32 +1,212 @@
 {
+  "nav": {
+    "solutions": "Solutions",
+    "services": "Services",
+    "process": "Process",
+    "faq": "FAQ",
+    "menu": "Menu"
+  },
   "hero": {
-    "headline": "Software built exactly the way you want",
-    "subheadline": "Describe what you need to our AI assistant. After the consultation, the UNICOM team receives a complete requirements brief and gets back to you right away.",
-    "cta": "Start a consultation",
+    "badge": "AI-Powered Software Production",
+    "headline": "AI Software Factory",
+    "tagline": "Custom-built software for SMEs – SaaS cost, your own system",
+    "subs": [
+      "Break free from rigid SaaS platforms.",
+      "Tailored systems deployed in 7 days with practical AI built in.",
+      "No in-house IT team needed – 24/7 operations."
+    ],
+    "cta": "Request free consultation",
+    "cta_secondary": "View solutions",
     "login": "Sign in"
   },
-  "features": {
-    "title": "How we work",
+  "preview": {
+    "title": "UNICOM assistant",
+    "status": "Online",
+    "m1": "Hi! What software do you need to build?",
+    "m2": "I need an inventory system for a 5-store retail chain.",
+    "m3": "Great! Tell me a bit about your current inbound and outbound process…",
+    "outcome_label": "Project created in the UNICOM system",
+    "outcome_title": "Inventory management — 5-store chain",
+    "outcome_meta": "UNI-108 · In intake"
+  },
+  "problem": {
+    "title": "Challenges SMEs face today",
     "items": [
-      { "title": "Tell the AI your idea", "body": "The assistant asks what matters: your business, features, users, integrations." },
-      { "title": "Approve the brief", "body": "You get a clear project summary and confirm it before anything is sent." },
-      { "title": "Our team picks it up", "body": "The project lands directly in our management system — no request gets lost." }
+      {
+        "title": "Fragmented Excel management",
+        "body": "Scattered data that's hard to consolidate and prone to manual errors."
+      },
+      {
+        "title": "Locked into rigid SaaS",
+        "body": "Inflexible SaaS platforms that don't fit your business – and you don't own your data."
+      },
+      {
+        "title": "No in-house IT team",
+        "body": "Insufficient resources to build and maintain your own technology systems."
+      },
+      {
+        "title": "AI stuck at experimental stage",
+        "body": "Unable to integrate AI into internal software to create real business value."
+      }
+    ]
+  },
+  "solution": {
+    "title": "The 3-layer AI Software Factory model",
+    "layers": [
+      {
+        "label": "Layer 1",
+        "title": "Digital & AI Consulting",
+        "body": "Practical digital transformation & AI advisory – analyze processes, deliver actionable solutions."
+      },
+      {
+        "label": "Layer 2",
+        "title": "Rapid Custom Software",
+        "body": "Tailored software built for your business – optimized cost, operated like SaaS."
+      },
+      {
+        "label": "Layer 3",
+        "title": "AI Integration & Optimization",
+        "body": "Integrate AI directly into your internal systems – automate and boost performance."
+      }
+    ]
+  },
+  "advantages": {
+    "title": "Competitive advantages",
+    "items": [
+      "Delivery in under 7 days",
+      "Your own system at SaaS-level cost",
+      "No in-house IT team needed",
+      "24/7 operational support"
+    ]
+  },
+  "services": {
+    "title": "Start your way",
+    "items": [
+      {
+        "title": "Digital & AI consulting",
+        "body": "Expert process analysis with practical AI solutions integrated into your internal systems.",
+        "cta": "Book consultation"
+      },
+      {
+        "title": "Lean custom software",
+        "body": "Your own tailored system – no SaaS lock-in, optimized cost.",
+        "cta": "Learn more"
+      },
+      {
+        "title": "Demo & trial",
+        "body": "Experience the system firsthand before committing.",
+        "cta": "View demo"
+      },
+      {
+        "title": "AI for your existing systems",
+        "body": "Embed practical AI into your current internal software – measurable, usable results.",
+        "cta": "Submit request"
+      }
+    ]
+  },
+  "target_fit": {
+    "title": "Ideal for businesses with",
+    "items": [
+      "10–200 employees",
+      "Manual or Excel-based operations",
+      "Want their own software, not rigid SaaS",
+      "Limited IT budget",
+      "Want practical AI integrated into operations"
+    ]
+  },
+  "pricing": {
+    "title": "Engagement & pricing model",
+    "items": [
+      {
+        "title": "Implementation Fee",
+        "body": "One-time project deployment fee."
+      },
+      {
+        "title": "Managed Operations",
+        "body": "Monthly managed ops – SaaS-level cost, your own system."
+      },
+      {
+        "title": "AI Upgrade Packages",
+        "body": "Practical AI integration packages on demand."
+      },
+      {
+        "title": "Support Contracts",
+        "body": "Long-term operational support agreements."
+      }
+    ]
+  },
+  "process": {
+    "title": "Implementation process",
+    "highlight": "Under 7 days for standard packages",
+    "steps": [
+      {
+        "title": "Survey & analysis",
+        "body": "Evaluate current processes and requirements."
+      },
+      {
+        "title": "Solution design",
+        "body": "Design a tailored system for your business."
+      },
+      {
+        "title": "Build & customize",
+        "body": "Develop your own software with AI integration."
+      },
+      {
+        "title": "Deliver & operate",
+        "body": "Training, handover, and continuous support."
+      }
+    ]
+  },
+  "consult": {
+    "title": "Start with a single conversation",
+    "items": [
+      {
+        "title": "Tell the AI your idea",
+        "body": "The assistant asks what matters: your business, features, users, integrations."
+      },
+      {
+        "title": "Approve the brief",
+        "body": "You get a clear project summary and confirm it before anything is sent."
+      },
+      {
+        "title": "Our team picks it up",
+        "body": "The project lands directly in our management system — no request gets lost."
+      }
     ]
   },
   "faq": {
     "title": "Frequently asked questions",
     "items": [
-      { "q": "Does the consultation cost anything?", "a": "No. The AI survey session is completely free." },
-      { "q": "What should I prepare?", "a": "Just describe your problem in your own words — the assistant asks the rest." },
-      { "q": "What happens after I confirm?", "a": "Your request becomes a project in our system; the team contacts you at the details you left." }
+      {
+        "q": "Does the consultation cost anything?",
+        "a": "No. The AI survey session is completely free."
+      },
+      {
+        "q": "What should I prepare?",
+        "a": "Just describe your problem in your own words — the assistant asks the rest."
+      },
+      {
+        "q": "What happens after I confirm?",
+        "a": "Your request becomes a project in our system; the team contacts you at the details you left."
+      }
     ]
+  },
+  "cta_section": {
+    "title": "Start your digital & AI transformation today",
+    "body": "Spend a few minutes describing your problem — the AI assistant asks the right questions and handles the rest."
   },
   "chat": {
     "title": "Consulting assistant",
+    "greeting": "Hi! Tell me about the software you need — I'll ask the right questions.",
     "placeholder": "Describe the software you want to build…",
     "thinking": "The assistant is writing a reply…",
     "wait_note": "Please wait for the assistant to finish before sending the next message.",
-    "agent_unavailable": "The assistant is busy right now — please try again in a few minutes."
+    "agent_unavailable": "The assistant is busy right now — please try again in a few minutes.",
+    "connecting": "Connecting you with the assistant…",
+    "start_failed": "We couldn't start the conversation. Please check your connection and try again.",
+    "retry": "Try again",
+    "send": "Send message",
+    "close": "Close chat"
   },
   "confirm": {
     "title": "Confirm the summary and leave your contact details",
@@ -41,9 +221,11 @@
   },
   "disabled": {
     "title": "The consultation portal is temporarily closed",
-    "body": "Please reach us by email."
+    "body": "Please reach us by email.",
+    "body_generic": "Please check back a little later."
   },
   "footer": {
+    "tagline": "Custom software & practical AI for SME businesses",
     "copyright": "© UNICOM. Custom software, on request."
   }
 }

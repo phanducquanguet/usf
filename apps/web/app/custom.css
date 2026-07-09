@@ -43,3 +43,127 @@
     --scrollbar-thumb-hover: oklch(0 0 0 / 18%);
     --scrollbar-track: transparent;
 }
+
+/* =============================================================================
+ * Customer portal landing (/)
+ * The portal landing is intentionally always-dark with a navy tint, styled
+ * around the UNICOM brand gradient (blue → cyan). It composes with the `dark`
+ * class on the same element (which supplies the standard dark tokens and
+ * flips `dark:` variants for nested shared components like the chat); the
+ * overrides below then re-tint surfaces toward navy and point primary/ring
+ * at the brand blue. custom.css loads after tokens.css, so these win.
+ * ============================================================================= */
+.portal-dark,
+.portal-dark * {
+    color-scheme: dark;
+}
+.portal-dark {
+    --background: oklch(0.17 0.015 262);
+    --foreground: oklch(0.93 0.005 262);
+    --card: oklch(0.2 0.018 262);
+    --card-foreground: oklch(0.93 0.005 262);
+    --popover: oklch(0.21 0.018 262);
+    --popover-foreground: oklch(0.93 0.005 262);
+    --secondary: oklch(0.25 0.02 262);
+    --secondary-foreground: oklch(0.93 0.005 262);
+    --muted: oklch(0.26 0.02 262);
+    --muted-foreground: oklch(0.7 0.015 258);
+    --border: oklch(0.92 0.05 258 / 14%);
+    --input: oklch(0.92 0.05 258 / 18%);
+    --primary: var(--brand);
+    /* Dark ink instead of white on the brand blue: white measures 3.11:1
+     * (fails AA); the page's navy ink measures 5.88:1. */
+    --primary-foreground: oklch(0.17 0.015 262);
+    --ring: var(--brand);
+}
+
+/* The landing sets Be Vietnam Pro (loaded by app/(portal)/layout.tsx) as its
+ * only family — display and body. Falls back to the app sans stack. */
+.portal-dark {
+    font-family: var(--font-portal-sans, var(--font-sans));
+}
+.portal-dark :is(h1, h2) {
+    letter-spacing: -0.02em;
+}
+
+/* Subtle blueprint grid behind the hero, drawn in the brand hue and faded
+ * out radially so it doesn't compete with the content. */
+.portal-hero-grid {
+    background-image:
+        linear-gradient(color-mix(in oklab, var(--brand-start) 6%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in oklab, var(--brand-start) 6%, transparent) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 40%, transparent 100%);
+}
+
+/* Hairline gradient border via a masked pseudo-element. Reserved for the
+ * hero chat preview — the single element that carries the brand gradient. */
+.portal-gradient-border {
+    position: relative;
+}
+.portal-gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+        135deg,
+        color-mix(in oklab, var(--brand-start) 45%, transparent),
+        color-mix(in oklab, var(--brand-start) 12%, transparent) 40%,
+        color-mix(in oklab, var(--brand-end) 45%, transparent)
+    );
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Slow float for the hero chat preview. */
+@keyframes portal-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+.portal-float {
+    animation: portal-float 7s ease-in-out infinite;
+}
+
+.portal-glow {
+    box-shadow: 0 0 40px -10px color-mix(in oklab, var(--brand-start) 40%, transparent);
+}
+
+/* Scroll-reveal. Server markup ships without these classes (fully visible);
+ * after hydration, below-fold elements get .portal-reveal (shifted +
+ * transparent) and an IntersectionObserver adds .portal-reveal-visible. */
+.portal-reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+        opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.portal-reveal-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce), print {
+    .portal-reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+    .portal-float {
+        animation: none;
+    }
+}
