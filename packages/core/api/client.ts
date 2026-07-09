@@ -146,6 +146,25 @@ import { createRequestId } from "../utils";
 import { getCurrentSlug } from "../platform/workspace-storage";
 import { parseWithFallback } from "./schema";
 import {
+  EMPTY_PORTAL_ADMIN_CONFIG,
+  EMPTY_PORTAL_MESSAGES_PAGE,
+  EMPTY_PORTAL_PUBLIC_CONFIG,
+  portalAdminConfigSchema,
+  portalGuestSessionSchema,
+  portalMessagesPageSchema,
+  portalPublicConfigSchema,
+  portalSendMessageResponseSchema,
+} from "./portal-schemas";
+import type {
+  PortalAdminConfig,
+  PortalChatMessage,
+  PortalContact,
+  PortalGuestSession,
+  PortalMessagesPage,
+  PortalPublicConfig,
+  UpdatePortalAdminConfigRequest,
+} from "../types/portal";
+import {
   AgentTemplateSchema,
   AgentTemplateSummaryListSchema,
   AttachmentResponseSchema,
@@ -1828,6 +1847,83 @@ export class ApiClient {
 
   async getPendingChatTask(sessionId: string): Promise<ChatPendingTask> {
     return this.fetch(`/api/chat/sessions/${sessionId}/pending-task`);
+  }
+
+  // --- Public customer portal (guest endpoints; no auth) ---
+
+  async getPortalPublicConfig(): Promise<PortalPublicConfig> {
+    const data = await this.fetch<unknown>("/portal/config");
+    const parsed = parseWithFallback(data, portalPublicConfigSchema, EMPTY_PORTAL_PUBLIC_CONFIG, {
+      endpoint: "/portal/config",
+    });
+    return { ...parsed, enabled: parsed.enabled === true };
+  }
+
+  async createPortalGuestSession(): Promise<PortalGuestSession> {
+    const data = await this.fetch<unknown>("/portal/sessions", { method: "POST" });
+    return parseWithFallback(
+      data,
+      portalGuestSessionSchema,
+      { token: "" },
+      { endpoint: "/portal/sessions" },
+    );
+  }
+
+  async sendPortalMessage(token: string, content: string): Promise<PortalChatMessage | null> {
+    const data = await this.fetch<unknown>(
+      `/portal/sessions/${encodeURIComponent(token)}/messages`,
+      { method: "POST", body: JSON.stringify({ content }) },
+    );
+    const parsed = parseWithFallback(
+      data,
+      portalSendMessageResponseSchema,
+      { message: undefined },
+      { endpoint: "/portal/sessions/:token/messages" },
+    );
+    return (parsed.message as PortalChatMessage | undefined) ?? null;
+  }
+
+  async listPortalMessages(token: string, after?: string): Promise<PortalMessagesPage> {
+    const qs = after ? `?after=${encodeURIComponent(after)}` : "";
+    const data = await this.fetch<unknown>(
+      `/portal/sessions/${encodeURIComponent(token)}/messages${qs}`,
+    );
+    const parsed = parseWithFallback(data, portalMessagesPageSchema, EMPTY_PORTAL_MESSAGES_PAGE, {
+      endpoint: "/portal/sessions/:token/messages",
+    });
+    return {
+      messages: (parsed.messages ?? []) as PortalChatMessage[],
+      pending: parsed.pending === true,
+      status: parsed.status ?? "active",
+    };
+  }
+
+  async confirmPortalSession(token: string, contact: PortalContact): Promise<void> {
+    await this.fetch(`/portal/sessions/${encodeURIComponent(token)}/confirm`, {
+      method: "POST",
+      body: JSON.stringify(contact),
+    });
+  }
+
+  // --- Portal admin (owner-only) ---
+
+  async getPortalAdminConfig(): Promise<PortalAdminConfig> {
+    const data = await this.fetch<unknown>("/api/portal/config");
+    const parsed = parseWithFallback(data, portalAdminConfigSchema, EMPTY_PORTAL_ADMIN_CONFIG, {
+      endpoint: "/api/portal/config",
+    });
+    return { ...parsed, enabled: parsed.enabled === true };
+  }
+
+  async updatePortalAdminConfig(req: UpdatePortalAdminConfigRequest): Promise<PortalAdminConfig> {
+    const data = await this.fetch<unknown>("/api/portal/config", {
+      method: "PUT",
+      body: JSON.stringify(req),
+    });
+    const parsed = parseWithFallback(data, portalAdminConfigSchema, EMPTY_PORTAL_ADMIN_CONFIG, {
+      endpoint: "/api/portal/config",
+    });
+    return { ...parsed, enabled: parsed.enabled === true };
   }
 
   async listPendingChatTasks(): Promise<PendingChatTasksResponse> {

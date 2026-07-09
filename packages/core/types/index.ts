@@ -197,3 +197,4 @@ export type {
   BillingCheckoutSessionStatus,
   CreateBillingPortalSessionResponse,
 } from "./billing";
+export type { PortalHeroContent, PortalPublicConfig, PortalGuestSession, PortalChatMessage, PortalMessagesPage, PortalContact, PortalAdminConfig, UpdatePortalAdminConfigRequest } from "./portal";
