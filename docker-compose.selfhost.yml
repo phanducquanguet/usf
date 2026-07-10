@@ -1,16 +1,17 @@
-# Self-hosting Docker Compose — starts PostgreSQL, backend, frontend, and docs.
+
+# Self-hosting Docker Compose ��� starts PostgreSQL, backend, frontend, and docs.
 #
 # Services bind to 127.0.0.1 only. For cross-machine or public access, front
 # them with a reverse proxy (Caddy / nginx / Cloudflare Tunnel) that terminates
 # TLS and forwards to 127.0.0.1:8080 (backend) and 127.0.0.1:3000 (frontend).
-# Do NOT change these bindings to 0.0.0.0 — Docker bypasses host firewalls
+# Do NOT change these bindings to 0.0.0.0 ��������� Docker bypasses host firewalls
 # (UFW/iptables) by default, so the raw ports would be exposed to the internet
 # with the default JWT_SECRET and Postgres credentials. See:
 #   apps/docs/content/docs/self-host-quickstart.mdx
 #
 # Usage:
 #   cp .env.example .env
-#   # Edit .env — change JWT_SECRET at minimum
+#   # Edit .env ��������� change JWT_SECRET at minimum
 #   docker compose -f docker-compose.selfhost.yml up -d
 #
 # Frontend: http://localhost:${FRONTEND_PORT:-3000}
@@ -27,6 +28,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-multica}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
     restart: unless-stopped
     healthcheck:
       test:
@@ -44,7 +47,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     volumes:
       - backend_uploads:/app/data/uploads
     environment:
@@ -107,7 +110,7 @@ services:
       # "127.0.0.1/32" when running behind a same-host reverse proxy.
       MULTICA_TRUSTED_PROXIES: ${MULTICA_TRUSTED_PROXIES:-}
       # Lark / Feishu bot integration. MULTICA_LARK_SECRET_KEY is the
-      # opt-in: unset = integration disabled. Mainland 飞书 and international
+      # opt-in: unset = integration disabled. Mainland ������������������ and international
       # Lark are auto-detected per installation and served side by side, so
       # the two base-URL knobs should normally stay EMPTY. They are optional
       # deployment-wide overrides that force every installation onto one host
@@ -132,7 +135,7 @@ services:
       - backend
       - docs
     ports:
-      - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
       HOSTNAME: "0.0.0.0"
     restart: unless-stopped
