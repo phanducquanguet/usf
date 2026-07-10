@@ -510,7 +510,8 @@ const callbackSuccessHTML = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Multica — Authenticated</title>
+<title>UNICOM — Authenticated</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233C83F6'/%3E%3Cstop offset='1' stop-color='%2306BBE0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='28' fill='url(%23b)'/%3E%3Cpath fill='%23fff' d='M50 16 C54.3 37.4 62.9 46 84 50 C62.9 54 54.3 62.6 50 84 C45.7 62.6 37.1 54 16 50 C37.1 46 45.7 37.4 50 16 Z'/%3E%3C/svg%3E">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   @media (prefers-color-scheme: dark) {
