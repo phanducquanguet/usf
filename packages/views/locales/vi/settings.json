@@ -460,6 +460,7 @@
     "agent_hint": "Agent sẽ trò chuyện và khảo sát nhu cầu của khách.",
     "agent_placeholder": "Chọn agent",
     "agent_required": "Cần chọn agent tư vấn trước khi bật portal.",
+    "agent_archived": "Agent này đã bị lưu trữ nên portal đang ngừng hoạt động. Hãy chọn agent khác và lưu lại.",
     "agents_empty": "Không gian làm việc chưa có agent nào.",
     "agents_empty_cta": "Tạo agent",
     "content_title": "Nội dung trang",

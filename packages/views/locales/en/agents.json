@@ -121,7 +121,8 @@
     "archive_dialog_title": "Archive \"{{name}}\"?",
     "archive_dialog_description": "The agent won't be assignable or mentionable, and any active tasks will be cancelled. All history is preserved and you can restore it later.",
     "archive_dialog_cancel": "Cancel",
-    "archive_dialog_confirm": "Archive"
+    "archive_dialog_confirm": "Archive",
+    "archive_dialog_portal_warning": "This agent is the customer portal's consulting agent — archiving it will take the portal offline."
   },
   "detail": {
     "back_to_agents": "Agents",
@@ -137,6 +138,7 @@
     "archive_dialog_description": "\"{{name}}\" will be archived. It won't be assignable or mentionable, but all history is preserved. You can restore it later.",
     "archive_dialog_cancel": "Cancel",
     "archive_dialog_confirm": "Archive",
+    "archive_dialog_portal_warning": "This agent is the customer portal's consulting agent — archiving it will take the portal offline.",
     "more_archive": "Archive Agent",
     "agent_updated_toast": "Agent updated",
     "update_failed_toast": "Failed to update agent",

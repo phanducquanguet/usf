@@ -21,15 +21,18 @@ import { api } from "@multica/core/api";
 import { useAuthStore } from "@multica/core/auth";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { paths, useWorkspaceSlug } from "@multica/core/paths";
-import { agentListOptions, memberListOptions } from "@multica/core/workspace/queries";
+import {
+  agentListOptions,
+  memberListOptions,
+  portalAdminConfigOptions,
+  portalConfigKeys,
+} from "@multica/core/workspace/queries";
 import type {
   PortalHeroContent,
   UpdatePortalAdminConfigRequest,
 } from "@multica/core/types/portal";
 import { useT } from "../../i18n";
 import { AppLink } from "../../navigation";
-
-const PORTAL_CONFIG_KEY = "portal";
 
 export function PortalTab() {
   const { t } = useT("settings");
@@ -49,8 +52,7 @@ export function PortalTab() {
     enabled: isOwner,
   });
   const { data: config, isPending: configPending } = useQuery({
-    queryKey: [PORTAL_CONFIG_KEY, "admin-config", wsId],
-    queryFn: () => api.getPortalAdminConfig(),
+    ...portalAdminConfigOptions(wsId),
     enabled: isOwner,
   });
 
@@ -70,7 +72,7 @@ export function PortalTab() {
       api.updatePortalAdminConfig(req),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [PORTAL_CONFIG_KEY, "admin-config", wsId],
+        queryKey: portalConfigKeys.adminConfig(wsId),
       });
       toast.success(t(($) => $.portal.toast_saved));
     },
@@ -111,8 +113,14 @@ export function PortalTab() {
     );
   }
 
+  const activeAgents = (agents ?? []).filter((a) => !a.archived_at);
+  // Lookup over the full list so an already-configured agent that was later
+  // archived still shows its name instead of the placeholder.
   const selectedAgent = (agents ?? []).find((a) => a.id === agentId);
   const missingAgent = enabled && !agentId;
+  // The public portal treats an archived consulting agent as "portal
+  // disabled", so surface that instead of silently looking healthy.
+  const archivedAgent = enabled && !!selectedAgent?.archived_at;
   const setHeroField = (field: keyof PortalHeroContent) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setHero({ ...hero, [field]: e.target.value });
@@ -163,7 +171,7 @@ export function PortalTab() {
                   {t(($) => $.portal.agent_hint)}
                 </p>
               </div>
-              {(agents ?? []).length === 0 ? (
+              {activeAgents.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   {t(($) => $.portal.agents_empty)}{" "}
                   {slug ? (
@@ -183,9 +191,11 @@ export function PortalTab() {
                   <SelectTrigger
                     id="portal-agent"
                     className="w-56 max-w-full"
-                    aria-invalid={missingAgent || undefined}
+                    aria-invalid={missingAgent || archivedAgent || undefined}
                     aria-describedby={
-                      missingAgent ? "portal-agent-error" : "portal-agent-hint"
+                      missingAgent || archivedAgent
+                        ? "portal-agent-error"
+                        : "portal-agent-hint"
                     }
                   >
                     <SelectValue
@@ -195,7 +205,7 @@ export function PortalTab() {
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {(agents ?? []).map((a) => (
+                    {activeAgents.map((a) => (
                       <SelectItem key={a.id} value={a.id}>
                         {a.name}
                       </SelectItem>
@@ -203,13 +213,15 @@ export function PortalTab() {
                   </SelectContent>
                 </Select>
               )}
-              {missingAgent ? (
+              {missingAgent || archivedAgent ? (
                 <p
                   id="portal-agent-error"
                   role="alert"
                   className="w-full text-xs text-destructive"
                 >
-                  {t(($) => $.portal.agent_required)}
+                  {t(($) =>
+                    missingAgent ? $.portal.agent_required : $.portal.agent_archived,
+                  )}
                 </p>
               ) : null}
             </div>

@@ -22,6 +22,7 @@ import { useWorkspacePaths } from "@multica/core/paths";
 import {
   agentListOptions,
   memberListOptions,
+  portalAdminConfigOptions,
   workspaceKeys,
 } from "@multica/core/workspace/queries";
 import { runtimeListOptions } from "@multica/core/runtimes";
@@ -100,6 +101,16 @@ export function AgentDetailPage({ agentId }: AgentDetailPageProps) {
   const { canEdit } = useAgentPermissions(agent, wsId);
 
   const [confirmArchive, setConfirmArchive] = useState(false);
+
+  // Warn when archiving the portal's consulting agent — the public portal
+  // treats an archived agent as "portal disabled". The config endpoint is
+  // owner-only; for non-owners the query errors and the warning is skipped.
+  const { data: portalConfig } = useQuery({
+    ...portalAdminConfigOptions(wsId),
+    enabled: confirmArchive,
+  });
+  const isPortalAgent =
+    portalConfig?.enabled === true && portalConfig.agent_id === agent?.id;
 
   // One-shot channel: the inspector's compact Lark status row asks the
   // overview pane to focus a tab. The pane clears it after consuming.
@@ -326,6 +337,11 @@ export function AgentDetailPage({ agentId }: AgentDetailPageProps) {
                 <DialogDescription className="text-xs">
                   {t(($) => $.detail.archive_dialog_description, { name: agent.name })}
                 </DialogDescription>
+                {isPortalAgent ? (
+                  <p role="alert" className="text-xs text-destructive">
+                    {t(($) => $.detail.archive_dialog_portal_warning)}
+                  </p>
+                ) : null}
               </DialogHeader>
             </div>
             <DialogFooter>

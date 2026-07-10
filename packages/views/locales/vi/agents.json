@@ -113,7 +113,8 @@
     "archive_dialog_title": "Lưu trữ \"{{name}}\"?",
     "archive_dialog_description": "Agent sẽ không thể được giao việc hoặc nhắc đến, và mọi task đang hoạt động sẽ bị hủy. Toàn bộ lịch sử được giữ nguyên và bạn có thể khôi phục sau.",
     "archive_dialog_cancel": "Hủy",
-    "archive_dialog_confirm": "Lưu trữ"
+    "archive_dialog_confirm": "Lưu trữ",
+    "archive_dialog_portal_warning": "Agent này đang là agent tư vấn của portal khách hàng — lưu trữ sẽ khiến portal ngừng hoạt động."
   },
   "detail": {
     "back_to_agents": "Agent",
@@ -129,6 +130,7 @@
     "archive_dialog_description": "\"{{name}}\" sẽ được lưu trữ. Không thể giao việc hoặc nhắc đến nó, nhưng toàn bộ lịch sử được giữ nguyên. Bạn có thể khôi phục sau.",
     "archive_dialog_cancel": "Hủy",
     "archive_dialog_confirm": "Lưu trữ",
+    "archive_dialog_portal_warning": "Agent này đang là agent tư vấn của portal khách hàng — lưu trữ sẽ khiến portal ngừng hoạt động.",
     "more_archive": "Lưu trữ agent",
     "agent_updated_toast": "Đã cập nhật agent",
     "update_failed_toast": "Không thể cập nhật agent",

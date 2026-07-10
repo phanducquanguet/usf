@@ -9,13 +9,16 @@ import {
   Square,
   Trash2,
 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { Agent } from "@multica/core/types";
 import type { AgentPresenceDetail } from "@multica/core/agents";
 import { api } from "@multica/core/api";
 import { useWorkspaceId } from "@multica/core/hooks";
-import { workspaceKeys } from "@multica/core/workspace/queries";
+import {
+  portalAdminConfigOptions,
+  workspaceKeys,
+} from "@multica/core/workspace/queries";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,6 +88,16 @@ export function AgentRowActions({
   const showDuplicate = !isArchived; // any workspace member can duplicate
   const showArchive = canManage && !isArchived;
   const showRestore = canManage && isArchived;
+
+  // Warn when archiving the portal's consulting agent — the public portal
+  // treats an archived agent as "portal disabled". The config endpoint is
+  // owner-only; for non-owners the query errors and the warning is skipped.
+  const { data: portalConfig } = useQuery({
+    ...portalAdminConfigOptions(wsId),
+    enabled: confirmArchive,
+  });
+  const isPortalAgent =
+    portalConfig?.enabled === true && portalConfig.agent_id === agent.id;
 
   const hasAnyAction = showStop || showDuplicate || showArchive || showRestore;
 
@@ -234,6 +247,11 @@ export function AgentRowActions({
                   <AlertDialogDescription>
                     {t(($) => $.row_actions.archive_dialog_description)}
                   </AlertDialogDescription>
+                  {isPortalAgent ? (
+                    <p role="alert" className="mt-2 text-sm text-destructive">
+                      {t(($) => $.row_actions.archive_dialog_portal_warning)}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </AlertDialogHeader>

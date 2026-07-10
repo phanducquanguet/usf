@@ -10,7 +10,11 @@ const membersRef = vi.hoisted(() => ({
   current: [{ user_id: "user-1", role: "owner" as "owner" | "admin" | "member" }],
 }));
 const agentsRef = vi.hoisted(() => ({
-  current: [{ id: "agent-1", name: "Tư vấn" }],
+  current: [{ id: "agent-1", name: "Tư vấn" }] as Array<{
+    id: string;
+    name: string;
+    archived_at?: string;
+  }>,
 }));
 const configRef = vi.hoisted(() => ({
   current: { enabled: false } as {
@@ -42,6 +46,10 @@ vi.mock("@multica/core/hooks", () => ({
 vi.mock("@multica/core/workspace/queries", () => ({
   memberListOptions: () => ({ queryKey: ["members"], queryFn: vi.fn() }),
   agentListOptions: () => ({ queryKey: ["agents"], queryFn: vi.fn() }),
+  portalAdminConfigOptions: () => ({ queryKey: ["portal"], queryFn: vi.fn() }),
+  portalConfigKeys: {
+    adminConfig: (wsId: string) => ["portal", "admin-config", wsId],
+  },
 }));
 
 vi.mock("@multica/core/api", () => ({
@@ -88,6 +96,36 @@ describe("PortalTab", () => {
     });
     expect(screen.getByRole("switch")).toBeInTheDocument();
     expect(screen.getByText("Consulting agent")).toBeInTheDocument();
+  });
+
+  it("excludes archived agents from the picker", async () => {
+    agentsRef.current = [
+      { id: "agent-1", name: "Tư vấn", archived_at: "2026-01-01T00:00:00Z" },
+    ];
+    render(<PortalTab />, { wrapper: I18nWrapper });
+    await waitFor(() => {
+      expect(
+        screen.getByText("This workspace has no agents yet."),
+      ).toBeInTheDocument();
+    });
+    agentsRef.current = [{ id: "agent-1", name: "Tư vấn" }];
+  });
+
+  it("warns when the configured agent has been archived", async () => {
+    agentsRef.current = [
+      { id: "agent-1", name: "Tư vấn", archived_at: "2026-01-01T00:00:00Z" },
+      { id: "agent-2", name: "Khác" },
+    ];
+    configRef.current = { enabled: true, agent_id: "agent-1" };
+    render(<PortalTab />, { wrapper: I18nWrapper });
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "This agent has been archived, so the portal is offline. Pick another agent and save.",
+        ),
+      ).toBeInTheDocument();
+    });
+    agentsRef.current = [{ id: "agent-1", name: "Tư vấn" }];
   });
 
   it("renders a read-only notice for non-owners", async () => {

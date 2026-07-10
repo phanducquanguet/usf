@@ -460,6 +460,7 @@
     "agent_hint": "This agent chats with customers and surveys their needs.",
     "agent_placeholder": "Select an agent",
     "agent_required": "Pick a consulting agent before enabling the portal.",
+    "agent_archived": "This agent has been archived, so the portal is offline. Pick another agent and save.",
     "agents_empty": "This workspace has no agents yet.",
     "agents_empty_cta": "Create an agent",
     "content_title": "Page content",

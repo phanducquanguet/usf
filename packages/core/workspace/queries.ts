@@ -114,6 +114,24 @@ export function selectSkillAssignments(
   return map;
 }
 
+// Key predates this helper (was inline in the portal settings tab) —
+// intentionally not under `workspaceKeys` so existing invalidations keep
+// matching.
+export const portalConfigKeys = {
+  adminConfig: (wsId: string) => ["portal", "admin-config", wsId] as const,
+};
+
+// Owner-only endpoint: non-owners get a 403. Consumers that may render for
+// non-owners must treat a query error as "no portal info"; retry is off so
+// the 403 fails fast instead of retrying.
+export function portalAdminConfigOptions(wsId: string) {
+  return queryOptions({
+    queryKey: portalConfigKeys.adminConfig(wsId),
+    queryFn: () => api.getPortalAdminConfig(),
+    retry: false,
+  });
+}
+
 export function invitationListOptions(wsId: string) {
   return queryOptions({
     queryKey: workspaceKeys.invitations(wsId),
