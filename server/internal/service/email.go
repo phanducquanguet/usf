@@ -23,6 +23,17 @@ import (
 // a full phishing pitch into a workspace name that gets sent from our domain.
 const maxSubjectFieldRunes = 60
 
+// emailLogoHTML is the UniAI logo lockup rebuilt in pure HTML/CSS (gradient
+// tile + four-pointed star, mirroring favicon.svg). Emails can't use the real
+// asset: Gmail strips SVG and data: URIs, and remote images are hidden until
+// the recipient opts in. Table layout keeps it intact in older clients.
+const emailLogoHTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 28px;">
+		<tr>
+			<td style="width: 36px; height: 36px; border-radius: 10px; background: #3C83F6; background: linear-gradient(135deg, #3C83F6 0%, #06BBE0 100%); text-align: center; vertical-align: middle; font-size: 18px; line-height: 36px; color: #ffffff;">&#10022;</td>
+			<td style="padding-left: 10px; font-family: sans-serif; font-size: 20px; font-weight: 700; color: #111111; letter-spacing: -0.02em;">UniAI</td>
+		</tr>
+	</table>`
+
 type EmailService struct {
 	client          *resend.Client
 	fromEmail       string
@@ -325,12 +336,13 @@ func (s *EmailService) sendSMTP(to, subject, htmlBody string) error {
 // Delivery priority: SMTP relay → Resend API → DEV stdout.
 func (s *EmailService) SendVerificationCode(to, code string) error {
 	body := fmt.Sprintf(
-		`<div style="font-family: sans-serif; max-width: 400px; margin: 0 auto;">
+		`<div style="font-family: sans-serif; max-width: 400px; margin: 0 auto; padding: 32px 0;">
+			%s
 			<h2>Your verification code</h2>
 			<p style="font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 24px 0;">%s</p>
 			<p>This code expires in 10 minutes.</p>
 			<p style="color: #666; font-size: 14px;">If you didn't request this code, you can safely ignore this email.</p>
-		</div>`, code)
+		</div>`, emailLogoHTML, code)
 
 	if s.smtpHost != "" {
 		return s.sendSMTP(to, "Your UniAI verification code", body)
@@ -385,14 +397,15 @@ func buildInvitationParams(from, to, inviterName, workspaceName, inviteURL strin
 		To:      []string{to},
 		Subject: fmt.Sprintf("%s invited you to %s on UniAI", subjectInviter, subjectWorkspace),
 		Html: fmt.Sprintf(
-			`<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+			`<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 0;">
+				%s
 				<h2>You're invited to join %s</h2>
-				<p><strong>%s</strong> invited you to collaborate in the <strong>%s</strong> workspace on Multica.</p>
+				<p><strong>%s</strong> invited you to collaborate in the <strong>%s</strong> workspace on UniAI.</p>
 				<p style="margin: 24px 0;">
 					<a href="%s" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 500;">Accept invitation</a>
 				</p>
 				<p style="color: #666; font-size: 14px;">You'll need to log in to accept or decline the invitation.</p>
-			</div>`, safeWorkspace, safeInviter, safeWorkspace, inviteURL),
+			</div>`, emailLogoHTML, safeWorkspace, safeInviter, safeWorkspace, inviteURL),
 	}
 }
 

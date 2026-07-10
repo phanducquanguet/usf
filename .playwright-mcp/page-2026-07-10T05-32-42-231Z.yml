@@ -1,0 +1,12 @@
+- generic [ref=e3]:
+  - text: ✦ UniAI
+  - heading "You're invited to join uni2026" [level=2] [ref=e4]
+  - paragraph [ref=e5]:
+    - strong [ref=e6]: quangpd
+    - text: invited you to collaborate in the
+    - strong [ref=e7]: uni2026
+    - text: workspace on UniAI.
+  - paragraph [ref=e8]:
+    - link "Accept invitation" [ref=e9] [cursor=pointer]:
+      - /url: https://app.multica.ai/invite/abc
+  - paragraph [ref=e10]: You'll need to log in to accept or decline the invitation.
