@@ -125,6 +125,10 @@ backend:
     # Comma-separated emails exempt from disableWorkspaceCreation
     # (case-insensitive). Ignored when the gate is off.
     workspaceCreationAllowedEmails: ""
+    # Workspace slug the public customer portal at / binds to. Empty disables
+    # the portal. The workspace owner must also enable the portal and pick a
+    # consulting agent in Settings > Customer portal.
+    portalWorkspaceSlug: ""
     googleClientId: ""
     googleRedirectUri: http://multica.dev.lan/auth/callback
     s3Bucket: ""

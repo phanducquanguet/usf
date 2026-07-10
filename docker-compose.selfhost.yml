@@ -86,6 +86,11 @@ services:
       ALLOWED_EMAIL_DOMAINS: ${ALLOWED_EMAIL_DOMAINS:-}
       DISABLE_WORKSPACE_CREATION: ${DISABLE_WORKSPACE_CREATION:-}
       WORKSPACE_CREATION_ALLOWED_EMAILS: ${WORKSPACE_CREATION_ALLOWED_EMAILS:-}
+      # Public customer portal: workspace slug the landing at / binds to.
+      # Empty disables the portal (see .env.example).
+      PORTAL_WORKSPACE_SLUG: ${PORTAL_WORKSPACE_SLUG:-}
+      RATE_LIMIT_PORTAL_SESSIONS: ${RATE_LIMIT_PORTAL_SESSIONS:-5}
+      RATE_LIMIT_PORTAL_MESSAGES: ${RATE_LIMIT_PORTAL_MESSAGES:-20}
       GITHUB_APP_SLUG: ${GITHUB_APP_SLUG:-}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
       # Public URL the API is reachable at from the open internet, no
