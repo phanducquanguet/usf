@@ -454,13 +454,27 @@
     "description": "Trang tư vấn công khai: khách mô tả phần mềm họ cần, agent khảo sát và tạo dự án sau khi khách xác nhận.",
     "owner_only": "Chỉ chủ sở hữu không gian làm việc mới cấu hình được portal.",
     "enable": "Bật portal",
+    "enable_hint": "Khi bật, trang tư vấn sẽ công khai cho mọi khách truy cập.",
+    "status_live": "Đang hoạt động",
     "agent": "Agent tư vấn",
+    "agent_hint": "Agent sẽ trò chuyện và khảo sát nhu cầu của khách.",
     "agent_placeholder": "Chọn agent",
     "agent_required": "Cần chọn agent tư vấn trước khi bật portal.",
+    "agents_empty": "Không gian làm việc chưa có agent nào.",
+    "agents_empty_cta": "Tạo agent",
+    "content_title": "Nội dung trang",
+    "content_description": "Nội dung khách nhìn thấy khi mở trang tư vấn.",
     "headline": "Tiêu đề trang",
+    "headline_placeholder": "VD: Kể cho chúng tôi về phần mềm bạn cần",
     "subheadline": "Mô tả ngắn",
+    "subheadline_placeholder": "Một vài câu giới thiệu hiển thị dưới tiêu đề",
     "greeting": "Lời chào mở đầu chat",
+    "greeting_placeholder": "Tin nhắn đầu tiên agent gửi cho khách",
     "contact_email": "Email liên hệ (hiện khi portal tắt)",
-    "save": "Lưu cấu hình"
+    "contact_email_placeholder": "contact@congty.com",
+    "save": "Lưu cấu hình",
+    "saving": "Đang lưu...",
+    "toast_saved": "Đã lưu cấu hình portal",
+    "toast_failed": "Lưu cấu hình portal thất bại"
   }
 }

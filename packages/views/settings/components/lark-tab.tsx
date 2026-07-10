@@ -458,7 +458,7 @@ function LarkAgentBotStatusRow({
       )}
       data-testid="lark-agent-bot-status"
     >
-      <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+      <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
       <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
         {installation.region === "lark"
           ? t(($) => $.lark.region_lark)
@@ -549,7 +549,7 @@ function LarkAgentBotConnectedBadge({
           and stops message delivery. */}
       <div className="flex items-center justify-between gap-3">
         <span className="inline-flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+          <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
           <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
             {installation.region === "lark"
               ? t(($) => $.lark.region_lark)

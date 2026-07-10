@@ -454,13 +454,27 @@
     "description": "Public consultation page: customers describe the software they need, the agent surveys them and creates a project once they confirm.",
     "owner_only": "Only the workspace owner can configure the portal.",
     "enable": "Enable portal",
+    "enable_hint": "When enabled, the consultation page is public to anyone.",
+    "status_live": "Live",
     "agent": "Consulting agent",
+    "agent_hint": "This agent chats with customers and surveys their needs.",
     "agent_placeholder": "Select an agent",
     "agent_required": "Pick a consulting agent before enabling the portal.",
+    "agents_empty": "This workspace has no agents yet.",
+    "agents_empty_cta": "Create an agent",
+    "content_title": "Page content",
+    "content_description": "What customers see when they open the consultation page.",
     "headline": "Page headline",
+    "headline_placeholder": "e.g. Tell us about the software you need",
     "subheadline": "Short description",
+    "subheadline_placeholder": "A few sentences shown under the headline",
     "greeting": "Chat opening greeting",
+    "greeting_placeholder": "The first message the agent sends to a customer",
     "contact_email": "Contact email (shown when the portal is off)",
-    "save": "Save configuration"
+    "contact_email_placeholder": "contact@company.com",
+    "save": "Save configuration",
+    "saving": "Saving...",
+    "toast_saved": "Portal configuration saved",
+    "toast_failed": "Failed to save portal configuration"
   }
 }
