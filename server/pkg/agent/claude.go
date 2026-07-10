@@ -232,7 +232,7 @@ func (b *claudeBackend) Execute(ctx context.Context, prompt string, opts ExecOpt
 		}
 		if finalStatus == "completed" && sawAsyncLaunch {
 			finalStatus = "failed"
-			finalError = "claude launched an async background task; Multica-managed runs require foreground execution"
+			finalError = "claude launched an async background task; UniAI-managed runs require foreground execution"
 		}
 
 		// cmd.Wait() has returned — os/exec's stderr copy goroutine has
@@ -657,7 +657,7 @@ func claudeRootSudoPreflight(args, env []string) error {
 	if !argsRequestBypassPermissions(args) || os.Geteuid() != 0 || envHasSandbox(env) {
 		return nil
 	}
-	return fmt.Errorf("Claude Code refuses bypassPermissions under root/sudo privileges. Run the Multica daemon as a non-root user, or set IS_SANDBOX=1 if running in a genuine container/sandbox")
+	return fmt.Errorf("Claude Code refuses bypassPermissions under root/sudo privileges. Run the UniAI daemon as a non-root user, or set IS_SANDBOX=1 if running in a genuine container/sandbox")
 }
 
 func argsRequestBypassPermissions(args []string) bool {

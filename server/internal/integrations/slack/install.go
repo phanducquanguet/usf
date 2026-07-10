@@ -32,7 +32,7 @@ var (
 	// collide with the (channel_type, app_id) routing index. A Slack app is one
 	// bot identity and maps to one agent; reusing it elsewhere requires
 	// disconnecting it there first.
-	ErrTeamOwnedByAnotherWorkspace = errors.New("slack: this Slack app is already connected to another agent or Multica workspace")
+	ErrTeamOwnedByAnotherWorkspace = errors.New("slack: this Slack app is already connected to another agent or UniAI workspace")
 )
 
 // installQueries is the slice of generated queries InstallService needs. WithTx

@@ -148,7 +148,7 @@ func TestBuildMetaSkillContentSlimKindMatrix(t *testing.T) {
 		kindCommentTriggered: true, kindAssignmentTriggered: true,
 	}
 	checks := []sectionCheck{
-		{"# Multica Agent Runtime", allKinds},
+		{"# UniAI Agent Runtime", allKinds},
 		{"## Background Task Safety", allKinds},
 		{"## Agent Identity", allKinds},
 		{"## Available Commands", allKinds},

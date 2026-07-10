@@ -43,7 +43,7 @@ func validateLoginTokenPrefix(token string) error {
 
 var authCmd = &cobra.Command{
 	Use:   "auth",
-	Short: "Authenticate multica with Multica",
+	Short: "Authenticate multica with UniAI",
 }
 
 var authStatusCmd = &cobra.Command{

@@ -548,7 +548,7 @@ func TestBootstrapOnboardingNoRuntimeCreatesSingleGuideIssue(t *testing.T) {
 		t.Fatalf("issue status/priority = %s/%s, want todo/high", issueStatus, issuePriority)
 	}
 	for _, want := range []string{
-		"Try Multica first",
+		"Try UniAI first",
 		"https://multica.ai/docs/install-agent-runtime",
 		"npm i -g @openai/codex",
 	} {

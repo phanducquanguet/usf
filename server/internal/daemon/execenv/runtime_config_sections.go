@@ -38,8 +38,8 @@ import (
 
 // writeHeader emits the brief's leading title and one-line elevator pitch.
 func writeHeader(b *strings.Builder) {
-	b.WriteString("# Multica Agent Runtime\n\n")
-	b.WriteString("You are a coding agent in the Multica platform. Use the `multica` CLI to interact with the platform.\n\n")
+	b.WriteString("# UniAI Agent Runtime\n\n")
+	b.WriteString("You are a coding agent in the UniAI platform. Use the `multica` CLI to interact with the platform.\n\n")
 }
 
 // writeBackgroundTaskSafetySlim is the slim analogue of
@@ -50,10 +50,10 @@ func writeHeader(b *strings.Builder) {
 // no-background-and-yield rule, and the no-"standing by" sign-off rule.
 func writeBackgroundTaskSafetySlim(b *strings.Builder) {
 	b.WriteString("## Background Task Safety\n\n")
-	b.WriteString("Multica marks the task terminal the moment your top-level turn exits — any background work still running is orphaned, its result lost, and the final comment you meant to post after it never sends. There is no background-completion wakeup here.\n\n")
+	b.WriteString("UniAI marks the task terminal the moment your top-level turn exits — any background work still running is orphaned, its result lost, and the final comment you meant to post after it never sends. There is no background-completion wakeup here.\n\n")
 	b.WriteString("- Do NOT end your turn while background tasks, async subagents, background shell commands, or detached tool calls are still running. Never background-and-yield: never end a turn expecting a future notification or wakeup to resume — it will not arrive.\n")
 	b.WriteString("- Do every wait synchronously inside one foreground tool call that blocks to completion (e.g. `gh run watch`, a blocking test command); never split \"start the wait\" and \"collect the result\" across turns.\n")
-	b.WriteString("- If a tool response says to wait for a future notification/reminder, or that it is running in the background so you can keep working, do not rely on that in Multica-managed runs — block on the appropriate wait / output / collect operation before exiting.\n")
+	b.WriteString("- If a tool response says to wait for a future notification/reminder, or that it is running in the background so you can keep working, do not rely on that in UniAI-managed runs — block on the appropriate wait / output / collect operation before exiting.\n")
 	b.WriteString("- If you can't observe a background task's result, run the work synchronously instead.\n")
 	b.WriteString("- Never end a turn with a \"standing by\" / \"I'll report back when X finishes\" message — that becomes your final output and the task ends.\n\n")
 }
@@ -125,7 +125,7 @@ func writeTaskInitiator(b *strings.Builder, ctx TaskContextForEnv) {
 	} else {
 		fmt.Fprintf(b, "This task was initiated by **%s**, a member of this workspace.\n\n", safeInitiator)
 	}
-	b.WriteString("Attribute this request to that person and apply any per-person privacy or access rules your instructions define — in a workspace many people can reach, the initiator (not the runtime owner) is who you are answering. Your Multica credentials stay scoped to the runtime owner, so this attribution does not widen what you can read or write — do not assume the initiator can see everything you can.\n\n")
+	b.WriteString("Attribute this request to that person and apply any per-person privacy or access rules your instructions define — in a workspace many people can reach, the initiator (not the runtime owner) is who you are answering. Your UniAI credentials stay scoped to the runtime owner, so this attribution does not widen what you can read or write — do not assume the initiator can see everything you can.\n\n")
 }
 
 // writeWorkspaceContext emits the workspace-level system prompt configured
@@ -324,7 +324,7 @@ func writeWorkflowChat(b *strings.Builder) {
 // writeWorkflowQuickCreate emits the quick-create workflow's hard
 // guardrails.
 func writeWorkflowQuickCreate(b *strings.Builder) {
-	b.WriteString("**This task was triggered by quick-create.** There is NO existing Multica issue. Follow the field and output rules in the user message you just received; ignore the default assignment-task workflow.\n\n")
+	b.WriteString("**This task was triggered by quick-create.** There is NO existing UniAI issue. Follow the field and output rules in the user message you just received; ignore the default assignment-task workflow.\n\n")
 	b.WriteString("Hard guardrails (apply even if the user message is missing):\n")
 	b.WriteString("- Run exactly one `multica issue create` invocation, then exit.\n")
 	b.WriteString("- Do NOT call `multica issue get`, `multica issue status`, or `multica issue comment add` for this task — there is no issue to query, transition, or comment on. The platform writes the user's success/failure inbox notification automatically based on whether `multica issue create` succeeded.\n")
@@ -333,7 +333,7 @@ func writeWorkflowQuickCreate(b *strings.Builder) {
 
 // writeWorkflowAutopilot emits the autopilot run-only workflow.
 func writeWorkflowAutopilot(b *strings.Builder, ctx TaskContextForEnv) {
-	b.WriteString("**This task was triggered by an Autopilot in run-only mode.** There is no assigned Multica issue for this run.\n\n")
+	b.WriteString("**This task was triggered by an Autopilot in run-only mode.** There is no assigned UniAI issue for this run.\n\n")
 	fmt.Fprintf(b, "- Autopilot run ID: `%s`\n", ctx.AutopilotRunID)
 	if ctx.AutopilotID != "" {
 		fmt.Fprintf(b, "- Autopilot ID: `%s`\n", ctx.AutopilotID)
@@ -456,14 +456,14 @@ func writeMentions(b *strings.Builder) {
 func writeAttachments(b *strings.Builder) {
 	b.WriteString("## Attachments\n\n")
 	b.WriteString("Issues and comments may include file attachments (images, documents, etc.).\n")
-	b.WriteString("When a task includes attachment IDs and you need the files, inspect `multica attachment --help` and use the authenticated CLI path. Do not open Multica resource URLs directly.\n\n")
+	b.WriteString("When a task includes attachment IDs and you need the files, inspect `multica attachment --help` and use the authenticated CLI path. Do not open UniAI resource URLs directly.\n\n")
 }
 
 // writeAlwaysUseCLI emits the "must go through the multica CLI" guardrail
 // (compressed).
 func writeAlwaysUseCLI(b *strings.Builder) {
 	b.WriteString("## Important: Always Use the `multica` CLI\n\n")
-	b.WriteString("Access Multica platform resources (issues, comments, attachments, files) only through the `multica` CLI — never `curl` / `wget`. For any operation the CLI doesn't cover, post a comment mentioning the workspace owner rather than working around it.\n\n")
+	b.WriteString("Access UniAI platform resources (issues, comments, attachments, files) only through the `multica` CLI — never `curl` / `wget`. For any operation the CLI doesn't cover, post a comment mentioning the workspace owner rather than working around it.\n\n")
 }
 
 // writeOutput emits the kind-specific Output section.

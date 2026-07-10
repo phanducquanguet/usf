@@ -823,8 +823,8 @@ var daemonInstalledHookSignatures = []string{
 // Co-authored-by trailer for the Multica Agent to every commit message.
 const prepareCommitMsgHook = `#!/bin/sh
 # multica:prepare-commit-msg:co-authored-by
-# Multica: add Co-authored-by trailer for the Multica Agent.
-# Installed by the Multica daemon. Do not edit — it will be overwritten.
+# UniAI: add Co-authored-by trailer for the UniAI Agent.
+# Installed by the UniAI daemon. Do not edit — it will be overwritten.
 
 COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"

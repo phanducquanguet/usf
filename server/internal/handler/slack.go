@@ -146,7 +146,7 @@ func (h *Handler) RegisterSlackBYO(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, slack.ErrInvalidBotToken), errors.Is(err, slack.ErrInvalidAppToken), errors.Is(err, slack.ErrTokenAppMismatch):
 			writeError(w, http.StatusBadRequest, err.Error())
 		case errors.Is(err, slack.ErrTeamOwnedByAnotherWorkspace):
-			writeError(w, http.StatusConflict, "this Slack app is already connected to a different Multica workspace")
+			writeError(w, http.StatusConflict, "this Slack app is already connected to a different UniAI workspace")
 		default:
 			// The dominant non-sentinel failure here is auth.test rejecting the
 			// pasted bot token (a user error), so guide the user to recheck the
@@ -262,7 +262,7 @@ func (h *Handler) RedeemSlackBindingToken(w http.ResponseWriter, r *http.Request
 		case errors.Is(err, slack.ErrBindingTokenInvalid):
 			writeError(w, http.StatusGone, "binding token invalid or expired")
 		case errors.Is(err, slack.ErrBindingAlreadyAssigned):
-			writeError(w, http.StatusConflict, "this Slack account is already bound to a different Multica user")
+			writeError(w, http.StatusConflict, "this Slack account is already bound to a different UniAI user")
 		case errors.Is(err, slack.ErrBindingNotWorkspaceMember):
 			writeError(w, http.StatusForbidden, "binding refused (are you a workspace member?)")
 		default:

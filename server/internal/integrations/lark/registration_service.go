@@ -673,13 +673,13 @@ func uuidEqual(a, b pgtype.UUID) bool {
 // "{用户姓名}的智能助手". Lark treats this as a default the installer can
 // still edit; we never get to lock the final name. A blank agent name
 // (defensive — Agent.Name is NOT NULL in schema) degrades to plain
-// "Multica" rather than a dangling " - Multica".
+// "Multica" rather than a dangling " - UniAI".
 func botNamePreset(agentName string) string {
 	name := strings.TrimSpace(agentName)
 	if name == "" {
-		return "Multica"
+		return "UniAI"
 	}
-	return name + " - Multica"
+	return name + " - UniAI"
 }
 
 // uuidString is the package-local UUID-to-string helper defined in

@@ -45,11 +45,11 @@ const issueSlashCommand = "/issue"
 // User-facing ephemeral replies. Kept terse; only the invoker sees them.
 const (
 	slashUsageText           = "Tell me what to file, e.g. `/issue the login button does nothing on Safari`."
-	slashQueuedText          = "✅ On it — I'm turning that into an issue. You'll get a Multica notification when it's ready."
-	slashNotMemberText       = "You're not a member of this Multica workspace, so I can't file an issue for you."
-	slashLinkAccountFallback = "Link your Slack account to Multica first, then try `/issue` again."
+	slashQueuedText          = "✅ On it — I'm turning that into an issue. You'll get a UniAI notification when it's ready."
+	slashNotMemberText       = "You're not a member of this UniAI workspace, so I can't file an issue for you."
+	slashLinkAccountFallback = "Link your Slack account to UniAI first, then try `/issue` again."
 	slashInternalErrorText   = "⚠️ Something went wrong creating the issue. Please try again."
-	slashDisabledText        = "This Slack app isn't connected to Multica (or was disconnected). Ask a workspace admin to reconnect it."
+	slashDisabledText        = "This Slack app isn't connected to UniAI (or was disconnected). Ask a workspace admin to reconnect it."
 )
 
 // slashQueries is the narrow slice of generated queries the slash-command
@@ -270,6 +270,6 @@ func (p *SlashCommandProcessor) bindingText(ctx context.Context, inst engine.Res
 	bindURL := p.appURL + p.bindingPath + "?token=" + url.QueryEscape(token.Raw)
 	// Wrap the URL as an explicit Slack link so the base64url token's `_`/`-`
 	// are not mangled by mrkdwn (same reasoning as the replier).
-	return "👋 To file issues, link your Slack account to Multica: <" +
+	return "👋 To file issues, link your Slack account to UniAI: <" +
 		bindURL + "|link your account>\n(This link expires in 15 minutes.)"
 }

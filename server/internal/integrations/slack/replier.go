@@ -151,7 +151,7 @@ func (r *OutboundReplier) sendBindingPrompt(ctx context.Context, inst engine.Res
 	// Wrap the URL as an explicit Slack link <url|label>: formatMrkdwn protects
 	// these from its markdown passes, so the base64url token's `_`/`-` chars are
 	// not mangled into italics.
-	text := "👋 To start chatting with me, link your Slack account to Multica: <" +
+	text := "👋 To start chatting with me, link your Slack account to UniAI: <" +
 		bindURL + "|link your account>\n(This link expires in 15 minutes.)"
 	return r.post(ctx, inst, msg, text)
 }

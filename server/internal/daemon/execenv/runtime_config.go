@@ -391,8 +391,8 @@ func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 	}
 	var b strings.Builder
 
-	b.WriteString("# Multica Agent Runtime\n\n")
-	b.WriteString("You are a coding agent in the Multica platform. Use the `multica` CLI to interact with the platform.\n\n")
+	b.WriteString("# UniAI Agent Runtime\n\n")
+	b.WriteString("You are a coding agent in the UniAI platform. Use the `multica` CLI to interact with the platform.\n\n")
 	writeBackgroundTaskSafetyInstructions(&b)
 
 	// Always emit agent identity so the agent knows who it is, even when
@@ -478,7 +478,7 @@ func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 			fmt.Fprintf(&b, "This task was initiated by **%s**, a member of this workspace.\n\n", safeInitiator)
 		}
 		b.WriteString("Attribute this request to that person and apply any per-person privacy or access rules your instructions define. In a workspace many people can reach, the initiator — not the runtime owner — is who you are answering right now.\n\n")
-		b.WriteString("Note: this is an attested identity for your own routing and privacy logic. Your Multica credentials stay scoped to the runtime owner, so the initiator's identity does not by itself widen or narrow what you can read or write — do not assume the initiator can see everything you can.\n\n")
+		b.WriteString("Note: this is an attested identity for your own routing and privacy logic. Your UniAI credentials stay scoped to the runtime owner, so the initiator's identity does not by itself widen or narrow what you can read or write — do not assume the initiator can see everything you can.\n\n")
 	}
 
 	// Workspace Context block: the workspace-level system prompt set by
@@ -657,7 +657,7 @@ func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 		// that doesn't propagate the user message into its working context
 		// (or a resumed session) still avoids the assignment-task workflow
 		// pointing at an empty issue id.
-		b.WriteString("**This task was triggered by quick-create.** There is NO existing Multica issue. Follow the field and output rules in the user message you just received; ignore the default assignment-task workflow.\n\n")
+		b.WriteString("**This task was triggered by quick-create.** There is NO existing UniAI issue. Follow the field and output rules in the user message you just received; ignore the default assignment-task workflow.\n\n")
 		b.WriteString("Hard guardrails (apply even if the user message is missing):\n")
 		b.WriteString("- Run exactly one `multica issue create` invocation, then exit.\n")
 		b.WriteString("- Do NOT call `multica issue get`, `multica issue status`, or `multica issue comment add` for this task — there is no issue to query, transition, or comment on. The platform writes the user's success/failure inbox notification automatically based on whether `multica issue create` succeeded.\n")
@@ -665,7 +665,7 @@ func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 	} else if ctx.AutopilotRunID != "" {
 		// Autopilot run_only task: no issue exists, so the agent must not
 		// follow the assignment/comment workflow.
-		b.WriteString("**This task was triggered by an Autopilot in run-only mode.** There is no assigned Multica issue for this run.\n\n")
+		b.WriteString("**This task was triggered by an Autopilot in run-only mode.** There is no assigned UniAI issue for this run.\n\n")
 		fmt.Fprintf(&b, "- Autopilot run ID: `%s`\n", ctx.AutopilotRunID)
 		if ctx.AutopilotID != "" {
 			fmt.Fprintf(&b, "- Autopilot ID: `%s`\n", ctx.AutopilotID)
@@ -802,12 +802,12 @@ func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 
 	b.WriteString("## Attachments\n\n")
 	b.WriteString("Issues and comments may include file attachments (images, documents, etc.).\n")
-	b.WriteString("When a task includes attachment IDs and you need the files, inspect `multica attachment --help` and use the authenticated CLI path. Do not open Multica resource URLs directly.\n\n")
+	b.WriteString("When a task includes attachment IDs and you need the files, inspect `multica attachment --help` and use the authenticated CLI path. Do not open UniAI resource URLs directly.\n\n")
 
 	b.WriteString("## Important: Always Use the `multica` CLI\n\n")
-	b.WriteString("All interactions with Multica platform resources — including issues, comments, attachments, images, files, and any other platform data — **must** go through the `multica` CLI. ")
-	b.WriteString("Do NOT use `curl`, `wget`, or any other HTTP client to access Multica URLs or APIs directly. ")
-	b.WriteString("Multica resource URLs require authenticated access that only the `multica` CLI can provide.\n\n")
+	b.WriteString("All interactions with UniAI platform resources — including issues, comments, attachments, images, files, and any other platform data — **must** go through the `multica` CLI. ")
+	b.WriteString("Do NOT use `curl`, `wget`, or any other HTTP client to access UniAI URLs or APIs directly. ")
+	b.WriteString("UniAI resource URLs require authenticated access that only the `multica` CLI can provide.\n\n")
 	b.WriteString("If you need to perform an operation that is not covered by any existing `multica` command, ")
 	b.WriteString("do NOT attempt to work around it. Instead, post a comment mentioning the workspace owner to request the missing functionality.\n\n")
 
@@ -840,10 +840,10 @@ func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 
 func writeBackgroundTaskSafetyInstructions(b *strings.Builder) {
 	b.WriteString("## Background Task Safety\n\n")
-	b.WriteString("Multica marks this task terminal the moment your top-level agent process/turn exits. A Multica-managed run has NO \"background work finishes later and wakes you up\" step: whatever you leave running in the background is orphaned, its result is lost, and the final comment you meant to post once it finished never sends. The user sees a task that ended with no conclusion and has to re-trigger you.\n\n")
+	b.WriteString("UniAI marks this task terminal the moment your top-level agent process/turn exits. A UniAI-managed run has NO \"background work finishes later and wakes you up\" step: whatever you leave running in the background is orphaned, its result is lost, and the final comment you meant to post once it finished never sends. The user sees a task that ended with no conclusion and has to re-trigger you.\n\n")
 	b.WriteString("- Do NOT end your turn while background tasks, async subagents, background shell commands, or detached tool calls are still running. Never background-and-yield: never end a turn expecting a future notification, reminder, or wakeup to let you resume — that wakeup does not exist here.\n")
 	b.WriteString("- Do every wait synchronously inside a single foreground tool call that blocks until the work is done — e.g. `gh run watch <run-id>` for CI, or a blocking test/build command. Never split \"start the wait\" into this turn and \"collect the result\" into a later turn.\n")
-	b.WriteString("- If a tool response says to wait for a future notification/reminder, or tells you it is now running in the background so you can keep working, do NOT rely on that in Multica-managed runs — that hint comes from the standalone harness and does not apply here. Block on the appropriate wait/output/collect operation before exiting.\n")
+	b.WriteString("- If a tool response says to wait for a future notification/reminder, or tells you it is now running in the background so you can keep working, do NOT rely on that in UniAI-managed runs — that hint comes from the standalone harness and does not apply here. Block on the appropriate wait/output/collect operation before exiting.\n")
 	b.WriteString("- If you cannot observe or collect a background task's result, do not spawn it in the background; run the work synchronously instead.\n")
 	b.WriteString("- Never end a turn with a \"standing by\" / \"I'll report back once X finishes\" / \"waiting for CI\" message. That message becomes your final output and the task ends immediately — either finish the wait synchronously now and report the real outcome, or post the result you already have.\n")
 	b.WriteString("- Before posting your final result or exiting silently, account for every background task you started and incorporate its output or failure into your response.\n\n")

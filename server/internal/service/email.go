@@ -333,7 +333,7 @@ func (s *EmailService) SendVerificationCode(to, code string) error {
 		</div>`, code)
 
 	if s.smtpHost != "" {
-		return s.sendSMTP(to, "Your Multica verification code", body)
+		return s.sendSMTP(to, "Your UniAI verification code", body)
 	}
 	if s.client == nil {
 		fmt.Printf("[DEV] Verification code for %s: %s\n", to, code)
@@ -342,7 +342,7 @@ func (s *EmailService) SendVerificationCode(to, code string) error {
 	params := &resend.SendEmailRequest{
 		From:    s.fromEmail,
 		To:      []string{to},
-		Subject: "Your Multica verification code",
+		Subject: "Your UniAI verification code",
 		Html:    body,
 	}
 	_, err := s.client.Emails.Send(params)
@@ -383,7 +383,7 @@ func buildInvitationParams(from, to, inviterName, workspaceName, inviteURL strin
 	return &resend.SendEmailRequest{
 		From:    from,
 		To:      []string{to},
-		Subject: fmt.Sprintf("%s invited you to %s on Multica", subjectInviter, subjectWorkspace),
+		Subject: fmt.Sprintf("%s invited you to %s on UniAI", subjectInviter, subjectWorkspace),
 		Html: fmt.Sprintf(
 			`<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
 				<h2>You're invited to join %s</h2>
