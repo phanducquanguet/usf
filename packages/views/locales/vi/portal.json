@@ -197,6 +197,7 @@
   },
   "chat": {
     "title": "Trợ lý tư vấn",
+    "status": "Đang trực tuyến",
     "greeting": "Xin chào! Hãy kể cho mình nghe về phần mềm bạn cần — mình sẽ hỏi đúng trọng tâm.",
     "placeholder": "Mô tả phần mềm bạn muốn xây dựng…",
     "thinking": "Trợ lý đang soạn trả lời…",
@@ -212,6 +213,7 @@
     "title": "Xác nhận bản tóm tắt và để lại thông tin liên hệ",
     "name": "Họ và tên",
     "email": "Email",
+    "email_invalid": "Email chưa đúng định dạng, bạn kiểm tra lại nhé.",
     "phone": "Số điện thoại (không bắt buộc)",
     "submit": "Xác nhận & gửi yêu cầu"
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@multica/core/api";
 import { defaultStorage } from "@multica/core/platform";
@@ -59,13 +59,21 @@ export function usePortalChat() {
       q.state.data?.pending === true ? PORTAL_POLL_ACTIVE_MS : PORTAL_POLL_IDLE_MS,
   });
 
-  const messages: PortalChatMessage[] = page.data?.messages ?? [];
-  const pending = page.data?.pending === true || outgoing != null;
+  const pageMessages = page.data?.messages;
+  const messages: PortalChatMessage[] = useMemo(() => pageMessages ?? [], [pageMessages]);
   const status = page.data?.status ?? "active";
 
-  if (outgoing != null && messages.some((m) => m.role === "user" && m.content === outgoing)) {
-    setOutgoing(null);
-  }
+  // The pending bubble is derived, so the frame where the server list first
+  // contains the message never paints it twice; the state itself is released
+  // in an effect once delivery is confirmed.
+  const delivered =
+    outgoing != null && messages.some((m) => m.role === "user" && m.content === outgoing);
+  const visibleOutgoing = delivered ? null : outgoing;
+  const pending = page.data?.pending === true || visibleOutgoing != null;
+
+  useEffect(() => {
+    if (delivered) setOutgoing(null);
+  }, [delivered]);
 
   const send = useMutation({
     // Callers are gated on hasSession, so token is non-null here.
@@ -105,7 +113,7 @@ export function usePortalChat() {
     starting: start.isPending,
     startFailed: start.isError,
     messages,
-    outgoing,
+    outgoing: visibleOutgoing,
     pending,
     status,
     summaryReady,

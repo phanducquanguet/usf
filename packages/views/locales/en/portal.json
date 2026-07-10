@@ -197,6 +197,7 @@
   },
   "chat": {
     "title": "Consulting assistant",
+    "status": "Online",
     "greeting": "Hi! Tell me about the software you need — I'll ask the right questions.",
     "placeholder": "Describe the software you want to build…",
     "thinking": "The assistant is writing a reply…",
@@ -212,6 +213,7 @@
     "title": "Confirm the summary and leave your contact details",
     "name": "Full name",
     "email": "Email",
+    "email_invalid": "Please enter a valid email address.",
     "phone": "Phone number (optional)",
     "submit": "Confirm & submit request"
   },
