@@ -207,7 +207,9 @@
     "start_failed": "We couldn't start the conversation. Please check your connection and try again.",
     "retry": "Try again",
     "send": "Send message",
-    "close": "Close chat"
+    "close": "Close chat",
+    "expand": "Expand chat window",
+    "collapse": "Restore chat window"
   },
   "confirm": {
     "title": "Confirm the summary and leave your contact details",

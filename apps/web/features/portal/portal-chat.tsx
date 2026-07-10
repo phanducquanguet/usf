@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Bot, CheckCircle2, Loader2, Send, X } from "lucide-react";
+import {
+  AlertCircle,
+  Bot,
+  CheckCircle2,
+  Loader2,
+  Maximize2,
+  Minimize2,
+  Send,
+  X,
+} from "lucide-react";
 import { Button } from "@multica/ui/components/ui/button";
 import { Input } from "@multica/ui/components/ui/input";
 import { Textarea } from "@multica/ui/components/ui/textarea";
@@ -126,115 +135,121 @@ export function PortalChat({
 
   return (
     <PortalShell onClose={onClose} title={agentName ?? t(($) => $.chat.title)}>
+      {/* The column caps at ~70ch and centers itself, so the expanded desktop
+       * panel keeps a readable measure instead of edge-to-edge bubbles. */}
       <div
         role="log"
         aria-live="polite"
         aria-label={agentName ?? t(($) => $.chat.title)}
-        className="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4 sm:p-5"
+        className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5"
       >
-        <AgentBubble content={greeting || t(($) => $.chat.greeting)} />
-        {chat.messages.map((m) =>
-          m.role === "user" ? (
-            <UserBubble key={m.id} content={m.content} />
-          ) : (
-            <AgentBubble key={m.id} content={stripSummaryMarkers(m.content)} />
-          ),
-        )}
-        {chat.outgoing ? <UserBubble content={chat.outgoing} pending /> : null}
-        {chat.pending ? <TypingIndicator label={t(($) => $.chat.thinking)} /> : null}
-        {chat.summaryReady ? (
-          <div className="portal-gradient-border rounded-xl bg-card p-4 duration-300 animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none sm:p-5">
-            <p className="mb-4 text-sm font-semibold">{t(($) => $.confirm.title)}</p>
-            <div className="space-y-3">
-              <ContactField
-                id="portal-contact-name"
-                label={t(($) => $.confirm.name)}
-                required
-                autoComplete="name"
-                value={contact.name}
-                onChange={(name) => setContact({ ...contact, name })}
-              />
-              <ContactField
-                id="portal-contact-email"
-                label={t(($) => $.confirm.email)}
-                required
-                type="email"
-                autoComplete="email"
-                value={contact.email}
-                onChange={(email) => setContact({ ...contact, email })}
-                onBlur={() => setEmailTouched(true)}
-                error={emailError}
-              />
-              <ContactField
-                id="portal-contact-phone"
-                label={t(($) => $.confirm.phone)}
-                type="tel"
-                autoComplete="tel"
-                value={contact.phone}
-                onChange={(phone) => setContact({ ...contact, phone })}
-              />
-              <Button
-                className="w-full"
-                disabled={
-                  chat.confirming || !contact.name.trim() || !contact.email.includes("@")
-                }
-                onClick={() => chat.confirm(contact)}
-              >
-                {chat.confirming ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                ) : null}
-                {t(($) => $.confirm.submit)}
-              </Button>
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
+          <AgentBubble content={greeting || t(($) => $.chat.greeting)} />
+          {chat.messages.map((m) =>
+            m.role === "user" ? (
+              <UserBubble key={m.id} content={m.content} />
+            ) : (
+              <AgentBubble key={m.id} content={stripSummaryMarkers(m.content)} />
+            ),
+          )}
+          {chat.outgoing ? <UserBubble content={chat.outgoing} pending /> : null}
+          {chat.pending ? <TypingIndicator label={t(($) => $.chat.thinking)} /> : null}
+          {chat.summaryReady ? (
+            <div className="portal-gradient-border rounded-xl bg-card p-4 duration-300 animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none sm:p-5">
+              <p className="mb-4 text-sm font-semibold">{t(($) => $.confirm.title)}</p>
+              <div className="space-y-3">
+                <ContactField
+                  id="portal-contact-name"
+                  label={t(($) => $.confirm.name)}
+                  required
+                  autoComplete="name"
+                  value={contact.name}
+                  onChange={(name) => setContact({ ...contact, name })}
+                />
+                <ContactField
+                  id="portal-contact-email"
+                  label={t(($) => $.confirm.email)}
+                  required
+                  type="email"
+                  autoComplete="email"
+                  value={contact.email}
+                  onChange={(email) => setContact({ ...contact, email })}
+                  onBlur={() => setEmailTouched(true)}
+                  error={emailError}
+                />
+                <ContactField
+                  id="portal-contact-phone"
+                  label={t(($) => $.confirm.phone)}
+                  type="tel"
+                  autoComplete="tel"
+                  value={contact.phone}
+                  onChange={(phone) => setContact({ ...contact, phone })}
+                />
+                <Button
+                  className="w-full"
+                  disabled={
+                    chat.confirming || !contact.name.trim() || !contact.email.includes("@")
+                  }
+                  onClick={() => chat.confirm(contact)}
+                >
+                  {chat.confirming ? (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  ) : null}
+                  {t(($) => $.confirm.submit)}
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : null}
-        <div ref={bottomRef} />
+          ) : null}
+          <div ref={bottomRef} />
+        </div>
       </div>
       <div className="border-t border-border/60 p-3 sm:p-4">
-        {chat.agentUnavailable ? (
-          <div
-            role="alert"
-            className="mb-2 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm"
-          >
-            <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
-            {t(($) => $.chat.agent_unavailable)}
+        <div className="mx-auto w-full max-w-2xl">
+          {chat.agentUnavailable ? (
+            <div
+              role="alert"
+              className="mb-2 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm"
+            >
+              <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
+              {t(($) => $.chat.agent_unavailable)}
+            </div>
+          ) : null}
+          <div className="flex items-end gap-2 rounded-xl border border-input bg-secondary/40 p-1.5 pl-3.5 transition-colors focus-within:border-brand/50 focus-within:ring-1 focus-within:ring-brand/40">
+            <Textarea
+              ref={composerRef}
+              rows={2}
+              aria-label={t(($) => $.chat.placeholder)}
+              className="min-h-0 flex-1 resize-none border-0 bg-transparent p-0 py-1.5 shadow-none focus-visible:ring-0"
+              placeholder={t(($) => $.chat.placeholder)}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  submit();
+                }
+              }}
+            />
+            <Button
+              size="icon"
+              className="size-11 shrink-0 rounded-full sm:size-9"
+              aria-label={t(($) => $.chat.send)}
+              onClick={submit}
+              disabled={chat.pending || chat.sendBusy || !draft.trim()}
+            >
+              {chat.sendBusy ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Send className="size-4" />
+              )}
+            </Button>
           </div>
-        ) : null}
-        <div className="flex items-end gap-2 rounded-xl border border-input bg-secondary/40 p-1.5 pl-3.5 transition-colors focus-within:border-brand/50 focus-within:ring-1 focus-within:ring-brand/40">
-          <Textarea
-            ref={composerRef}
-            rows={2}
-            aria-label={t(($) => $.chat.placeholder)}
-            className="min-h-0 flex-1 resize-none border-0 bg-transparent p-0 py-1.5 shadow-none focus-visible:ring-0"
-            placeholder={t(($) => $.chat.placeholder)}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                submit();
-              }
-            }}
-          />
-          <Button
-            size="icon"
-            className="size-11 shrink-0 rounded-full sm:size-9"
-            aria-label={t(($) => $.chat.send)}
-            onClick={submit}
-            disabled={chat.pending || chat.sendBusy || !draft.trim()}
-          >
-            {chat.sendBusy ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Send className="size-4" />
-            )}
-          </Button>
+          {chat.pending ? (
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              {t(($) => $.chat.wait_note)}
+            </p>
+          ) : null}
         </div>
-        {chat.pending ? (
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            {t(($) => $.chat.wait_note)}
-          </p>
-        ) : null}
       </div>
     </PortalShell>
   );
@@ -254,6 +269,9 @@ function PortalShell({
 }) {
   const { t } = useT("portal");
   const panelRef = useRef<HTMLDivElement>(null);
+  // Desktop-only wide mode, mirroring the in-app chat window's expand/restore.
+  // Lives here so it survives the connecting → active → confirmed re-renders.
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -322,7 +340,12 @@ function PortalShell({
       tabIndex={-1}
       role="dialog"
       aria-label={title}
-      className="fixed inset-x-0 top-0 z-50 h-[var(--portal-vvh,100dvh)] outline-none sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(44rem,calc(100dvh-3rem))] sm:w-[min(26.5rem,calc(100vw-3rem))]"
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 h-[var(--portal-vvh,100dvh)] outline-none",
+        expanded
+          ? "sm:inset-6 sm:mx-auto sm:h-auto sm:max-w-6xl"
+          : "sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(44rem,calc(100dvh-3rem))] sm:w-[min(26.5rem,calc(100vw-3rem))]",
+      )}
     >
       <div className="portal-gradient-border portal-glow flex h-full w-full flex-col overflow-hidden bg-card pb-[env(safe-area-inset-bottom)] duration-300 animate-in fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:rounded-2xl">
         <div className="flex items-center gap-3 border-b border-border/60 px-4 py-3">
@@ -341,6 +364,15 @@ function PortalShell({
               {t(($) => $.chat.status)}
             </p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden size-9 shrink-0 sm:inline-flex"
+            aria-label={expanded ? t(($) => $.chat.collapse) : t(($) => $.chat.expand)}
+            onClick={() => setExpanded((v) => !v)}
+          >
+            {expanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+          </Button>
           <Button
             variant="ghost"
             size="icon"

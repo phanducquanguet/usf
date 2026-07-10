@@ -207,7 +207,9 @@
     "start_failed": "Chưa kết nối được cuộc trò chuyện. Bạn kiểm tra mạng và thử lại nhé.",
     "retry": "Thử lại",
     "send": "Gửi tin nhắn",
-    "close": "Đóng cửa sổ tư vấn"
+    "close": "Đóng cửa sổ tư vấn",
+    "expand": "Mở rộng cửa sổ tư vấn",
+    "collapse": "Khôi phục cửa sổ tư vấn"
   },
   "confirm": {
     "title": "Xác nhận bản tóm tắt và để lại thông tin liên hệ",
