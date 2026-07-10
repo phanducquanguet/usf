@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"context"
 	"crypto/rand"
+	_ "embed"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"net"
@@ -278,7 +280,7 @@ func runAuthLoginBrowser(cmd *cobra.Command) error {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(callbackSuccessHTML))
+		w.Write([]byte(renderCallbackSuccessHTML()))
 		jwtCh <- token
 	})
 
@@ -489,6 +491,20 @@ func runAuthStatus(cmd *cobra.Command, _ []string) error {
 	return nil
 }
 
+// UNICOM logo lockup, theme-aware pair. Copied from packages/views/assets/;
+// embedded because the loopback callback page must be fully self-contained.
+//
+//go:embed assets/unicom-logo-light.png
+var unicomLogoLightPNG []byte
+
+//go:embed assets/unicom-logo-dark.png
+var unicomLogoDarkPNG []byte
+
+func renderCallbackSuccessHTML() string {
+	html := strings.ReplaceAll(callbackSuccessHTML, "{{LOGO_LIGHT}}", base64.StdEncoding.EncodeToString(unicomLogoLightPNG))
+	return strings.ReplaceAll(html, "{{LOGO_DARK}}", base64.StdEncoding.EncodeToString(unicomLogoDarkPNG))
+}
+
 const callbackSuccessHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -507,8 +523,16 @@ const callbackSuccessHTML = `<!DOCTYPE html>
   .card { width: 100%; max-width: 380px; border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg); padding: 40px 32px; text-align: center; }
   .icon-wrap { width: 48px; height: 48px; margin: 0 auto 24px; background: var(--accent-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
   .icon-wrap svg { width: 24px; height: 24px; color: var(--accent); }
-  .brand { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; }
-  .asterisk { display: inline-block; width: 14px; height: 14px; background: var(--fg); clip-path: polygon(45% 62.1%,45% 100%,55% 100%,55% 62.1%,81.8% 88.9%,88.9% 81.8%,62.1% 55%,100% 55%,100% 45%,62.1% 45%,88.9% 18.2%,81.8% 11.1%,55% 37.9%,55% 0%,45% 0%,45% 37.9%,18.2% 11.1%,11.1% 18.2%,37.9% 45%,0% 45%,0% 55%,37.9% 55%,11.1% 81.8%,18.2% 88.9%); }
+  .brand { display: flex; justify-content: center; margin-bottom: 8px; }
+  /* The "AI SOFTWARE FACTORY" tagline is baked into the bottom ~37% of the PNG;
+     clip it by oversizing the image inside an overflow-hidden box aligned to top. */
+  .logo-clip { display: inline-flex; align-items: flex-start; overflow: hidden; height: 28px; }
+  .logo-clip img { height: 159%; width: auto; max-width: none; }
+  .logo-dark { display: none; }
+  @media (prefers-color-scheme: dark) {
+    .logo-light { display: none; }
+    .logo-dark { display: block; }
+  }
   h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
   p { font-size: 14px; color: var(--fg2); line-height: 1.5; }
   .hint { margin-top: 24px; font-size: 13px; color: var(--fg2); opacity: 0.7; }
@@ -519,7 +543,12 @@ const callbackSuccessHTML = `<!DOCTYPE html>
     <div class="icon-wrap">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
     </div>
-    <div class="brand"><span class="asterisk"></span></div>
+    <div class="brand">
+      <span class="logo-clip">
+        <img class="logo-light" src="data:image/png;base64,{{LOGO_LIGHT}}" alt="UNICOM">
+        <img class="logo-dark" src="data:image/png;base64,{{LOGO_DARK}}" alt="UNICOM">
+      </span>
+    </div>
     <h1>Authentication successful</h1>
     <p>You can close this tab and return to the terminal.</p>
     <p class="hint">Your CLI session is now authenticated.</p>
