@@ -19,6 +19,11 @@
       "sync_failed": "Không thể lưu tùy chọn múi giờ của bạn."
     }
   },
+  "chat": {
+    "floating_title": "Cửa sổ nổi",
+    "floating_label": "Cửa sổ trò chuyện nổi",
+    "floating_hint": "Hiện nút trò chuyện nổi ở góc mọi trang. Mặc định tắt — bật lên để mở trò chuyện ở bất cứ đâu; khi tắt, Trò chuyện chỉ nằm trong tab này."
+  },
   "page": {
     "title": "Cài đặt",
     "my_account": "Tài khoản của tôi",
@@ -26,6 +31,7 @@
     "tabs": {
       "profile": "Hồ sơ",
       "preferences": "Tùy chọn",
+      "chat": "Trò chuyện",
       "notifications": "Thông báo",
       "tokens": "API Token",
       "general": "Chung",

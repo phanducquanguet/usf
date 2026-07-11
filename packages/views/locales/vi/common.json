@@ -1,4 +1,24 @@
 {
+  "avatar_upload": {
+    "change": "Đổi ảnh đại diện",
+    "remove": "Gỡ",
+    "select_image": "Vui lòng chọn một tệp ảnh.",
+    "updated": "Đã cập nhật ảnh đại diện",
+    "failed": "Không thể tải ảnh đại diện lên"
+  },
+  "avatar_crop": {
+    "title": "Chỉnh sửa ảnh đại diện",
+    "zoom": "Thu phóng",
+    "zoom_in": "Phóng to",
+    "zoom_out": "Thu nhỏ",
+    "rotate": "Xoay",
+    "reset": "Đặt lại",
+    "cancel": "Hủy",
+    "apply": "Lưu",
+    "uploading": "Đang tải lên…",
+    "loading": "Đang tải…",
+    "load_failed": "Không thể tải ảnh"
+  },
   "save": "Lưu",
   "cancel": "Hủy",
   "delete": "Xóa",

@@ -365,6 +365,7 @@
     "trigger_comment": "Kích hoạt từ bình luận",
     "trigger_initial": "Lần chạy đầu",
     "trigger_handoff_prefix": "Bàn giao: ",
+    "included_comments_other": "Bao gồm {{count}} bình luận",
     "status_queued": "Trong hàng đợi",
     "status_dispatched": "Đang khởi động",
     "status_waiting_local_directory": "Đang chờ thư mục cục bộ",

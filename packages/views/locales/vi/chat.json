@@ -1,4 +1,8 @@
 {
+  "page": {
+    "title": "Trò chuyện",
+    "select_prompt": "Chọn một cuộc trò chuyện, hoặc bắt đầu cuộc mới bằng +"
+  },
   "fab": {
     "running": "UniAI đang làm việc...",
     "unread_other": "{{count}} cuộc trò chuyện chưa đọc",
@@ -7,18 +11,31 @@
   "input": {
     "placeholder_no_agent": "Tạo một agent để bắt đầu trò chuyện",
     "placeholder_archived": "Phiên trò chuyện này đã được lưu trữ",
+    "placeholder_archived_agent": "Agent này đã được lưu trữ",
     "placeholder_named": "Nhắn cho {{name}}…",
     "placeholder_default": "Bắt đầu soạn tin nhắn…",
     "send_tooltip": "Gửi",
     "stop_tooltip": "Dừng",
     "send_failed_toast": "Không thể gửi tin nhắn",
-    "attachment_bind_failed_toast": "Tin nhắn đã gửi, nhưng tệp chưa được đính kèm. Vui lòng thử lại sau giây lát."
+    "attachment_bind_failed_toast": "Tin nhắn đã gửi, nhưng tệp chưa được đính kèm. Vui lòng thử lại sau giây lát.",
+    "add_tooltip": "Thêm",
+    "upload_file": "Ảnh hoặc tệp"
   },
   "message_list": {
     "show_details": "Xem chi tiết",
     "replied_in": "Trả lời trong {{elapsed}}",
     "failed_after": "Thất bại sau {{elapsed}}",
-    "task_failed_fallback": "Task thất bại",
+    "finished_in": "Hoàn thành trong {{elapsed}}",
+    "no_response": "Agent đã kết thúc lượt này mà không có trả lời dạng văn bản.",
+    "failure": {
+      "agent_error": "Agent gặp lỗi và không thể trả lời xong. Vui lòng thử lại.",
+      "timeout": "Agent mất quá nhiều thời gian và đã dừng trước khi hoàn thành. Hãy thử lại, hoặc chia yêu cầu thành các bước nhỏ hơn.",
+      "codex_semantic_inactivity": "Agent không còn hoạt động và đã dừng trước khi hoàn thành. Vui lòng thử lại.",
+      "runtime_offline": "Agent hiện đang ngoại tuyến nên không thể trả lời. Hãy thử lại khi agent trực tuyến trở lại.",
+      "runtime_recovery": "Agent đã khởi động lại trước khi kịp hoàn thành. Vui lòng thử lại.",
+      "manual": "Trả lời này đã bị hủy.",
+      "fallback": "Đã có lỗi xảy ra và agent không thể trả lời xong. Vui lòng thử lại."
+    },
     "tools_other": "{{count}} công cụ",
     "tool_result_named": "Kết quả {{tool}}: ",
     "tool_result_unnamed": "kết quả: ",
@@ -26,7 +43,8 @@
     "copy_action": "Sao chép",
     "copied_toast": "Đã sao chép",
     "copy_failed_toast": "Sao chép thất bại",
-    "loading_older": "Đang tải tin nhắn cũ hơn…"
+    "loading_older": "Đang tải tin nhắn cũ hơn…",
+    "task_failed_fallback": "Task thất bại"
   },
   "session_history": {
     "untitled": "Chưa đặt tên",
@@ -87,7 +105,8 @@
     "first_time_actions": "Nhờ tóm tắt, lên kế hoạch trong ngày, hoặc giao nhanh một task.",
     "returning_title_named": "Chào bạn, mình là {{name}}",
     "returning_title_default": "Chào mừng đến với UniAI",
-    "returning_subtitle": "Thử hỏi"
+    "returning_subtitle": "Thử hỏi",
+    "chat_with_named": "Trò chuyện với {{name}}"
   },
   "starter_prompts": {
     "list_open": "Liệt kê các task đang mở của tôi theo độ ưu tiên",
@@ -95,6 +114,7 @@
     "plan_next": "Lên kế hoạch việc cần làm tiếp theo"
   },
   "no_agent_banner": "Bạn cần một agent để bắt đầu trò chuyện.",
+  "archived_agent_banner": "{{name}} đã được lưu trữ — cuộc trò chuyện này chỉ đọc.",
   "offline_banner": {
     "fallback_name": "agent",
     "unstable": "Kết nối của {{name}} không ổn định — phản hồi có thể bị chậm.",
@@ -118,5 +138,30 @@
       "searching_web": "Đang tìm trên web",
       "fallback": "Đang làm việc"
     }
+  },
+  "list": {
+    "typing": "Đang nhập…",
+    "failed": "Gửi thất bại",
+    "you_prefix": "Bạn: ",
+    "no_messages": "Chưa có tin nhắn",
+    "no_response_preview": "Không có trả lời văn bản",
+    "quick_agents": "Agent thường dùng",
+    "add": "Thêm",
+    "add_agent": "Thêm agent thường dùng",
+    "unpin_agent": "Bỏ khỏi thường dùng",
+    "waiting": "Đang chờ trả lời",
+    "pin": "Ghim",
+    "unpin": "Bỏ ghim",
+    "pinned": "Đã ghim",
+    "archive": "Lưu trữ",
+    "unarchive": "Bỏ lưu trữ",
+    "archived_title": "Đã lưu trữ"
+  },
+  "header": {
+    "view_profile": "Xem hồ sơ agent",
+    "rename": "Đổi tên cuộc trò chuyện",
+    "archive": "Lưu trữ cuộc trò chuyện",
+    "unarchive": "Bỏ lưu trữ cuộc trò chuyện",
+    "delete": "Xóa cuộc trò chuyện"
   }
 }

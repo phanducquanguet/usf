@@ -58,6 +58,19 @@
       "cli": "CLI",
       "cloud_worker": "Worker đám mây",
       "local_daemon": "Daemon cục bộ"
+    },
+    "rename": "Đổi tên máy",
+    "rename_dialog": {
+      "title": "Đổi tên máy",
+      "description": "Đặt cho máy này một cái tên dễ nhận ra. Tên áp dụng cho mọi runtime trên máy và hiển thị khi bạn chọn runtime cho agent.",
+      "placeholder": "vd. MacBook của Quang",
+      "hint": "Để trống để dùng tên mặc định của thiết bị.",
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu...",
+      "toast_saved": "Đã đổi tên máy",
+      "toast_cleared": "Đã xóa tên máy",
+      "toast_failed": "Không thể đổi tên máy"
     }
   },
   "health": {

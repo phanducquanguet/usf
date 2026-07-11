@@ -249,6 +249,9 @@
     "runtime_cloud_badge": "Đám mây",
     "runtime_private_badge": "Riêng tư",
     "runtime_private_locked_tooltip": "Runtime riêng tư — chỉ chủ sở hữu hoặc quản trị viên của không gian làm việc mới có thể tạo agent trên đó. Hãy nhờ chủ sở hữu chuyển sang Công khai để chia sẻ.",
+    "runtime_search_placeholder": "Tìm máy…",
+    "runtime_no_results": "Không có máy nào khớp",
+    "runtime_group_online": "{{online}}/{{total}} trực tuyến",
     "duplicate_copy_suffix": " (Bản sao)",
     "create": "Tạo",
     "creating": "Đang tạo...",
@@ -477,7 +480,9 @@
     "runtime_label": "Runtime",
     "skills_label": "Skills",
     "owner_label": "Chủ sở hữu",
-    "unknown_runtime": "Runtime không xác định"
+    "unknown_runtime": "Runtime không xác định",
+    "model_label": "Model",
+    "model_unset": "Theo mặc định của runtime"
   },
   "live_peek": {
     "current_issue_label": "Đang làm",
