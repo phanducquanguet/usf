@@ -105,4 +105,49 @@ describe("PortalChat session start", () => {
     await user.keyboard("{Escape}");
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it("does not close on Escape while the composer holds a draft", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    mockCreateSession.mockResolvedValue({ token: "tok-1" });
+    mockListMessages.mockResolvedValue({ messages: [], pending: false, status: "active" });
+    renderChat({ onClose });
+
+    const composer = await screen.findByPlaceholderText(enPortal.chat.placeholder);
+    await user.type(composer, "half-written requirement");
+    await user.keyboard("{Escape}");
+    expect(onClose).not.toHaveBeenCalled();
+
+    await user.clear(composer);
+    await user.keyboard("{Escape}");
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("PortalChat send failure", () => {
+  it("keeps a failed message visible with a working resend action", async () => {
+    const user = userEvent.setup();
+    mockCreateSession.mockResolvedValue({ token: "tok-1" });
+    mockListMessages.mockResolvedValue({ messages: [], pending: false, status: "active" });
+    mockSendMessage.mockRejectedValueOnce(new Error("500"));
+    renderChat();
+
+    const composer = await screen.findByPlaceholderText(enPortal.chat.placeholder);
+    await user.type(composer, "I need an inventory system{Enter}");
+
+    // The content must survive the failure, alongside an announced error.
+    expect(await screen.findByText(enPortal.chat.send_failed)).toBeInTheDocument();
+    expect(screen.getByText("I need an inventory system")).toBeInTheDocument();
+
+    mockSendMessage.mockResolvedValueOnce({
+      id: "m1",
+      role: "user",
+      content: "I need an inventory system",
+      created_at: "2026-01-01T00:00:00Z",
+    });
+    await user.click(screen.getByRole("button", { name: enPortal.chat.resend }));
+
+    expect(mockSendMessage).toHaveBeenCalledTimes(2);
+    expect(mockSendMessage).toHaveBeenLastCalledWith("tok-1", "I need an inventory system");
+  });
 });

@@ -29,6 +29,10 @@ export function usePortalChat() {
   // Set when a send fails with 503 agent_unavailable (daemon offline) so the
   // UI can show an "assistant is busy" banner.
   const [agentUnavailable, setAgentUnavailable] = useState(false);
+  // Pending-message pattern, failure half: a send that errored keeps its
+  // content here so the UI can render a failed bubble with a retry action
+  // instead of silently dropping what the guest wrote.
+  const [failed, setFailed] = useState<string | null>(null);
 
   const clearToken = useCallback(() => {
     defaultStorage.removeItem(PORTAL_TOKEN_STORAGE_KEY);
@@ -80,13 +84,21 @@ export function usePortalChat() {
     mutationFn: (content: string) => api.sendPortalMessage(token as string, content),
     onMutate: (content) => {
       setOutgoing(content);
+      setFailed(null);
       setAgentUnavailable(false);
     },
-    onError: (err) => {
+    onError: (err, content) => {
       setOutgoing(null);
       if (isAuthGone(err)) clearToken();
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("503") || msg.includes("agent_unavailable")) setAgentUnavailable(true);
+      if (msg.includes("503") || msg.includes("agent_unavailable")) {
+        // The server persists the message before enqueueing the agent run, so
+        // on 503 it is already saved — retrying would duplicate it. The busy
+        // banner is the whole story.
+        setAgentUnavailable(true);
+      } else {
+        setFailed(content);
+      }
     },
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: ["portal", "messages", token] }),
@@ -114,6 +126,10 @@ export function usePortalChat() {
     startFailed: start.isError,
     messages,
     outgoing: visibleOutgoing,
+    failed,
+    retry: () => {
+      if (token != null && failed != null) send.mutate(failed);
+    },
     pending,
     status,
     summaryReady,
@@ -126,5 +142,6 @@ export function usePortalChat() {
       if (token != null) confirm.mutate(contact);
     },
     confirming: confirm.isPending,
+    confirmFailed: confirm.isError,
   };
 }

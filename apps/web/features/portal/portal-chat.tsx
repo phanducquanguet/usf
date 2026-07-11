@@ -44,8 +44,12 @@ export function PortalChat({
   const [draft, setDraft] = useState("");
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [emailTouched, setEmailTouched] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const logRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
+  // True while the guest is at (or near) the bottom of the log. Polling can
+  // deliver new messages while they scrolled up to reread — don't yank them
+  // down; only follow the conversation when they're already following it.
+  const stickToBottomRef = useRef(true);
 
   const { hasSession, starting, startFailed, startSession } = chat;
   useEffect(() => {
@@ -61,13 +65,24 @@ export function PortalChat({
     if (window.matchMedia("(min-width: 640px)").matches) composerRef.current?.focus();
   }, [hasSession]);
 
+  // Scroll the log container directly — never native scrollIntoView, which
+  // scrolls every scrollable ancestor (landing page / visual viewport) and
+  // makes the fixed panel jump over the conversation (#3929-class bug).
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat.messages.length, chat.outgoing, chat.pending]);
+    const el = logRef.current;
+    if (!el || !stickToBottomRef.current) return;
+    if (typeof el.scrollTo === "function") {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [chat.messages.length, chat.outgoing, chat.pending, chat.failed]);
 
   const submit = () => {
     const content = draft.trim();
     if (!content || chat.pending || chat.sendBusy) return;
+    // Sending is an explicit "I'm at the conversation's end" signal.
+    stickToBottomRef.current = true;
     chat.send(content);
     setDraft("");
   };
@@ -136,12 +151,21 @@ export function PortalChat({
   return (
     <PortalShell onClose={onClose} title={agentName ?? t(($) => $.chat.title)}>
       {/* The column caps at ~70ch and centers itself, so the expanded desktop
-       * panel keeps a readable measure instead of edge-to-edge bubbles. */}
+       * panel keeps a readable measure instead of edge-to-edge bubbles.
+       * tabIndex: scrollable region must be keyboard-reachable — Safari and
+       * Firefox don't make scroll containers focusable on their own. */}
       <div
+        ref={logRef}
         role="log"
         aria-live="polite"
         aria-label={agentName ?? t(($) => $.chat.title)}
+        tabIndex={0}
         className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5"
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          stickToBottomRef.current =
+            el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+        }}
       >
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
           <AgentBubble content={greeting || t(($) => $.chat.greeting)} />
@@ -153,6 +177,25 @@ export function PortalChat({
             ),
           )}
           {chat.outgoing ? <UserBubble content={chat.outgoing} pending /> : null}
+          {chat.failed ? (
+            <>
+              <UserBubble content={chat.failed} pending />
+              <div
+                role="alert"
+                className="flex items-center gap-2 self-end text-xs text-destructive"
+              >
+                {t(($) => $.chat.send_failed)}
+                <button
+                  type="button"
+                  className="font-medium underline underline-offset-2 disabled:opacity-50"
+                  onClick={chat.retry}
+                  disabled={chat.sendBusy}
+                >
+                  {t(($) => $.chat.resend)}
+                </button>
+              </div>
+            </>
+          ) : null}
           {chat.pending ? <TypingIndicator label={t(($) => $.chat.thinking)} /> : null}
           {chat.summaryReady ? (
             <div className="portal-gradient-border rounded-xl bg-card p-4 duration-300 animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none sm:p-5">
@@ -197,10 +240,14 @@ export function PortalChat({
                   ) : null}
                   {t(($) => $.confirm.submit)}
                 </Button>
+                {chat.confirmFailed && !chat.confirming ? (
+                  <p role="alert" className="text-xs text-destructive">
+                    {t(($) => $.confirm.failed)}
+                  </p>
+                ) : null}
               </div>
             </div>
           ) : null}
-          <div ref={bottomRef} />
         </div>
       </div>
       <div className="border-t border-border/60 p-3 sm:p-4">
@@ -219,12 +266,14 @@ export function PortalChat({
               ref={composerRef}
               rows={2}
               aria-label={t(($) => $.chat.placeholder)}
-              className="min-h-0 flex-1 resize-none border-0 bg-transparent p-0 py-1.5 shadow-none focus-visible:ring-0"
+              className="max-h-32 min-h-0 flex-1 resize-none border-0 bg-transparent p-0 py-1.5 shadow-none field-sizing-content focus-visible:ring-0"
               placeholder={t(($) => $.chat.placeholder)}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+                // isComposing: Enter that commits an IME composition must not
+                // send a half-composed message.
+                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                   e.preventDefault();
                   submit();
                 }
@@ -275,7 +324,18 @@ function PortalShell({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key !== "Escape" || e.isComposing) return;
+      // Closing unmounts the panel and discards the draft / half-filled
+      // contact form. If the guest is mid-typing, Escape must not eat their
+      // text — a second Escape from an empty field still closes.
+      const el = e.target;
+      if (
+        (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) &&
+        el.value.trim() !== ""
+      ) {
+        return;
+      }
+      onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

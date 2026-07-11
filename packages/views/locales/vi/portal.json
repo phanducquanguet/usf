@@ -202,6 +202,8 @@
     "placeholder": "Mô tả phần mềm bạn muốn xây dựng…",
     "thinking": "Trợ lý đang soạn trả lời…",
     "wait_note": "Vui lòng đợi trợ lý trả lời xong rồi gửi tin tiếp theo.",
+    "send_failed": "Tin nhắn chưa gửi được.",
+    "resend": "Gửi lại",
     "agent_unavailable": "Trợ lý đang bận, bạn vui lòng thử lại sau ít phút.",
     "connecting": "Đang kết nối với trợ lý…",
     "start_failed": "Chưa kết nối được cuộc trò chuyện. Bạn kiểm tra mạng và thử lại nhé.",
@@ -217,7 +219,8 @@
     "email": "Email",
     "email_invalid": "Email chưa đúng định dạng, bạn kiểm tra lại nhé.",
     "phone": "Số điện thoại (không bắt buộc)",
-    "submit": "Xác nhận & gửi yêu cầu"
+    "submit": "Xác nhận & gửi yêu cầu",
+    "failed": "Gửi yêu cầu chưa thành công, bạn thử lại nhé."
   },
   "thankyou": {
     "title": "Cảm ơn bạn!",

@@ -202,6 +202,8 @@
     "placeholder": "Describe the software you want to build…",
     "thinking": "The assistant is writing a reply…",
     "wait_note": "Please wait for the assistant to finish before sending the next message.",
+    "send_failed": "Message failed to send.",
+    "resend": "Resend",
     "agent_unavailable": "The assistant is busy right now — please try again in a few minutes.",
     "connecting": "Connecting you with the assistant…",
     "start_failed": "We couldn't start the conversation. Please check your connection and try again.",
@@ -217,7 +219,8 @@
     "email": "Email",
     "email_invalid": "Please enter a valid email address.",
     "phone": "Phone number (optional)",
-    "submit": "Confirm & submit request"
+    "submit": "Confirm & submit request",
+    "failed": "We couldn't submit your request — please try again."
   },
   "thankyou": {
     "title": "Thank you!",
