@@ -69,9 +69,18 @@ type PrepareParams struct {
 
 // TaskContextForEnv is the subset of task context used for writing context files.
 type TaskContextForEnv struct {
-	IssueID                 string
-	TriggerCommentID        string // comment that triggered this task (empty for on_assign)
-	TriggerThreadID         string // root comment ID for the triggering thread; falls back to TriggerCommentID when empty
+	IssueID          string
+	TriggerCommentID string // comment that triggered this task (empty for on_assign)
+	TriggerThreadID  string // root comment ID for the triggering thread; falls back to TriggerCommentID when empty
+	// CommentReplyTargets is set for a comment run that coalesced comments
+	// spanning MORE THAN ONE root thread (MUL-4348). When it has >=2 entries the
+	// workflow's reply step fans out — one reply per thread — instead of the
+	// single --parent=trigger cookbook, keeping this persistent brief in sync
+	// with the per-turn prompt so a cross-thread run cannot get one source
+	// telling it "one comment" and the other "one per thread". Same-thread
+	// follow-ups collapse to a single group upstream, so this stays empty and
+	// the single-parent path is used (no duplicate replies).
+	CommentReplyTargets     []ThreadReplyTarget
 	NewCommentCount         int    // issue-wide comments since this agent's last run (excludes its own and the injected trigger)
 	NewCommentsSince        string // RFC3339 anchor (last run's started_at) the count is measured from; empty on cold start
 	PriorSessionResumed     bool   // true when the daemon will resume an existing provider session for this task
@@ -200,6 +209,16 @@ func Prepare(params PrepareParams, logger *slog.Logger) (*Environment, error) {
 
 	envRoot := filepath.Join(params.WorkspacesRoot, params.WorkspaceID, shortID(params.TaskID))
 
+	// Self-heal the root-level daemon marker on every task start so a marker
+	// removed while the daemon runs is restored before the agent spawns. The
+	// per-workdir marker written below only covers cwds inside the workdir;
+	// the root marker keeps the CLI fail-closed guard active for subprocesses
+	// that lose all MULTICA_* env vars AND escape above the workdir. Non-fatal:
+	// without it the workdir marker still protects the common case.
+	if err := EnsureWorkspacesRootMarker(params.WorkspacesRoot); err != nil && logger != nil {
+		logger.Warn("execenv: workspaces root marker not written; fail-closed guard limited to the task workdir", "error", err)
+	}
+
 	// Remove existing env if present (defensive — task IDs are unique).
 	if _, err := os.Stat(envRoot); err == nil {
 		if err := os.RemoveAll(envRoot); err != nil {
@@ -299,10 +318,15 @@ func Prepare(params PrepareParams, logger *slog.Logger) (*Environment, error) {
 // the per-provider knobs (CodexVersion, OpenclawBin) so callers can pass
 // the same resolved binary path on both first-run and reuse paths.
 type ReuseParams struct {
-	WorkDir      string
-	Provider     string
-	CodexVersion string // only used when Provider == "codex"
-	OpenclawBin  string // only used when Provider == "openclaw"; empty = PATH lookup
+	// WorkspacesRoot is the daemon-owned root under which all task envs live.
+	// Passed on reuse so the root-level fail-closed marker is self-healed here
+	// too — a marker removed while the daemon runs is restored before a reused
+	// task spawns, not only on the fresh-Prepare path.
+	WorkspacesRoot string
+	WorkDir        string
+	Provider       string
+	CodexVersion   string // only used when Provider == "codex"
+	OpenclawBin    string // only used when Provider == "openclaw"; empty = PATH lookup
 	// McpConfig is the agent's saved `mcp_config` JSON. Reused on reuse so a
 	// freshly-saved managed set re-materialises into the wrapper before the
 	// task starts — without this a stale wrapper from a prior run would keep
@@ -327,6 +351,17 @@ type ReuseParams struct {
 func Reuse(params ReuseParams, logger *slog.Logger) *Environment {
 	if _, err := os.Stat(params.WorkDir); err != nil {
 		return nil
+	}
+
+	// Self-heal the root-level daemon marker on the reuse path too, so a marker
+	// removed while the daemon runs is restored before a reused task spawns —
+	// otherwise reuse could run without the fail-closed guard until the next
+	// fresh Prepare. Non-fatal: the per-workdir marker still protects the common
+	// case, and an empty WorkspacesRoot (legacy callers) simply skips this.
+	if params.WorkspacesRoot != "" {
+		if err := EnsureWorkspacesRootMarker(params.WorkspacesRoot); err != nil && logger != nil {
+			logger.Warn("execenv: workspaces root marker not written on reuse; fail-closed guard limited to the task workdir", "error", err)
+		}
 	}
 
 	rootDir := filepath.Dir(params.WorkDir)

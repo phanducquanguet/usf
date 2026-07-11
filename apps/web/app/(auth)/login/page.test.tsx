@@ -109,7 +109,7 @@ describe("LoginPage", () => {
   it("renders login form with email input and continue button", () => {
     render(<LoginPage />, { wrapper: createWrapper() });
 
-    expect(screen.getByText("Sign in to UniAI")).toBeInTheDocument();
+    expect(screen.getByText("Welcome back")).toBeInTheDocument();
     expect(screen.getByText("Enter your email to get a login code")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(
@@ -192,7 +192,15 @@ describe("LoginPage", () => {
     const originalLocation = window.location;
     Object.defineProperty(window, "location", {
       configurable: true,
-      value: { ...originalLocation, set href(value: string) { hrefSetter(value); } },
+      value: {
+        ...originalLocation,
+        get href() {
+          return originalLocation.href;
+        },
+        set href(value: string) {
+          hrefSetter(value);
+        },
+      },
     });
 
     try {
@@ -207,7 +215,7 @@ describe("LoginPage", () => {
         );
       });
       expect(
-        await screen.findByRole("button", { name: "Open UniAI Desktop" }),
+        await screen.findByRole("button", { name: "Open UNICOM Desktop" }),
       ).toBeInTheDocument();
     } finally {
       Object.defineProperty(window, "location", {
