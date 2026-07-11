@@ -189,8 +189,8 @@ function RuntimeNameCell({ runtime }: { runtime: AgentRuntime }) {
       <div className="flex h-8 w-8 shrink-0 items-center justify-center">
         <ProviderLogo provider={runtime.provider} className="h-5 w-5" />
       </div>
-      <div className="flex min-w-0 flex-1 items-center gap-1.5">
-        <span className="block min-w-0 shrink truncate text-sm font-medium">
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+        <span className="block min-w-[4ch] shrink truncate text-sm font-medium">
           {baseName}
         </span>
         <RuntimeKindBadge runtime={runtime} />
@@ -242,9 +242,17 @@ function VisibilityBadge({ runtime }: { runtime: AgentRuntime }) {
     <Tooltip>
       <TooltipTrigger
         render={
-          <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-info/10 px-1 text-[10px] font-medium text-info">
-            <Globe className="h-2.5 w-2.5" />
-            {t(($) => $.detail.visibility_label.public)}
+          // The badge collapses to icon-only below @2xl, so the tooltip is
+          // the only place the full label survives — keep it reachable by
+          // keyboard.
+          <span
+            tabIndex={0}
+            className="inline-flex min-w-0 items-center gap-0.5 rounded bg-info/10 px-1 py-0.5 text-[10px] font-medium text-info outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          >
+            <Globe className="h-2.5 w-2.5 shrink-0" />
+            <span className="sr-only @2xl:not-sr-only @2xl:truncate">
+              {t(($) => $.detail.visibility_label.public)}
+            </span>
           </span>
         }
       />
