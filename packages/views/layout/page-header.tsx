@@ -3,7 +3,7 @@
 import { cn } from "@multica/ui/lib/utils";
 import { SidebarTrigger, useSidebarSafe } from "@multica/ui/components/ui/sidebar";
 
-function MobileSidebarTrigger() {
+export function MobileSidebarTrigger() {
   const sidebar = useSidebarSafe();
   if (!sidebar) return null;
   return <SidebarTrigger className="mr-2 md:hidden" />;

@@ -17,6 +17,7 @@ import { GitHubMark } from "./github-mark";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@multica/ui/components/ui/tabs";
 import { useCurrentWorkspace } from "@multica/core/paths";
 import { useNavigation } from "../../navigation";
+import { MobileSidebarTrigger } from "../../layout/page-header";
 import { AccountTab } from "./account-tab";
 import { PreferencesTab } from "./preferences-tab";
 import { TokensTab } from "./tokens-tab";
@@ -131,7 +132,10 @@ export function SettingsPage({ extraAccountTabs }: SettingsPageProps = {}) {
     >
       {/* Left nav (stacks on top on mobile, sidebar on md+) */}
       <div className="shrink-0 md:w-52 border-b md:border-b-0 md:border-r md:overflow-y-auto p-3 md:p-4">
-        <h1 className="text-sm font-semibold mb-4 px-2">{t(($) => $.page.title)}</h1>
+        <div className="flex items-center mb-4 px-2">
+          <MobileSidebarTrigger />
+          <h1 className="text-sm font-semibold">{t(($) => $.page.title)}</h1>
+        </div>
         <TabsList variant="line" className="flex-col items-stretch w-full">
           {/* My Account group */}
           <span className="px-2 pb-1 pt-2 text-xs font-medium text-muted-foreground">
