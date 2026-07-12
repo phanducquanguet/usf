@@ -132,6 +132,19 @@ export function portalAdminConfigOptions(wsId: string) {
   });
 }
 
+export const portalProjectKeys = {
+  admin: (wsId: string) => ["portal", "admin-projects", wsId] as const,
+};
+
+// Owner/admin endpoint: other members get a 403; fail fast, no retry.
+export function portalAdminProjectsOptions(wsId: string) {
+  return queryOptions({
+    queryKey: portalProjectKeys.admin(wsId),
+    queryFn: () => api.getPortalAdminProjects(),
+    retry: false,
+  });
+}
+
 export function invitationListOptions(wsId: string) {
   return queryOptions({
     queryKey: workspaceKeys.invitations(wsId),

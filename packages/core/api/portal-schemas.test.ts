@@ -57,4 +57,61 @@ describe("portal API schema fallbacks", () => {
     const client = new ApiClient("https://api.example.test");
     expect(await client.getPortalAdminConfig()).toEqual({ enabled: false });
   });
+
+  it("getPortalProjects falls back to [] on garbage and fills missing fields", async () => {
+    stubFetchJson({ projects: "nope" });
+    const client = new ApiClient("https://api.example.test");
+    expect(await client.getPortalProjects()).toEqual([]);
+
+    stubFetchJson({ projects: [{ slug: "a", name: "A", future_field: 1 }] });
+    const projects = await client.getPortalProjects();
+    expect(projects).toEqual([
+      {
+        slug: "a",
+        name: "A",
+        description: "",
+        industry: "",
+        features: [],
+        images: [],
+        demo_url: "",
+        portfolio_url: "",
+      },
+    ]);
+  });
+
+  it("getPortalProject returns null on malformed body", async () => {
+    stubFetchJson({ nope: true });
+    const client = new ApiClient("https://api.example.test");
+    expect(await client.getPortalProject("x")).toBeNull();
+  });
+
+  it("getPortalAdminProjects tolerates drift and defaults internals", async () => {
+    stubFetchJson({
+      projects: [{ id: "p1", slug: "a", name: "A", some_future_field: 1 }],
+    });
+    const client = new ApiClient("https://api.example.test");
+    const projects = await client.getPortalAdminProjects();
+    expect(projects[0]).toMatchObject({
+      id: "p1",
+      slug: "a",
+      source_url: "",
+      published: false,
+      sort_order: 0,
+    });
+  });
+
+  it("createPortalGuestSession sends project_slug only when provided", async () => {
+    stubFetchJson({ token: "pgt_a" });
+    const client = new ApiClient("https://api.example.test");
+    await client.createPortalGuestSession("my-project");
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    expect(fetchMock.mock.calls[0]?.[1]?.body).toBe(
+      JSON.stringify({ project_slug: "my-project" }),
+    );
+
+    stubFetchJson({ token: "pgt_b" });
+    await client.createPortalGuestSession();
+    const secondMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    expect(secondMock.mock.calls[0]?.[1]?.body).toBeUndefined();
+  });
 });

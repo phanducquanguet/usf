@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import type {
   Issue,
   CreateIssueRequest,
@@ -149,19 +150,26 @@ import { parseWithFallback } from "./schema";
 import {
   EMPTY_PORTAL_ADMIN_CONFIG,
   EMPTY_PORTAL_MESSAGES_PAGE,
+  EMPTY_PORTAL_PROJECTS,
   EMPTY_PORTAL_PUBLIC_CONFIG,
   portalAdminConfigSchema,
+  portalAdminProjectsSchema,
   portalGuestSessionSchema,
   portalMessagesPageSchema,
   portalPublicConfigSchema,
+  portalPublicProjectSchema,
+  portalPublicProjectsSchema,
   portalSendMessageResponseSchema,
 } from "./portal-schemas";
 import type {
   PortalAdminConfig,
+  PortalAdminProject,
   PortalChatMessage,
   PortalContact,
   PortalGuestSession,
   PortalMessagesPage,
+  PortalProject,
+  PortalProjectInput,
   PortalPublicConfig,
   UpdatePortalAdminConfigRequest,
 } from "../types/portal";
@@ -304,6 +312,29 @@ export class PreviewUnsupportedError extends Error {
     super("attachment type not supported for inline preview");
     this.name = "PreviewUnsupportedError";
   }
+}
+
+// Fills optional public-project fields so UI code never touches undefined.
+function normalizePortalProject(p: {
+  slug: string;
+  name: string;
+  description?: string;
+  industry?: string;
+  features?: string[];
+  images?: string[];
+  demo_url?: string;
+  portfolio_url?: string;
+}): PortalProject {
+  return {
+    slug: p.slug,
+    name: p.name,
+    description: p.description ?? "",
+    industry: p.industry ?? "",
+    features: p.features ?? [],
+    images: p.images ?? [],
+    demo_url: p.demo_url ?? "",
+    portfolio_url: p.portfolio_url ?? "",
+  };
 }
 
 export class ApiClient {
@@ -1904,14 +1935,39 @@ export class ApiClient {
     return { ...parsed, enabled: parsed.enabled === true };
   }
 
-  async createPortalGuestSession(): Promise<PortalGuestSession> {
-    const data = await this.fetch<unknown>("/portal/sessions", { method: "POST" });
+  async createPortalGuestSession(projectSlug?: string): Promise<PortalGuestSession> {
+    const data = await this.fetch<unknown>("/portal/sessions", {
+      method: "POST",
+      ...(projectSlug ? { body: JSON.stringify({ project_slug: projectSlug }) } : {}),
+    });
     return parseWithFallback(
       data,
       portalGuestSessionSchema,
       { token: "" },
       { endpoint: "/portal/sessions" },
     );
+  }
+
+  async getPortalProjects(): Promise<PortalProject[]> {
+    const data = await this.fetch<unknown>("/portal/projects");
+    const parsed = parseWithFallback<z.infer<typeof portalPublicProjectsSchema>>(
+      data,
+      portalPublicProjectsSchema,
+      EMPTY_PORTAL_PROJECTS,
+      { endpoint: "/portal/projects" },
+    );
+    return parsed.projects.map(normalizePortalProject);
+  }
+
+  async getPortalProject(slug: string): Promise<PortalProject | null> {
+    const data = await this.fetch<unknown>(`/portal/projects/${encodeURIComponent(slug)}`);
+    const parsed = parseWithFallback(
+      data,
+      portalPublicProjectSchema,
+      { slug: "", name: "" },
+      { endpoint: "/portal/projects/:slug" },
+    );
+    return parsed.slug ? normalizePortalProject(parsed) : null;
   }
 
   async sendPortalMessage(token: string, content: string): Promise<PortalChatMessage | null> {
@@ -1969,6 +2025,37 @@ export class ApiClient {
       endpoint: "/api/portal/config",
     });
     return { ...parsed, enabled: parsed.enabled === true };
+  }
+
+  async getPortalAdminProjects(): Promise<PortalAdminProject[]> {
+    const data = await this.fetch<unknown>("/api/portal/projects");
+    const parsed = parseWithFallback<z.infer<typeof portalAdminProjectsSchema>>(
+      data,
+      portalAdminProjectsSchema,
+      EMPTY_PORTAL_PROJECTS,
+      { endpoint: "/api/portal/projects" },
+    );
+    return parsed.projects.map((p) => ({
+      ...normalizePortalProject(p),
+      id: p.id,
+      source_url: p.source_url ?? "",
+      published: p.published === true,
+      sort_order: p.sort_order ?? 0,
+      created_at: p.created_at,
+      updated_at: p.updated_at,
+    }));
+  }
+
+  async createPortalProject(input: PortalProjectInput): Promise<PortalAdminProject> {
+    return this.fetch("/api/portal/projects", { method: "POST", body: JSON.stringify(input) });
+  }
+
+  async updatePortalProject(id: string, input: PortalProjectInput): Promise<PortalAdminProject> {
+    return this.fetch(`/api/portal/projects/${id}`, { method: "PUT", body: JSON.stringify(input) });
+  }
+
+  async deletePortalProject(id: string): Promise<void> {
+    await this.fetch(`/api/portal/projects/${id}`, { method: "DELETE" });
   }
 
   async listPendingChatTasks(): Promise<PendingChatTasksResponse> {

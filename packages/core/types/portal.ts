@@ -41,6 +41,39 @@ export interface PortalAdminConfig {
   hero_content?: PortalHeroContent;
 }
 
+export interface PortalProject {
+  slug: string;
+  name: string;
+  description: string;
+  industry: string;
+  features: string[];
+  images: string[];
+  demo_url: string;
+  portfolio_url: string;
+}
+
+export interface PortalAdminProject extends PortalProject {
+  id: string;
+  source_url: string;
+  published: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PortalProjectInput {
+  name: string;
+  description: string;
+  industry: string;
+  features: string[];
+  images: string[];
+  demo_url: string;
+  portfolio_url: string;
+  source_url: string;
+  published: boolean;
+  sort_order: number;
+}
+
 export interface UpdatePortalAdminConfigRequest {
   enabled: boolean;
   agent_id?: string;

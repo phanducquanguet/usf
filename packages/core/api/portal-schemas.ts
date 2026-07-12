@@ -54,6 +54,40 @@ export const portalAdminConfigSchema = z
   })
   .loose();
 
+export const portalPublicProjectSchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    industry: z.string().optional(),
+    features: z.array(z.string()).optional(),
+    images: z.array(z.string()).optional(),
+    demo_url: z.string().optional(),
+    portfolio_url: z.string().optional(),
+  })
+  .loose();
+
+export const portalPublicProjectsSchema = z
+  .object({ projects: z.array(portalPublicProjectSchema) })
+  .loose();
+
+export const portalAdminProjectSchema = portalPublicProjectSchema
+  .extend({
+    id: z.string(),
+    source_url: z.string().optional(),
+    published: z.boolean().optional(),
+    sort_order: z.number().optional(),
+    created_at: z.string().optional(),
+    updated_at: z.string().optional(),
+  })
+  .loose();
+
+export const portalAdminProjectsSchema = z
+  .object({ projects: z.array(portalAdminProjectSchema) })
+  .loose();
+
+export const EMPTY_PORTAL_PROJECTS = { projects: [] };
+
 export const EMPTY_PORTAL_PUBLIC_CONFIG: PortalPublicConfig = { enabled: false };
 export const EMPTY_PORTAL_MESSAGES_PAGE: PortalMessagesPage = {
   messages: [],
