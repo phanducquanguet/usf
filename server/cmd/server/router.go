@@ -1057,6 +1057,17 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 				r.Put("/", h.UpdatePortalAdminConfig)
 			})
 
+			// Marketplace catalog (owner/admin).
+			r.Route("/api/portal/projects", func(r chi.Router) {
+				r.Use(middleware.RequireWorkspaceRole(queries, "owner", "admin"))
+				r.Get("/", h.ListPortalAdminProjects)
+				r.Post("/", h.CreatePortalProject)
+				r.Route("/{id}", func(r chi.Router) {
+					r.Put("/", h.UpdatePortalProject)
+					r.Delete("/", h.DeletePortalProject)
+				})
+			})
+
 			// Projects
 			r.Route("/api/projects", func(r chi.Router) {
 				r.Get("/search", h.SearchProjects)
