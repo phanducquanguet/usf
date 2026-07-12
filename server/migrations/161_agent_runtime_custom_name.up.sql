@@ -7,4 +7,9 @@
 -- No index: the column is only ever read as part of a full-row runtime fetch
 -- and never appears in a WHERE / ORDER BY, so it needs none. Adding a
 -- nullable column with no default is a fast catalog-only change.
-ALTER TABLE agent_runtime ADD COLUMN custom_name TEXT;
+--
+-- IF NOT EXISTS: this migration originally shipped as 145_agent_runtime_custom_name
+-- (upstream numbering) and was renumbered to 161 after colliding with this
+-- fork's 145_portal. Deployments that migrated in between hold the column
+-- under the old version string, so the re-run must be a no-op.
+ALTER TABLE agent_runtime ADD COLUMN IF NOT EXISTS custom_name TEXT;
