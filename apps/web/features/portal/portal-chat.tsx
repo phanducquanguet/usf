@@ -34,10 +34,14 @@ export function PortalChat({
   onClose,
   greeting,
   agentName,
+  projectSlug,
+  projectName,
 }: {
   onClose: () => void;
   greeting?: string;
   agentName?: string;
+  projectSlug?: string;
+  projectName?: string;
 }) {
   const { t } = useT("portal");
   const chat = usePortalChat();
@@ -53,9 +57,21 @@ export function PortalChat({
 
   const { hasSession, starting, startFailed, startSession } = chat;
   useEffect(() => {
-    if (!hasSession && !starting && !startFailed) startSession();
+    if (!hasSession && !starting && !startFailed) startSession(projectSlug);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasSession]);
+
+  // A guest whose session predates this panel gets a prefilled message
+  // instead of server-side context (the slug only applies at session
+  // creation). Fresh sessions get the context server-side, so prefilling
+  // there would duplicate it. Runs once; never overwrites typed text.
+  const hadSessionAtMountRef = useRef(hasSession);
+  useEffect(() => {
+    if (hadSessionAtMountRef.current && projectName && draft === "") {
+      setDraft(t(($) => $.marketplace.prefill, { name: projectName }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Desktop only: focus the composer once the session is live. On touch
   // devices this would pop the keyboard before the guest reads the greeting,
@@ -112,7 +128,7 @@ export function PortalChat({
               <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
                 {t(($) => $.chat.start_failed)}
               </p>
-              <Button variant="outline" onClick={startSession}>
+              <Button variant="outline" onClick={() => startSession(projectSlug)}>
                 {t(($) => $.chat.retry)}
               </Button>
             </>

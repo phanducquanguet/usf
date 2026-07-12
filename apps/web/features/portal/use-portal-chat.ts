@@ -40,7 +40,7 @@ export function usePortalChat() {
   }, []);
 
   const start = useMutation({
-    mutationFn: () => api.createPortalGuestSession(),
+    mutationFn: (projectSlug?: string) => api.createPortalGuestSession(projectSlug),
     onSuccess: ({ token: fresh }) => {
       if (!fresh) return;
       defaultStorage.setItem(PORTAL_TOKEN_STORAGE_KEY, fresh);
@@ -121,7 +121,7 @@ export function usePortalChat() {
   return {
     token,
     hasSession: token != null,
-    startSession: () => start.mutate(),
+    startSession: (projectSlug?: string) => start.mutate(projectSlug),
     starting: start.isPending,
     startFailed: start.isError,
     messages,

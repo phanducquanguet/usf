@@ -234,5 +234,24 @@
   "footer": {
     "tagline": "Custom software & practical AI for SME businesses",
     "copyright": "© UNICOM. Custom software, on request."
+  },
+  "marketplace": {
+    "nav": "Marketplace",
+    "title": "Project marketplace",
+    "subtitle": "Browse projects we have built. Found something close to what you need? Talk to our AI consultant.",
+    "search_placeholder": "Search projects…",
+    "all_industries": "All industries",
+    "empty": "No projects match your search.",
+    "closed": "The marketplace is currently closed.",
+    "featured_title": "Featured projects",
+    "featured_cta": "View all projects",
+    "view_demo": "View demo",
+    "view_portfolio": "View portfolio",
+    "consult_cta": "Discuss a similar project",
+    "features_title": "Key features",
+    "not_found_title": "This project is no longer available",
+    "not_found_body": "It may have been unpublished. Browse the marketplace for other projects.",
+    "back": "Back to marketplace",
+    "prefill": "I'm interested in the project \"{{name}}\". Please tell me more."
   }
 }

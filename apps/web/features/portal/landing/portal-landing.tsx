@@ -25,6 +25,7 @@ import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
 import { useT } from "@multica/views/i18n";
 import { PortalChat } from "../portal-chat";
+import { ProjectCard } from "../marketplace/project-card";
 import { Reveal } from "./reveal";
 
 /* Quiet surface system: interactive content sits on bordered cards;
@@ -195,6 +196,12 @@ export function PortalLanding() {
   // Three states: loading (skeleton, claim nothing), enabled, disabled.
   // Unknown must never render the "portal closed" card.
   const enabled = config?.enabled === true;
+  const { data: featured = [] } = useQuery({
+    queryKey: ["portal", "projects"],
+    queryFn: () => api.getPortalProjects(),
+    staleTime: 60_000,
+    enabled,
+  });
   const hero = config?.hero_content ?? {};
   const heroSubs = t(($) => $.hero.subs, { returnObjects: true }) as string[];
   const problems = t(($) => $.problem.items, { returnObjects: true }) as Item[];
@@ -223,6 +230,7 @@ export function PortalLanding() {
   const navItems = [
     { label: t(($) => $.nav.solutions), href: "#solutions" },
     { label: t(($) => $.nav.services), href: "#services" },
+    { label: t(($) => $.marketplace.nav), href: "/marketplace" },
     { label: t(($) => $.nav.process), href: "#process" },
     { label: t(($) => $.nav.faq), href: "#faq" },
   ];
@@ -473,6 +481,32 @@ export function PortalLanding() {
           </div>
         </Reveal>
       </section>
+
+      {/* Featured marketplace projects */}
+      {featured.length > 0 ? (
+        <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+          <SectionHeader title={t(($) => $.marketplace.featured_title)} />
+          <Reveal>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {featured.slice(0, 6).map((p) => (
+                <ProjectCard key={p.slug} project={p} />
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Link
+                href="/marketplace"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "h-12 px-7 text-base",
+                )}
+              >
+                {t(($) => $.marketplace.featured_cta)}
+                <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </div>
+          </Reveal>
+        </section>
+      ) : null}
 
       {/* Target fit + Pricing */}
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">

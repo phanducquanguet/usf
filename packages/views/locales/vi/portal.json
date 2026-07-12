@@ -234,5 +234,24 @@
   "footer": {
     "tagline": "Phần mềm may đo & AI thực dụng cho doanh nghiệp SME",
     "copyright": "© UNICOM. Đặt làm phần mềm theo yêu cầu."
+  },
+  "marketplace": {
+    "nav": "Chợ dự án",
+    "title": "Chợ dự án",
+    "subtitle": "Tham khảo các dự án chúng tôi đã thực hiện. Thấy dự án gần với nhu cầu của bạn? Trao đổi ngay với trợ lý AI.",
+    "search_placeholder": "Tìm dự án…",
+    "all_industries": "Tất cả ngành",
+    "empty": "Không có dự án nào khớp với tìm kiếm.",
+    "closed": "Chợ dự án hiện đang đóng.",
+    "featured_title": "Dự án tiêu biểu",
+    "featured_cta": "Xem tất cả dự án",
+    "view_demo": "Xem demo",
+    "view_portfolio": "Xem portfolio",
+    "consult_cta": "Tư vấn dự án tương tự",
+    "features_title": "Tính năng chính",
+    "not_found_title": "Dự án không còn khả dụng",
+    "not_found_body": "Dự án có thể đã được gỡ xuống. Mời bạn xem các dự án khác trong chợ dự án.",
+    "back": "Quay lại chợ dự án",
+    "prefill": "Tôi quan tâm dự án \"{{name}}\". Cho tôi biết thêm chi tiết nhé."
   }
 }

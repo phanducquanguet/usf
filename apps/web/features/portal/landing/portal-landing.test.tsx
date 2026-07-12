@@ -11,7 +11,10 @@ const TEST_RESOURCES = { en: { portal: enPortal } };
 const { mockGetConfig } = vi.hoisted(() => ({ mockGetConfig: vi.fn() }));
 
 vi.mock("@multica/core/api", () => ({
-  api: { getPortalPublicConfig: mockGetConfig },
+  api: {
+    getPortalPublicConfig: mockGetConfig,
+    getPortalProjects: vi.fn(async () => []),
+  },
 }));
 
 vi.mock("next/image", () => ({
