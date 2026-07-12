@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -114,6 +115,79 @@ func TestPortalProject_UpdateAndList(t *testing.T) {
 	json.Unmarshal(recL.Body.Bytes(), &list)
 	if len(list.Projects) != 2 {
 		t.Fatalf("expected 2 projects, got %d", len(list.Projects))
+	}
+}
+
+func publicProjectRequest(t *testing.T, path, slug string) (*httptest.ResponseRecorder, *http.Request) {
+	t.Helper()
+	req := httptest.NewRequest("GET", path, nil)
+	if slug != "" {
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("slug", slug)
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	}
+	return httptest.NewRecorder(), req
+}
+
+func TestPortalPublicProjects_ListsPublishedWithoutSourceURL(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	enablePortalForTests(t)
+	cleanupPortalProjects(t)
+	createTestPortalProject(t, "Public app", true)
+	createTestPortalProject(t, "Draft app", false)
+
+	rec, req := publicProjectRequest(t, "/portal/projects", "")
+	testHandler.ListPortalPublicProjects(rec, req)
+	if rec.Code != 200 {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if strings.Contains(rec.Body.String(), "source_url") {
+		t.Fatal("public list must not contain source_url")
+	}
+	var resp struct {
+		Projects []map[string]any `json:"projects"`
+	}
+	json.Unmarshal(rec.Body.Bytes(), &resp)
+	if len(resp.Projects) != 1 || resp.Projects[0]["slug"] != "public-app" {
+		t.Fatalf("expected only the published project: %s", rec.Body.String())
+	}
+}
+
+func TestPortalPublicProjects_DetailAndUnpublished404(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	enablePortalForTests(t)
+	cleanupPortalProjects(t)
+	createTestPortalProject(t, "Chi tiết app", true)
+	createTestPortalProject(t, "Nháp", false)
+
+	rec, req := publicProjectRequest(t, "/portal/projects/chi-tiet-app", "chi-tiet-app")
+	testHandler.GetPortalPublicProject(rec, req)
+	if rec.Code != 200 || strings.Contains(rec.Body.String(), "source_url") {
+		t.Fatalf("detail: %d %s", rec.Code, rec.Body.String())
+	}
+
+	rec2, req2 := publicProjectRequest(t, "/portal/projects/nhap", "nhap")
+	testHandler.GetPortalPublicProject(rec2, req2)
+	if rec2.Code != 404 {
+		t.Fatalf("unpublished must 404, got %d", rec2.Code)
+	}
+}
+
+func TestPortalPublicProjects_DisabledPortal404(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	prev := testHandler.cfg.PortalWorkspaceSlug
+	testHandler.cfg.PortalWorkspaceSlug = ""
+	t.Cleanup(func() { testHandler.cfg.PortalWorkspaceSlug = prev })
+	rec, req := publicProjectRequest(t, "/portal/projects", "")
+	testHandler.ListPortalPublicProjects(rec, req)
+	if rec.Code != 404 {
+		t.Fatalf("expected 404 when portal disabled, got %d", rec.Code)
 	}
 }
 

@@ -695,6 +695,8 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 	portalMessageRL := middleware.RateLimit(rdb, envPositiveInt("RATE_LIMIT_PORTAL_MESSAGES", 20), time.Minute, trustedProxies)
 	r.Route("/portal", func(r chi.Router) {
 		r.Get("/config", h.GetPortalPublicConfig)
+		r.Get("/projects", h.ListPortalPublicProjects)
+		r.Get("/projects/{slug}", h.GetPortalPublicProject)
 		r.With(portalSessionRL).Post("/sessions", h.CreatePortalGuestSession)
 		r.Route("/sessions/{token}", func(r chi.Router) {
 			r.Get("/messages", h.ListPortalMessages)

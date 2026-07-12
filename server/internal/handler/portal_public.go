@@ -91,6 +91,41 @@ func (h *Handler) GetPortalPublicConfig(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
+func (h *Handler) ListPortalPublicProjects(w http.ResponseWriter, r *http.Request) {
+	ws, _, _, err := h.loadPortalContext(r.Context())
+	if err != nil {
+		writeError(w, http.StatusNotFound, "portal_disabled")
+		return
+	}
+	rows, err := h.Queries.ListPublishedPortalProjects(r.Context(), ws.ID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to list projects")
+		return
+	}
+	items := make([]PortalPublicProjectResponse, 0, len(rows))
+	for _, p := range rows {
+		items = append(items, portalProjectToPublicResponse(p))
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"projects": items})
+}
+
+func (h *Handler) GetPortalPublicProject(w http.ResponseWriter, r *http.Request) {
+	ws, _, _, err := h.loadPortalContext(r.Context())
+	if err != nil {
+		writeError(w, http.StatusNotFound, "portal_disabled")
+		return
+	}
+	row, err := h.Queries.GetPublishedPortalProjectBySlug(r.Context(), db.GetPublishedPortalProjectBySlugParams{
+		WorkspaceID: ws.ID,
+		Slug:        chi.URLParam(r, "slug"),
+	})
+	if err != nil {
+		writeError(w, http.StatusNotFound, "project_not_found")
+		return
+	}
+	writeJSON(w, http.StatusOK, portalProjectToPublicResponse(row))
+}
+
 func (h *Handler) CreatePortalGuestSession(w http.ResponseWriter, r *http.Request) {
 	ws, cfg, agent, err := h.loadPortalContext(r.Context())
 	if err != nil {
