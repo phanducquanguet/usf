@@ -191,6 +191,63 @@ func TestPortalPublicProjects_DisabledPortal404(t *testing.T) {
 	}
 }
 
+func TestPortalGuestSession_ProjectSlugStoresContext(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	enablePortalForTests(t)
+	cleanupPortalProjects(t)
+	createTestPortalProject(t, "App giao hàng", true)
+
+	// Valid slug → context stored on the portal session row.
+	buf, _ := json.Marshal(map[string]any{"project_slug": "app-giao-hang"})
+	rec := httptest.NewRecorder()
+	testHandler.CreatePortalGuestSession(rec, httptest.NewRequest("POST", "/portal/sessions", bytes.NewReader(buf)))
+	if rec.Code != 201 {
+		t.Fatalf("create session: %d %s", rec.Code, rec.Body.String())
+	}
+	var resp struct {
+		Token string `json:"token"`
+	}
+	json.Unmarshal(rec.Body.Bytes(), &resp)
+	t.Cleanup(func() {
+		testPool.Exec(context.Background(),
+			`DELETE FROM chat_session WHERE id IN (SELECT chat_session_id FROM portal_session WHERE guest_token_hash = $1)`,
+			hashPortalToken(resp.Token))
+	})
+	var storedCtx string
+	err := testPool.QueryRow(context.Background(),
+		`SELECT project_context FROM portal_session WHERE guest_token_hash = $1`,
+		hashPortalToken(resp.Token)).Scan(&storedCtx)
+	if err != nil || !strings.Contains(storedCtx, "App giao hàng") {
+		t.Fatalf("project_context = %q err=%v", storedCtx, err)
+	}
+
+	// Invalid slug → session still created, empty context.
+	buf2, _ := json.Marshal(map[string]any{"project_slug": "khong-ton-tai"})
+	rec2 := httptest.NewRecorder()
+	testHandler.CreatePortalGuestSession(rec2, httptest.NewRequest("POST", "/portal/sessions", bytes.NewReader(buf2)))
+	if rec2.Code != 201 {
+		t.Fatalf("invalid slug must not block session creation: %d", rec2.Code)
+	}
+	var resp2 struct {
+		Token string `json:"token"`
+	}
+	json.Unmarshal(rec2.Body.Bytes(), &resp2)
+	t.Cleanup(func() {
+		testPool.Exec(context.Background(),
+			`DELETE FROM chat_session WHERE id IN (SELECT chat_session_id FROM portal_session WHERE guest_token_hash = $1)`,
+			hashPortalToken(resp2.Token))
+	})
+	var emptyCtx string
+	testPool.QueryRow(context.Background(),
+		`SELECT project_context FROM portal_session WHERE guest_token_hash = $1`,
+		hashPortalToken(resp2.Token)).Scan(&emptyCtx)
+	if emptyCtx != "" {
+		t.Fatalf("expected empty context, got %q", emptyCtx)
+	}
+}
+
 func TestPortalProject_Delete(t *testing.T) {
 	if testHandler == nil {
 		t.Skip("database not available")

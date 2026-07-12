@@ -137,6 +137,23 @@ func (h *Handler) CreatePortalGuestSession(w http.ResponseWriter, r *http.Reques
 		writeError(w, http.StatusInternalServerError, "failed to create session")
 		return
 	}
+	// Optional body: {"project_slug": "..."} from a marketplace CTA. Any decode
+	// failure or unknown slug is ignored — context is best-effort, never a blocker.
+	projectContext := ""
+	var req struct {
+		ProjectSlug string `json:"project_slug"`
+	}
+	if derr := json.NewDecoder(r.Body).Decode(&req); derr == nil && req.ProjectSlug != "" {
+		if p, perr := h.Queries.GetPublishedPortalProjectBySlug(r.Context(), db.GetPublishedPortalProjectBySlugParams{
+			WorkspaceID: ws.ID,
+			Slug:        req.ProjectSlug,
+		}); perr == nil {
+			projectContext = "Khách đang quan tâm dự án trong marketplace: " + p.Name
+			if p.DemoUrl != "" {
+				projectContext += " (demo: " + p.DemoUrl + ")"
+			}
+		}
+	}
 	session, err := h.Queries.CreateChatSession(r.Context(), db.CreateChatSessionParams{
 		WorkspaceID: ws.ID,
 		AgentID:     agent.ID,
@@ -151,6 +168,7 @@ func (h *Handler) CreatePortalGuestSession(w http.ResponseWriter, r *http.Reques
 		WorkspaceID:    ws.ID,
 		ChatSessionID:  session.ID,
 		GuestTokenHash: hash,
+		ProjectContext: projectContext,
 	}); err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create session")
 		return
@@ -255,7 +273,11 @@ func (h *Handler) SendPortalMessage(w http.ResponseWriter, r *http.Request) {
 	if count == 0 {
 		// Mark the session as a portal intake for the agent (see the
 		// multica-portal-intake builtin skill) without a wasted bootstrap run.
-		content = portalFirstMessagePreamble + " Đây là phiên tư vấn với khách vãng lai trên portal công khai. Hãy làm theo skill multica-portal-intake.\n\n" + content
+		preamble := portalFirstMessagePreamble + " Đây là phiên tư vấn với khách vãng lai trên portal công khai. Hãy làm theo skill multica-portal-intake."
+		if ps.ProjectContext != "" {
+			preamble += " " + ps.ProjectContext + "."
+		}
+		content = preamble + "\n\n" + content
 	}
 	h.appendPortalMessageAndEnqueue(w, r, ps, cfg, content, http.StatusAccepted)
 }
