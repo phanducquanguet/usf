@@ -33,6 +33,7 @@ import type {
 } from "@multica/core/types/portal";
 import { useT } from "../../i18n";
 import { AppLink } from "../../navigation";
+import { PortalProjectsSection } from "./portal-projects-section";
 
 export function PortalTab() {
   const { t } = useT("settings");
@@ -294,6 +295,8 @@ export function PortalTab() {
       >
         {save.isPending ? t(($) => $.portal.saving) : t(($) => $.portal.save)}
       </Button>
+
+      <PortalProjectsSection />
     </div>
   );
 }

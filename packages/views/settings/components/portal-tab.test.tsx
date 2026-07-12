@@ -29,6 +29,7 @@ vi.mock("@tanstack/react-query", () => ({
     const key = opts.queryKey?.[0];
     if (key === "members") return { data: membersRef.current };
     if (key === "agents") return { data: agentsRef.current };
+    if (opts.queryKey?.[1] === "admin-projects") return { data: [] };
     if (key === "portal") return { data: configRef.current };
     return { data: undefined };
   },
@@ -49,6 +50,13 @@ vi.mock("@multica/core/workspace/queries", () => ({
   portalAdminConfigOptions: () => ({ queryKey: ["portal"], queryFn: vi.fn() }),
   portalConfigKeys: {
     adminConfig: (wsId: string) => ["portal", "admin-config", wsId],
+  },
+  portalAdminProjectsOptions: (wsId: string) => ({
+    queryKey: ["portal", "admin-projects", wsId],
+    queryFn: vi.fn(),
+  }),
+  portalProjectKeys: {
+    admin: (wsId: string) => ["portal", "admin-projects", wsId],
   },
 }));
 
