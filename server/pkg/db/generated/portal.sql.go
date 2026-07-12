@@ -25,7 +25,7 @@ UPDATE portal_session
 SET contact_name = $2, contact_email = $3, contact_phone = $4,
     status = 'confirmed', last_activity_at = now()
 WHERE id = $1 AND status = 'active'
-RETURNING id, workspace_id, chat_session_id, guest_token_hash, contact_name, contact_email, contact_phone, status, created_at, last_activity_at
+RETURNING id, workspace_id, chat_session_id, guest_token_hash, contact_name, contact_email, contact_phone, status, created_at, last_activity_at, project_context
 `
 
 type ConfirmPortalSessionParams struct {
@@ -54,24 +54,90 @@ func (q *Queries) ConfirmPortalSession(ctx context.Context, arg ConfirmPortalSes
 		&i.Status,
 		&i.CreatedAt,
 		&i.LastActivityAt,
+		&i.ProjectContext,
+	)
+	return i, err
+}
+
+const createPortalProject = `-- name: CreatePortalProject :one
+INSERT INTO portal_project (
+    workspace_id, slug, name, description, industry, features, images,
+    demo_url, portfolio_url, source_url, published, sort_order
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+RETURNING id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at
+`
+
+type CreatePortalProjectParams struct {
+	WorkspaceID  pgtype.UUID `json:"workspace_id"`
+	Slug         string      `json:"slug"`
+	Name         string      `json:"name"`
+	Description  string      `json:"description"`
+	Industry     string      `json:"industry"`
+	Features     []string    `json:"features"`
+	Images       []string    `json:"images"`
+	DemoUrl      string      `json:"demo_url"`
+	PortfolioUrl string      `json:"portfolio_url"`
+	SourceUrl    string      `json:"source_url"`
+	Published    bool        `json:"published"`
+	SortOrder    int32       `json:"sort_order"`
+}
+
+func (q *Queries) CreatePortalProject(ctx context.Context, arg CreatePortalProjectParams) (PortalProject, error) {
+	row := q.db.QueryRow(ctx, createPortalProject,
+		arg.WorkspaceID,
+		arg.Slug,
+		arg.Name,
+		arg.Description,
+		arg.Industry,
+		arg.Features,
+		arg.Images,
+		arg.DemoUrl,
+		arg.PortfolioUrl,
+		arg.SourceUrl,
+		arg.Published,
+		arg.SortOrder,
+	)
+	var i PortalProject
+	err := row.Scan(
+		&i.ID,
+		&i.WorkspaceID,
+		&i.Slug,
+		&i.Name,
+		&i.Description,
+		&i.Industry,
+		&i.Features,
+		&i.Images,
+		&i.DemoUrl,
+		&i.PortfolioUrl,
+		&i.SourceUrl,
+		&i.Published,
+		&i.SortOrder,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const createPortalSession = `-- name: CreatePortalSession :one
-INSERT INTO portal_session (workspace_id, chat_session_id, guest_token_hash)
-VALUES ($1, $2, $3)
-RETURNING id, workspace_id, chat_session_id, guest_token_hash, contact_name, contact_email, contact_phone, status, created_at, last_activity_at
+INSERT INTO portal_session (workspace_id, chat_session_id, guest_token_hash, project_context)
+VALUES ($1, $2, $3, $4)
+RETURNING id, workspace_id, chat_session_id, guest_token_hash, contact_name, contact_email, contact_phone, status, created_at, last_activity_at, project_context
 `
 
 type CreatePortalSessionParams struct {
 	WorkspaceID    pgtype.UUID `json:"workspace_id"`
 	ChatSessionID  pgtype.UUID `json:"chat_session_id"`
 	GuestTokenHash string      `json:"guest_token_hash"`
+	ProjectContext string      `json:"project_context"`
 }
 
 func (q *Queries) CreatePortalSession(ctx context.Context, arg CreatePortalSessionParams) (PortalSession, error) {
-	row := q.db.QueryRow(ctx, createPortalSession, arg.WorkspaceID, arg.ChatSessionID, arg.GuestTokenHash)
+	row := q.db.QueryRow(ctx, createPortalSession,
+		arg.WorkspaceID,
+		arg.ChatSessionID,
+		arg.GuestTokenHash,
+		arg.ProjectContext,
+	)
 	var i PortalSession
 	err := row.Scan(
 		&i.ID,
@@ -84,8 +150,23 @@ func (q *Queries) CreatePortalSession(ctx context.Context, arg CreatePortalSessi
 		&i.Status,
 		&i.CreatedAt,
 		&i.LastActivityAt,
+		&i.ProjectContext,
 	)
 	return i, err
+}
+
+const deletePortalProject = `-- name: DeletePortalProject :exec
+DELETE FROM portal_project WHERE id = $1 AND workspace_id = $2
+`
+
+type DeletePortalProjectParams struct {
+	ID          pgtype.UUID `json:"id"`
+	WorkspaceID pgtype.UUID `json:"workspace_id"`
+}
+
+func (q *Queries) DeletePortalProject(ctx context.Context, arg DeletePortalProjectParams) error {
+	_, err := q.db.Exec(ctx, deletePortalProject, arg.ID, arg.WorkspaceID)
+	return err
 }
 
 const getPortalConfig = `-- name: GetPortalConfig :one
@@ -107,8 +188,40 @@ func (q *Queries) GetPortalConfig(ctx context.Context, workspaceID pgtype.UUID) 
 	return i, err
 }
 
+const getPortalProject = `-- name: GetPortalProject :one
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE id = $1 AND workspace_id = $2
+`
+
+type GetPortalProjectParams struct {
+	ID          pgtype.UUID `json:"id"`
+	WorkspaceID pgtype.UUID `json:"workspace_id"`
+}
+
+func (q *Queries) GetPortalProject(ctx context.Context, arg GetPortalProjectParams) (PortalProject, error) {
+	row := q.db.QueryRow(ctx, getPortalProject, arg.ID, arg.WorkspaceID)
+	var i PortalProject
+	err := row.Scan(
+		&i.ID,
+		&i.WorkspaceID,
+		&i.Slug,
+		&i.Name,
+		&i.Description,
+		&i.Industry,
+		&i.Features,
+		&i.Images,
+		&i.DemoUrl,
+		&i.PortfolioUrl,
+		&i.SourceUrl,
+		&i.Published,
+		&i.SortOrder,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getPortalSessionByTokenHash = `-- name: GetPortalSessionByTokenHash :one
-SELECT id, workspace_id, chat_session_id, guest_token_hash, contact_name, contact_email, contact_phone, status, created_at, last_activity_at FROM portal_session WHERE guest_token_hash = $1
+SELECT id, workspace_id, chat_session_id, guest_token_hash, contact_name, contact_email, contact_phone, status, created_at, last_activity_at, project_context FROM portal_session WHERE guest_token_hash = $1
 `
 
 func (q *Queries) GetPortalSessionByTokenHash(ctx context.Context, guestTokenHash string) (PortalSession, error) {
@@ -125,8 +238,121 @@ func (q *Queries) GetPortalSessionByTokenHash(ctx context.Context, guestTokenHas
 		&i.Status,
 		&i.CreatedAt,
 		&i.LastActivityAt,
+		&i.ProjectContext,
 	)
 	return i, err
+}
+
+const getPublishedPortalProjectBySlug = `-- name: GetPublishedPortalProjectBySlug :one
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE workspace_id = $1 AND slug = $2 AND published
+`
+
+type GetPublishedPortalProjectBySlugParams struct {
+	WorkspaceID pgtype.UUID `json:"workspace_id"`
+	Slug        string      `json:"slug"`
+}
+
+func (q *Queries) GetPublishedPortalProjectBySlug(ctx context.Context, arg GetPublishedPortalProjectBySlugParams) (PortalProject, error) {
+	row := q.db.QueryRow(ctx, getPublishedPortalProjectBySlug, arg.WorkspaceID, arg.Slug)
+	var i PortalProject
+	err := row.Scan(
+		&i.ID,
+		&i.WorkspaceID,
+		&i.Slug,
+		&i.Name,
+		&i.Description,
+		&i.Industry,
+		&i.Features,
+		&i.Images,
+		&i.DemoUrl,
+		&i.PortfolioUrl,
+		&i.SourceUrl,
+		&i.Published,
+		&i.SortOrder,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const listPortalProjects = `-- name: ListPortalProjects :many
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE workspace_id = $1 ORDER BY sort_order, name
+`
+
+func (q *Queries) ListPortalProjects(ctx context.Context, workspaceID pgtype.UUID) ([]PortalProject, error) {
+	rows, err := q.db.Query(ctx, listPortalProjects, workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PortalProject{}
+	for rows.Next() {
+		var i PortalProject
+		if err := rows.Scan(
+			&i.ID,
+			&i.WorkspaceID,
+			&i.Slug,
+			&i.Name,
+			&i.Description,
+			&i.Industry,
+			&i.Features,
+			&i.Images,
+			&i.DemoUrl,
+			&i.PortfolioUrl,
+			&i.SourceUrl,
+			&i.Published,
+			&i.SortOrder,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPublishedPortalProjects = `-- name: ListPublishedPortalProjects :many
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE workspace_id = $1 AND published ORDER BY sort_order, name
+`
+
+func (q *Queries) ListPublishedPortalProjects(ctx context.Context, workspaceID pgtype.UUID) ([]PortalProject, error) {
+	rows, err := q.db.Query(ctx, listPublishedPortalProjects, workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PortalProject{}
+	for rows.Next() {
+		var i PortalProject
+		if err := rows.Scan(
+			&i.ID,
+			&i.WorkspaceID,
+			&i.Slug,
+			&i.Name,
+			&i.Description,
+			&i.Industry,
+			&i.Features,
+			&i.Images,
+			&i.DemoUrl,
+			&i.PortfolioUrl,
+			&i.SourceUrl,
+			&i.Published,
+			&i.SortOrder,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const setPortalServiceUser = `-- name: SetPortalServiceUser :one
@@ -163,6 +389,66 @@ UPDATE portal_session SET last_activity_at = now() WHERE id = $1
 func (q *Queries) TouchPortalSession(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, touchPortalSession, id)
 	return err
+}
+
+const updatePortalProject = `-- name: UpdatePortalProject :one
+UPDATE portal_project
+SET name = $3, description = $4, industry = $5, features = $6, images = $7,
+    demo_url = $8, portfolio_url = $9, source_url = $10, published = $11,
+    sort_order = $12, updated_at = now()
+WHERE id = $1 AND workspace_id = $2
+RETURNING id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at
+`
+
+type UpdatePortalProjectParams struct {
+	ID           pgtype.UUID `json:"id"`
+	WorkspaceID  pgtype.UUID `json:"workspace_id"`
+	Name         string      `json:"name"`
+	Description  string      `json:"description"`
+	Industry     string      `json:"industry"`
+	Features     []string    `json:"features"`
+	Images       []string    `json:"images"`
+	DemoUrl      string      `json:"demo_url"`
+	PortfolioUrl string      `json:"portfolio_url"`
+	SourceUrl    string      `json:"source_url"`
+	Published    bool        `json:"published"`
+	SortOrder    int32       `json:"sort_order"`
+}
+
+func (q *Queries) UpdatePortalProject(ctx context.Context, arg UpdatePortalProjectParams) (PortalProject, error) {
+	row := q.db.QueryRow(ctx, updatePortalProject,
+		arg.ID,
+		arg.WorkspaceID,
+		arg.Name,
+		arg.Description,
+		arg.Industry,
+		arg.Features,
+		arg.Images,
+		arg.DemoUrl,
+		arg.PortfolioUrl,
+		arg.SourceUrl,
+		arg.Published,
+		arg.SortOrder,
+	)
+	var i PortalProject
+	err := row.Scan(
+		&i.ID,
+		&i.WorkspaceID,
+		&i.Slug,
+		&i.Name,
+		&i.Description,
+		&i.Industry,
+		&i.Features,
+		&i.Images,
+		&i.DemoUrl,
+		&i.PortfolioUrl,
+		&i.SourceUrl,
+		&i.Published,
+		&i.SortOrder,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const upsertPortalConfig = `-- name: UpsertPortalConfig :one

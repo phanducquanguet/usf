@@ -694,6 +694,24 @@ type PinnedItem struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
+type PortalProject struct {
+	ID           pgtype.UUID        `json:"id"`
+	WorkspaceID  pgtype.UUID        `json:"workspace_id"`
+	Slug         string             `json:"slug"`
+	Name         string             `json:"name"`
+	Description  string             `json:"description"`
+	Industry     string             `json:"industry"`
+	Features     []string           `json:"features"`
+	Images       []string           `json:"images"`
+	DemoUrl      string             `json:"demo_url"`
+	PortfolioUrl string             `json:"portfolio_url"`
+	SourceUrl    string             `json:"source_url"`
+	Published    bool               `json:"published"`
+	SortOrder    int32              `json:"sort_order"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+}
+
 type PortalSession struct {
 	ID             pgtype.UUID        `json:"id"`
 	WorkspaceID    pgtype.UUID        `json:"workspace_id"`
@@ -705,6 +723,7 @@ type PortalSession struct {
 	Status         string             `json:"status"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	LastActivityAt pgtype.Timestamptz `json:"last_activity_at"`
+	ProjectContext string             `json:"project_context"`
 }
 
 type Project struct {
