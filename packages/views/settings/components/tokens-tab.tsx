@@ -123,7 +123,11 @@ export function TokensTab() {
                 placeholder={t(($) => $.tokens.name_placeholder)}
               />
               <Select value={tokenExpiry} onValueChange={(v) => { if (v) setTokenExpiry(v); }}>
-                <SelectTrigger size="sm"><SelectValue /></SelectTrigger>
+                <SelectTrigger size="sm">
+                  <SelectValue>
+                    {t(($) => $.tokens.expiry[tokenExpiry as (typeof EXPIRY_KEYS)[number]])}
+                  </SelectValue>
+                </SelectTrigger>
                 <SelectContent>
                   {EXPIRY_KEYS.map((key) => (
                     <SelectItem key={key} value={key}>{t(($) => $.tokens.expiry[key])}</SelectItem>

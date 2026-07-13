@@ -989,7 +989,9 @@ function ScheduleSection({
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue />
+              <SelectValue>
+                {t(($) => $.dialog.frequency_long[config.frequency])}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {FREQUENCY_KEYS.map((freq) => (
@@ -1007,7 +1009,9 @@ function ScheduleSection({
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {t(($) => $.dialog.days[DAY_KEYS[selectedDay] ?? "monday"])}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {DAY_KEYS.map((dayKey, i) => (
