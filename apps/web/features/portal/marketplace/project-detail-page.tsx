@@ -31,8 +31,12 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
   const enabled = config?.enabled === true;
 
   return (
-    <div className="dark portal-dark min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-4xl px-6 py-14 md:py-20">
+    <div className="dark portal-dark relative min-h-screen bg-background text-foreground">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] overflow-hidden">
+        <div className="portal-hero-grid absolute inset-0" />
+        <div className="absolute -top-24 left-1/2 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-brand/15 blur-[128px]" />
+      </div>
+      <div className="relative mx-auto max-w-4xl px-6 py-14 md:py-20">
         <Link
           href="/marketplace"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -56,7 +60,7 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
         ) : (
           <>
             {project.industry ? (
-              <span className="mt-8 inline-block rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
+              <span className="mt-8 block w-fit rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
                 {project.industry}
               </span>
             ) : null}
@@ -68,27 +72,31 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
                 <img
                   src={project.images[activeImage] ?? project.images[0]}
                   alt={project.name}
-                  className="aspect-video w-full rounded-xl border border-border/60 object-cover"
+                  fetchPriority="high"
+                  className="portal-glow aspect-video w-full rounded-xl border border-border/60 object-cover"
                 />
                 {project.images.length > 1 ? (
-                  <div className="mt-3 flex gap-2 overflow-x-auto">
+                  <div className="mt-3 flex snap-x gap-2 overflow-x-auto">
                     {project.images.map((url, i) => (
                       <button
                         key={url}
                         type="button"
                         aria-label={`${project.name} ${i + 1}`}
+                        aria-pressed={i === activeImage}
                         onClick={() => setActiveImage(i)}
-                        className="shrink-0"
+                        className="shrink-0 snap-start rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={url}
                           alt=""
+                          loading="lazy"
+                          decoding="async"
                           className={cn(
-                            "h-16 w-28 cursor-pointer rounded-md border object-cover",
+                            "h-16 w-28 cursor-pointer rounded-md border object-cover transition-[opacity,box-shadow]",
                             i === activeImage
-                              ? "border-brand"
-                              : "border-border/60 opacity-70",
+                              ? "border-transparent opacity-100 ring-2 ring-brand"
+                              : "border-border/60 opacity-60 hover:opacity-100",
                           )}
                         />
                       </button>
@@ -118,46 +126,68 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
               </div>
             ) : null}
 
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              {enabled ? (
-                <Button
-                  size="lg"
-                  className="h-12 px-7 text-base"
-                  onClick={() => setChatOpen(true)}
-                >
-                  <MessageSquare className="mr-2 size-5" />
-                  {t(($) => $.marketplace.consult_cta)}
-                </Button>
-              ) : null}
-              {project.demo_url ? (
-                <a
-                  href={project.demo_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "h-12 px-7 text-base",
-                  )}
-                >
-                  {t(($) => $.marketplace.view_demo)}
-                  <ExternalLink className="ml-2 size-4" />
-                </a>
-              ) : null}
-              {project.portfolio_url ? (
-                <a
-                  href={project.portfolio_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "h-12 px-7 text-base",
-                  )}
-                >
-                  {t(($) => $.marketplace.view_portfolio)}
-                  <ExternalLink className="ml-2 size-4" />
-                </a>
-              ) : null}
+            {enabled || project.demo_url || project.portfolio_url ? (
+            <div
+              className={cn(
+                CARD,
+                "relative mt-10 overflow-hidden rounded-2xl p-8 text-center md:p-10",
+              )}
+            >
+              <div className="portal-hero-grid pointer-events-none absolute inset-0" />
+              <div className="relative">
+                {enabled ? (
+                  <>
+                    <h2 className="mx-auto max-w-xl text-balance text-2xl font-bold">
+                      {t(($) => $.cta_section.title)}
+                    </h2>
+                    <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+                      {t(($) => $.cta_section.body)}
+                    </p>
+                  </>
+                ) : null}
+                <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                  {enabled ? (
+                    <Button
+                      size="lg"
+                      className="h-12 px-7 text-base"
+                      onClick={() => setChatOpen(true)}
+                    >
+                      <MessageSquare className="mr-2 size-5" />
+                      {t(($) => $.marketplace.consult_cta)}
+                    </Button>
+                  ) : null}
+                  {project.demo_url ? (
+                    <a
+                      href={project.demo_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "lg" }),
+                        "h-12 px-7 text-base",
+                      )}
+                    >
+                      {t(($) => $.marketplace.view_demo)}
+                      <ExternalLink className="ml-2 size-4" />
+                    </a>
+                  ) : null}
+                  {project.portfolio_url ? (
+                    <a
+                      href={project.portfolio_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "lg" }),
+                        "h-12 px-7 text-base",
+                      )}
+                    >
+                      {t(($) => $.marketplace.view_portfolio)}
+                      <ExternalLink className="ml-2 size-4" />
+                    </a>
+                  ) : null}
+                </div>
+              </div>
             </div>
+            ) : null}
           </>
         )}
       </div>

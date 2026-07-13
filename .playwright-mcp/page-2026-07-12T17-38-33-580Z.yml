@@ -1,0 +1,11 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - link "UNICOM" [ref=e5] [cursor=pointer]:
+      - /url: /
+    - heading "Chợ dự án" [level=1] [ref=e8]
+    - paragraph [ref=e9]: Tham khảo các dự án chúng tôi đã thực hiện. Thấy dự án gần với nhu cầu của bạn? Trao đổi ngay với trợ lý AI.
+    - generic [ref=e10]:
+      - textbox "Tìm dự án…" [ref=e11]
+      - button "Tất cả ngành" [ref=e13]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e23] [cursor=pointer]

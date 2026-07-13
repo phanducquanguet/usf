@@ -1,0 +1,12 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e3]:
+    - generic [ref=f2e5]:
+      - link "UNICOM" [ref=f2e6] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f2e9]:
+        - heading "Chợ dự án" [level=1] [ref=f2e10]
+        - paragraph [ref=f2e11]: Tham khảo các dự án chúng tôi đã thực hiện. Thấy dự án gần với nhu cầu của bạn? Trao đổi ngay với trợ lý AI.
+    - generic [ref=f2e13]:
+      - textbox "Tìm dự án…" [ref=f2e15]
+      - button "Tất cả ngành" [pressed] [ref=f2e17]
+  - region "Notifications alt+T"

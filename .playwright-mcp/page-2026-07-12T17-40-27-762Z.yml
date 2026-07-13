@@ -1,0 +1,6 @@
+- generic [active] [ref=f1e1]:
+  - link "Quay lại chợ dự án" [ref=f1e5] [cursor=pointer]:
+    - /url: /marketplace
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f1e16] [cursor=pointer]
+  - alert [ref=f1e20]
