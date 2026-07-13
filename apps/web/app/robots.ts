@@ -1,28 +1,22 @@
 import type { MetadataRoute } from "next";
+import { SITE_ORIGIN } from "@/lib/seo";
 
+// Only non-HTML backend endpoints are disallowed here. HTML routes that must
+// stay out of the index (auth flows, workspace app pages) are crawlable but
+// carry `robots: noindex` metadata — see app/(auth)/layout.tsx and
+// app/[workspaceSlug]/layout.tsx. Disallowing them here would hide the
+// noindex directive from crawlers.
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://www.multica.ai";
-
   return {
     rules: [
       {
         userAgent: "*",
         allow: ["/"],
-        disallow: [
-          "/api/",
-          "/ws",
-          "/auth/",
-          "/issues",
-          "/board",
-          "/inbox",
-          "/agents",
-          "/settings",
-          "/my-issues",
-          "/runtimes",
-          "/skills",
-        ],
+        // /slack/ and /lark/ are token-carrying bot-bind client pages —
+        // keep crawlers away entirely.
+        disallow: ["/api/", "/portal/", "/auth/", "/uploads/", "/ws", "/slack/", "/lark/"],
       },
     ],
-    sitemap: [`${baseUrl}/docs/sitemap.xml`],
+    sitemap: [`${SITE_ORIGIN}/sitemap.xml`, `${SITE_ORIGIN}/docs/sitemap.xml`],
   };
 }

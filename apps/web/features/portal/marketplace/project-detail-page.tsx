@@ -7,12 +7,21 @@ import { ArrowLeft, CheckCircle2, ExternalLink, MessageSquare } from "lucide-rea
 import { Button, buttonVariants } from "@multica/ui/components/ui/button";
 import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
+import type { PortalProject } from "@multica/core/types/portal";
 import { useT } from "@multica/views/i18n";
 import { PortalChat } from "../portal-chat";
 
 const CARD = "rounded-xl border border-border/60 bg-card";
 
-export function ProjectDetailPage({ slug }: { slug: string }) {
+export function ProjectDetailPage({
+  slug,
+  initialProject,
+}: {
+  slug: string;
+  // Server-fetched project so the first HTML render already contains the
+  // content (SEO); when absent the component falls back to client fetching.
+  initialProject?: PortalProject;
+}) {
   const { t } = useT("portal");
   const [chatOpen, setChatOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
@@ -26,6 +35,9 @@ export function ProjectDetailPage({ slug }: { slug: string }) {
     queryKey: ["portal", "projects", slug],
     queryFn: () => api.getPortalProject(slug),
     retry: false,
+    initialData: initialProject,
+    // Treat the SSR payload as fresh so hydration doesn't immediately refetch.
+    staleTime: 30_000,
   });
 
   const enabled = config?.enabled === true;

@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { cn } from "@multica/ui/lib/utils";
 import { baseOptions } from "@/app/layout.config";
 import { source } from "@/lib/source";
+import { SITE_ORIGIN } from "@/lib/site";
 import { i18n, type Lang } from "@/lib/i18n";
 import { uiTranslations, localeLabels } from "@/lib/translations";
 import { DocsSettings } from "@/components/docs-settings";
@@ -45,12 +46,17 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
-    template: "%s | Multica Docs",
-    default: "Multica Docs",
+    template: "%s | UniAI Docs",
+    default: "UniAI Docs",
   },
   description:
-    "Documentation for Multica — the open-source managed agents platform.",
+    "Documentation for UniAI — the open-source managed agents platform.",
+  openGraph: {
+    type: "website",
+    siteName: "UniAI Docs",
+  },
 };
 
 export function generateStaticParams() {

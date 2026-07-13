@@ -62,7 +62,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.multica.ai"),
+  metadataBase: new URL("https://uniai.unicomhub.com"),
   title: {
     default: "UniAI — Project Management for Human + Agent Teams",
     template: "%s | UniAI",
@@ -83,9 +83,9 @@ export const metadata: Metadata = {
     site: "@multica_hq",
     creator: "@multica_hq",
   },
-  alternates: {
-    canonical: "/",
-  },
+  // No `alternates` here: a root-layout canonical is inherited by every page
+  // that doesn't override it, silently canonicalizing them all to "/".
+  // Each indexable page declares its own canonical.
   robots: {
     index: true,
     follow: true,

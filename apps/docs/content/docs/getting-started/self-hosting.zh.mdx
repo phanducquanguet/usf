@@ -46,7 +46,7 @@ For a step-by-step setup, see below.
 ### Step 1 — Start the Server
 
 ```bash
-git clone https://github.com/multica-ai/multica.git
+git clone https://github.com/phanducquanguet/usf.git
 cd multica
 make selfhost
 ```
@@ -157,7 +157,7 @@ SELECT plan_time, status, attempt, runner_id,
 ```
 
 <Callout>
-**Upgrading from `v0.3.4` to `v0.3.5+`?** As of MUL-2957 the `migrate up` command runs an idempotent monthly-slice backfill automatically right before applying migration `103`, so the upgrade completes in a single invocation — no operator step required. If you are on a pre-MUL-2957 binary or the auto-hook fails for an environmental reason, run `backfill_task_usage_hourly` against the same database and re-run the upgrade. Full recovery flow lives in [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/multica-ai/multica/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup).
+**Upgrading from `v0.3.4` to `v0.3.5+`?** As of MUL-2957 the `migrate up` command runs an idempotent monthly-slice backfill automatically right before applying migration `103`, so the upgrade completes in a single invocation — no operator step required. If you are on a pre-MUL-2957 binary or the auto-hook fails for an environmental reason, run `backfill_task_usage_hourly` against the same database and re-run the upgrade. Full recovery flow lives in [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup).
 </Callout>
 
 ### Compatibility paths (existing deployments only)
@@ -188,7 +188,7 @@ If you already have a `pg_cron` job in production and want to retire it, the saf
 
 External cron / systemd timer / Kubernetes `CronJob` setups that call `SELECT rollup_task_usage_hourly()` directly can be retired the same way — once `sys_cron_executions` shows steady SUCCESS rows from the in-process scheduler, the external job is redundant and can be removed.
 
-Full reference (audit table semantics, advisory lock 4246, the standalone backfill command, flag descriptions, the migration auto-hook) lives in [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/multica-ai/multica/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup).
+Full reference (audit table semantics, advisory lock 4246, the standalone backfill command, flag descriptions, the migration auto-hook) lives in [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup).
 
 ## Stopping Services
 
@@ -202,13 +202,13 @@ multica daemon stop
 
 ## Switching to UniAI Cloud
 
-If you've been self-hosting and want to switch your CLI to [UniAI Cloud](https://multica.ai):
+If you've been self-hosting and want to switch your CLI to [UniAI Cloud](https://uniai.unicomhub.com):
 
 ```bash
 multica setup
 ```
 
-This reconfigures the CLI for multica.ai, re-authenticates, and restarts the daemon. You will be prompted before overwriting the existing configuration.
+This reconfigures the CLI for uniai.unicomhub.com, re-authenticates, and restarts the daemon. You will be prompted before overwriting the existing configuration.
 
 <Callout>
 Your local Docker services are unaffected. Stop them separately if you no longer need them.
