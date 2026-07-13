@@ -1970,10 +1970,20 @@ export class ApiClient {
     return parsed.slug ? normalizePortalProject(parsed) : null;
   }
 
-  async sendPortalMessage(token: string, content: string): Promise<PortalChatMessage | null> {
+  async sendPortalMessage(
+    token: string,
+    content: string,
+    projectSlug?: string,
+  ): Promise<PortalChatMessage | null> {
     const data = await this.fetch<unknown>(
       `/portal/sessions/${encodeURIComponent(token)}/messages`,
-      { method: "POST", body: JSON.stringify({ content }) },
+      {
+        method: "POST",
+        body: JSON.stringify({
+          content,
+          ...(projectSlug ? { project_slug: projectSlug } : {}),
+        }),
+      },
     );
     const parsed = parseWithFallback(
       data,

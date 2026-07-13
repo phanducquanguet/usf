@@ -26,6 +26,26 @@ const (
 
 var errPortalDisabled = errors.New("portal disabled")
 
+// buildPortalProjectContext renders a marketplace project as agent-facing
+// context, rich enough (description + features) for the consultant to anchor
+// its first questions to the project the guest is looking at.
+func buildPortalProjectContext(p db.PortalProject) string {
+	ctx := "Khách đang quan tâm dự án trong marketplace: " + p.Name
+	if p.Industry != "" {
+		ctx += " (lĩnh vực: " + p.Industry + ")"
+	}
+	if p.Description != "" {
+		ctx += ". Mô tả: " + p.Description
+	}
+	if len(p.Features) > 0 {
+		ctx += ". Tính năng chính: " + strings.Join(p.Features, "; ")
+	}
+	if p.DemoUrl != "" {
+		ctx += ". Demo: " + p.DemoUrl
+	}
+	return ctx
+}
+
 // newPortalGuestToken mints the browser-held guest credential. Only the hash
 // is persisted; the raw token is returned to the client exactly once.
 func newPortalGuestToken() (string, string, error) {
@@ -148,10 +168,7 @@ func (h *Handler) CreatePortalGuestSession(w http.ResponseWriter, r *http.Reques
 			WorkspaceID: ws.ID,
 			Slug:        req.ProjectSlug,
 		}); perr == nil {
-			projectContext = "Khách đang quan tâm dự án trong marketplace: " + p.Name
-			if p.DemoUrl != "" {
-				projectContext += " (demo: " + p.DemoUrl + ")"
-			}
+			projectContext = buildPortalProjectContext(p)
 		}
 	}
 	session, err := h.Queries.CreateChatSession(r.Context(), db.CreateChatSessionParams{
@@ -246,6 +263,9 @@ func (h *Handler) SendPortalMessage(w http.ResponseWriter, r *http.Request) {
 	}
 	var req struct {
 		Content string `json:"content"`
+		// Slug of the marketplace project whose panel the guest is typing in;
+		// only consulted for the first message of the session.
+		ProjectSlug string `json:"project_slug"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -274,8 +294,21 @@ func (h *Handler) SendPortalMessage(w http.ResponseWriter, r *http.Request) {
 		// Mark the session as a portal intake for the agent (see the
 		// multica-portal-intake builtin skill) without a wasted bootstrap run.
 		preamble := portalFirstMessagePreamble + " Đây là phiên tư vấn với khách vãng lai trên portal công khai. Hãy làm theo skill multica-portal-intake."
-		if ps.ProjectContext != "" {
-			preamble += " " + ps.ProjectContext + "."
+		// The session may have been created from a different page (single guest
+		// token reused across the site), so the slug sent with the first message
+		// reflects where the guest is NOW and wins over the context stored at
+		// session creation. Unknown/unpublished slugs fall back silently.
+		projectContext := ps.ProjectContext
+		if req.ProjectSlug != "" {
+			if p, perr := h.Queries.GetPublishedPortalProjectBySlug(r.Context(), db.GetPublishedPortalProjectBySlugParams{
+				WorkspaceID: ps.WorkspaceID,
+				Slug:        req.ProjectSlug,
+			}); perr == nil {
+				projectContext = buildPortalProjectContext(p)
+			}
+		}
+		if projectContext != "" {
+			preamble += " " + projectContext + "."
 		}
 		content = preamble + "\n\n" + content
 	}

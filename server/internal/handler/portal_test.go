@@ -320,6 +320,38 @@ func TestPortalSendMessage_EnqueuesAndPrefixesFirstMessage(t *testing.T) {
 	}
 }
 
+func TestPortalSendMessage_FirstMessageSlugBuildsRichContext(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	enablePortalForTests(t)
+	cleanupPortalProjects(t)
+	project := createTestPortalProject(t, "UNI-HRM", true)
+	// Session created WITHOUT a slug (e.g. from the landing page); the slug
+	// arriving with the first message must still produce full project context.
+	token := createPortalGuestSessionForTest(t)
+	rec, req := portalTokenRequest(t, "POST", "/portal/sessions/"+token+"/messages", token,
+		map[string]any{"content": "Cho tôi biết thêm", "project_slug": project.Slug})
+	testHandler.SendPortalMessage(rec, req)
+	if rec.Code != 202 {
+		t.Fatalf("expected 202, got %d: %s", rec.Code, rec.Body.String())
+	}
+	var content string
+	err := testPool.QueryRow(context.Background(), `
+		SELECT cm.content FROM chat_message cm
+		JOIN portal_session ps ON ps.chat_session_id = cm.chat_session_id
+		WHERE ps.guest_token_hash = $1 AND cm.role = 'user'`,
+		hashPortalToken(token)).Scan(&content)
+	if err != nil {
+		t.Fatalf("load stored message: %v", err)
+	}
+	for _, want := range []string{"UNI-HRM", "Mô tả: Mô tả", "Tính năng chính: Đặt bàn; Thanh toán", "lĩnh vực: F&B"} {
+		if !strings.Contains(content, want) {
+			t.Fatalf("stored message missing %q: %q", want, content)
+		}
+	}
+}
+
 func TestPortalSendMessage_RejectsWhilePending(t *testing.T) {
 	if testHandler == nil {
 		t.Skip("database not available")

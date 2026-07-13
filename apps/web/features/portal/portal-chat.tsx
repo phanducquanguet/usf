@@ -44,7 +44,7 @@ export function PortalChat({
   projectName?: string;
 }) {
   const { t } = useT("portal");
-  const chat = usePortalChat();
+  const chat = usePortalChat(projectSlug);
   const [draft, setDraft] = useState("");
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [emailTouched, setEmailTouched] = useState(false);
@@ -61,10 +61,12 @@ export function PortalChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasSession]);
 
-  // A guest whose session predates this panel gets a prefilled message
-  // instead of server-side context (the slug only applies at session
-  // creation). Fresh sessions get the context server-side, so prefilling
-  // there would duplicate it. Runs once; never overwrites typed text.
+  // Server-side project context now travels with the first send (see
+  // usePortalChat), so this prefill is purely user-visible framing: a guest
+  // whose session predates this panel sees their opening message reference
+  // the project they clicked. Fresh sessions open with an empty composer —
+  // the greeting already invites them to describe their need. Runs once;
+  // never overwrites typed text.
   const hadSessionAtMountRef = useRef(hasSession);
   useEffect(() => {
     if (hadSessionAtMountRef.current && projectName && draft === "") {

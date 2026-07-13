@@ -18,7 +18,11 @@ function isAuthGone(err: unknown): boolean {
   return msg.includes("401") || msg.includes("410");
 }
 
-export function usePortalChat() {
+// projectSlug: the marketplace project whose panel hosts this chat. It rides
+// along with every send; the server only uses it to build context for the
+// session's first message, which keeps reused sessions anchored to the
+// project the guest is looking at now.
+export function usePortalChat(projectSlug?: string) {
   const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(() =>
     defaultStorage.getItem(PORTAL_TOKEN_STORAGE_KEY),
@@ -81,7 +85,8 @@ export function usePortalChat() {
 
   const send = useMutation({
     // Callers are gated on hasSession, so token is non-null here.
-    mutationFn: (content: string) => api.sendPortalMessage(token as string, content),
+    mutationFn: (content: string) =>
+      api.sendPortalMessage(token as string, content, projectSlug),
     onMutate: (content) => {
       setOutgoing(content);
       setFailed(null);
