@@ -513,6 +513,17 @@
     "delete_confirm_body": "\"{{name}}\" will be removed from the marketplace. This cannot be undone.",
     "toast_saved": "Project saved",
     "toast_deleted": "Project deleted",
-    "toast_failed": "Something went wrong"
+    "toast_failed": "Something went wrong",
+    "empty_title": "No showcase projects",
+    "status_live": "Live",
+    "status_draft": "Draft",
+    "published_hint": "Visible to guests on the marketplace",
+    "published_aria": "Published — {{name}}",
+    "edit_aria": "Edit {{name}}",
+    "delete_aria": "Delete {{name}}",
+    "dialog_description": "Details shown to guests on the public marketplace.",
+    "discard_title": "Discard unsaved changes?",
+    "discard_body": "Your edits to this project will be lost.",
+    "discard_confirm": "Discard"
   }
 }

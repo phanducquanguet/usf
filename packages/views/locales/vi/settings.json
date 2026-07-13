@@ -513,6 +513,17 @@
     "delete_confirm_body": "\"{{name}}\" sẽ bị gỡ khỏi marketplace. Không thể hoàn tác.",
     "toast_saved": "Đã lưu dự án",
     "toast_deleted": "Đã xóa dự án",
-    "toast_failed": "Có lỗi xảy ra"
+    "toast_failed": "Có lỗi xảy ra",
+    "empty_title": "Chưa có dự án mẫu",
+    "status_live": "Đang hiển thị",
+    "status_draft": "Nháp",
+    "published_hint": "Khách có thể thấy dự án trên marketplace",
+    "published_aria": "Công khai — {{name}}",
+    "edit_aria": "Sửa {{name}}",
+    "delete_aria": "Xóa {{name}}",
+    "dialog_description": "Thông tin hiển thị cho khách trên marketplace công khai.",
+    "discard_title": "Bỏ các thay đổi chưa lưu?",
+    "discard_body": "Các chỉnh sửa cho dự án này sẽ bị mất.",
+    "discard_confirm": "Bỏ thay đổi"
   }
 }

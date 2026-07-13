@@ -3,20 +3,33 @@
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2, Upload, X } from "lucide-react";
+import { ImageIcon, ImagePlus, Pencil, Plus, Store, Trash2, X } from "lucide-react";
+import { Badge } from "@multica/ui/components/ui/badge";
 import { Button } from "@multica/ui/components/ui/button";
 import { Card, CardContent } from "@multica/ui/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@multica/ui/components/ui/empty";
 import { Input } from "@multica/ui/components/ui/input";
 import { Label } from "@multica/ui/components/ui/label";
+import { Separator } from "@multica/ui/components/ui/separator";
+import { Spinner } from "@multica/ui/components/ui/spinner";
 import { Switch } from "@multica/ui/components/ui/switch";
 import { Textarea } from "@multica/ui/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@multica/ui/components/ui/dialog";
+import { Skeleton } from "@multica/ui/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,14 +84,19 @@ export function PortalProjectsSection() {
   const { t } = useT("settings");
   const wsId = useWorkspaceId();
   const queryClient = useQueryClient();
-  const { data: projects = [] } = useQuery(portalAdminProjectsOptions(wsId));
+  const { data: projects = [], isPending } = useQuery(
+    portalAdminProjectsOptions(wsId),
+  );
 
   // Dialog state: null = closed, "new" = create, otherwise the project being edited.
   const [editing, setEditing] = useState<PortalAdminProject | "new" | null>(null);
   const [form, setForm] = useState<PortalProjectInput>(EMPTY_INPUT);
   const [deleting, setDeleting] = useState<PortalAdminProject | null>(null);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Snapshot of the form as opened, to detect unsaved edits on dismiss.
+  const openedForm = useRef("");
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: portalProjectKeys.admin(wsId) });
@@ -106,11 +124,18 @@ export function PortalProjectsSection() {
 
   const openCreate = () => {
     setForm(EMPTY_INPUT);
+    openedForm.current = JSON.stringify(EMPTY_INPUT);
     setEditing("new");
   };
   const openEdit = (p: PortalAdminProject) => {
-    setForm(toInput(p));
+    const input = toInput(p);
+    setForm(input);
+    openedForm.current = JSON.stringify(input);
     setEditing(p);
+  };
+  const requestClose = () => {
+    if (JSON.stringify(form) !== openedForm.current) setConfirmDiscard(true);
+    else setEditing(null);
   };
 
   const uploadImage = async (file: File) => {
@@ -133,11 +158,22 @@ export function PortalProjectsSection() {
     value: PortalProjectInput[K],
   ) => setForm((f) => ({ ...f, [key]: value }));
 
+  const publishedCount = projects.filter((p) => p.published).length;
+
   return (
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h2 className="text-sm font-semibold">{t(($) => $.portal_projects.title)}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-semibold">
+              {t(($) => $.portal_projects.title)}
+            </h2>
+            {projects.length > 0 ? (
+              <Badge variant="secondary" className="tabular-nums">
+                {publishedCount}/{projects.length}
+              </Badge>
+            ) : null}
+          </div>
           <p className="text-sm text-muted-foreground mt-1">
             {t(($) => $.portal_projects.description)}
           </p>
@@ -148,60 +184,130 @@ export function PortalProjectsSection() {
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="divide-y">
-          {projects.length === 0 ? (
-            <p className="py-6 text-sm text-muted-foreground">
-              {t(($) => $.portal_projects.empty)}
-            </p>
-          ) : (
-            projects.map((p) => (
-              <div key={p.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+      {isPending ? (
+        <Card className="py-0" aria-busy="true">
+          <CardContent className="divide-y px-0">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3 sm:gap-4">
+                <Skeleton className="size-11 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : projects.length === 0 ? (
+        <Empty className="border py-10">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Store />
+            </EmptyMedia>
+            <EmptyTitle>{t(($) => $.portal_projects.empty_title)}</EmptyTitle>
+            <EmptyDescription>{t(($) => $.portal_projects.empty)}</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button size="sm" variant="outline" onClick={openCreate}>
+              <Plus className="size-4 mr-1.5" />
+              {t(($) => $.portal_projects.add)}
+            </Button>
+          </EmptyContent>
+        </Empty>
+      ) : (
+        <Card className="py-0">
+          <CardContent className="divide-y px-0">
+            {projects.map((p) => (
+              <div
+                key={p.id}
+                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40 sm:gap-4"
+              >
+                <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+                  {p.images[0] ? (
+                    <img
+                      src={p.images[0]}
+                      alt=""
+                      loading="lazy"
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <ImageIcon className="size-4 text-muted-foreground" aria-hidden />
+                  )}
+                </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{p.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-medium">{p.name}</p>
+                    {p.published ? (
+                      <Badge variant="secondary" className="shrink-0 gap-1.5">
+                        <span
+                          className="size-1.5 rounded-full bg-success"
+                          aria-hidden
+                        />
+                        {t(($) => $.portal_projects.status_live)}
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="shrink-0 text-muted-foreground"
+                      >
+                        {t(($) => $.portal_projects.status_draft)}
+                      </Badge>
+                    )}
+                  </div>
                   {p.industry ? (
-                    <p className="text-xs text-muted-foreground">{p.industry}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {p.industry}
+                    </p>
                   ) : null}
                 </div>
                 <Switch
                   checked={p.published}
-                  aria-label={t(($) => $.portal_projects.published)}
+                  aria-label={t(($) => $.portal_projects.published_aria, {
+                    name: p.name,
+                  })}
                   onCheckedChange={(published) =>
                     save.mutate({ id: p.id, input: { ...toInput(p), published } })
                   }
                   disabled={save.isPending}
                 />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t(($) => $.portal_projects.edit)}
-                  onClick={() => openEdit(p)}
-                >
-                  <Pencil className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t(($) => $.portal_projects.delete)}
-                  onClick={() => setDeleting(p)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
+                <div className="flex shrink-0 items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label={t(($) => $.portal_projects.edit_aria, { name: p.name })}
+                    onClick={() => openEdit(p)}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-destructive"
+                    aria-label={t(($) => $.portal_projects.delete_aria, { name: p.name })}
+                    onClick={() => setDeleting(p)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Create/edit dialog */}
-      <Dialog open={editing != null} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <Dialog open={editing != null} onOpenChange={(open) => !open && requestClose()}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>
               {t(($) => (editing === "new" ? $.portal_projects.add : $.portal_projects.edit))}
             </DialogTitle>
+            <DialogDescription>
+              {t(($) => $.portal_projects.dialog_description)}
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="pp-name">{t(($) => $.portal_projects.name)}</Label>
               <Input
@@ -219,7 +325,7 @@ export function PortalProjectsSection() {
                 onChange={(e) => setField("description", e.target.value)}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="pp-industry">{t(($) => $.portal_projects.industry)}</Label>
                 <Input
@@ -255,17 +361,19 @@ export function PortalProjectsSection() {
                 }
               />
             </div>
+
+            <Separator />
+
             <div className="space-y-2">
               <Label>{t(($) => $.portal_projects.images)}</Label>
               <div className="flex flex-wrap items-center gap-2">
                 {form.images.map((url) => (
                   <div key={url} className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={url} alt="" className="size-16 rounded-md border object-cover" />
                     <button
                       type="button"
                       aria-label={t(($) => $.portal_projects.remove_image)}
-                      className="absolute -right-1.5 -top-1.5 rounded-full border bg-background p-0.5"
+                      className="absolute -right-1.5 -top-1.5 cursor-pointer rounded-full border bg-background p-1 shadow-sm transition-colors hover:bg-muted after:absolute after:-inset-2"
                       onClick={() =>
                         setField(
                           "images",
@@ -277,16 +385,15 @@ export function PortalProjectsSection() {
                     </button>
                   </div>
                 ))}
-                <Button
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   disabled={uploading}
+                  aria-label={t(($) => $.portal_projects.upload_image)}
+                  className="flex size-16 cursor-pointer items-center justify-center rounded-md border border-dashed text-muted-foreground transition-colors hover:border-ring hover:text-foreground disabled:cursor-default disabled:opacity-50"
                   onClick={() => fileRef.current?.click()}
                 >
-                  <Upload className="size-4 mr-1.5" />
-                  {t(($) => $.portal_projects.upload_image)}
-                </Button>
+                  {uploading ? <Spinner className="size-4" /> : <ImagePlus className="size-4" />}
+                </button>
                 <input
                   ref={fileRef}
                   type="file"
@@ -299,10 +406,16 @@ export function PortalProjectsSection() {
                 />
               </div>
             </div>
+
+            <Separator />
+
             <div className="space-y-2">
               <Label htmlFor="pp-demo">{t(($) => $.portal_projects.demo_url)}</Label>
               <Input
                 id="pp-demo"
+                type="url"
+                inputMode="url"
+                placeholder="https://"
                 value={form.demo_url}
                 onChange={(e) => setField("demo_url", e.target.value)}
               />
@@ -311,14 +424,19 @@ export function PortalProjectsSection() {
               <Label htmlFor="pp-portfolio">{t(($) => $.portal_projects.portfolio_url)}</Label>
               <Input
                 id="pp-portfolio"
+                type="url"
+                inputMode="url"
+                placeholder="https://"
                 value={form.portfolio_url}
                 onChange={(e) => setField("portfolio_url", e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="pp-source">{t(($) => $.portal_projects.source_url)}</Label>
+              {/* Not type="url": internal source links are often SSH remotes (git@...). */}
               <Input
                 id="pp-source"
+                inputMode="url"
                 value={form.source_url}
                 onChange={(e) => setField("source_url", e.target.value)}
               />
@@ -326,8 +444,14 @@ export function PortalProjectsSection() {
                 {t(($) => $.portal_projects.source_url_hint)}
               </p>
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="pp-published">{t(($) => $.portal_projects.published)}</Label>
+
+            <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+              <div className="space-y-0.5">
+                <Label htmlFor="pp-published">{t(($) => $.portal_projects.published)}</Label>
+                <p className="text-xs text-muted-foreground">
+                  {t(($) => $.portal_projects.published_hint)}
+                </p>
+              </div>
               <Switch
                 id="pp-published"
                 checked={form.published}
@@ -336,7 +460,7 @@ export function PortalProjectsSection() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>
+            <Button variant="outline" onClick={requestClose}>
               {t(($) => $.portal_projects.cancel)}
             </Button>
             <Button
@@ -368,10 +492,37 @@ export function PortalProjectsSection() {
           <AlertDialogFooter>
             <AlertDialogCancel>{t(($) => $.portal_projects.cancel)}</AlertDialogCancel>
             <AlertDialogAction
+              variant="destructive"
               disabled={remove.isPending}
               onClick={() => deleting && remove.mutate(deleting.id)}
             >
               {t(($) => $.portal_projects.delete)}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Discard unsaved edits confirm */}
+      <AlertDialog open={confirmDiscard} onOpenChange={setConfirmDiscard}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t(($) => $.portal_projects.discard_title)}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(($) => $.portal_projects.discard_body)}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t(($) => $.portal_projects.cancel)}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                setConfirmDiscard(false);
+                setEditing(null);
+              }}
+            >
+              {t(($) => $.portal_projects.discard_confirm)}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

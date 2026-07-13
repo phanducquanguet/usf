@@ -92,7 +92,9 @@ describe("PortalProjectsSection", () => {
     render(<PortalProjectsSection />, { wrapper: I18nWrapper });
     expect(await screen.findByText("Quản lý nhà hàng")).toBeInTheDocument();
     expect(screen.getByText("F&B")).toBeInTheDocument();
-    expect(screen.getByRole("switch", { name: "Published" })).toBeChecked();
+    expect(
+      screen.getByRole("switch", { name: "Published — Quản lý nhà hàng" }),
+    ).toBeChecked();
   });
 
   it("opens the create dialog from the add button", async () => {
@@ -106,7 +108,9 @@ describe("PortalProjectsSection", () => {
   it("toggling publish sends a full update with the flipped flag", async () => {
     render(<PortalProjectsSection />, { wrapper: I18nWrapper });
     await screen.findByText("Quản lý nhà hàng");
-    await userEvent.click(screen.getByRole("switch", { name: "Published" }));
+    await userEvent.click(
+      screen.getByRole("switch", { name: "Published — Quản lý nhà hàng" }),
+    );
     await waitFor(() =>
       expect(mockUpdate).toHaveBeenCalledWith(
         "p1",
@@ -118,9 +122,25 @@ describe("PortalProjectsSection", () => {
   it("deletes only after confirming", async () => {
     render(<PortalProjectsSection />, { wrapper: I18nWrapper });
     await screen.findByText("Quản lý nhà hàng");
-    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Delete Quản lý nhà hàng" }),
+    );
     expect(mockDelete).not.toHaveBeenCalled();
     await userEvent.click(await screen.findByRole("button", { name: "Delete" }));
     await waitFor(() => expect(mockDelete).toHaveBeenCalledWith("p1"));
+  });
+
+  it("asks before discarding unsaved edits and keeps the dialog open", async () => {
+    render(<PortalProjectsSection />, { wrapper: I18nWrapper });
+    await screen.findByText("Quản lý nhà hàng");
+    await userEvent.click(screen.getByRole("button", { name: "Add project" }));
+    await userEvent.type(await screen.findByLabelText("Name"), "Draft app");
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(await screen.findByText("Discard unsaved changes?")).toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Discard" }));
+    await waitFor(() =>
+      expect(screen.queryByLabelText("Name")).not.toBeInTheDocument(),
+    );
   });
 });
