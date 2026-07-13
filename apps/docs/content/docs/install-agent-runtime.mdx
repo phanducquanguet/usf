@@ -20,13 +20,13 @@ The UniAI server never sees your API keys or the tools themselves. Everything be
 
 Two prerequisites apply to **every** tool below:
 
-1. **The UniAI daemon must be running.** Run `multica daemon start` after installing the UniAI CLI. Without a running daemon there is nothing to detect tools.
+1. **The UniAI daemon must be running.** Run `uniai daemon start` after installing the UniAI CLI. Without a running daemon there is nothing to detect tools.
 2. **The tool's binary must be reachable on `PATH`.** The daemon shells out to each tool by name (see the **Daemon looks for** column in each section). If `which <name>` doesn't find it in your terminal, the daemon won't find it either. After installing, open a fresh terminal (or restart the daemon) so the new `PATH` entry is picked up.
 
 After installing a tool, restart the daemon:
 
 ```bash
-multica daemon restart
+uniai daemon restart
 ```
 
 The daemon re-scans `PATH` on every start.
@@ -66,7 +66,7 @@ The CLI counterpart to the Cursor editor. **Session resumption works** with curr
 | Install | Install the [Cursor editor](https://cursor.com/) and then the CLI per their docs at [docs.cursor.com](https://docs.cursor.com/). The binary name is `cursor-agent`, not `cursor`. |
 | Authentication | Sign in through the Cursor editor; the CLI reuses that session. |
 
-For authenticated MCP servers, Cursor stores OAuth state in the project data directory where the auth flow first ran. Multica isolates managed Cursor MCP runs with a per-task `CURSOR_DATA_DIR`, so it does not scan or copy every file under `~/.cursor/projects`. To opt in for one agent, set the agent custom env key `CURSOR_MCP_AUTH_SOURCE` to the absolute path of the trusted `mcp-auth.json` file, or to the Cursor project data directory containing that file. Multica links or seeds only that `mcp-auth.json` into the isolated task project data directory. When symlinks are supported, Cursor token refreshes may write back to the trusted source; environments that cannot create symlinks fall back to copying the file.
+For authenticated MCP servers, Cursor stores OAuth state in the project data directory where the auth flow first ran. UniAI isolates managed Cursor MCP runs with a per-task `CURSOR_DATA_DIR`, so it does not scan or copy every file under `~/.cursor/projects`. To opt in for one agent, set the agent custom env key `CURSOR_MCP_AUTH_SOURCE` to the absolute path of the trusted `mcp-auth.json` file, or to the Cursor project data directory containing that file. UniAI links or seeds only that `mcp-auth.json` into the isolated task project data directory. When symlinks are supported, Cursor token refreshes may write back to the trusted source; environments that cannot create symlinks fall back to copying the file.
 
 ### GitHub Copilot
 
@@ -184,7 +184,7 @@ Google's Antigravity CLI (`agy`). Pairs with Google's Antigravity service and ru
 ## After installing
 
 1. **Confirm the binary is on `PATH`.** Open a fresh terminal and run `which <name>` (for example `which claude`, `which cursor-agent`, `which kiro-cli`, `which agy`). If it prints a path, the daemon will find it. If it prints nothing, fix your shell `PATH` first (the typical cause is a per-shell rc file that wasn't reloaded).
-2. **Restart the daemon.** `multica daemon restart`. The daemon only scans `PATH` at startup.
+2. **Restart the daemon.** `uniai daemon restart`. The daemon only scans `PATH` at startup.
 3. **Check the Runtimes page.** In the UniAI UI, the **Runtimes** page should now list one row per `(workspace × tool)` combination. If the row says "offline", see [Daemon and runtimes → When a runtime is marked offline](/daemon-runtimes#when-a-runtime-is-marked-offline).
 4. **Go back to onboarding.** The "Connect a runtime" step polls and will pick up the new runtime within a few seconds — no need to refresh.
 
@@ -192,7 +192,7 @@ Google's Antigravity CLI (`agy`). Pairs with Google's Antigravity service and ru
 
 - **`which` finds the binary but the daemon doesn't.** The daemon was started with an older `PATH`. Restart it.
 - **The binary exists but launching fails.** Run the tool's own `--version` or `--help` once from the terminal — most failures here are missing auth, expired tokens, or a Node.js / runtime mismatch.
-- **The Runtimes page shows the row, but tasks fail immediately.** Check `multica daemon logs -f` while triggering a task. The daemon surfaces the tool's own error output.
+- **The Runtimes page shows the row, but tasks fail immediately.** Check `uniai daemon logs -f` while triggering a task. The daemon surfaces the tool's own error output.
 
 For broader symptoms, see the Troubleshooting guide.
 

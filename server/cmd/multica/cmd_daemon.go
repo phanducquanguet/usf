@@ -1073,7 +1073,7 @@ func printDiskUsageOtherRootsHint(w io.Writer, report daemon.DiskUsageReport, pr
 		fmt.Fprintf(w, "  %s  # %s (%d task%s)\n",
 			s.Command, s.Root, s.TaskCount, pluralS(s.TaskCount))
 	}
-	fmt.Fprintln(w, "Run 'multica daemon disk-usage --all-profiles' for a combined total across all roots.")
+	fmt.Fprintln(w, "Run 'uniai daemon disk-usage --all-profiles' for a combined total across all roots.")
 }
 
 type diskUsageProfileSuggestion struct {
@@ -1090,7 +1090,7 @@ func diskUsageProfileSuggestions(currentProfile, currentRoot string) []diskUsage
 			if taskCount := countDiskUsageTaskDirs(root); taskCount > 0 {
 				out = append(out, diskUsageProfileSuggestion{
 					Profile:   "",
-					Command:   "multica daemon disk-usage",
+					Command:   "uniai daemon disk-usage",
 					Root:      root,
 					TaskCount: taskCount,
 				})
@@ -1124,7 +1124,7 @@ func diskUsageProfileSuggestions(currentProfile, currentRoot string) []diskUsage
 		}
 		out = append(out, diskUsageProfileSuggestion{
 			Profile:   profile,
-			Command:   "multica --profile " + shellQuoteArg(profile) + " daemon disk-usage",
+			Command:   "uniai --profile " + shellQuoteArg(profile) + " daemon disk-usage",
 			Root:      root,
 			TaskCount: taskCount,
 		})

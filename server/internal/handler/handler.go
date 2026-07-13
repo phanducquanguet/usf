@@ -214,7 +214,7 @@ type Handler struct {
 	// "link your Slack account" prompt (MUL-3666). Nil unless Slack is
 	// configured (MULTICA_SLACK_SECRET_KEY set).
 	SlackBindingTokens *slack.BindingTokenService
-	// SlackHistory backs the agent-facing `multica chat history` command: it
+	// SlackHistory backs the agent-facing `uniai chat history` command: it
 	// reads a chat session's bound Slack conversation on demand (MUL-3871). Nil
 	// unless Slack is configured; GetChatChannelHistory then reports "no channel
 	// integration". A future platform satisfies the same reader interface.

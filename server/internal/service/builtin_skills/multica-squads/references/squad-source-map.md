@@ -37,17 +37,17 @@ server/cmd/multica/cmd_squad.go
 Commands:
 
 ```bash
-multica squad list
-multica squad get <squad-id>
-multica squad create
-multica squad update <squad-id>
-multica squad delete <squad-id>
-multica squad activity <issue-id> <outcome>
+uniai squad list
+uniai squad get <squad-id>
+uniai squad create
+uniai squad update <squad-id>
+uniai squad delete <squad-id>
+uniai squad activity <issue-id> <outcome>
 
-multica squad member list <squad-id>
-multica squad member add <squad-id>
-multica squad member remove <squad-id>
-multica squad member set-role <squad-id>
+uniai squad member list <squad-id>
+uniai squad member add <squad-id>
+uniai squad member remove <squad-id>
+uniai squad member set-role <squad-id>
 ```
 
 Use `--help` for exact flags before writes.

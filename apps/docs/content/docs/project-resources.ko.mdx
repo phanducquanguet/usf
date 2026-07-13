@@ -82,17 +82,17 @@ Desktop에서는 이 기기의 데몬이 오프라인이거나, 프로젝트에 
 CLI에서도 가능합니다(데몬 ID를 직접 제공하기만 하면 웹 전용 환경에서도 동작합니다):
 
 ```bash
-multica project resource add <project-id> \
+uniai project resource add <project-id> \
   --type local_directory \
   --local-path /Users/me/code/big-game \
   --daemon-id <daemon-uuid> \
   --ref-label "main checkout"        # optional
 
-multica project resource update <project-id> <resource-id> \
+uniai project resource update <project-id> <resource-id> \
   --local-path /Users/me/code/big-game-new
 ```
 
-`--daemon-id`는 `multica daemon list`에서 얻을 수 있습니다. CLI는 페이로드를 직접 전달하고 싶을 때를 위한 범용 `--ref '<json>'` 탈출구도 받습니다.
+`--daemon-id`는 `uniai daemon list`에서 얻을 수 있습니다. CLI는 페이로드를 직접 전달하고 싶을 때를 위한 범용 `--ref '<json>'` 탈출구도 받습니다.
 
 ### 경로 규칙
 
@@ -161,18 +161,18 @@ multica project resource update <project-id> <resource-id> \
 # Create + attach in one shot. The server attaches resources in the same
 # transaction as the project create — invalid resources roll back the whole
 # operation, so you never end up with a project that has half its resources.
-multica project create \
+uniai project create \
   --title "Agent UX 2026" \
   --repo https://github.com/phanducquanguet/usf
 
 # Manage resources later
-multica project resource list <project-id>
-multica project resource add  <project-id> --type github_repo --url <url>
-multica project resource remove <project-id> <resource-id>
+uniai project resource list <project-id>
+uniai project resource add  <project-id> --type github_repo --url <url>
+uniai project resource remove <project-id> <resource-id>
 
 # Generic escape hatch for any resource_type the server understands —
 # no CLI change needed when a new type ships:
-multica project resource add <project-id> \
+uniai project resource add <project-id> \
   --type notion_page \
   --ref '{"page_id":"…","title":"…"}'
 ```
@@ -220,7 +220,7 @@ Project resources (also written to `.multica/project/resources.json`):
 - **GitHub repo**: https://github.com/phanducquanguet/usf (default branch: `main`)
 
 Resources are pointers — open them only when relevant to the task. For
-`github_repo` resources, use `multica repo checkout <url>` to fetch the code.
+`github_repo` resources, use `uniai repo checkout <url>` to fetch the code.
 ```
 
 이 텍스트는 의도적으로 최소한입니다. 전체 페이로드는 디스크에 있고, 프롬프트는 에이전트가 프로젝트가 존재한다는 것과 무엇이 연결되었는지를 알도록 방향만 잡아 줍니다.
@@ -251,12 +251,12 @@ Resources are pointers — open them only when relevant to the task. For
 
 이는 에이전트의 작업 집합을 좁게 유지합니다: 프로젝트가 저장소를 명확히 밝히면 그것이 권위 있는 답입니다. `.multica/project/resources.json`의 구조화된 리소스 목록은 항상 전체 집합을 담으므로, 모든 것을 검사하려는 스킬은 여전히 그렇게 할 수 있습니다.
 
-데몬은 체크아웃 측에서도 이를 반영합니다: 프로젝트 범위의 `github_repo` URL을 가진 작업이 도착하면, 그 URL들은 에이전트가 생성되기 전에 워크스페이스별 허용 목록에 병합되고 *동시에* 로컬 저장소 캐시에 동기화됩니다. 그래서 워크스페이스 수준에서 바인딩되지 않은 프로젝트 저장소 URL도 여전히 `multica repo checkout`의 유효한 인자가 됩니다 — 데몬은 그것을 "구성되지 않음"으로 거부하지 않습니다. 허용 목록 분리는 내부적입니다: 워크스페이스에 바인딩된 URL과 작업 범위의 URL은 별도로 추적되므로, 워크스페이스 저장소 새로 고침이 실행 도중에 프로젝트 URL을 실수로 취소하는 일이 없습니다.
+데몬은 체크아웃 측에서도 이를 반영합니다: 프로젝트 범위의 `github_repo` URL을 가진 작업이 도착하면, 그 URL들은 에이전트가 생성되기 전에 워크스페이스별 허용 목록에 병합되고 *동시에* 로컬 저장소 캐시에 동기화됩니다. 그래서 워크스페이스 수준에서 바인딩되지 않은 프로젝트 저장소 URL도 여전히 `uniai repo checkout`의 유효한 인자가 됩니다 — 데몬은 그것을 "구성되지 않음"으로 거부하지 않습니다. 허용 목록 분리는 내부적입니다: 워크스페이스에 바인딩된 URL과 작업 범위의 URL은 별도로 추적되므로, 워크스페이스 저장소 새로 고침이 실행 도중에 프로젝트 URL을 실수로 취소하는 일이 없습니다.
 
 ## 여기서 의도적으로 범위에 **포함하지 않은** 것
 
 - **프로젝트 간 공유.** 오늘날 각 리소스는 정확히 하나의 프로젝트에만 존재합니다.
 - **스킬별 리소스 범위 지정.** 모든 리소스는 에이전트 실행의 모든 스킬에 보입니다. 타입 인식 필터링은 후속 작업입니다.
-- **캐싱 / 동기화.** `github_repo`는 그냥 메타데이터입니다 — 체크아웃은 여전히 필요할 때 `multica repo checkout`을 통해 일어납니다. Notion / Google Docs의 캐시된 문서 텍스트는 해당 타입과 함께 제공될 것입니다.
+- **캐싱 / 동기화.** `github_repo`는 그냥 메타데이터입니다 — 체크아웃은 여전히 필요할 때 `uniai repo checkout`을 통해 일어납니다. Notion / Google Docs의 캐시된 문서 텍스트는 해당 타입과 함께 제공될 것입니다.
 
 이것들은 의도적인 누락입니다 — 첫 번째 컷의 목표는 가장 적은 수의 움직이는 부품으로 이 추상화를 검증하는 것입니다.

@@ -2,7 +2,7 @@
 name: multica-skill-importing
 description: "Use when a user provides a skill URL, slug, or clear intent to import/install a specific skill into the current UniAI workspace. Teaches the workspace import API/CLI path (POST /api/skills/import), the supported URL source families, --on-conflict fail|overwrite|rename|skip behavior and structured import results, additive agent binding vs replace-all, and the reserved SKILL.md supporting-file rule. Do not use it to decide which skill the user needs, and never treat an external local installer like npx skills add as the final UniAI install."
 user-invocable: false
-allowed-tools: Bash(multica *)
+allowed-tools: Bash(uniai *)
 ---
 
 # Importing skills into UniAI
@@ -26,8 +26,8 @@ import endpoint. It accepts either a hosted URL or an uploaded local archive
 (`.skill` / `.zip`), driven by this CLI:
 
 ```bash
-multica skill import --url <url> --output json              # hosted source
-multica skill import --file <path-to.skill> --output json   # local archive
+uniai skill import --url <url> --output json              # hosted source
+uniai skill import --file <path-to.skill> --output json   # local archive
 ```
 
 The CLI defaults to `--on-conflict fail`. A URL import sends:
@@ -48,14 +48,14 @@ environment, not the UniAI workspace DB, so UniAI cannot manage or bind it.
 ## Supported URL source families
 
 `detectImportSource` accepts these hosts (and `www.` variants). Pass any of these
-forms to `multica skill import --url <url> --output json`:
+forms to `uniai skill import --url <url> --output json`:
 
 ```bash
-multica skill import --url clawhub.ai/owner/skill --output json
-multica skill import --url skills.sh/owner/repo/skill --output json
-multica skill import --url github.com/owner/repo --output json
-multica skill import --url github.com/owner/repo/tree/main/path/to/skill --output json
-multica skill import --url github.com/owner/repo/blob/main/path/to/SKILL.md --output json
+uniai skill import --url clawhub.ai/owner/skill --output json
+uniai skill import --url skills.sh/owner/repo/skill --output json
+uniai skill import --url github.com/owner/repo --output json
+uniai skill import --url github.com/owner/repo/tree/main/path/to/skill --output json
+uniai skill import --url github.com/owner/repo/blob/main/path/to/SKILL.md --output json
 ```
 
 - `clawhub.ai`, `skills.sh`, `github.com` are the recognized hosts.
@@ -66,7 +66,7 @@ multica skill import --url github.com/owner/repo/blob/main/path/to/SKILL.md --ou
 
 ## Local archive import (`.skill` / `.zip`)
 
-`multica skill import --file <path> --output json` imports a skill from a local
+`uniai skill import --file <path> --output json` imports a skill from a local
 archive instead of a hosted URL. A `.skill` file is a standard zip — the format
 Anthropic's skill-creator `package_skill` produces — and a plain `.zip` of a
 skill folder works too. The server:
@@ -93,7 +93,7 @@ local archive still goes through `--url`.
 directly; search is not required by the API:
 
 ```bash
-multica skill import --url <url> --output json
+uniai skill import --url <url> --output json
 ```
 
 2. Treat the response as the source of truth. Current CLI imports use the
@@ -128,19 +128,19 @@ whether the import succeeded.
 assignments and appends the new id:
 
 ```bash
-multica agent skills add <agent-id> --skill-ids <skill-id> --output json
-multica agent skills list <agent-id> --output json
+uniai agent skills add <agent-id> --skill-ids <skill-id> --output json
+uniai agent skills list <agent-id> --output json
 ```
 
-After the final `multica agent skills list <agent-id> --output json`, verify the
+After the final `uniai agent skills list <agent-id> --output json`, verify the
 target skill id is present before claiming the skill is available to that agent.
 
 ## Additive add vs replace-all set
 
-`multica agent skills add` is additive: the server inserts the assignments without
+`uniai agent skills add` is additive: the server inserts the assignments without
 clearing existing ones (`AddAgentSkills`).
 
-`multica agent skills set` is replace-all: the server clears every current
+`uniai agent skills set` is replace-all: the server clears every current
 assignment, then re-adds exactly the ids you pass (`SetAgentSkills`).
 `set` is the replacement path. Passing only one id to `set` leaves the agent with
 only that one skill and drops every previous assignment.
@@ -163,7 +163,7 @@ for the primary skill content" — only fires on the dedicated single-file endpo
 
 ## Same-name conflicts: `--on-conflict`
 
-Default behavior is safe: `multica skill import --url <url>` is equivalent to
+Default behavior is safe: `uniai skill import --url <url>` is equivalent to
 `--on-conflict fail`. If the imported skill name already exists, the command
 prints a structured `conflict` result and exits non-zero; no skill is created or
 updated.
@@ -187,16 +187,16 @@ Concrete examples:
 
 ```bash
 # Safe default. Fails with status=conflict if review-helper already exists.
-multica skill import --url https://skills.sh/acme/repo/review-helper --output json
+uniai skill import --url https://skills.sh/acme/repo/review-helper --output json
 
 # Replace the existing same-name skill, preserving its ID and agent bindings.
-multica skill import --url https://skills.sh/acme/repo/review-helper --on-conflict overwrite --output json
+uniai skill import --url https://skills.sh/acme/repo/review-helper --on-conflict overwrite --output json
 
 # Keep the existing skill and import a copy such as review-helper-2.
-multica skill import --url https://skills.sh/acme/repo/review-helper --on-conflict rename --output json
+uniai skill import --url https://skills.sh/acme/repo/review-helper --on-conflict rename --output json
 
 # Batch-friendly behavior: leave the existing skill alone and mark it skipped.
-multica skill import --url https://skills.sh/acme/repo/review-helper --on-conflict skip --output json
+uniai skill import --url https://skills.sh/acme/repo/review-helper --on-conflict skip --output json
 ```
 
 Legacy compatibility: clients that do not send `on_conflict` keep the old
@@ -218,7 +218,7 @@ non-zero for the default `fail` strategy. Treat `existing_skill.id` and
 `existing_skill.name` as the source of truth, then fetch details if needed:
 
 ```bash
-multica skill get <skill-id> --output json
+uniai skill get <skill-id> --output json
 ```
 
 Older servers may return a `409` whose body is only a string like `a skill with
@@ -226,8 +226,8 @@ this name already exists`, with no `existing_skill` key. Recover by finding the
 existing workspace skill yourself:
 
 ```bash
-multica skill list --output json
-multica skill get <skill-id> --output json
+uniai skill list --output json
+uniai skill get <skill-id> --output json
 ```
 
 Then report that the skill already exists and include its `id` / `name`. Do not
@@ -252,15 +252,15 @@ use `add`.
 Correct import:
 
 ```bash
-multica skill import --url https://skills.sh/owner/repo/skill --output json
+uniai skill import --url https://skills.sh/owner/repo/skill --output json
 ```
 
 Agent binding after import, when the caller intentionally wants to mutate that
 agent's skill assignments:
 
 ```bash
-multica agent skills add <agent-id> --skill-ids <skill-id> --output json
-multica agent skills list <agent-id> --output json
+uniai agent skills add <agent-id> --skill-ids <skill-id> --output json
+uniai agent skills list <agent-id> --output json
 ```
 
 ## References

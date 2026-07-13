@@ -1,6 +1,6 @@
 # CLI and Agent Daemon Guide
 
-The `multica` CLI connects your local machine to Multica. It handles authentication, workspace management, issue tracking, and runs the agent daemon that executes AI tasks locally.
+The `uniai` CLI connects your local machine to UniAI. It handles authentication, workspace management, issue tracking, and runs the agent daemon that executes AI tasks locally.
 
 ## Installation
 
@@ -14,7 +14,7 @@ brew install multica-ai/tap/multica
 
 ```bash
 git clone https://github.com/multica-ai/multica.git
-cd multica
+cd uniai
 make build
 cp server/bin/multica /usr/local/bin/multica
 ```
@@ -28,41 +28,41 @@ brew upgrade multica-ai/tap/multica
 For install script or manual installs, use:
 
 ```bash
-multica update
+uniai update
 ```
 
-`multica update` auto-detects your installation method and upgrades accordingly.
+`uniai update` auto-detects your installation method and upgrades accordingly.
 
 ## Quick Start
 
 ```bash
 # One-command setup: configure, authenticate, and start the daemon
-multica setup
+uniai setup
 
 # For self-hosted (local) deployments:
-multica setup self-host
+uniai setup self-host
 ```
 
 Or step by step:
 
 ```bash
 # 1. Authenticate (opens browser for login)
-multica login
+uniai login
 
 # 2. Start the agent daemon
-multica daemon start
+uniai daemon start
 
 # 3. Done — agents in your watched workspaces can now execute tasks on your machine
 ```
 
-`multica login` automatically discovers all workspaces you belong to and adds them to the daemon watch list.
+`uniai login` automatically discovers all workspaces you belong to and adds them to the daemon watch list.
 
 ## Authentication
 
 ### Browser Login
 
 ```bash
-multica login
+uniai login
 ```
 
 Opens your browser for OAuth authentication, creates a 90-day personal access token, and auto-configures your workspaces.
@@ -70,7 +70,7 @@ Opens your browser for OAuth authentication, creates a 90-day personal access to
 ### Token Login
 
 ```bash
-multica login --token <mul_...>
+uniai login --token <mul_...>
 ```
 
 Authenticate using a personal access token directly. Useful for headless environments. Pass `--token=` with an empty value to be prompted interactively (so the token never lands in shell history).
@@ -78,7 +78,7 @@ Authenticate using a personal access token directly. Useful for headless environ
 ### Check Status
 
 ```bash
-multica auth status
+uniai auth status
 ```
 
 Shows your current server, user, and token validity.
@@ -86,19 +86,19 @@ Shows your current server, user, and token validity.
 ### Logout
 
 ```bash
-multica auth logout
+uniai auth logout
 ```
 
 Removes the stored authentication token.
 
 ## Agent Daemon
 
-The daemon is the local agent runtime. It detects available AI CLIs on your machine, registers them with the Multica server, and executes tasks when agents are assigned work.
+The daemon is the local agent runtime. It detects available AI CLIs on your machine, registers them with the UniAI server, and executes tasks when agents are assigned work.
 
 ### Start
 
 ```bash
-multica daemon start
+uniai daemon start
 ```
 
 By default, the daemon runs in the background and logs to `~/.multica/daemon.log`.
@@ -106,20 +106,20 @@ By default, the daemon runs in the background and logs to `~/.multica/daemon.log
 To run in the foreground (useful for debugging):
 
 ```bash
-multica daemon start --foreground
+uniai daemon start --foreground
 ```
 
 ### Stop
 
 ```bash
-multica daemon stop
+uniai daemon stop
 ```
 
 ### Status
 
 ```bash
-multica daemon status
-multica daemon status --output json
+uniai daemon status
+uniai daemon status --output json
 ```
 
 Shows PID, uptime, detected agents, and watched workspaces.
@@ -127,9 +127,9 @@ Shows PID, uptime, detected agents, and watched workspaces.
 ### Logs
 
 ```bash
-multica daemon logs              # Last 50 lines
-multica daemon logs -f           # Follow (tail -f)
-multica daemon logs -n 100       # Last 100 lines
+uniai daemon logs              # Last 50 lines
+uniai daemon logs -f           # Follow (tail -f)
+uniai daemon logs -n 100       # Last 100 lines
 ```
 
 ### Supported Agents
@@ -231,33 +231,33 @@ If a previously generated `~/.multica/hooks` wrapper is first on `PATH` and call
 
 The daemon launches Qoder as `qodercli --yolo --acp`, matching Qoder’s ACP “bypass permissions” mode so tool runs do not block on interactive approval in headless runs.
 
-`MULTICA_CLAUDE_ARGS` and `MULTICA_CODEX_ARGS` are parsed with POSIX shellword quoting, so values such as `--model "gpt-5.1 codex" --sandbox read-only` are split like a shell command line. Agent arguments are applied in this order: hardcoded Multica defaults, daemon-wide env defaults, then per-agent `custom_args` from the task.
+`MULTICA_CLAUDE_ARGS` and `MULTICA_CODEX_ARGS` are parsed with POSIX shellword quoting, so values such as `--model "gpt-5.1 codex" --sandbox read-only` are split like a shell command line. Agent arguments are applied in this order: hardcoded UniAI defaults, daemon-wide env defaults, then per-agent `custom_args` from the task.
 
 ### Self-Hosted Server
 
-When connecting to a self-hosted Multica instance, the easiest approach is:
+When connecting to a self-hosted UniAI instance, the easiest approach is:
 
 ```bash
 # One command — configures for localhost, authenticates, starts daemon
-multica setup self-host
+uniai setup self-host
 
 # Or for on-premise with custom domains:
-multica setup self-host --server-url https://api.example.com --app-url https://app.example.com
+uniai setup self-host --server-url https://api.example.com --app-url https://app.example.com
 ```
 
 Or configure manually:
 
 ```bash
 # Set URLs individually
-multica config set server_url http://localhost:8080
-multica config set app_url http://localhost:3000
+uniai config set server_url http://localhost:8080
+uniai config set app_url http://localhost:3000
 
 # For production with TLS:
-# multica config set server_url https://api.example.com
-# multica config set app_url https://app.example.com
+# uniai config set server_url https://api.example.com
+# uniai config set app_url https://app.example.com
 
-multica login
-multica daemon start
+uniai login
+uniai daemon start
 ```
 
 ### Profiles
@@ -266,13 +266,13 @@ Profiles let you run multiple daemons on the same machine — for example, one f
 
 ```bash
 # Set up a staging profile
-multica setup self-host --profile staging --server-url https://api-staging.example.com --app-url https://staging.example.com
+uniai setup self-host --profile staging --server-url https://api-staging.example.com --app-url https://staging.example.com
 
 # Start its daemon
-multica daemon start --profile staging
+uniai daemon start --profile staging
 
 # Default profile runs separately
-multica daemon start
+uniai daemon start
 ```
 
 Each profile gets its own config directory (`~/.multica/profiles/<name>/`), daemon state, health port, and workspace root.
@@ -285,18 +285,18 @@ Every command runs against a single workspace. The CLI resolves which one in thi
 
 1. `--workspace-id <id>` flag on the command
 2. `MULTICA_WORKSPACE_ID` environment variable
-3. The default workspace stored in your current profile (set by `multica workspace switch` or `multica login`)
+3. The default workspace stored in your current profile (set by `uniai workspace switch` or `uniai login`)
 
-`multica workspace switch <id|slug>` is the day-to-day way to change the default workspace. For scripting and headless setups where you don't want any stored state, prefer the `--workspace-id` flag or the env variable. `multica config set workspace_id <id>` is the low-level equivalent of `switch` (it writes the same setting but skips the access check).
+`uniai workspace switch <id|slug>` is the day-to-day way to change the default workspace. For scripting and headless setups where you don't want any stored state, prefer the `--workspace-id` flag or the env variable. `uniai config set workspace_id <id>` is the low-level equivalent of `switch` (it writes the same setting but skips the access check).
 
 If you need full isolation between organizations or accounts — separate tokens, separate daemons, separate config dirs — use `--profile <name>` instead. Each profile keeps its own default workspace.
 
 ### List Workspaces
 
 ```bash
-multica workspace list
-multica workspace list --full-id
-multica workspace list --output json
+uniai workspace list
+uniai workspace list --full-id
+uniai workspace list --output json
 ```
 
 The current default workspace is marked with `*`. Table output shows short UUID prefixes — pass `--full-id` when you need the canonical UUIDs.
@@ -304,8 +304,8 @@ The current default workspace is marked with `*`. Table output shows short UUID 
 ### Switch Default Workspace
 
 ```bash
-multica workspace switch <workspace-id>
-multica workspace switch <slug>
+uniai workspace switch <workspace-id>
+uniai workspace switch <slug>
 ```
 
 Verifies you have access to the workspace, then sets it as the default for the current profile. Subsequent commands without `--workspace-id` and `MULTICA_WORKSPACE_ID` target this workspace. Pair `--profile` if you want to change a non-default profile's workspace.
@@ -313,16 +313,16 @@ Verifies you have access to the workspace, then sets it as the default for the c
 ### Get Details
 
 ```bash
-multica workspace get <workspace-id>
-multica workspace get <workspace-id> --output json
+uniai workspace get <workspace-id>
+uniai workspace get <workspace-id> --output json
 ```
 
-Passing no `<workspace-id>` resolves to the current default workspace, so `multica workspace get` doubles as "what workspace am I on?".
+Passing no `<workspace-id>` resolves to the current default workspace, so `uniai workspace get` doubles as "what workspace am I on?".
 
 ### List Members
 
 ```bash
-multica workspace member list <workspace-id>
+uniai workspace member list <workspace-id>
 ```
 
 ## Issues
@@ -330,14 +330,14 @@ multica workspace member list <workspace-id>
 ### List Issues
 
 ```bash
-multica issue list
-multica issue list --status in_progress
-multica issue list --priority urgent --assignee "Agent Name"
-multica issue list --assignee-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
-multica issue list --full-id
-multica issue list --limit 20 --output json
-multica issue list --status todo --sort position       # board order (the default)
-multica issue list --sort created_at --direction desc  # newest first
+uniai issue list
+uniai issue list --status in_progress
+uniai issue list --priority urgent --assignee "Agent Name"
+uniai issue list --assignee-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+uniai issue list --full-id
+uniai issue list --limit 20 --output json
+uniai issue list --status todo --sort position       # board order (the default)
+uniai issue list --sort created_at --direction desc  # newest first
 ```
 
 Table output shows a routable issue `KEY` such as `MUL-123`; copy that key into follow-up commands like `issue get`, `issue comment list`, `issue status`, or `--parent`. Add `--full-id` when you need canonical UUIDs. Available filters: `--status`, `--priority`, `--assignee` / `--assignee-id`, `--project`, `--metadata`, `--limit`. Use `--assignee-id <uuid>` for unambiguous filtering when names overlap.
@@ -347,31 +347,31 @@ Results come back in board order (`position`, ascending) by default. Pass `--sor
 Use `--metadata key=value` (repeatable; combined with AND) to filter by per-issue metadata. The value is JSON-parsed: `true`/`false` become bool, numbers become numbers, anything else is a string. Wrap as `'"42"'` to force a string when the value would otherwise sniff as a number:
 
 ```bash
-multica issue list --metadata pipeline_status=waiting_review
-multica issue list --metadata pr_number=482 --metadata is_blocked=true
+uniai issue list --metadata pipeline_status=waiting_review
+uniai issue list --metadata pr_number=482 --metadata is_blocked=true
 ```
 
 ### Get Issue
 
 ```bash
-multica issue get <id>
-multica issue get <id> --output json
+uniai issue get <id>
+uniai issue get <id> --output json
 ```
 
 ### Create Issue
 
 ```bash
-multica issue create --title "Fix login bug" --description "..." --priority high --assignee "Lambda"
-multica issue create --title "Fix login bug" --assignee-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+uniai issue create --title "Fix login bug" --description "..." --priority high --assignee "Lambda"
+uniai issue create --title "Fix login bug" --assignee-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
 ```
 
-Flags: `--title` (required), `--description`, `--status`, `--priority`, `--assignee` / `--assignee-id`, `--parent`, `--project`, `--due-date`. Pass `--assignee-id <uuid>` (mutually exclusive with `--assignee`) when scripting against the IDs returned by `multica workspace member list --output json` / `multica agent list --output json`.
+Flags: `--title` (required), `--description`, `--status`, `--priority`, `--assignee` / `--assignee-id`, `--parent`, `--project`, `--due-date`. Pass `--assignee-id <uuid>` (mutually exclusive with `--assignee`) when scripting against the IDs returned by `uniai workspace member list --output json` / `uniai agent list --output json`.
 
 ### Update Issue
 
 ```bash
-multica issue update <id> --title "New title" --priority urgent
-multica issue update <id> --position 4.5
+uniai issue update <id> --title "New title" --priority urgent
+uniai issue update <id> --position 4.5
 ```
 
 `--position` sets the raw ordering value within the board column (lower sorts first). For relative moves, `issue reorder` is easier because it works out the value for you.
@@ -381,10 +381,10 @@ multica issue update <id> --position 4.5
 Move an issue within its current status column. The new ordering value is computed the same way the board's drag-and-drop computes it, so the CLI and UI agree on where the issue lands.
 
 ```bash
-multica issue reorder <id> --top              # top of its status column
-multica issue reorder <id> --bottom           # bottom of its status column
-multica issue reorder <id> --before <other>   # directly above another issue in the same column
-multica issue reorder <id> --after  <other>   # directly below another issue in the same column
+uniai issue reorder <id> --top              # top of its status column
+uniai issue reorder <id> --bottom           # bottom of its status column
+uniai issue reorder <id> --before <other>   # directly above another issue in the same column
+uniai issue reorder <id> --after  <other>   # directly below another issue in the same column
 ```
 
 Pick exactly one of `--top`, `--bottom`, `--before`, or `--after`. Reorder stays inside the issue's current column, so `--before` / `--after` must name an issue in that same column. To move an issue to a different column, change its status first with `issue status`, then reorder within the new column.
@@ -392,9 +392,9 @@ Pick exactly one of `--top`, `--bottom`, `--before`, or `--after`. Reorder stays
 ### Assign Issue
 
 ```bash
-multica issue assign <id> --to "Lambda"
-multica issue assign <id> --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
-multica issue assign <id> --unassign
+uniai issue assign <id> --to "Lambda"
+uniai issue assign <id> --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+uniai issue assign <id> --unassign
 ```
 
 Pass `--to-id <uuid>` to assign by canonical UUID (mutually exclusive with `--to`); useful when names overlap across members and agents.
@@ -402,7 +402,7 @@ Pass `--to-id <uuid>` to assign by canonical UUID (mutually exclusive with `--to
 ### Change Status
 
 ```bash
-multica issue status <id> in_progress
+uniai issue status <id> in_progress
 ```
 
 Valid statuses: `backlog`, `todo`, `in_progress`, `in_review`, `done`, `blocked`, `cancelled`.
@@ -413,49 +413,49 @@ Valid statuses: `backlog`, `todo`, `in_progress`, `in_review`, `done`, `blocked`
 # List comments — flat timeline, chronological. Hard cap of 2000 rows; on
 # long-running issues prefer one of the thread-aware reads below to keep
 # context windows tight.
-multica issue comment list <issue-id>
+uniai issue comment list <issue-id>
 
 # Single thread (root + every descendant). Anchor may be the root itself
 # or any reply inside the thread — the server walks up to the root.
-multica issue comment list <issue-id> --thread <comment-id>
+uniai issue comment list <issue-id> --thread <comment-id>
 
 # Single thread, capped to the N most recent replies. The thread root is
 # always included (even with --tail 0), so an agent landing on a long
 # thread keeps the "what is this about" context without dragging hundreds
 # of replies into its prompt.
-multica issue comment list <issue-id> --thread <comment-id> --tail 30
+uniai issue comment list <issue-id> --thread <comment-id> --tail 30
 
 # Scroll older replies inside the same thread. --before / --before-id are
 # the reply cursor that the previous response emitted on stderr as
 # `Next reply cursor: --before <ts> --before-id <reply-id>`.
-multica issue comment list <issue-id> --thread <comment-id> --tail 30 \
+uniai issue comment list <issue-id> --thread <comment-id> --tail 30 \
     --before <ts> --before-id <reply-id>
 
 # Most recently active threads (root + every descendant), grouped by
 # thread. Returns N complete conversational arcs, oldest-active first so
 # the freshest thread sits closest to "now" in an agent prompt.
-multica issue comment list <issue-id> --recent 10
+uniai issue comment list <issue-id> --recent 10
 
 # Scroll older threads. Under --recent, --before / --before-id are a
 # THREAD cursor (thread last_activity_at + root id), emitted on stderr as
 # `Next thread cursor: --before <ts> --before-id <root-id>`.
-multica issue comment list <issue-id> --recent 10 \
+uniai issue comment list <issue-id> --recent 10 \
     --before <ts> --before-id <root-id>
 
 # Incremental polling. Combines with --thread or --recent; filters out
 # replies created on or before <ts> from the page (the thread root is
 # exempt so the agent always gets context).
-multica issue comment list <issue-id> --thread <comment-id> --tail 30 \
+uniai issue comment list <issue-id> --thread <comment-id> --tail 30 \
     --since <RFC3339-timestamp>
 
 # Add a comment
-multica issue comment add <issue-id> --content "Looks good, merging now"
+uniai issue comment add <issue-id> --content "Looks good, merging now"
 
 # Reply to a specific comment
-multica issue comment add <issue-id> --parent <comment-id> --content "Thanks!"
+uniai issue comment add <issue-id> --parent <comment-id> --content "Thanks!"
 
 # Delete a comment
-multica issue comment delete <comment-id>
+uniai issue comment delete <comment-id>
 ```
 
 **`--before` / `--before-id` semantics depend on the paging mode**, by
@@ -489,42 +489,42 @@ The bar for writing is high: pin a value only when it is materially important to
 
 ```bash
 # List every key on an issue
-multica issue metadata list <issue-id>
+uniai issue metadata list <issue-id>
 
 # Read a single key
-multica issue metadata get <issue-id> --key pipeline_status
+uniai issue metadata get <issue-id> --key pipeline_status
 
 # Write a single key — value auto-typed (true/false → bool, numbers → number, else string)
-multica issue metadata set <issue-id> --key pipeline_status --value waiting_review
-multica issue metadata set <issue-id> --key pr_number --value 482
-multica issue metadata set <issue-id> --key is_blocked --value true
+uniai issue metadata set <issue-id> --key pipeline_status --value waiting_review
+uniai issue metadata set <issue-id> --key pr_number --value 482
+uniai issue metadata set <issue-id> --key is_blocked --value true
 
 # Force a specific type when sniffing would pick the wrong one
-multica issue metadata set <issue-id> --key code --value 42 --type string
+uniai issue metadata set <issue-id> --key code --value 42 --type string
 
 # Remove a key
-multica issue metadata delete <issue-id> --key pipeline_status
+uniai issue metadata delete <issue-id> --key pipeline_status
 ```
 
-All writes are single-key atomic — concurrent agents writing different keys do not lose each other's updates. To query, use `multica issue list --metadata key=value` (see *List Issues* above).
+All writes are single-key atomic — concurrent agents writing different keys do not lose each other's updates. To query, use `uniai issue list --metadata key=value` (see *List Issues* above).
 
 ### Subscribers
 
 ```bash
 # List subscribers of an issue
-multica issue subscriber list <issue-id>
+uniai issue subscriber list <issue-id>
 
 # Subscribe yourself to an issue
-multica issue subscriber add <issue-id>
+uniai issue subscriber add <issue-id>
 
 # Subscribe another member or agent by name
-multica issue subscriber add <issue-id> --user "Lambda"
+uniai issue subscriber add <issue-id> --user "Lambda"
 
 # Unsubscribe yourself
-multica issue subscriber remove <issue-id>
+uniai issue subscriber remove <issue-id>
 
 # Unsubscribe another member or agent
-multica issue subscriber remove <issue-id> --user "Lambda"
+uniai issue subscriber remove <issue-id> --user "Lambda"
 ```
 
 Subscribers receive notifications about issue activity (new comments, status changes, etc.). Without `--user`, the command acts on the caller.
@@ -533,21 +533,21 @@ Subscribers receive notifications about issue activity (new comments, status cha
 
 ```bash
 # List all execution runs for an issue
-multica issue runs <issue-id>
-multica issue runs <issue-id> --full-id
-multica issue runs <issue-id> --output json
+uniai issue runs <issue-id>
+uniai issue runs <issue-id> --full-id
+uniai issue runs <issue-id> --output json
 
 # View messages for a specific execution run
-multica issue run-messages <task-id>
-multica issue run-messages <short-task-id> --issue <issue-id>
-multica issue run-messages <task-id> --output json
+uniai issue run-messages <task-id>
+uniai issue run-messages <short-task-id> --issue <issue-id>
+uniai issue run-messages <task-id> --output json
 
 # Incremental fetch (only messages after a given sequence number)
-multica issue run-messages <task-id> --since 42 --output json
+uniai issue run-messages <task-id> --since 42 --output json
 
 # Aggregated token usage for an issue (sum across all its task runs)
-multica issue usage <issue-id>
-multica issue usage <issue-id> --output json
+uniai issue usage <issue-id>
+uniai issue usage <issue-id> --output json
 ```
 
 The `usage` command returns the aggregated token usage for an issue, summed across all of its task runs: input tokens, output tokens, cache read/write tokens, and the run count (`task_count`). It wraps `GET /api/issues/<id>/usage` — the same figures the issue detail view shows. Use `--output json` to feed billing/cost tooling.
@@ -562,9 +562,9 @@ belongs to a workspace and can optionally have a lead (member or agent).
 ### List Projects
 
 ```bash
-multica project list
-multica project list --status in_progress
-multica project list --output json
+uniai project list
+uniai project list --status in_progress
+uniai project list --output json
 ```
 
 Available filters: `--status`.
@@ -572,14 +572,14 @@ Available filters: `--status`.
 ### Get Project
 
 ```bash
-multica project get <id>
-multica project get <id> --output json
+uniai project get <id>
+uniai project get <id> --output json
 ```
 
 ### Create Project
 
 ```bash
-multica project create --title "2026 Week 16 Sprint" --icon "🏃" --lead "Lambda"
+uniai project create --title "2026 Week 16 Sprint" --icon "🏃" --lead "Lambda"
 ```
 
 Flags: `--title` (required), `--description`, `--status`, `--icon`, `--lead`.
@@ -587,8 +587,8 @@ Flags: `--title` (required), `--description`, `--status`, `--icon`, `--lead`.
 ### Update Project
 
 ```bash
-multica project update <id> --title "New title" --status in_progress
-multica project update <id> --lead "Lambda"
+uniai project update <id> --title "New title" --status in_progress
+uniai project update <id> --lead "Lambda"
 ```
 
 Flags: `--title`, `--description`, `--status`, `--icon`, `--lead`.
@@ -596,7 +596,7 @@ Flags: `--title`, `--description`, `--status`, `--icon`, `--lead`.
 ### Change Status
 
 ```bash
-multica project status <id> in_progress
+uniai project status <id> in_progress
 ```
 
 Valid statuses: `planned`, `in_progress`, `paused`, `completed`, `cancelled`.
@@ -604,7 +604,7 @@ Valid statuses: `planned`, `in_progress`, `paused`, `completed`, `cancelled`.
 ### Delete Project
 
 ```bash
-multica project delete <id>
+uniai project delete <id>
 ```
 
 ### Associating Issues with Projects
@@ -613,35 +613,35 @@ Use the `--project` flag on `issue create` / `issue update` to attach an issue t
 project, or on `issue list` to filter issues by project:
 
 ```bash
-multica issue create --title "Login bug" --project <project-id>
-multica issue update <issue-id> --project <project-id>
-multica issue list --project <project-id>
+uniai issue create --title "Login bug" --project <project-id>
+uniai issue update <issue-id> --project <project-id>
+uniai issue list --project <project-id>
 ```
 
 ## Setup
 
 ```bash
-# One-command setup for Multica Cloud: configure, authenticate, and start the daemon
-multica setup
+# One-command setup for UniAI Cloud: configure, authenticate, and start the daemon
+uniai setup
 
 # For local self-hosted deployments
-multica setup self-host
+uniai setup self-host
 
 # Custom ports
-multica setup self-host --port 9090 --frontend-port 4000
+uniai setup self-host --port 9090 --frontend-port 4000
 
 # On-premise with custom domains
-multica setup self-host --server-url https://api.example.com --app-url https://app.example.com
+uniai setup self-host --server-url https://api.example.com --app-url https://app.example.com
 ```
 
-`multica setup` configures the CLI, opens your browser for authentication, and starts the daemon — all in one step. Use `multica setup self-host` to connect to a self-hosted server instead of Multica Cloud.
+`uniai setup` configures the CLI, opens your browser for authentication, and starts the daemon — all in one step. Use `uniai setup self-host` to connect to a self-hosted server instead of UniAI Cloud.
 
 ## Configuration
 
 ### View Config
 
 ```bash
-multica config show
+uniai config show
 ```
 
 Shows config file path, server URL, app URL, and default workspace.
@@ -649,12 +649,12 @@ Shows config file path, server URL, app URL, and default workspace.
 ### Set Values
 
 ```bash
-multica config set server_url https://api.example.com
-multica config set app_url https://app.example.com
-multica config set workspace_id <workspace-id>
+uniai config set server_url https://api.example.com
+uniai config set app_url https://app.example.com
+uniai config set workspace_id <workspace-id>
 ```
 
-`config set workspace_id <id>` is the low-level interface — it writes the value verbatim without checking that the workspace exists or that you have access. Prefer `multica workspace switch <id|slug>` for day-to-day workspace changes; it does both checks before saving.
+`config set workspace_id <id>` is the low-level interface — it writes the value verbatim without checking that the workspace exists or that you have access. Prefer `uniai workspace switch <id|slug>` for day-to-day workspace changes; it does both checks before saving.
 
 ## Autopilot Commands
 
@@ -663,9 +663,9 @@ Autopilots are scheduled/triggered automations that dispatch agent tasks (either
 ### List Autopilots
 
 ```bash
-multica autopilot list
-multica autopilot list --full-id
-multica autopilot list --status active --output json
+uniai autopilot list
+uniai autopilot list --full-id
+uniai autopilot list --status active --output json
 ```
 
 Autopilot table IDs are short UUID prefixes; follow-up autopilot commands accept copied prefixes when they are unique in the current workspace. Use `--full-id` to print canonical UUIDs.
@@ -673,25 +673,25 @@ Autopilot table IDs are short UUID prefixes; follow-up autopilot commands accept
 ### Get Autopilot Details
 
 ```bash
-multica autopilot get <id>
-multica autopilot get <id> --output json   # includes triggers
+uniai autopilot get <id>
+uniai autopilot get <id> --output json   # includes triggers
 ```
 
 ### Create / Update / Delete
 
 ```bash
-multica autopilot create \
+uniai autopilot create \
   --title "Nightly bug triage" \
   --description "Scan todo issues and prioritize." \
   --agent "Lambda" \
   --mode create_issue \
   --subscriber "Alice"
 
-multica autopilot update <id> --status paused
-multica autopilot update <id> --description "New prompt"
-multica autopilot update <id> --subscriber "Alice" --subscriber "Bob"
-multica autopilot update <id> --clear-subscribers
-multica autopilot delete <id>
+uniai autopilot update <id> --status paused
+uniai autopilot update <id> --description "New prompt"
+uniai autopilot update <id> --subscriber "Alice" --subscriber "Bob"
+uniai autopilot update <id> --clear-subscribers
+uniai autopilot delete <id>
 ```
 
 `--mode` accepts `create_issue` (creates a new issue on each run and assigns it to the agent) or `run_only` (enqueues a direct agent task without creating an issue). `--agent` accepts either a name or UUID.
@@ -700,22 +700,22 @@ multica autopilot delete <id>
 ### Manual Trigger
 
 ```bash
-multica autopilot trigger <id>            # Fires the autopilot once, returns the run
+uniai autopilot trigger <id>            # Fires the autopilot once, returns the run
 ```
 
 ### Run History
 
 ```bash
-multica autopilot runs <id>
-multica autopilot runs <id> --limit 50 --output json
+uniai autopilot runs <id>
+uniai autopilot runs <id> --limit 50 --output json
 ```
 
 ### Schedule Triggers
 
 ```bash
-multica autopilot trigger-add <autopilot-id> --cron "0 9 * * 1-5" --timezone "America/New_York"
-multica autopilot trigger-update <autopilot-id> <trigger-id> --enabled=false
-multica autopilot trigger-delete <autopilot-id> <trigger-id>
+uniai autopilot trigger-add <autopilot-id> --cron "0 9 * * 1-5" --timezone "America/New_York"
+uniai autopilot trigger-update <autopilot-id> <trigger-id> --enabled=false
+uniai autopilot trigger-delete <autopilot-id> <trigger-id>
 ```
 
 Only cron-based `schedule` triggers are currently exposed via the CLI. The data model also defines `webhook` and `api` kinds, but there is no server endpoint that fires them yet, so they're not surfaced here.
@@ -723,9 +723,9 @@ Only cron-based `schedule` triggers are currently exposed via the CLI. The data 
 ## Other Commands
 
 ```bash
-multica version              # Show CLI version and commit hash
-multica update               # Update to latest version
-multica agent list           # List agents in the current workspace
+uniai version              # Show CLI version and commit hash
+uniai update               # Update to latest version
+uniai agent list           # List agents in the current workspace
 ```
 
 ## Output Formats
@@ -736,8 +736,8 @@ Most commands support `--output` with two formats:
 - `json` — structured JSON (useful for scripting and automation)
 
 ```bash
-multica issue list --output json
-multica daemon status --output json
+uniai issue list --output json
+uniai daemon status --output json
 ```
 
 ## Error Messages
@@ -756,7 +756,7 @@ layer.) The underlying detail is still available on demand (see `--debug`).
   connection refused, TLS) and HTTP status failures (401/403/404/409/400·422/
   429/5xx) are each rendered as one clear sentence with a next step — for
   example a timeout suggests checking the network or raising
-  `MULTICA_HTTP_TIMEOUT`, and a 401 tells you to run `multica login`.
+  `MULTICA_HTTP_TIMEOUT`, and a 401 tells you to run `uniai login`.
 - **Server-provided validation messages are preserved.** For a 400/422 that
   carries a message from the server, that message is shown verbatim
   (`Invalid request: <server message>`); only when there is none do you get the
@@ -772,7 +772,7 @@ precedence order), messages switch to **Chinese**. No flag is needed; set the
 locale as usual:
 
 ```bash
-LANG=zh_CN.UTF-8 multica issue get MUL-9999   # 错误信息显示为中文
+LANG=zh_CN.UTF-8 uniai issue get MUL-9999   # 错误信息显示为中文
 ```
 
 ### Exit codes
@@ -789,7 +789,7 @@ The process exit code is tiered so scripts can branch on the failure class:
 | `5` | validation (HTTP 400, 422) |
 
 ```bash
-multica issue get MUL-9999
+uniai issue get MUL-9999
 if [ $? -eq 4 ]; then echo "no such issue"; fi
 ```
 
@@ -801,8 +801,8 @@ and the raw server body — underneath the friendly message. Use it when you nee
 to file a bug or understand exactly what the server returned:
 
 ```bash
-multica issue list --debug
-MULTICA_DEBUG=1 multica issue update MUL-1234 --title "x"
+uniai issue list --debug
+MULTICA_DEBUG=1 uniai issue update MUL-1234 --title "x"
 ```
 
 ### Request timeout
@@ -813,5 +813,5 @@ API requests use a default timeout of 30 seconds. Override it with
 always at least this value, so raising it takes effect across all commands.
 
 ```bash
-MULTICA_HTTP_TIMEOUT=60s multica issue list
+MULTICA_HTTP_TIMEOUT=60s uniai issue list
 ```

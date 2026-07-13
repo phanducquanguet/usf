@@ -78,7 +78,7 @@ var workspaceSwitchCmd = &cobra.Command{
 		"this workspace.\n\n" +
 		"Resolution priority (highest to lowest): --workspace-id flag, " +
 		"MULTICA_WORKSPACE_ID env, profile default (set by this command).\n\n" +
-		"For low-level use, 'multica config set workspace_id <id>' writes the " +
+		"For low-level use, 'uniai config set workspace_id <id>' writes the " +
 		"same setting without verification.",
 	Args: exactArgs(1),
 	RunE: runWorkspaceSwitch,
@@ -125,7 +125,7 @@ func fetchWorkspaces(ctx context.Context, cmd *cobra.Command) ([]workspaceSummar
 	serverURL := resolveServerURL(cmd)
 	token := resolveToken(cmd)
 	if token == "" {
-		return nil, fmt.Errorf("not authenticated: run 'multica login' first")
+		return nil, fmt.Errorf("not authenticated: run 'uniai login' first")
 	}
 
 	client := cli.NewAPIClient(serverURL, "", token)
@@ -170,9 +170,9 @@ func runWorkspaceList(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 	if currentID != "" {
-		fmt.Fprintln(os.Stderr, "\n* = current default workspace (use 'multica workspace switch <id|slug|prefix>' to change)")
+		fmt.Fprintln(os.Stderr, "\n* = current default workspace (use 'uniai workspace switch <id|slug|prefix>' to change)")
 	} else {
-		fmt.Fprintln(os.Stderr, "\nNo default workspace set. Use 'multica workspace switch <id|slug|prefix>' to pick one.")
+		fmt.Fprintln(os.Stderr, "\nNo default workspace set. Use 'uniai workspace switch <id|slug|prefix>' to pick one.")
 	}
 	fmt.Fprintln(os.Stderr, "Tip: pass the ID column, SLUG, or full UUID (--full-id) to 'workspace get/update/switch'.")
 	return nil
@@ -226,7 +226,7 @@ func resolveWorkspaceByIDOrSlug(workspaces []workspaceSummary, target string) (w
 		}
 	}
 
-	return workspaceSummary{}, fmt.Errorf("workspace %q not found or you do not have access; run 'multica workspace list' to see options", target)
+	return workspaceSummary{}, fmt.Errorf("workspace %q not found or you do not have access; run 'uniai workspace list' to see options", target)
 }
 
 func ambiguousWorkspacePrefixError(input string, matches []workspaceSummary) error {

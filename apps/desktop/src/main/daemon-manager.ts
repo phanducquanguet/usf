@@ -41,7 +41,7 @@ const LOG_TAIL_MAX_RETRIES = 5;
 // take a while (it renews the PAT and lists workspaces before serving /health), so we
 // wait past the common case to avoid probing healthy-but-slow starts.
 const AUTH_PROBE_GRACE_MS = 10_000;
-// `multica daemon start` blocks until the daemon reports ready, polling /health
+// `uniai daemon start` blocks until the daemon reports ready, polling /health
 // for up to its own startup timeout (45s in server/cmd/multica/cmd_daemon.go) to
 // cover cold-start agent-version detection. This execFile timeout MUST stay
 // above that — otherwise Electron kills the CLI supervisor mid-startup and a
@@ -197,7 +197,7 @@ async function fetchHealthAtPort(
 
 /**
  * Validates the daemon profile's token against the backend to find out whether
- * a stuck start is an auth problem. Hits the same endpoint `multica auth status`
+ * a stuck start is an auth problem. Hits the same endpoint `uniai auth status`
  * uses (GET /api/me) with the exact token the daemon loads from config.json, so
  * the verdict matches what the daemon itself would get from the server.
  *
@@ -392,7 +392,12 @@ async function fetchHealth(): Promise<DaemonStatus> {
 }
 
 function findCliOnPath(): string | null {
-  const candidates = process.platform === "win32" ? ["multica.exe"] : ["multica"];
+  // Prefer the current `uniai` name; fall back to a pre-rename `multica`
+  // install (same CLI, older file name).
+  const candidates =
+    process.platform === "win32"
+      ? ["uniai.exe", "multica.exe"]
+      : ["uniai", "multica"];
   const paths = (process.env["PATH"] ?? "").split(
     process.platform === "win32" ? ";" : ":",
   );
@@ -412,14 +417,14 @@ function findCliOnPath(): string | null {
  * Returns the path to the CLI binary bundled inside the Desktop app.
  *
  * - Dev (`electron-vite dev`): `app.getAppPath()` → `apps/desktop`, resolving
- *   to `apps/desktop/resources/bin/multica`. `bundle-cli.mjs` populates this
+ *   to `apps/desktop/resources/bin/uniai`. `bundle-cli.mjs` populates this
  *   before dev starts, so iterating on Go changes is "make build → restart".
- * - Packaged: `app.getAppPath()` → `<Multica.app>/Contents/Resources/app.asar`.
+ * - Packaged: `app.getAppPath()` → `<app>/Contents/Resources/app.asar`.
  *   electron-builder's `asarUnpack: resources/**` extracts the binary to
  *   `app.asar.unpacked/`, so we swap the path segment to execute it.
  */
 function bundledCliPath(): string {
-  const binName = process.platform === "win32" ? "multica.exe" : "multica";
+  const binName = process.platform === "win32" ? "uniai.exe" : "uniai";
   return join(app.getAppPath(), "resources", "bin", binName).replace(
     "app.asar",
     "app.asar.unpacked",
@@ -457,12 +462,12 @@ async function probeCliBinary(
 }
 
 /**
- * Returns a usable `multica` binary path. Priority:
+ * Returns a usable `uniai` binary path. Priority:
  *   1. Cached result from a previous successful resolve.
  *   2. Bundled binary shipped with the Desktop app (`bundle-cli.mjs`).
  *   3. Managed binary already installed in userData (`managedCliPath`).
  *   4. Download + install latest release into userData.
- *   5. `multica` on PATH (dev convenience / user-installed via brew).
+ *   5. `uniai` (or a pre-rename `multica`) on PATH.
  * Returns `null` only when all of the above fail.
  *
  * Bundled is preferred so Desktop iterates in lockstep with Go changes in
@@ -821,7 +826,7 @@ function desktopSpawnEnv(): NodeJS.ProcessEnv {
 
 async function startDaemon(): Promise<{ success: boolean; error?: string }> {
   const bin = await resolveCliBinary();
-  if (!bin) return { success: false, error: "multica CLI is not installed" };
+  if (!bin) return { success: false, error: "UniAI CLI is not installed" };
 
   const active = await ensureActiveProfile();
   const existing = await fetchHealthAtPort(active.port);
@@ -891,7 +896,7 @@ async function stopDaemon(): Promise<{ success: boolean; error?: string }> {
   if (await lifecycleBlockedByForeignDaemon()) return { success: true };
 
   const bin = await resolveCliBinary();
-  if (!bin) return { success: false, error: "multica CLI is not installed" };
+  if (!bin) return { success: false, error: "UniAI CLI is not installed" };
 
   const active = await ensureActiveProfile();
   currentState = "stopping";

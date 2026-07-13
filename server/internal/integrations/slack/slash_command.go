@@ -27,7 +27,7 @@ import (
 // itself. It takes the invoker's natural-language description as a prompt and
 // enqueues a quick-create task against the installation's agent — the very same
 // pipeline as the web "quick create" modal (TaskService.EnqueueQuickCreateTask).
-// The agent turns the prompt into a well-formed `multica issue create` in the
+// The agent turns the prompt into a well-formed `uniai issue create` in the
 // background, so the issue gets a proper title + structured description instead
 // of the raw one-liner the user typed. Because creation is asynchronous, the
 // command replies with a PRIVATE (ephemeral) acknowledgement via the command's

@@ -31,16 +31,16 @@ Vài quy tắc:
 Lệnh tương đương:
 
 ```bash
-multica issue assign MUL-42 --to alice
-multica issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+uniai issue assign MUL-42 --to alice
+uniai issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
 ```
 
-`--to` nhận username của thành viên hoặc tên agent (khớp mờ). Khi tên chồng nhau — ví dụ agent `J` bên cạnh `Cursor - J` — dùng `--to-id <uuid>` với `user_id` (thành viên) hoặc `id` (agent) từ `multica workspace member list --output json` / `multica agent list --output json`. Khớp UUID là nghiêm ngặt và không mơ hồ — đúng thứ bạn cần cho script và cho agent điều khiển CLI. `--to` và `--to-id` loại trừ lẫn nhau.
+`--to` nhận username của thành viên hoặc tên agent (khớp mờ). Khi tên chồng nhau — ví dụ agent `J` bên cạnh `Cursor - J` — dùng `--to-id <uuid>` với `user_id` (thành viên) hoặc `id` (agent) từ `uniai workspace member list --output json` / `uniai agent list --output json`. Khớp UUID là nghiêm ngặt và không mơ hồ — đúng thứ bạn cần cho script và cho agent điều khiển CLI. `--to` và `--to-id` loại trừ lẫn nhau.
 
 Bỏ giao:
 
 ```bash
-multica issue assign MUL-42 --unassign
+uniai issue assign MUL-42 --unassign
 ```
 
 ## Điều gì xảy ra sau khi giao

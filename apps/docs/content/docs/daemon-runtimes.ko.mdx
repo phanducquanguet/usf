@@ -15,7 +15,7 @@ UniAI에서 [에이전트](/agents)는 우리 서버에서 실행되지 **않습
 데몬은 UniAI CLI의 일부입니다. [UniAI CLI](/cli)를 설치한 뒤, 여러분의 기기에서 실행하세요.
 
 ```bash
-multica daemon start
+uniai daemon start
 ```
 
 시작 시 데몬은 네 가지 일을 합니다.
@@ -29,15 +29,15 @@ multica daemon start
 
 | 명령 | 용도 |
 |---|---|
-| `multica daemon start` | 시작(기본은 백그라운드. 포그라운드로 실행하려면 `--foreground` 추가) |
-| `multica daemon stop` | 중지 |
-| `multica daemon restart` | 재시작 |
-| `multica daemon status` | 상태 표시 |
-| `multica daemon logs` | 로그 표시(따라가려면 `-f` 추가) |
+| `uniai daemon start` | 시작(기본은 백그라운드. 포그라운드로 실행하려면 `--foreground` 추가) |
+| `uniai daemon stop` | 중지 |
+| `uniai daemon restart` | 재시작 |
+| `uniai daemon status` | 상태 표시 |
+| `uniai daemon logs` | 로그 표시(따라가려면 `-f` 추가) |
 
 전체 CLI 참고는 [CLI 명령](/cli)을 확인하세요.
 
-**데스크톱 앱에는 데몬이 포함되어 있습니다.** [데스크톱 앱](/desktop-app)을 사용한다면 `multica daemon start`를 수동으로 실행할 필요가 없습니다. 시작할 때 데몬을 자동으로 띄웁니다. 여러분의 워크플로에 어떤 방식이 맞는지는 [데스크톱 앱](/desktop-app) 페이지를 참고하세요.
+**데스크톱 앱에는 데몬이 포함되어 있습니다.** [데스크톱 앱](/desktop-app)을 사용한다면 `uniai daemon start`를 수동으로 실행할 필요가 없습니다. 시작할 때 데몬을 자동으로 띄웁니다. 여러분의 워크플로에 어떤 방식이 맞는지는 [데스크톱 앱](/desktop-app) 페이지를 참고하세요.
 
 ## 한 기기에 여러 런타임이 생기는 이유
 
@@ -63,10 +63,10 @@ graph TD
 기본 provider 감지는 일반적인 도구를 다룹니다. 팀에서 UniAI가 지원하는 프로토콜 패밀리로 동작하지만 워크스페이스별 실행 명령이 필요한 AI CLI를 쓰는 경우에는 **custom runtime profile**을 정의할 수 있습니다. Runtimes UI 또는 CLI에서 관리합니다.
 
 ```bash
-multica runtime profile list
-multica runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
-multica runtime profile update <profile-id> --command-name agent
-multica runtime profile delete <profile-id>
+uniai runtime profile list
+uniai runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
+uniai runtime profile update <profile-id> --command-name agent
+uniai runtime profile delete <profile-id>
 ```
 
 명령은 shell 문자열이 아니라 argv 형식입니다. UniAI는 실행 파일 이름과 고정 인수를 저장하고, 데몬은 `exec.Command(command_name, fixed_args...)`로 직접 실행합니다. 일반 인수, 따옴표, 백슬래시 이스케이프는 지원하지만 파이프, 리다이렉션, `&&`, `;`, 백틱, `$VAR` / `$(...)` 확장은 지원하지 않습니다. shell 동작이 필요하면 wrapper script를 사용하세요.
@@ -75,8 +75,8 @@ multica runtime profile delete <profile-id>
 데스크톱 앱에서 시작한 데몬이 터미널에서는 동작하는 명령을 찾지 못한다면, 해당 기기에서 절대 경로를 고정할 수 있습니다.
 
 ```bash
-multica runtime profile set-path <profile-id> --path /abs/path/to/agent
-multica runtime profile unset-path <profile-id>
+uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
+uniai runtime profile unset-path <profile-id>
 ```
 
 profile의 명령이나 인수 변경은 데몬이 다시 등록된 뒤 새로 가져오는 작업부터 적용됩니다. 이미 실행 중인 작업은 시작할 때의 인수를 유지합니다. 혼합 배포에서는 server를 먼저 업그레이드한 뒤 daemon을 순차적으로 업데이트하는 것을 권장합니다. `fixed_args` 입력은 server 쪽 Runtimes UI가 담당하고, `failed_profiles` 등록 보고도 server가 표시합니다. 오래된 구성요소는 알 수 없는 필드를 명확히 실패시키기보다 무시할 수 있으므로 server를 먼저 올리면 rollout을 더 잘 관찰할 수 있습니다.
@@ -122,8 +122,8 @@ UniAI는 두 계층에서 동시성 제한을 적용합니다.
 
 "내 에이전트가 동작하지 않는다"는 문제를 만나면, 먼저 이 세 단계 체크리스트를 진행하세요.
 
-1. `multica daemon status`를 실행해 데몬이 실행 중이고 온라인인지 확인하세요
-2. `multica daemon logs -f`를 실행해 오류가 있는지 확인하세요
+1. `uniai daemon status`를 실행해 데몬이 실행 중이고 온라인인지 확인하세요
+2. `uniai daemon logs -f`를 실행해 오류가 있는지 확인하세요
 3. UniAI UI의 **런타임** 페이지를 열어 런타임이 "온라인"으로 표시되는지 확인하세요
 
 더 많은 시나리오는 [문제 해결](/troubleshooting)을 참고하세요.

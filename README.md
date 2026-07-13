@@ -92,14 +92,14 @@ irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps
 Then configure, authenticate, and start the daemon in one command:
 
 ```bash
-multica setup          # Connect to Multica Cloud, log in, start daemon
+uniai setup          # Connect to UniAI Cloud, log in, start daemon
 ```
 
 > **Self-hosting?** Add `--with-server` to deploy a full Multica server on your machine:
 >
 > ```bash
 > curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --with-server
-> multica setup self-host
+> uniai setup self-host
 > ```
 >
 > This pulls the official Multica images from GHCR (latest stable by default). Requires Docker. See the [Self-Hosting Guide](SELF_HOSTING.md) for details.
@@ -112,7 +112,7 @@ multica setup          # Connect to Multica Cloud, log in, start daemon
 ### 1. Set up and start the daemon
 
 ```bash
-multica setup           # Configure, authenticate, and start the daemon
+uniai setup           # Configure, authenticate, and start the daemon
 ```
 
 The daemon runs in the background and auto-detects agent CLIs (`claude`, `codex`, `codebuddy`, `copilot`, `opencode`, `openclaw`, `hermes`, `pi`, `cursor-agent`, `kimi`, `kiro-cli`, `agy`, `qodercli`, `traecli`) on your PATH.
@@ -129,26 +129,26 @@ Go to **Settings → Agents** and click **New Agent**. Pick the runtime you just
 
 ### 4. Assign your first task
 
-Create an issue from the board (or via `multica issue create`), then assign it to your new agent. The agent will automatically pick up the task, execute it on your runtime, and report progress — just like a human teammate.
+Create an issue from the board (or via `uniai issue create`), then assign it to your new agent. The agent will automatically pick up the task, execute it on your runtime, and report progress — just like a human teammate.
 
 ---
 
 ## CLI
 
-The `multica` CLI connects your local machine to Multica — authenticate, manage workspaces, and run the agent daemon.
+The `uniai` CLI connects your local machine to Multica — authenticate, manage workspaces, and run the agent daemon.
 
 | Command | Description |
 |---------|-------------|
-| `multica login` | Authenticate (opens browser) |
-| `multica daemon start` | Start the local agent runtime |
-| `multica daemon status` | Check daemon status |
-| `multica setup` | One-command setup for Multica Cloud (configure + login + start daemon) |
-| `multica setup self-host` | Same, but for self-hosted deployments |
-| `multica workspace list` | List your workspaces (current is marked with `*`) |
-| `multica workspace switch <id\|slug>` | Switch the default workspace for this profile |
-| `multica issue list` | List issues in your workspace |
-| `multica issue create` | Create a new issue |
-| `multica update` | Update to the latest version |
+| `uniai login` | Authenticate (opens browser) |
+| `uniai daemon start` | Start the local agent runtime |
+| `uniai daemon status` | Check daemon status |
+| `uniai setup` | One-command setup for UniAI Cloud (configure + login + start daemon) |
+| `uniai setup self-host` | Same, but for self-hosted deployments |
+| `uniai workspace list` | List your workspaces (current is marked with `*`) |
+| `uniai workspace switch <id\|slug>` | Switch the default workspace for this profile |
+| `uniai issue list` | List issues in your workspace |
+| `uniai issue create` | Create a new issue |
+| `uniai update` | Update to the latest version |
 
 See the [CLI and Daemon Guide](CLI_AND_DAEMON.md) for the full command reference.
 

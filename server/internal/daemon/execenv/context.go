@@ -15,7 +15,7 @@ import (
 
 // TaskContextMarkerRelPath is a non-secret marker the daemon writes under the
 // task workdir. The CLI uses it as a fallback daemon-task signal when a child
-// sandbox strips all MULTICA_* env vars before invoking `multica`.
+// sandbox strips all MULTICA_* env vars before invoking `uniai`.
 const TaskContextMarkerRelPath = ".multica/daemon_task_context.json"
 
 // TaskContextMarkerManagedBy is the marker discriminator the CLI checks before
@@ -31,7 +31,7 @@ type taskContextMarkerFile struct {
 // EnsureWorkspacesRootMarker writes a persistent daemon-task marker at
 // {workspacesRoot}/.multica/daemon_task_context.json.
 //
-// The per-workdir marker only protects `multica` invocations whose cwd is
+// The per-workdir marker only protects `uniai` invocations whose cwd is
 // inside the workdir, because the CLI discovers markers by walking *up* from
 // cwd. A sandboxed subprocess that lost every MULTICA_* env var and escaped
 // to the workdir's parent directory sits above that marker, finds no daemon
@@ -666,7 +666,7 @@ func renderIssueContext(provider string, ctx TaskContextForEnv) string {
 	}
 
 	b.WriteString("## Quick Start\n\n")
-	fmt.Fprintf(&b, "Run `multica issue get %s --output json` to fetch the full issue details.\n\n", ctx.IssueID)
+	fmt.Fprintf(&b, "Run `uniai issue get %s --output json` to fetch the full issue details.\n\n", ctx.IssueID)
 
 	if len(ctx.AgentSkills) > 0 {
 		b.WriteString("## Agent Skills\n\n")
@@ -721,9 +721,9 @@ func renderAutopilotContext(ctx TaskContextForEnv) string {
 	}
 
 	b.WriteString("## Quick Start\n\n")
-	b.WriteString("This is a run-only autopilot task with no assigned issue. Do not run `multica issue get` unless the autopilot instructions explicitly ask you to create or update an issue.\n\n")
+	b.WriteString("This is a run-only autopilot task with no assigned issue. Do not run `uniai issue get` unless the autopilot instructions explicitly ask you to create or update an issue.\n\n")
 	if ctx.AutopilotID != "" {
-		fmt.Fprintf(&b, "Run `multica autopilot get %s --output json` if you need the full autopilot configuration.\n\n", ctx.AutopilotID)
+		fmt.Fprintf(&b, "Run `uniai autopilot get %s --output json` if you need the full autopilot configuration.\n\n", ctx.AutopilotID)
 	}
 	if strings.TrimSpace(ctx.AutopilotDescription) != "" {
 		b.WriteString("## Autopilot Instructions\n\n")

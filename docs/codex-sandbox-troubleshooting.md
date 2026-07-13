@@ -68,14 +68,14 @@ codex sandbox: falling back to danger-full-access on macOS
 From the host shell (outside the sandbox):
 
 ```bash
-# Is the Multica API reachable at all?
+# Is the UniAI API reachable at all?
 curl -sSf https://multica-api.copilothub.ai/healthz
 ```
 
 From inside a Codex session (after the daemon writes its config):
 
 ```bash
-multica issue list --limit 1 --output json >/dev/null && echo OK
+uniai issue list --limit 1 --output json >/dev/null && echo OK
 ```
 
 If the host curl works but the Codex-session call fails with `no such host`,

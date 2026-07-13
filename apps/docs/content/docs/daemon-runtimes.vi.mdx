@@ -15,7 +15,7 @@ Cấu trúc này là khác biệt lớn nhất giữa UniAI với Linear / Jira:
 Daemon là một phần của UniAI CLI. Sau khi cài UniAI CLI, chạy trên máy của bạn:
 
 ```bash
-multica daemon start
+uniai daemon start
 ```
 
 Khi khởi động, nó làm bốn việc:
@@ -29,11 +29,11 @@ Các lệnh thường dùng:
 
 | Lệnh | Mục đích |
 |---|---|
-| `multica daemon start` | Khởi động (mặc định chạy nền; thêm `--foreground` để chạy ở chế độ foreground) |
-| `multica daemon stop` | Dừng |
-| `multica daemon restart` | Khởi động lại |
-| `multica daemon status` | Xem trạng thái |
-| `multica daemon logs` | Xem log (thêm `-f` để theo dõi) |
+| `uniai daemon start` | Khởi động (mặc định chạy nền; thêm `--foreground` để chạy ở chế độ foreground) |
+| `uniai daemon stop` | Dừng |
+| `uniai daemon restart` | Khởi động lại |
+| `uniai daemon status` | Xem trạng thái |
+| `uniai daemon logs` | Xem log (thêm `-f` để theo dõi) |
 
 Tham chiếu CLI đầy đủ tại Lệnh CLI.
 
@@ -61,10 +61,10 @@ graph TD
 Cơ chế phát hiện provider có sẵn đã phủ các công cụ phổ biến, nhưng đội của bạn cũng có thể định nghĩa **runtime profile tùy chỉnh** cho các AI CLI dùng một trong các họ giao thức UniAI hỗ trợ và cần lệnh khởi chạy riêng theo không gian làm việc. Profile được quản lý từ giao diện Runtime hoặc CLI:
 
 ```bash
-multica runtime profile list
-multica runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
-multica runtime profile update <profile-id> --command-name agent
-multica runtime profile delete <profile-id>
+uniai runtime profile list
+uniai runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
+uniai runtime profile update <profile-id> --command-name agent
+uniai runtime profile delete <profile-id>
 ```
 
 Lệnh được định nghĩa theo dạng argv, không phải một chuỗi shell. UniAI lưu tên file thực thi cùng các đối số cố định, rồi daemon khởi chạy trực tiếp bằng `exec.Command(command_name, fixed_args...)`. Hỗ trợ đối số thường, dấu nháy và escape bằng backslash; không hỗ trợ pipe, redirect, `&&`, `;`, backtick và mở rộng `$VAR` / `$(...)`. Khi runtime cần hành vi shell, hãy dùng một script bọc ngoài. Hiện việc phân tích lệnh và đối số do giao diện Runtime đảm nhận; các lệnh profile của CLI quản lý bản ghi profile và ghi đè đường dẫn cục bộ.
@@ -72,8 +72,8 @@ Lệnh được định nghĩa theo dạng argv, không phải một chuỗi she
 Nếu daemon được khởi chạy từ ứng dụng desktop không tìm thấy một lệnh vốn chạy được trong terminal của bạn, ghim đường dẫn tuyệt đối trên máy đó:
 
 ```bash
-multica runtime profile set-path <profile-id> --path /abs/path/to/agent
-multica runtime profile unset-path <profile-id>
+uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
+uniai runtime profile unset-path <profile-id>
 ```
 
 Sửa lệnh hoặc đối số của profile chỉ áp dụng cho task nhận mới sau khi daemon đăng ký lại. Task đang chạy giữ nguyên đối số khởi chạy ban đầu. Với triển khai hỗn hợp, hãy nâng cấp server trước khi triển khai daemon phiên bản mới: giao diện Runtime phía server lưu `fixed_args`, và server là nơi hiển thị báo cáo đăng ký `failed_profiles`. Các thành phần cũ có thể lặng lẽ bỏ qua trường chúng không hiểu thay vì báo lỗi rõ ràng, nên nâng cấp server trước sẽ giúp bạn luôn theo dõi được đợt rollout.
@@ -115,8 +115,8 @@ Kể cả khi bước này thất bại do lỗi mạng, phía server còn một
 
 Khi gặp vấn đề "agent của tôi không chạy", làm checklist ba bước này trước:
 
-1. Chạy `multica daemon status` — xác nhận daemon đang chạy và online
-2. Chạy `multica daemon logs -f` — kiểm tra lỗi
+1. Chạy `uniai daemon status` — xác nhận daemon đang chạy và online
+2. Chạy `uniai daemon logs -f` — kiểm tra lỗi
 3. Mở trang **Runtime** trong giao diện UniAI — xác nhận runtime của bạn hiện "online"
 
 Thêm tình huống khác tại Khắc phục sự cố.

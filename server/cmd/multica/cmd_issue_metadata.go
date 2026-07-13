@@ -54,7 +54,7 @@ func buildMetadataFilterQueryParam(pairs []string) (string, error) {
 	return string(buf), nil
 }
 
-// multica issue metadata {list|get|set|delete} — KV map attached to each issue
+// uniai issue metadata {list|get|set|delete} — KV map attached to each issue
 // for agent pipeline state. See server/internal/handler/issue_metadata.go for
 // the constraints (key regex, 50-key cap, primitive-only values, 8KB blob).
 

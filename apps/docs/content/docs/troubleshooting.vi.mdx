@@ -9,32 +9,32 @@ Tra vấn đề theo triệu chứng. Mỗi mục gồm **triệu chứng / nguy
 
 ## Daemon không kết nối được server
 
-**Triệu chứng**: lệnh `status` của [`multica daemon`](/cli) hiện `offline` hoặc `connection refused`; log server không có request `/api/daemon/register` hay `/api/daemon/heartbeat` nào. Cơ chế daemon hoạt động ra sao, xem [Daemon và runtime](/daemon-runtimes).
+**Triệu chứng**: lệnh `status` của [`uniai daemon`](/cli) hiện `offline` hoặc `connection refused`; log server không có request `/api/daemon/register` hay `/api/daemon/heartbeat` nào. Cơ chế daemon hoạt động ra sao, xem [Daemon và runtime](/daemon-runtimes).
 
 **Nguyên nhân khả dĩ**:
 
 1. **`MULTICA_SERVER_URL` trỏ sai địa chỉ** — mặc định là `ws://localhost:8080/ws`; tự vận hành phải đổi sang địa chỉ server của bạn
 2. **Mạng / firewall chặn** — daemon và server không cùng mạng, hoặc lưu lượng ra ngoài bị chặn
-3. **Token hết hạn hoặc không hợp lệ** — bạn chưa từng chạy `multica login`, hoặc PAT đã bị thu hồi
+3. **Token hết hạn hoặc không hợp lệ** — bạn chưa từng chạy `uniai login`, hoặc PAT đã bị thu hồi
 4. **Server từ chối đăng ký** — tài khoản bạn đăng nhập không thuộc không gian làm việc mục tiêu (register trả 403)
 5. **Lỗi phân giải DNS** — hostname không phân giải được trên máy chạy daemon
 
 **Cách chẩn đoán**:
 
 ```bash
-multica daemon logs --lines 100    # tìm lỗi phía daemon
+uniai daemon logs --lines 100    # tìm lỗi phía daemon
 echo $MULTICA_SERVER_URL          # xác nhận địa chỉ đã đặt
 curl -i http://<server-host>:8080/health   # gọi thẳng server
 curl -i http://<server-host>:8080/readyz  # kèm độ sẵn sàng DB + migration
 cat ~/.multica/config.json        # kiểm tra api_token tồn tại
-multica workspace list            # xác nhận bạn là thành viên không gian làm việc mục tiêu
+uniai workspace list            # xác nhận bạn là thành viên không gian làm việc mục tiêu
 ```
 
-**Cách sửa**: xử lý từng nguyên nhân ở trên. Hai cách sửa phổ biến nhất là **đổi `MULTICA_SERVER_URL` và khởi động lại daemon** (`multica daemon restart`) và **đăng nhập lại** (`multica logout && multica login`).
+**Cách sửa**: xử lý từng nguyên nhân ở trên. Hai cách sửa phổ biến nhất là **đổi `MULTICA_SERVER_URL` và khởi động lại daemon** (`uniai daemon restart`) và **đăng nhập lại** (`uniai logout && uniai login`).
 
 ## Task kẹt ở `queued`
 
-**Triệu chứng**: giao issue cho agent xong, trạng thái issue chuyển sang `in_progress` ngay, nhưng mãi không thấy dấu hiệu agent thực thi trên trang; `multica daemon status` hiện daemon `online`.
+**Triệu chứng**: giao issue cho agent xong, trạng thái issue chuyển sang `in_progress` ngay, nhưng mãi không thấy dấu hiệu agent thực thi trên trang; `uniai daemon status` hiện daemon `online`.
 
 **Nguyên nhân khả dĩ** (xếp theo tần suất):
 
@@ -47,19 +47,19 @@ multica workspace list            # xác nhận bạn là thành viên không gi
 **Cách chẩn đoán**:
 
 ```bash
-multica daemon status --output json       # danh sách runtime + last_seen_at
-multica agent list                         # kiểm tra trạng thái lưu trữ của agent
-multica issue show <issue-id>             # soi lịch sử task
+uniai daemon status --output json       # danh sách runtime + last_seen_at
+uniai agent list                         # kiểm tra trạng thái lưu trữ của agent
+uniai issue show <issue-id>             # soi lịch sử task
 ```
 
 Phía server (tự vận hành), grep `"no_tasks"` / `"no_capacity"` để xem kết quả nhận task.
 
 **Cách sửa**:
 
-- Giới hạn đồng thời đầy → chờ task đang chạy xong, hoặc `multica agent update <id> --max-concurrent-tasks 10` để nâng trần
+- Giới hạn đồng thời đầy → chờ task đang chạy xong, hoặc `uniai agent update <id> --max-concurrent-tasks 10` để nâng trần
 - Tuần tự cùng issue → chờ task trước xong, hoặc giao lại cho agent khác
-- Agent lưu trữ → `multica agent restore <id>`
-- Runtime chưa đăng ký → `multica daemon restart`, daemon sẽ đăng ký lại
+- Agent lưu trữ → `uniai agent restore <id>`
+- Runtime chưa đăng ký → `uniai daemon restart`, daemon sẽ đăng ký lại
 
 ## WebSocket không kết nối được
 
@@ -242,7 +242,7 @@ Từ MUL-2957, lệnh migrate tự chạy backfill theo lát tháng idempotent (
      ./backfill_task_usage_hourly --sleep-between-slices=2s
 
    # Kubernetes
-   kubectl -n multica exec deploy/multica-backend -- \
+   kubectl -n uniai exec deploy/multica-backend -- \
      ./backfill_task_usage_hourly --sleep-between-slices=2s
    ```
 
@@ -253,7 +253,7 @@ Từ MUL-2957, lệnh migrate tự chạy backfill theo lát tháng idempotent (
 
 ## Xung đột cổng
 
-**Triệu chứng**: `multica server` hoặc `multica daemon start` lỗi `address already in use`.
+**Triệu chứng**: `uniai server` hoặc `uniai daemon start` lỗi `address already in use`.
 
 **Nguyên nhân khả dĩ**:
 
@@ -278,10 +278,10 @@ netstat -ano | findstr :8080    # Windows
 
 | Thành phần | Vị trí | Lệnh |
 |---|---|---|
-| **Daemon** | `~/.multica/daemon.log` (chế độ nền) hoặc stdout khi chạy foreground | `multica daemon logs -f --lines 100` |
+| **Daemon** | `~/.multica/daemon.log` (chế độ nền) hoặc stdout khi chạy foreground | `uniai daemon logs -f --lines 100` |
 | **Server (Docker)** | stdout của container | `docker logs -f <container>` |
 | **Server (systemd)** | journal | `journalctl -u multica-server -f` |
 | **Frontend (dev)** | Terminal chạy `pnpm dev` | Đọc trực tiếp |
 | **Frontend (trình duyệt)** | DevTools → Console | Bấm `F12` |
 
-Muốn log daemon chi tiết hơn, chuyển từ chạy nền sang foreground: `multica daemon stop && multica daemon start --foreground`.
+Muốn log daemon chi tiết hơn, chuyển từ chạy nền sang foreground: `uniai daemon stop && uniai daemon start --foreground`.

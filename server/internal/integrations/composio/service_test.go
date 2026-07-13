@@ -251,7 +251,7 @@ func TestBeginConnect_MappingAndState(t *testing.T) {
 	if sdkFake.lastCreateLink.AuthConfigID != "ac_notion" {
 		t.Errorf("auth config = %q", sdkFake.lastCreateLink.AuthConfigID)
 	}
-	// composio_user_id == multica user id
+	// composio_user_id == uniai user id
 	if sdkFake.lastCreateLink.UserID != util.UUIDToString(userID) {
 		t.Errorf("composio user id = %q, want %q", sdkFake.lastCreateLink.UserID, util.UUIDToString(userID))
 	}

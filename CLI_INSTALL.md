@@ -1,4 +1,4 @@
-# Multica CLI — Installation Guide for AI Agents
+# UniAI CLI — Installation Guide for AI Agents
 
 > **Audience:** This document is designed for AI agents (Claude Code, Codex, etc.) to read and execute step-by-step. Each step includes the exact shell commands to run, expected outcomes, and error handling.
 
@@ -7,25 +7,25 @@
 Give this instruction to your AI agent:
 
 ```
-Fetch https://github.com/multica-ai/multica/blob/main/CLI_INSTALL.md and follow the instructions to install Multica CLI, log in, and start the daemon on this machine.
+Fetch https://github.com/multica-ai/multica/blob/main/CLI_INSTALL.md and follow the instructions to install UniAI CLI, log in, and start the daemon on this machine.
 ```
 
 ---
 
-## Step 1: Check if Multica CLI is already installed
+## Step 1: Check if UniAI CLI is already installed
 
 Run:
 
 ```bash
-multica version
+uniai version
 ```
 
-- **If it prints a version string** (e.g. `multica v0.x.x`): skip to **Step 3**.
+- **If it prints a version string** (e.g. `uniai v0.x.x`): skip to **Step 3**.
 - **If command not found**: continue to **Step 2**.
 
 ---
 
-## Step 2: Install the Multica CLI
+## Step 2: Install the UniAI CLI
 
 > **Windows users:** Skip to [Option C: Windows (PowerShell)](#option-c-windows-powershell) below.
 
@@ -46,7 +46,7 @@ brew install multica-ai/tap/multica
 Then verify:
 
 ```bash
-multica version
+uniai version
 ```
 
 If the version prints successfully, skip to **Step 3**.
@@ -78,7 +78,7 @@ LATEST=$(curl -sI https://github.com/multica-ai/multica/releases/latest | grep -
 # Download and extract
 VERSION="${LATEST#v}"
 curl -sL "https://github.com/multica-ai/multica/releases/download/${LATEST}/multica-cli-${VERSION}-${OS}-${ARCH}.tar.gz" -o /tmp/multica.tar.gz
-tar -xzf /tmp/multica.tar.gz -C /tmp multica
+tar -xzf /tmp/multica.tar.gz -C /tmp uniai
 sudo mv /tmp/multica /usr/local/bin/multica
 rm /tmp/multica.tar.gz
 ```
@@ -86,7 +86,7 @@ rm /tmp/multica.tar.gz
 Verify:
 
 ```bash
-multica version
+uniai version
 ```
 
 **If this fails:**
@@ -107,12 +107,12 @@ This downloads the latest Windows binary from GitHub Releases, installs it to `%
 Verify:
 
 ```powershell
-multica version
+uniai version
 ```
 
 **If this fails:**
 - Restart your terminal so the updated PATH takes effect.
-- If you use Scoop, the installer will use it automatically: `scoop bucket add multica https://github.com/multica-ai/scoop-bucket.git && scoop install multica`
+- If you use Scoop, the installer will use it automatically: `scoop bucket add uniai https://github.com/multica-ai/scoop-bucket.git && scoop install uniai`
 - If your execution policy blocks the script: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` then re-run.
 
 ---
@@ -122,26 +122,26 @@ multica version
 Run:
 
 ```bash
-multica login
+uniai login
 ```
 
 **Important:** This command opens a browser window for OAuth authentication. Tell the user:
 
-> "A browser window will open for Multica login. Please complete the authentication in your browser, then come back here."
+> "A browser window will open for UniAI login. Please complete the authentication in your browser, then come back here."
 
 Wait for the command to complete. It will automatically discover and watch all workspaces the user belongs to.
 
 Verify:
 
 ```bash
-multica auth status
+uniai auth status
 ```
 
 Expected output should show the authenticated user and server URL.
 
 **If login fails:**
-- If no browser is available (headless environment), the user can generate a Personal Access Token at `https://app.multica.ai/settings` and run: `multica login --token <mul_...>` (use `--token=` with an empty value to be prompted interactively).
-- If the server URL needs to be customized: `multica config set server_url <url>` before logging in.
+- If no browser is available (headless environment), the user can generate a Personal Access Token at `https://app.multica.ai/settings` and run: `uniai login --token <mul_...>` (use `--token=` with an empty value to be prompted interactively).
+- If the server URL needs to be customized: `uniai config set server_url <url>` before logging in.
 
 ---
 
@@ -150,26 +150,26 @@ Expected output should show the authenticated user and server URL.
 First, check if the daemon is already running:
 
 ```bash
-multica daemon status
+uniai daemon status
 ```
 
 - **If status is "running"**: skip to **Step 5**.
 - **If status is "stopped"**: start it:
 
 ```bash
-multica daemon start
+uniai daemon start
 ```
 
 Wait 3 seconds, then verify:
 
 ```bash
-multica daemon status
+uniai daemon status
 ```
 
 Expected output should show `running` status with detected agents (e.g. `claude`, `codex`, `copilot`, `opencode`, `openclaw`, `hermes`, `gemini`, `pi`, `cursor-agent`).
 
 **If daemon fails to start:**
-- Check logs: `multica daemon logs`
+- Check logs: `uniai daemon logs`
 - If a port conflict occurs, the daemon may already be running under a different profile.
 - If no agents are detected, ensure at least one AI CLI (`claude`, `codex`, `copilot`, `opencode`, `openclaw`, `hermes`, `gemini`, `pi`, or `cursor-agent`) is installed and on the `$PATH`.
 
@@ -180,7 +180,7 @@ Expected output should show `running` status with detected agents (e.g. `claude`
 Run:
 
 ```bash
-multica daemon status
+uniai daemon status
 ```
 
 Confirm:
@@ -190,7 +190,7 @@ Confirm:
 
 If the agents list is empty, tell the user:
 
-> "The Multica daemon is running but no AI agent CLIs were detected. Please install at least one supported CLI (`claude`, `codex`, `copilot`, `opencode`, `openclaw`, `hermes`, `gemini`, `pi`, or `cursor-agent`), then restart the daemon with `multica daemon stop && multica daemon start`."
+> "The UniAI daemon is running but no AI agent CLIs were detected. Please install at least one supported CLI (`claude`, `codex`, `copilot`, `opencode`, `openclaw`, `hermes`, `gemini`, `pi`, or `cursor-agent`), then restart the daemon with `uniai daemon stop && uniai daemon start`."
 
 ---
 
@@ -198,4 +198,4 @@ If the agents list is empty, tell the user:
 
 When all steps are complete, inform the user:
 
-> "Multica CLI is installed and the daemon is running. Agents in your workspaces can now execute tasks on this machine. You can manage workspaces with `multica workspace list` and view daemon logs with `multica daemon logs -f`."
+> "UniAI CLI is installed and the daemon is running. Agents in your workspaces can now execute tasks on this machine. You can manage workspaces with `uniai workspace list` and view daemon logs with `uniai daemon logs -f`."

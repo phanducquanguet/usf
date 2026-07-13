@@ -1805,7 +1805,7 @@ func (s *acpProviderErrorSniffer) messageLocked() string {
 // Without it, runs that exhaust retries against the upstream LLM
 // (HTTP 429, expired token, …) silently report as "completed"
 // because session/prompt still ends with stopReason=end_turn — see
-// GitHub multica#1952.
+// GitHub uniai#1952.
 func promoteACPResultOnProviderError(finalStatus, finalError, finalOutput string, sniffer *acpProviderErrorSniffer) (string, string) {
 	if finalStatus != "completed" {
 		return finalStatus, finalError

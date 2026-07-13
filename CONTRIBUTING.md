@@ -1,6 +1,6 @@
 # Contributing Guide
 
-This guide documents the local development workflow for contributors working on the Multica codebase.
+This guide documents the local development workflow for contributors working on the UniAI codebase.
 
 It covers:
 
@@ -183,7 +183,7 @@ This is a first-class workflow.
 Example:
 
 - main checkout
-  - database: `multica`
+  - database: `uniai`
   - backend: `8080`
   - frontend: `3000`
 - worktree checkout
@@ -306,7 +306,7 @@ Run the local daemon:
 make daemon
 ```
 
-The daemon authenticates using the CLI's stored token (`multica login`).
+The daemon authenticates using the CLI's stored token (`uniai login`).
 It registers runtimes for all watched workspaces from the CLI config.
 
 ## Full-Stack Isolated Testing
@@ -434,7 +434,7 @@ make cli ARGS="daemon start --profile $PROFILE"
 ```
 
 The daemon runs from the current worktree's Go source, connecting to the
-local backend. Agent-executed `multica` commands automatically use the same
+local backend. Agent-executed `uniai` commands automatically use the same
 binary (the daemon prepends its own directory to `PATH`).
 
 ### Stop the Isolated Environment
@@ -471,7 +471,7 @@ pnpm dev:desktop
 
 This automatically:
 
-1. Compiles the `multica` CLI from `server/cmd/multica` into
+1. Compiles the `uniai` CLI from `server/cmd/multica` into
    `apps/desktop/resources/bin/multica`
 2. Creates an isolated profile named `desktop-localhost-<PORT>`
 3. Starts and manages its own daemon instance
@@ -499,18 +499,18 @@ frontend ports in `.env.worktree`):
 - `DESKTOP_RENDERER_PORT` = `5174 + offset` — its own Vite dev server (`5174`
   base leaves `5173` for the primary checkout, even when `offset` is `0`)
 - `DESKTOP_APP_SUFFIX` = `<folder>-<offset>` — its own single-instance lock /
-  `userData`, and an app named `Multica Canary <folder>-<offset>` so it is
+  `userData`, and an app named `UniAI Canary <folder>-<offset>` so it is
   distinguishable in Cmd+Tab. The offset keeps it unique across worktrees that
   share a folder name at different paths.
 
-The primary checkout is left untouched (`5173`, `Multica Canary`). Set either
+The primary checkout is left untouched (`5173`, `UniAI Canary`). Set either
 env var explicitly to override the derived value. Which backend each instance
 talks to is still controlled only by `apps/desktop/.env*` above — point each
 worktree's desktop at its own backend to also isolate the daemon profile.
 
 ### Isolation Guarantee
 
-Nothing in this flow touches the system-installed `multica` or the default
+Nothing in this flow touches the system-installed `uniai` or the default
 `~/.multica/config.json`:
 
 | Resource | System / Production | Local Dev (per-worktree) |

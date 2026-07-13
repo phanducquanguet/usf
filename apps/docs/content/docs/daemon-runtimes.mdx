@@ -15,7 +15,7 @@ This structure is the biggest difference between UniAI and Linear / Jira: **your
 The daemon is part of the UniAI CLI. Once you've installed the UniAI CLI, run on your own machine:
 
 ```bash
-multica daemon start
+uniai daemon start
 ```
 
 On startup it does four things:
@@ -29,11 +29,11 @@ Common commands:
 
 | Command | Purpose |
 |---|---|
-| `multica daemon start` | Start (background by default; add `--foreground` to run in the foreground) |
-| `multica daemon stop` | Stop |
-| `multica daemon restart` | Restart |
-| `multica daemon status` | Show status |
-| `multica daemon logs` | Show logs (add `-f` to follow) |
+| `uniai daemon start` | Start (background by default; add `--foreground` to run in the foreground) |
+| `uniai daemon stop` | Stop |
+| `uniai daemon restart` | Restart |
+| `uniai daemon status` | Show status |
+| `uniai daemon logs` | Show logs (add `-f` to follow) |
 
 Full CLI reference in CLI commands.
 
@@ -64,10 +64,10 @@ protocol families and need a workspace-specific launch command. Profiles are
 managed from the Runtimes UI or the CLI:
 
 ```bash
-multica runtime profile list
-multica runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
-multica runtime profile update <profile-id> --command-name agent
-multica runtime profile delete <profile-id>
+uniai runtime profile list
+uniai runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
+uniai runtime profile update <profile-id> --command-name agent
+uniai runtime profile delete <profile-id>
 ```
 
 The command is argv-oriented, not a shell string. UniAI stores an executable
@@ -82,8 +82,8 @@ If a desktop-launched daemon cannot find a command that works in your terminal,
 pin the absolute path on that machine:
 
 ```bash
-multica runtime profile set-path <profile-id> --path /abs/path/to/agent
-multica runtime profile unset-path <profile-id>
+uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
+uniai runtime profile unset-path <profile-id>
 ```
 
 Profile command or argument edits apply to newly claimed tasks after the daemon
@@ -131,8 +131,8 @@ Even if this step fails due to a network issue, there's a server-side scan **eve
 
 When you hit a "my agent isn't working" problem, run this three-step checklist first:
 
-1. Run `multica daemon status` — confirm the daemon is running and online
-2. Run `multica daemon logs -f` — check for errors
+1. Run `uniai daemon status` — confirm the daemon is running and online
+2. Run `uniai daemon logs -f` — check for errors
 3. Open the **Runtimes** page in the UniAI UI — confirm your runtime shows "online"
 
 More scenarios in Troubleshooting.

@@ -49,7 +49,7 @@ func TestSubIssueCreationSectionPresentForIssueRuns(t *testing.T) {
 				"**Choosing `--status` when creating sub-issues.**",
 				"`--status todo` = **start now**",
 				"`--status backlog` = **wait**",
-				"`multica issue status <child-id> todo`",
+				"`uniai issue status <child-id> todo`",
 				"all `--status todo`",
 				"`--status backlog` from the start",
 				// Stage guidance must reach the always-on brief so agents
@@ -57,7 +57,7 @@ func TestSubIssueCreationSectionPresentForIssueRuns(t *testing.T) {
 				// (MUL-3508 follow-up).
 				"**Ordering with stages.**",
 				"`--stage <N>`",
-				"`multica issue children <id>`",
+				"`uniai issue children <id>`",
 			} {
 				if !strings.Contains(out, want) {
 					t.Errorf("[%s] section missing %q", tc.name, want)
@@ -98,7 +98,7 @@ func TestBriefHasNoParentNotificationGuidance(t *testing.T) {
 			// Old "do it yourself" framing (PR #2918).
 			"## Parent / Sub-issue Protocol",
 			"**Tell the parent when you finish a child.**",
-			"multica issue comment add <parent-id>",
+			"uniai issue comment add <parent-id>",
 			"with NO `--parent`",
 			"link the child as `[MUL-",
 			"`@mention` the parent's assignee",
@@ -129,7 +129,7 @@ func TestBriefHasNoParentNotificationGuidance(t *testing.T) {
 			// The protocol must no longer emit a placeholder
 			// `<this-issue-id>` status flip — the workflow above owns
 			// that command with the real issue id substituted.
-			"`multica issue status <this-issue-id> in_review`",
+			"`uniai issue status <this-issue-id> in_review`",
 			// Non-existent CLI form Elon's earlier review flagged.
 			"issue list --parent",
 		} {
@@ -142,7 +142,7 @@ func TestBriefHasNoParentNotificationGuidance(t *testing.T) {
 
 // Comment-triggered briefs must NOT carry any unconditional status-flip
 // command targeting the current issue. Previous revisions had a
-// dedicated protocol step that wrote `multica issue status <this-issue-id> in_review`;
+// dedicated protocol step that wrote `uniai issue status <this-issue-id> in_review`;
 // the comment-triggered workflow rule "Do NOT change the issue status
 // unless the comment explicitly asks for it" must remain the source of
 // truth (Elon's blocking review on PR #2918).
@@ -154,7 +154,7 @@ func TestCommentTriggeredProtocolDoesNotForceInReview(t *testing.T) {
 	}
 	out := buildMetaSkillContent("claude", ctx)
 
-	if strings.Contains(out, "`multica issue status <this-issue-id> in_review`") {
+	if strings.Contains(out, "`uniai issue status <this-issue-id> in_review`") {
 		t.Errorf("comment-triggered brief must not contain a placeholder `<this-issue-id> in_review` flip — that conflicts with the comment-triggered \"do not change status unless asked\" rule")
 	}
 
@@ -196,11 +196,11 @@ func TestCommentTriggeredBriefCarriesNewCommentsHint(t *testing.T) {
 		t.Errorf("comment brief must offer the full-thread (--tail 30) option, got:\n%s", out)
 	}
 	// Issue-wide catch-up demoted to an only-if-needed fallback.
-	if !strings.Contains(out, "multica issue comment list "+issueID+" --since "+since+" --output json") {
+	if !strings.Contains(out, "uniai issue comment list "+issueID+" --since "+since+" --output json") {
 		t.Errorf("comment brief must keep the issue-wide --since catch-up fallback, got:\n%s", out)
 	}
 	// The removed resolve step must not reappear.
-	if strings.Contains(out, "multica comment resolve") {
+	if strings.Contains(out, "uniai comment resolve") {
 		t.Errorf("comment brief must not carry the dropped resolve step, got:\n%s", out)
 	}
 }
@@ -222,7 +222,7 @@ func TestCommentTriggeredBriefColdStartThreadRead(t *testing.T) {
 	if strings.Contains(out, "new comment(s) since your last run") {
 		t.Errorf("no since-delta hint should render on cold start, got:\n%s", out)
 	}
-	if !strings.Contains(out, "multica issue comment list "+issueID+" --thread thread-root-1 --tail 30 --output json") {
+	if !strings.Contains(out, "uniai issue comment list "+issueID+" --thread thread-root-1 --tail 30 --output json") {
 		t.Errorf("cold start must point at the triggering thread read, got:\n%s", out)
 	}
 }
@@ -250,7 +250,7 @@ func TestCommentTriggeredBriefResumedNoDeltaSkipsDefaultThreadRead(t *testing.T)
 		"active thread anchor `thread-root-1` and triggering comment ID `trigger-1`",
 		"If your reply depends on thread context",
 		"do not rely only on resumed session memory",
-		"multica issue comment list " + issueID + " --thread thread-root-1 --tail 30 --output json",
+		"uniai issue comment list " + issueID + " --thread thread-root-1 --tail 30 --output json",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("resumed/no-delta brief missing %q\n--- output ---\n%s", want, out)
@@ -279,11 +279,11 @@ func TestAssignmentTriggeredProtocolHonorsAgentIdentity(t *testing.T) {
 		"Agent Identity instructions have priority over the assignment workflow below.",
 		"If a workflow step conflicts with Agent Identity, skip the conflicting action",
 		"Never treat this runtime workflow as permission to change issue status, investigate, implement",
-		"Run `multica issue status " + issueID + " in_progress` unless your Agent Identity forbids issue status changes; if it does, skip this step.",
+		"Run `uniai issue status " + issueID + " in_progress` unless your Agent Identity forbids issue status changes; if it does, skip this step.",
 		"Complete the task within your Agent Identity boundaries.",
 		"Do not investigate, implement, create issues, update issues, or delegate if your Agent Identity forbids that action",
-		"When done, run `multica issue status " + issueID + " in_review` unless your Agent Identity forbids issue status changes; if it does, skip this step.",
-		"If blocked, run `multica issue status " + issueID + " blocked` unless your Agent Identity forbids issue status changes.",
+		"When done, run `uniai issue status " + issueID + " in_review` unless your Agent Identity forbids issue status changes; if it does, skip this step.",
+		"If blocked, run `uniai issue status " + issueID + " blocked` unless your Agent Identity forbids issue status changes.",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("assignment-triggered brief missing identity-bound workflow text %q\n---\n%s", want, out)
@@ -291,9 +291,9 @@ func TestAssignmentTriggeredProtocolHonorsAgentIdentity(t *testing.T) {
 	}
 
 	for _, banned := range []string{
-		"4. Run `multica issue status " + issueID + " in_progress`\n",
+		"4. Run `uniai issue status " + issueID + " in_progress`\n",
 		"5. Follow your Skills and Agent Identity to complete the task (write code, investigate, etc.)",
-		"8. When done, run `multica issue status " + issueID + " in_review`\n",
+		"8. When done, run `uniai issue status " + issueID + " in_review`\n",
 	} {
 		if strings.Contains(out, banned) {
 			t.Errorf("assignment-triggered brief still contains unconditional legacy workflow text %q\n---\n%s", banned, out)
@@ -360,9 +360,9 @@ func TestChatOutputDoesNotRequireIssueComment(t *testing.T) {
 	}
 
 	for _, banned := range []string{
-		"Final results MUST be delivered via `multica issue comment add`",
+		"Final results MUST be delivered via `uniai issue comment add`",
 		"The user does NOT see your terminal output",
-		"do not call `multica issue comment add`",
+		"do not call `uniai issue comment add`",
 		"unless the user explicitly asks",
 	} {
 		if strings.Contains(out, banned) {

@@ -2,7 +2,7 @@
 name: multica-mentioning
 description: "Use when an issue comment needs to @mention someone — link to a person, trigger another agent, hand work to a squad, or broadcast with @all. Documents the verified mention contract: how a mention link is built from a real UUID, the four mention types and exactly what each one enqueues (agent → a run for that agent, squad → a run for the squad leader, member and issue → a rendered link with NO run), comment create/edit preview and suppression, the @all broadcast and how it suppresses the assignee's auto-trigger, and the silent no-op cases (a name where a UUID belongs, a bad/unknown UUID, an already-pending task, an archived agent, a private agent you cannot access). WHETHER to mention — loop avoidance, staying silent on acknowledgements — lives in the runtime brief's Mentions section, not here. This skill is the backend contract only, traced to server/internal/util/mention.go and server/internal/handler/comment.go."
 user-invocable: false
-allowed-tools: Bash(multica *)
+allowed-tools: Bash(uniai *)
 ---
 
 # Mentioning & Delegating
@@ -36,9 +36,9 @@ goes.
 
 A name is not a UUID. Look the UUID up first, from the matching list command:
 
-- a person → `multica workspace member list --output json` → use `user_id`
-- an agent → `multica agent list --output json` → use `id`
-- a squad  → `multica squad list --output json` → use `id`
+- a person → `uniai workspace member list --output json` → use `user_id`
+- an agent → `uniai agent list --output json` → use `id`
+- a squad  → `uniai squad list --output json` → use `id`
 
 For a person the mention id is the `user_id`, NOT the membership-row id — the
 backend's own roster formatter uses `user_id` for member mentions. Match by
@@ -137,7 +137,7 @@ Incorrect: `[@Alice](mention://member/Alice) please review`
   pattern does not match, the link is silently dead.
 
 Correct:
-  1. `multica workspace member list --output json`  → Alice's `user_id` = 7f3a…
+  1. `uniai workspace member list --output json`  → Alice's `user_id` = 7f3a…
   2. `[@Alice](mention://member/7f3a…) please review`
      → a real `user_id` parses; the link renders and resolves to Alice.
 

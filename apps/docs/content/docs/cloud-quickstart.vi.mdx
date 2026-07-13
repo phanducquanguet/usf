@@ -38,7 +38,7 @@ irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-porta
 Kiểm tra lại bản cài:
 
 ```bash
-multica version
+uniai version
 ```
 
 ## 3. Đăng nhập + khởi động daemon
@@ -46,10 +46,10 @@ multica version
 Một lệnh duy nhất lo cả đăng nhập lẫn khởi động daemon:
 
 ```bash
-multica setup
+uniai setup
 ```
 
-`multica setup` sẽ:
+`uniai setup` sẽ:
 
 1. Cấu hình CLI kết nối tới UniAI Cloud
 2. Mở trình duyệt để đăng nhập (cùng mã xác thực email / Google OAuth như trên web)
@@ -59,7 +59,7 @@ multica setup
 Kiểm tra daemon đang chạy:
 
 ```bash
-multica daemon status
+uniai daemon status
 ```
 
 `online` nghĩa là nó đã đăng ký với server.
@@ -86,16 +86,16 @@ Sau khi tạo, agent xuất hiện trong danh sách thành viên của không gi
 Tạo issue trên giao diện web, hoặc từ CLI:
 
 ```bash
-multica issue create --title "Add an ASCII architecture diagram to the README"
+uniai issue create --title "Add an ASCII architecture diagram to the README"
 ```
 
 Giao issue cho agent bạn vừa tạo — bấm vào avatar của nó trên web, hoặc dùng CLI:
 
 ```bash
-multica issue assign MUL-1 --to my-agent-name
+uniai issue assign MUL-1 --to my-agent-name
 ```
 
-`--to` nhận **tên** của agent hoặc thành viên. Khớp theo chuỗi con cũng được — nếu agent tên `my-code-reviewer`, gõ `reviewer` là đủ. Nếu không gian làm việc có tên trùng nhau, dùng `--to-id <uuid>` thay thế (không dùng chung được với `--to`); tra UUID bằng `multica agent list --output json` hoặc `multica workspace member list --output json`.
+`--to` nhận **tên** của agent hoặc thành viên. Khớp theo chuỗi con cũng được — nếu agent tên `my-code-reviewer`, gõ `reviewer` là đủ. Nếu không gian làm việc có tên trùng nhau, dùng `--to-id <uuid>` thay thế (không dùng chung được với `--to`); tra UUID bằng `uniai agent list --output json` hoặc `uniai workspace member list --output json`.
 
 **Điều gì diễn ra tiếp theo phía daemon**:
 

@@ -143,9 +143,11 @@ func releaseAssetCandidates(targetVersion, goos, goarch string) []string {
 	tag := normalizeReleaseTag(targetVersion)
 	version := strings.TrimPrefix(tag, "v")
 	ext := releaseArchiveExtension(goos)
-	// Prefer the versioned name (current scheme); fall back to the legacy
-	// `multica_{os}_{arch}` name for releases that still ship it.
+	// Prefer the current `uniai-cli-*` name; fall back to the pre-rename
+	// `multica-cli-*` and oldest `multica_{os}_{arch}` names so updating
+	// to (or from checksum manifests of) older releases still resolves.
 	return []string{
+		fmt.Sprintf("uniai-cli-%s-%s-%s.%s", version, goos, goarch, ext),
 		fmt.Sprintf("multica-cli-%s-%s-%s.%s", version, goos, goarch, ext),
 		fmt.Sprintf("multica_%s_%s.%s", goos, goarch, ext),
 	}
@@ -407,16 +409,22 @@ func UpdateViaDownloadWithTimeout(targetVersion string, downloadTimeout time.Dur
 		return "", fmt.Errorf("verify download: %w", err)
 	}
 
-	// Extract the binary from the archive.
-	binaryName := "multica"
+	// Extract the binary from the archive. `uniai-cli-*` archives contain a
+	// `uniai` binary; pre-rename archives contain `multica`.
+	binaryNames := []string{"uniai", "multica"}
 	if runtime.GOOS == "windows" {
-		binaryName = "multica.exe"
+		binaryNames = []string{"uniai.exe", "multica.exe"}
 	}
 	var binaryData []byte
-	if runtime.GOOS == "windows" {
-		binaryData, err = extractBinaryFromZip(bytes.NewReader(archiveData), binaryName)
-	} else {
-		binaryData, err = extractBinaryFromTarGz(bytes.NewReader(archiveData), binaryName)
+	for _, binaryName := range binaryNames {
+		if runtime.GOOS == "windows" {
+			binaryData, err = extractBinaryFromZip(bytes.NewReader(archiveData), binaryName)
+		} else {
+			binaryData, err = extractBinaryFromTarGz(bytes.NewReader(archiveData), binaryName)
+		}
+		if err == nil {
+			break
+		}
 	}
 	if err != nil {
 		return "", fmt.Errorf("extract binary: %w", err)
@@ -424,7 +432,7 @@ func UpdateViaDownloadWithTimeout(targetVersion string, downloadTimeout time.Dur
 
 	// Atomic replace: write to temp file, then rename over the original.
 	dir := filepath.Dir(exePath)
-	tmpFile, err := os.CreateTemp(dir, "multica-update-*")
+	tmpFile, err := os.CreateTemp(dir, "uniai-update-*")
 	if err != nil {
 		return "", fmt.Errorf("create temp file: %w", err)
 	}

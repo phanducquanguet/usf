@@ -318,7 +318,7 @@ func (s *Service) CompleteCallback(ctx context.Context, state, status, connected
 	// redirect could pair a valid, un-expired state with someone else's account
 	// id and we would mirror it verbatim. Before writing, confirm with Composio
 	// that this account actually belongs to the state's user (the
-	// composio_user_id == multica user id invariant) and was created under the
+	// composio_user_id == uniai user id invariant) and was created under the
 	// toolkit's auth config. Any mismatch fails closed with ErrAccountVerification.
 	if err := s.verifyAccountOwnership(ctx, connectedAccountID, claims.UserID, authConfigID); err != nil {
 		return claims.ToolkitSlug, err

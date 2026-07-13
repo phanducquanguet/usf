@@ -2,7 +2,7 @@
 name: multica-working-on-issues
 description: "Use when working on a UniAI issue after the runtime has provided the trigger context — to apply the product contracts the runtime brief does not encode: how PR linking differs from close intent, how to read a linked PR's real state via the pull-requests CLI, which metadata keys are high-signal, what status changes trigger on the server, and how sub-issue create status (todo vs backlog) controls whether assigned agents start immediately."
 user-invocable: false
-allowed-tools: Bash(multica *), Bash(git *), Bash(gh *)
+allowed-tools: Bash(uniai *), Bash(git *), Bash(gh *)
 ---
 
 # Working on UniAI issues
@@ -23,7 +23,7 @@ same gate and they read different fields.
 
 **Linking** scans the PR **title, body, OR branch** for a routable issue key
 (`PREFIX-NUMBER`, e.g. `MUL-2759`). Each match writes an issue ↔ PR link row.
-This is the link that `multica issue pull-requests` reads back — but see the
+This is the link that `uniai issue pull-requests` reads back — but see the
 reference-only rule below: a key that appears **only** as a bare mention in the
 body is linked yet hidden from that list.
 
@@ -53,7 +53,7 @@ records close intent; on merge, that close intent can move the linked issue to
 **Reference-only links (hidden from the PR list).** A key that appears **only**
 as a bare mention in the body — no closing keyword, and not in the title or
 branch — still writes a link row, but the row is flagged `reference_only` and
-**excluded from `multica issue pull-requests`** (and the issue's right-side PR
+**excluded from `uniai issue pull-requests`** (and the issue's right-side PR
 list in the UI). This keeps passing mentions like `Related MUL-2759` or
 `Follow up in MUL-2759` from surfacing an unrelated PR as if it were working on
 that issue. To make a PR show up for an issue, put the key in the title, the
@@ -93,7 +93,7 @@ from branch names, GitHub search, memory, or `pr_url` metadata (which can be
 stale).
 
 ```bash
-multica issue pull-requests <issue-id> --output json
+uniai issue pull-requests <issue-id> --output json
 ```
 
 Returns `{"pull_requests": [...]}`. Each element exposes:
@@ -139,8 +139,8 @@ Not metadata: logs, summaries, files touched, timestamps, attempt counts,
 investigation notes. Those belong in the result comment.
 
 ```bash
-multica issue metadata set <issue-id> --key pr_url --value <url>
-multica issue metadata delete <issue-id> --key <stale-key>
+uniai issue metadata set <issue-id> --key pr_url --value <url>
+uniai issue metadata delete <issue-id> --key <stale-key>
 ```
 
 `--value` is JSON-parsed by default (bool/number are sniffed); pass `--type
@@ -170,14 +170,14 @@ time; `backlog` sets the assignee without triggering.
 Parallel children — all start now:
 
 ```bash
-multica issue create --title "..." --parent <issue-id> --assignee <agent> --status todo
+uniai issue create --title "..." --parent <issue-id> --assignee <agent> --status todo
 ```
 
 Strictly serial children — park later steps, promote one at a time:
 
 ```bash
-multica issue create --title "Step 2: ..." --parent <issue-id> --assignee <agent> --status backlog
-multica issue status <child-id> todo   # promote when the previous step is truly done
+uniai issue create --title "Step 2: ..." --parent <issue-id> --assignee <agent> --status backlog
+uniai issue status <child-id> todo   # promote when the previous step is truly done
 ```
 
 Creating every serial step as `todo` enqueues the whole chain at once.
@@ -198,18 +198,18 @@ wakes the parent assignee, who then decides whether to promote the next stage's
 
 ```bash
 # Stage 1 runs now; later stages parked until promoted
-multica issue create --title "Research A" --parent <id> --assignee <agent> --stage 1 --status todo
-multica issue create --title "Research B" --parent <id> --assignee <agent> --stage 1 --status todo
-multica issue create --title "Build"      --parent <id> --assignee <agent> --stage 2 --status backlog
-multica issue create --title "Ship"       --parent <id> --assignee <agent> --stage 3 --status backlog
+uniai issue create --title "Research A" --parent <id> --assignee <agent> --stage 1 --status todo
+uniai issue create --title "Research B" --parent <id> --assignee <agent> --stage 1 --status todo
+uniai issue create --title "Build"      --parent <id> --assignee <agent> --stage 2 --status backlog
+uniai issue create --title "Ship"       --parent <id> --assignee <agent> --stage 3 --status backlog
 ```
 
 When both Stage 1 sub-issues finish you (the parent assignee) are woken with a
 "Stage 1 complete" comment. Inspect the layout, then promote the next stage:
 
 ```bash
-multica issue children <parent-id>             # sub-issues grouped by stage
-multica issue status <stage-2-child-id> todo   # promote when its deps are met
+uniai issue children <parent-id>             # sub-issues grouped by stage
+uniai issue status <stage-2-child-id> todo   # promote when its deps are met
 ```
 
 Read each sub-issue's description before promoting and only promote items whose
@@ -229,14 +229,14 @@ Serial / phased sub-issues (don't start the whole chain at once):
 
 ```bash
 # incorrect — all fire immediately, no ordering
-multica issue create --title "Step 2" --parent <issue-id> --assignee <agent> --status todo
-multica issue create --title "Step 3" --parent <issue-id> --assignee <agent> --status todo
+uniai issue create --title "Step 2" --parent <issue-id> --assignee <agent> --status todo
+uniai issue create --title "Step 3" --parent <issue-id> --assignee <agent> --status todo
 
 # correct — stage them; Stage 1 runs, later stages park and are promoted as
 # each stage's barrier closes
-multica issue create --title "Step 1" --parent <issue-id> --assignee <agent> --stage 1 --status todo
-multica issue create --title "Step 2" --parent <issue-id> --assignee <agent> --stage 2 --status backlog
-multica issue create --title "Step 3" --parent <issue-id> --assignee <agent> --stage 3 --status backlog
+uniai issue create --title "Step 1" --parent <issue-id> --assignee <agent> --stage 1 --status todo
+uniai issue create --title "Step 2" --parent <issue-id> --assignee <agent> --stage 2 --status backlog
+uniai issue create --title "Step 3" --parent <issue-id> --assignee <agent> --stage 3 --status backlog
 ```
 
 ## References

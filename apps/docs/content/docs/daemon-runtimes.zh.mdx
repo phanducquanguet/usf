@@ -15,7 +15,7 @@ import { Mermaid } from "@/components/mermaid";
 守护进程是 UniAI CLI 的一部分。装好 [UniAI CLI](/cli) 后，在自己机器上跑：
 
 ```bash
-multica daemon start
+uniai daemon start
 ```
 
 启动后它会做四件事：
@@ -29,15 +29,15 @@ multica daemon start
 
 | 命令 | 作用 |
 |---|---|
-| `multica daemon start` | 启动（默认后台，加 `--foreground` 前台运行）|
-| `multica daemon stop` | 停止 |
-| `multica daemon restart` | 重启 |
-| `multica daemon status` | 查看状态 |
-| `multica daemon logs` | 查看日志（加 `-f` 跟随）|
+| `uniai daemon start` | 启动（默认后台，加 `--foreground` 前台运行）|
+| `uniai daemon stop` | 停止 |
+| `uniai daemon restart` | 重启 |
+| `uniai daemon status` | 查看状态 |
+| `uniai daemon logs` | 查看日志（加 `-f` 跟随）|
 
 完整 CLI 参考见 [CLI 命令速查](/cli)。
 
-**桌面应用自带守护进程。**用 [桌面应用](/desktop-app) 就不必手动 `multica daemon start`——它启动时会自动拉起守护进程。哪种方式更适合你的工作流，详见 [桌面应用](/desktop-app) 页面。
+**桌面应用自带守护进程。**用 [桌面应用](/desktop-app) 就不必手动 `uniai daemon start`——它启动时会自动拉起守护进程。哪种方式更适合你的工作流，详见 [桌面应用](/desktop-app) 页面。
 
 ## 为什么一台机器会有多个运行时
 
@@ -63,10 +63,10 @@ graph TD
 内置 provider 探测覆盖常见工具；如果团队有一款兼容 UniAI 已支持协议族、但需要工作区级启动命令的 AI CLI，可以定义 **custom runtime profile**。你可以在 Runtimes UI 里管理，也可以用 CLI：
 
 ```bash
-multica runtime profile list
-multica runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
-multica runtime profile update <profile-id> --command-name agent
-multica runtime profile delete <profile-id>
+uniai runtime profile list
+uniai runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
+uniai runtime profile update <profile-id> --command-name agent
+uniai runtime profile delete <profile-id>
 ```
 
 这里填写的是 argv 风格命令，不是 shell 字符串。UniAI 存的是可执行文件名和固定参数，守护进程会直接用 `exec.Command(command_name, fixed_args...)` 启动。支持普通参数、引号和反斜杠转义；不支持管道、重定向、`&&`、`;`、反引号、`$VAR` / `$(...)` 展开。需要 shell 行为时，用 wrapper script 包一层。
@@ -75,8 +75,8 @@ multica runtime profile delete <profile-id>
 如果桌面应用拉起的守护进程找不到你在终端里能运行的命令，可以在这台机器上固定绝对路径：
 
 ```bash
-multica runtime profile set-path <profile-id> --path /abs/path/to/agent
-multica runtime profile unset-path <profile-id>
+uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
+uniai runtime profile unset-path <profile-id>
 ```
 
 修改 profile 的命令或参数后，已开始的任务仍使用启动时的参数；守护进程重新注册后，新领取的任务才会使用新配置。混合版本部署时，建议先升级 server，再逐步升级 daemon：`fixed_args` 的录入在 server 侧 Runtimes UI，`failed_profiles` 注册报告也由 server 展示。旧组件可能会忽略自己不认识的字段，而不是明确报错；先升 server 能让 rollout 更可观察。
@@ -122,8 +122,8 @@ UniAI 对并发有两层限额：
 
 遇到「我的智能体不工作」类问题，先过一遍这三步：
 
-1. 跑 `multica daemon status`，确认守护进程在运行且在线
-2. 跑 `multica daemon logs -f`，看是否有错误
+1. 跑 `uniai daemon status`，确认守护进程在运行且在线
+2. 跑 `uniai daemon logs -f`，看是否有错误
 3. 去 UniAI 界面的 **Runtimes** 页面，确认你的运行时显示「在线」
 
 更多场景见 [Troubleshooting](/troubleshooting)。

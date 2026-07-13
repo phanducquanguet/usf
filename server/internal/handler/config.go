@@ -32,7 +32,7 @@ type AppConfig struct {
 	// previous shape for the common managed-cloud case (#3433).
 	WorkspaceCreationDisabled bool `json:"workspace_creation_disabled,omitempty"`
 	// Public daemon setup config consumed by the web app at runtime so
-	// self-hosted instances can show `multica setup self-host` commands
+	// self-hosted instances can show `uniai setup self-host` commands
 	// with the operator's own domains instead of Multica Cloud defaults.
 	DaemonServerURL string `json:"daemon_server_url,omitempty"`
 	DaemonAppURL    string `json:"daemon_app_url,omitempty"`
@@ -108,7 +108,7 @@ func normalizePublicURL(raw string) string {
 // isOfficialCloudDaemonConfig reports whether this deployment is the official
 // Multica Cloud, identified by its frontend host alone (multica.ai /
 // app.multica.ai). The daemon setup for the managed cloud is always
-// `multica setup` (which hardcodes api.multica.ai), so the per-deployment URLs
+// `uniai setup` (which hardcodes api.multica.ai), so the per-deployment URLs
 // must be omitted from /api/config even when MULTICA_PUBLIC_URL is unset or
 // misconfigured. Previously this also required serverURL==api.multica.ai, so a
 // cloud deployment that forgot MULTICA_PUBLIC_URL fell through and emitted a

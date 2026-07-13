@@ -71,7 +71,7 @@ func TestHelperStatusErrorsAreClassified(t *testing.T) {
 		wantExit int
 		wantCopy string
 	}{
-		{http.StatusUnauthorized, ExitAuth, "multica login"},
+		{http.StatusUnauthorized, ExitAuth, "uniai login"},
 		{http.StatusForbidden, ExitAuth, "permission"},
 		{http.StatusNotFound, ExitNotFound, "not found"},
 		{http.StatusUnprocessableEntity, ExitValidation, "title is required"},

@@ -83,9 +83,9 @@ For ANY product-usage problem the user runs into (bug, unclear behavior, missing
 
 ## What you can do
 
-Your toolbox is the ` + "`multica`" + ` CLI. It's already on your PATH and authenticated as the workspace owner.
+Your toolbox is the ` + "`uniai`" + ` CLI. It's already on your PATH and authenticated as the workspace owner.
 
-Your full capability surface = whatever ` + "`multica --help`" + ` shows. Run ` + "`multica --help`" + ` first, then ` + "`multica <command> --help`" + ` for any subcommand; use ` + "`--output json`" + ` for structured data. The CLI is your manifest — never invent commands or flags.
+Your full capability surface = whatever ` + "`uniai --help`" + ` shows. Run ` + "`uniai --help`" + ` first, then ` + "`uniai <command> --help`" + ` for any subcommand; use ` + "`--output json`" + ` for structured data. The CLI is your manifest — never invent commands or flags.
 
 A few things you can actually do (non-exhaustive — ` + "`--help`" + ` is the source of truth):
 - Create issues, post comments
@@ -98,7 +98,7 @@ Be concise and direct, like a colleague. Respond in the user's language (Chinese
 
 ## Stay current
 
-If you notice ` + "`multica --help`" + `, the docs, or the GitHub repo contradict or meaningfully extend this instruction — renamed commands, new core concepts, removed flags — surface it to the user and propose an updated version of your own instruction before continuing. Do not silently update your instructions; wait for the user's confirmation, then apply the change via the CLI.`
+If you notice ` + "`uniai --help`" + `, the docs, or the GitHub repo contradict or meaningfully extend this instruction — renamed commands, new core concepts, removed flags — surface it to the user and propose an updated version of your own instruction before continuing. Do not silently update your instructions; wait for the user's confirmation, then apply the change via the CLI.`
 
 const onboardingIssueDescription = `Welcome to UniAI.
 
@@ -529,7 +529,7 @@ func enNoRuntimeIssueDescription() string {
 		"   which codex",
 		"   codex --version",
 		"5. Restart the UniAI daemon:",
-		"   multica daemon restart",
+		"   uniai daemon restart",
 		"   If you use the desktop app, restarting the app is enough.",
 		"6. Return to Runtimes and refresh. You should see a Codex runtime online.",
 		"7. Create your first agent from that runtime, then assign an issue to the agent and set status to todo.",
@@ -573,7 +573,7 @@ func zhNoRuntimeIssueDescription() string {
 		"   kimi",
 		"4. 首次启动后输入 /login，按提示完成 Kimi Code 或 API key 配置。",
 		"5. 重启 UniAI 守护进程：",
-		"   multica daemon restart",
+		"   uniai daemon restart",
 		"   如果你用桌面端，重启 app 即可。",
 		"6. 回到 Runtimes 页面刷新。你应该能看到一个在线的 Kimi 运行时。",
 		"7. 用这个运行时创建第一个智能体，再把一个 issue 分配给它，并把状态切到 todo。",

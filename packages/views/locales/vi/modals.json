@@ -192,7 +192,7 @@
       "search_placeholder": "Tìm agent và đội…",
       "agents_group": "Agent",
       "squads_group": "Đội",
-      "version_missing": "Daemon của agent này không báo phiên bản CLI. Tạo bằng agent cần multica CLI ≥ {{min}}. Hãy nâng cấp daemon rồi kết nối lại, hoặc chuyển sang tạo thủ công.",
+      "version_missing": "Daemon của agent này không báo phiên bản CLI. Tạo bằng agent cần UniAI CLI ≥ {{min}}. Hãy nâng cấp daemon rồi kết nối lại, hoặc chuyển sang tạo thủ công.",
       "version_below": "CLI của daemon agent này là {{current}} — Tạo bằng agent cần ≥ {{min}}. Hãy nâng cấp daemon, hoặc chuyển sang tạo thủ công.",
       "prompt_placeholder": "Nói cho agent biết cần làm gì, vd. \"nhờ Bohan sửa lỗi tải chậm hộp thư đến trong dự án Web\"",
       "submit": "Tạo",

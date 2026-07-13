@@ -24,7 +24,7 @@ authenticates via browser and starts the agent daemon.
 
 If a configuration already exists, you will be prompted before overwriting.
 
-Use 'multica setup self-host' to connect to a self-hosted server instead.
+Use 'uniai setup self-host' to connect to a self-hosted server instead.
 
 If you run this command over SSH on a remote machine, keep the localhost
 callback and follow the SSH tunnel hint printed during browser login. If your
@@ -32,7 +32,7 @@ browser can reach this CLI directly on a private network address, pass
 --callback-host <host-or-ip>.
 
 Use --profile to create an isolated configuration for a separate environment:
-  multica setup self-host --profile staging --server-url https://api-staging.co`,
+  uniai setup self-host --profile staging --server-url https://api-staging.co`,
 	RunE: runSetupCloud,
 }
 
@@ -46,7 +46,7 @@ callback and follow the SSH tunnel hint printed during browser login. If your
 browser can reach this CLI directly on a private network address, pass
 --callback-host <host-or-ip>.
 
-This is equivalent to running 'multica setup' without a subcommand.`,
+This is equivalent to running 'uniai setup' without a subcommand.`,
 	RunE: runSetupCloud,
 }
 
@@ -63,9 +63,9 @@ If you run this command from a different machine than the server, also pass
 the OAuth login flow can return the token to the CLI.
 
 Examples:
-  multica setup self-host
-  multica setup self-host --server-url https://api.internal.co --app-url https://app.internal.co
-  multica setup self-host --port 9090 --frontend-port 4000`,
+  uniai setup self-host
+  uniai setup self-host --server-url https://api.internal.co --app-url https://app.internal.co
+  uniai setup self-host --port 9090 --frontend-port 4000`,
 	RunE: runSetupSelfHost,
 }
 
@@ -187,7 +187,7 @@ func runSetupSelfHost(cmd *cobra.Command, args []string) error {
 	//
 	// Honor MULTICA_SERVER_URL / MULTICA_APP_URL when the matching flag is not
 	// set — consistent with the rest of the CLI (resolveServerURL) and with the
-	// env vars documented on the root --server-url flag and in `multica --help`.
+	// env vars documented on the root --server-url flag and in `uniai --help`.
 	// Before this, setup self-host read only the flags, so a self-hoster who set
 	// MULTICA_SERVER_URL still got the localhost default and an "unreachable"
 	// error (GitHub #3912).
@@ -233,7 +233,7 @@ func runSetupSelfHost(cmd *cobra.Command, args []string) error {
 	if !reachable {
 		fmt.Fprintf(os.Stderr, "\n⚠ Server at %s is not reachable.\n", serverURL)
 		fmt.Fprintln(os.Stderr, "  Your existing configuration was left unchanged.")
-		fmt.Fprintln(os.Stderr, "  Verify the URL, then re-run 'multica setup self-host' once it's reachable.")
+		fmt.Fprintln(os.Stderr, "  Verify the URL, then re-run 'uniai setup self-host' once it's reachable.")
 		return nil
 	}
 

@@ -471,7 +471,7 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 			channelRouter.Register(slack.TypeSlack, slack.NewSlackResolverSet(queries, pool, slackReplier, slackTyping))
 			slack.NewOutbound(queries, box.Open, slog.Default()).Register(bus)
 
-			// On-demand history reader behind the unified `multica chat history`
+			// On-demand history reader behind the unified `uniai chat history`
 			// command (MUL-3871): pull the session's Slack conversation when the
 			// agent asks, instead of force-assembling it on every inbound.
 			h.SlackHistory = slack.NewHistory(queries, box.Open, slog.Default())

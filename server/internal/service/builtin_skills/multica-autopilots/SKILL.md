@@ -2,7 +2,7 @@
 name: multica-autopilots
 description: "Use when creating, updating, inspecting, triggering, or debugging UniAI autopilots. Covers the full chain: schedule/webhook/manual trigger, create_issue vs run_only execution, agent/squad leader admission, runs, created issues/tasks, webhook URL rotation, and side-effect boundaries."
 user-invocable: false
-allowed-tools: Bash(multica *)
+allowed-tools: Bash(uniai *)
 ---
 
 # UniAI Autopilots
@@ -12,9 +12,9 @@ allowed-tools: Bash(multica *)
 Autopilots are durable automations. Read before mutating:
 
 ```bash
-multica autopilot list --output json
-multica autopilot get <autopilot-id> --output json
-multica autopilot runs <autopilot-id> --output json
+uniai autopilot list --output json
+uniai autopilot get <autopilot-id> --output json
+uniai autopilot runs <autopilot-id> --output json
 ```
 
 Do not run `trigger`, `delete`, `trigger-delete`, or `trigger-rotate-url` to test. Those are real side effects.
@@ -36,15 +36,15 @@ Execution modes:
 ## CLI
 
 ```bash
-multica autopilot list --output json
-multica autopilot get <autopilot-id> --output json
-multica autopilot create --title "<title>" --description "<task prompt>" --agent <agent-name-or-id> --mode create_issue|run_only --output json
-multica autopilot update <autopilot-id> --status active|paused --output json
-multica autopilot runs <autopilot-id> --output json
-multica autopilot trigger-add <autopilot-id> --kind schedule --cron "0 9 * * *" --timezone Asia/Shanghai --output json
-multica autopilot trigger-add <autopilot-id> --kind webhook --label "ci" --output json
-multica autopilot trigger <autopilot-id> --output json
-multica autopilot trigger-rotate-url <autopilot-id> <trigger-id> --yes --output json
+uniai autopilot list --output json
+uniai autopilot get <autopilot-id> --output json
+uniai autopilot create --title "<title>" --description "<task prompt>" --agent <agent-name-or-id> --mode create_issue|run_only --output json
+uniai autopilot update <autopilot-id> --status active|paused --output json
+uniai autopilot runs <autopilot-id> --output json
+uniai autopilot trigger-add <autopilot-id> --kind schedule --cron "0 9 * * *" --timezone Asia/Shanghai --output json
+uniai autopilot trigger-add <autopilot-id> --kind webhook --label "ci" --output json
+uniai autopilot trigger <autopilot-id> --output json
+uniai autopilot trigger-rotate-url <autopilot-id> <trigger-id> --yes --output json
 ```
 
 Use `trigger` only when the user explicitly asks for a manual run. Use `trigger-rotate-url` only when rotating a webhook URL; the old URL stops being valid.
@@ -55,10 +55,10 @@ Webhook trigger output can include a URL/token. Do not paste webhook tokens or s
 
 For "why didn't it run":
 
-1. `multica autopilot get <id> --output json` — status, mode, assignee, triggers.
-2. `multica autopilot runs <id> --output json` — run status and failure reason.
-3. If assigned to a squad, inspect the squad: `multica squad get <squad-id> --output json`; execution goes to the leader.
-4. Inspect the target agent/runtime: `multica agent get <agent-id> --output json` and `multica runtime list --output json`.
+1. `uniai autopilot get <id> --output json` — status, mode, assignee, triggers.
+2. `uniai autopilot runs <id> --output json` — run status and failure reason.
+3. If assigned to a squad, inspect the squad: `uniai squad get <squad-id> --output json`; execution goes to the leader.
+4. Inspect the target agent/runtime: `uniai agent get <agent-id> --output json` and `uniai runtime list --output json`.
 5. For `create_issue`, inspect the created issue if the run records one.
 
 ## Side effects

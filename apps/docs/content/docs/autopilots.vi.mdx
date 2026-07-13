@@ -45,7 +45,7 @@ UniAI server quét trigger đến hạn mỗi **30 giây** — **thời điểm 
 - CLI:
 
 ```bash
-multica autopilot trigger <autopilot-id>
+uniai autopilot trigger <autopilot-id>
 ```
 
 Kích hoạt tay đi đúng luồng thực thi như trigger `schedule` — chỉ trường `source` trên bản ghi chạy được đánh `manual`.
@@ -183,7 +183,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 URL được sinh **chính là** thông tin xác thực. Ai có nó đều kích hoạt được autopilot. Hãy đối xử với nó như một token:
 
 - **Đừng dán vào luồng issue công khai, ảnh chụp màn hình hay lịch sử chat.**
-- **Nếu lộ, hãy thay URL ngay** — bấm "Rotate URL" trên dòng trigger, hoặc chạy `multica autopilot trigger-rotate-url <autopilot-id> <trigger-id>`. URL cũ ngừng hoạt động ngay.
+- **Nếu lộ, hãy thay URL ngay** — bấm "Rotate URL" trên dòng trigger, hoặc chạy `uniai autopilot trigger-rotate-url <autopilot-id> <trigger-id>`. URL cũ ngừng hoạt động ngay.
 - Với nguồn đòi hỏi xác thực chặt, hãy chờ tính năng xác minh chữ ký HMAC theo từng trigger; URL v1 này chỉ dùng cơ chế bearer.
 - Hiện tại, thành viên nào xem được autopilot đều đọc được các URL webhook của nó — việc siết quyền xem bí mật theo vai trò sẽ được bổ sung sau.
 

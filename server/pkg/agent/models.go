@@ -310,7 +310,7 @@ func codexStaticModels() []Model {
 	// unset). It only marks the current flagship for the "default must track
 	// the latest release" catalog guard
 	// (TestCodexStaticModelsMatchVerifiedFallbackCatalog,
-	// multica#2009). It is deliberately NOT used to validate effort for an
+	// uniai#2009). It is deliberately NOT used to validate effort for an
 	// empty (follow-CLI-config) model: that config can resolve to any model,
 	// so ValidateThinkingLevel fails an empty codex model closed rather than
 	// borrowing this entry's catalog (which alone advertises `ultra`) — see

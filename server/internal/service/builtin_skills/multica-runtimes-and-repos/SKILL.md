@@ -2,7 +2,7 @@
 name: multica-runtimes-and-repos
 description: "Use when inspecting or debugging UniAI runtimes, daemon task claiming, agent not running, workdir/session reuse, or repository checkout. Covers runtime online/offline state, daemon heartbeat/claim chain, task-scoped repo checkout, project repo context, local_directory caveats, and safe diagnostic commands."
 user-invocable: false
-allowed-tools: Bash(multica *)
+allowed-tools: Bash(uniai *)
 ---
 
 # UniAI Runtimes and Repos
@@ -12,9 +12,9 @@ allowed-tools: Bash(multica *)
 For "agent did not run" or "repo checkout failed", read the chain before changing anything:
 
 ```bash
-multica agent get <agent-id> --output json
-multica runtime list --output json
-multica repo checkout <repo-url>
+uniai agent get <agent-id> --output json
+uniai runtime list --output json
+uniai repo checkout <repo-url>
 ```
 
 Runtime and repo commands affect active agent execution. Do not restart daemons, update runtimes, or check out arbitrary repos just to test.
@@ -31,18 +31,18 @@ The chain is:
 4. daemon polls/claims the task;
 5. server returns task context, repos, project resources, prior session/workdir hints, and task token;
 6. daemon prepares a workdir and launches the provider CLI;
-7. `multica repo checkout` talks to the local daemon, not directly to GitHub.
+7. `uniai repo checkout` talks to the local daemon, not directly to GitHub.
 
 ## CLI
 
 ```bash
-multica runtime list --output json
-multica runtime usage <runtime-id> --output json
-multica runtime activity <runtime-id> --output json
-multica runtime update <runtime-id> --target-version <version> --output json
-multica runtime delete <runtime-id>
-multica repo checkout <url>
-multica repo checkout <url> --ref <branch-or-sha>
+uniai runtime list --output json
+uniai runtime usage <runtime-id> --output json
+uniai runtime activity <runtime-id> --output json
+uniai runtime update <runtime-id> --target-version <version> --output json
+uniai runtime delete <runtime-id>
+uniai repo checkout <url>
+uniai repo checkout <url> --ref <branch-or-sha>
 ```
 
 `runtime update` and `runtime delete` are writes. `runtime delete` removes a runtime registration; if active agents are still bound, it refuses unless the user explicitly passes `--cascade`, which archives those agents and cancels their queued/running tasks before deleting the runtime. `repo checkout` creates a git worktree in the task working directory.
@@ -56,7 +56,7 @@ Check in this order:
 1. Was a task supposed to be created? Inspect issue/comment/autopilot context.
 2. Is the assignee an agent or squad? A squad routes to its leader.
 3. Is the agent archived or bound to a runtime the actor cannot use?
-4. Is the runtime online? `multica runtime list --output json`.
+4. Is the runtime online? `uniai runtime list --output json`.
 5. Did the daemon heartbeat recently? Runtime `last_seen_at` is the visible clue.
 6. Did the task get claimed or is it stuck pending/running/waiting for local directory?
 7. If repo checkout failed, classify it after checking whether repo context was

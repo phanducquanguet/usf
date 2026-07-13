@@ -30,7 +30,7 @@ type CLIConfig struct {
 	// but the same logical profile may live at a different path on each
 	// machine (or not be on PATH at all). This map lets an operator pin the
 	// exact binary for a profile on this host via
-	// `multica runtime profile set-path`; the daemon prefers it over the
+	// `uniai runtime profile set-path`; the daemon prefers it over the
 	// PATH lookup in appendProfileRuntimes. Empty / absent means "resolve the
 	// profile's command_name on PATH" — the default behavior. The mapping is
 	// intentionally local-only (it is never sent to the server) because the

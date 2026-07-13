@@ -194,7 +194,7 @@ func TestLoginTokenFlagWiring(t *testing.T) {
 		t.Fatalf("loginCmd --token type = %q, want %q (regressed to bool?)", got, "string")
 	}
 	if tokenFlag.NoOptDefVal != tokenPromptSentinel {
-		t.Fatalf("loginCmd --token NoOptDefVal = %q, want %q (legacy `multica login --token` prompt mode would break)", tokenFlag.NoOptDefVal, tokenPromptSentinel)
+		t.Fatalf("loginCmd --token NoOptDefVal = %q, want %q (legacy `uniai login --token` prompt mode would break)", tokenFlag.NoOptDefVal, tokenPromptSentinel)
 	}
 }
 
@@ -306,7 +306,7 @@ func TestNormalizeAPIBaseURL(t *testing.T) {
 }
 
 // TestValidateLoginTokenPrefix pins the accepted PAT prefix set for
-// `multica login --token`. The original implementation hardcoded `mul_`
+// `uniai login --token`. The original implementation hardcoded `mul_`
 // only, which rejected legitimate Multica Cloud Node PATs (`mcn_`) at
 // the CLI even though the server's middleware would have accepted them.
 // If a future change drops `mcn_` from the list (or accidentally

@@ -45,7 +45,7 @@ UniAI 서버는 **30초**마다 만료된 트리거를 스캔합니다 — **실
 - CLI:
 
 ```bash
-multica autopilot trigger <autopilot-id>
+uniai autopilot trigger <autopilot-id>
 ```
 
 수동 트리거는 `schedule` 트리거와 완전히 동일한 실행 흐름을 거치며 — 실행 레코드의 `source` 필드만 `manual`로 표시됩니다.
@@ -183,7 +183,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 생성된 URL **자체가** 자격 증명입니다. 그것을 가진 사람은 누구나 오토파일럿을 발화할 수 있습니다. 토큰처럼 다루세요.
 
 - **공개된 이슈 스레드, 스크린샷, 채팅 히스토리에 붙여넣지 마세요.**
-- **유출되면 교체하세요** — 트리거 행에서 "Rotate URL"을 클릭하거나 `multica autopilot trigger-rotate-url <autopilot-id> <trigger-id>`를 실행하세요. 기존 URL은 즉시 작동을 멈춥니다.
+- **유출되면 교체하세요** — 트리거 행에서 "Rotate URL"을 클릭하거나 `uniai autopilot trigger-rotate-url <autopilot-id> <trigger-id>`를 실행하세요. 기존 URL은 즉시 작동을 멈춥니다.
 - 강력한 소스 인증이 필요한 소스의 경우, 트리거별 HMAC 서명 검증을 기다리세요. 이 v1 URL은 bearer 방식만 지원합니다.
 - 현재로서는 오토파일럿을 볼 수 있는 워크스페이스 멤버라면 그 webhook URL을 읽을 수 있습니다 — 역할별로 더 엄격한 secret 가시성은 후속 작업입니다.
 

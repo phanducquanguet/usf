@@ -121,7 +121,7 @@ func (e *NetworkError) Unwrap() error { return e.Err }
 // UserMessageError attaches a command-specific, user-facing message to an
 // underlying error. FormatError shows Msg verbatim (in preference to the
 // generic kind-based copy it would otherwise derive from a wrapped
-// *NetworkError / *HTTPError), so command-level guidance — e.g. a `multica
+// *NetworkError / *HTTPError), so command-level guidance — e.g. a `uniai
 // login` failure that is more helpful than the generic 401/timeout line — is
 // visible in the default (non-debug) output.
 //
@@ -304,8 +304,8 @@ var kindMessages = map[ErrorKind][2]string{
 		"无法访问 UniAI 服务器。请检查网络连接。",
 	},
 	KindAuthRequired: {
-		"Your session has expired or you are not signed in. Run `multica login` to sign in again. On a self-hosted or non-OAuth setup, ask your administrator for valid credentials.",
-		"登录已过期或尚未登录。请运行 `multica login` 重新登录。自托管或非 OAuth 场景请联系管理员获取有效凭证。",
+		"Your session has expired or you are not signed in. Run `uniai login` to sign in again. On a self-hosted or non-OAuth setup, ask your administrator for valid credentials.",
+		"登录已过期或尚未登录。请运行 `uniai login` 重新登录。自托管或非 OAuth 场景请联系管理员获取有效凭证。",
 	},
 	KindForbidden: {
 		"You do not have permission to access this resource. Check that you are in the right workspace, or ask an administrator to grant access.",

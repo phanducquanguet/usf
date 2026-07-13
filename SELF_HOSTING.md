@@ -10,7 +10,7 @@ Deploy Multica on your own infrastructure in minutes.
 | **Frontend** | Web application | Next.js 16 |
 | **Database** | Primary data store | PostgreSQL 17 with pgvector |
 
-Each user who runs AI agents locally also installs the **`multica` CLI** and runs the **agent daemon** on their own machine.
+Each user who runs AI agents locally also installs the **`uniai` CLI** and runs the **agent daemon** on their own machine.
 
 ## Quick Install (Recommended)
 
@@ -21,10 +21,10 @@ Two commands to set up everything — server, CLI, and configuration:
 curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --with-server
 
 # 2. Configure CLI, authenticate, and start the daemon
-multica setup self-host
+uniai setup self-host
 ```
 
-This installs the `multica` CLI, checks out the latest self-host assets, pulls the official Multica images from GHCR, and configures everything for localhost.
+This installs the `uniai` CLI, checks out the latest self-host assets, pulls the official Multica images from GHCR, and configures everything for localhost.
 
 Open http://localhost:3000. To log in, configure `RESEND_API_KEY` in `.env` for email-based codes (recommended), or leave Resend unset and copy the generated code from the backend logs. See [Step 2 — Log In](#step-2--log-in) for details.
 
@@ -48,7 +48,7 @@ If you prefer to run each step manually:
 
 ```bash
 git clone https://github.com/multica-ai/multica.git
-cd multica
+cd uniai
 make selfhost
 ```
 
@@ -106,7 +106,7 @@ You also need at least one AI agent CLI installed:
 ### b) One-command setup
 
 ```bash
-multica setup self-host
+uniai setup self-host
 ```
 
 This automatically:
@@ -118,13 +118,13 @@ This automatically:
 For on-premise deployments with custom domains:
 
 ```bash
-multica setup self-host --server-url https://api.example.com --app-url https://app.example.com
+uniai setup self-host --server-url https://api.example.com --app-url https://app.example.com
 ```
 
 To verify the daemon is running:
 
 ```bash
-multica daemon status
+uniai daemon status
 ```
 
 > **Alternative:** If you prefer manual steps, see [Manual CLI Configuration](#manual-cli-configuration) below.
@@ -175,7 +175,7 @@ To use different hostnames, override the matching values at install time (see [S
 ### Step 2 — Create the namespace
 
 ```bash
-kubectl create namespace multica
+kubectl create namespace uniai
 ```
 
 ### Step 3 — Create the `multica-secrets` Secret
@@ -183,7 +183,7 @@ kubectl create namespace multica
 The chart references this Secret by name. Create it once with random values:
 
 ```bash
-kubectl -n multica create secret generic multica-secrets \
+kubectl -n uniai create secret generic multica-secrets \
   --from-literal=JWT_SECRET="$(openssl rand -hex 32)" \
   --from-literal=POSTGRES_PASSWORD="$(openssl rand -hex 16)" \
   --from-literal=RESEND_API_KEY="" \
@@ -197,9 +197,9 @@ Leave optional values empty for now — you can fill them in later (see [Step 5 
 ### Step 4 — Install the chart
 
 ```bash
-helm install multica oci://ghcr.io/multica-ai/charts/multica \
+helm install uniai oci://ghcr.io/multica-ai/charts/multica \
   --version <chart-version> \
-  -n multica
+  -n uniai
 ```
 
 Released chart versions strip the leading `v` from the Git tag. For example, release tag `v0.3.5` publishes chart version `0.3.5`; the chart defaults the backend and frontend image tags to `v0.3.5`.
@@ -210,22 +210,22 @@ To override defaults, export the chart values, edit them, and pass them with `-f
 helm show values oci://ghcr.io/multica-ai/charts/multica \
   --version <chart-version> > my-values.yaml
 # edit my-values.yaml — e.g. change ingress hosts, image tags, resource limits
-helm install multica oci://ghcr.io/multica-ai/charts/multica \
+helm install uniai oci://ghcr.io/multica-ai/charts/multica \
   --version <chart-version> \
-  -n multica \
+  -n uniai \
   -f my-values.yaml
 ```
 
 When developing from a checkout, use the local chart path instead:
 
 ```bash
-helm install multica deploy/helm/multica -n multica
+helm install uniai deploy/helm/multica -n uniai
 ```
 
 Watch the pods come up:
 
 ```bash
-kubectl -n multica get pods -w
+kubectl -n uniai get pods -w
 ```
 
 On a cold cluster the backend can sit `Running` but not `Ready` for a few minutes while it waits on PostgreSQL and runs migrations — a startupProbe absorbs this, so the pod should not restart. Once the backend reports `Ready`, migrations have completed and `/healthz` returns OK:
@@ -244,9 +244,9 @@ The chart defaults to `APP_ENV=production` (set in `values.yaml` under `backend.
 - **Recommended (production):** patch the Secret with a real Resend key, then restart the backend:
 
   ```bash
-  kubectl -n multica patch secret multica-secrets --type=merge \
+  kubectl -n uniai patch secret multica-secrets --type=merge \
     -p '{"stringData":{"RESEND_API_KEY":"re_xxx"}}'
-  kubectl -n multica rollout restart deploy/multica-backend
+  kubectl -n uniai rollout restart deploy/multica-backend
   ```
 
   Real verification codes will be sent to the email address you enter. See [Advanced Configuration → Email](SELF_HOSTING_ADVANCED.md#email-required-for-authentication).
@@ -254,19 +254,19 @@ The chart defaults to `APP_ENV=production` (set in `values.yaml` under `backend.
 - **Without email configured:** the verification code is generated server-side and printed to the backend pod logs (look for `[DEV] Verification code for ...:`). Useful for one-off testing.
 
   ```bash
-  kubectl -n multica logs -f deploy/multica-backend | grep "Verification code"
+  kubectl -n uniai logs -f deploy/multica-backend | grep "Verification code"
   ```
 
 - **Deterministic local/private testing:** set `backend.config.appEnv: development` in your values file and `MULTICA_DEV_VERIFICATION_CODE=888888` in the Secret, then `helm upgrade` and restart. This fixed code is ignored when `APP_ENV=production`.
 
   ```bash
-  helm upgrade multica oci://ghcr.io/multica-ai/charts/multica \
+  helm upgrade uniai oci://ghcr.io/multica-ai/charts/multica \
     --version <chart-version> \
-    -n multica \
+    -n uniai \
     -f my-values.yaml --set backend.config.appEnv=development
-  kubectl -n multica patch secret multica-secrets --type=merge \
+  kubectl -n uniai patch secret multica-secrets --type=merge \
     -p '{"stringData":{"MULTICA_DEV_VERIFICATION_CODE":"888888"}}'
-  kubectl -n multica rollout restart deploy/multica-backend
+  kubectl -n uniai rollout restart deploy/multica-backend
   ```
 
 `ALLOW_SIGNUP`, `DISABLE_WORKSPACE_CREATION`, and `GOOGLE_CLIENT_ID` likewise live under `backend.config.*` in `values.yaml` (as `allowSignup`, `disableWorkspaceCreation`, and `googleClientId`). After `helm upgrade`, the backend pod will roll automatically because the ConfigMap hash changes; the web UI reads all three from `/api/config` at runtime, so no web rebuild is needed.
@@ -278,7 +278,7 @@ The chart defaults to `APP_ENV=production` (set in `values.yaml` under `backend.
 The daemon runs on your local machine, not in the cluster. Install the CLI and an AI agent as in [Step 3](#step-3--install-cli--start-daemon) above, then point the CLI at your Ingress hostnames:
 
 ```bash
-multica setup self-host \
+uniai setup self-host \
   --server-url http://api.multica.dev.lan \
   --app-url http://multica.dev.lan
 ```
@@ -290,15 +290,15 @@ Make sure the machine running the daemon has the same `/etc/hosts` (or DNS) entr
 To pull the latest images without changing the chart version when your values still use the mutable `latest` image tag:
 
 ```bash
-kubectl -n multica rollout restart deploy/multica-backend deploy/multica-frontend
+kubectl -n uniai rollout restart deploy/multica-backend deploy/multica-frontend
 ```
 
 To upgrade to a specific Multica release, upgrade to the matching chart version. The released chart defaults its app images to the matching Git tag:
 
 ```bash
-helm upgrade multica oci://ghcr.io/multica-ai/charts/multica \
+helm upgrade uniai oci://ghcr.io/multica-ai/charts/multica \
   --version <chart-version> \
-  -n multica \
+  -n uniai \
   -f my-values.yaml
 ```
 
@@ -315,28 +315,28 @@ images:
 Then run the same upgrade command with `-f my-values.yaml`:
 
 ```bash
-helm upgrade multica oci://ghcr.io/multica-ai/charts/multica \
+helm upgrade uniai oci://ghcr.io/multica-ai/charts/multica \
   --version <chart-version> \
-  -n multica \
+  -n uniai \
   -f my-values.yaml
 ```
 
 To roll back if an upgrade goes sideways:
 
 ```bash
-helm -n multica rollback multica
+helm -n uniai rollback uniai
 ```
 
-> **Upgrading from `v0.3.4` to `v0.3.5+` fails with `refusing to drop legacy daily rollups: ...`?** As of MUL-2957 the `migrate up` command runs an idempotent monthly-slice backfill automatically before applying migration `103`, so a clean upgrade is a single `helm upgrade` + backend rollout. If you are still on a pre-MUL-2957 binary or the auto-hook fails, run the standalone backfill against the same database the chart is using (`kubectl -n multica exec deploy/multica-backend -- ./backfill_task_usage_hourly --sleep-between-slices=2s`), then restart the backend deployment to re-apply migrations. See [Advanced Configuration → Usage Dashboard Rollup](SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup) for the full recovery flow.
+> **Upgrading from `v0.3.4` to `v0.3.5+` fails with `refusing to drop legacy daily rollups: ...`?** As of MUL-2957 the `migrate up` command runs an idempotent monthly-slice backfill automatically before applying migration `103`, so a clean upgrade is a single `helm upgrade` + backend rollout. If you are still on a pre-MUL-2957 binary or the auto-hook fails, run the standalone backfill against the same database the chart is using (`kubectl -n uniai exec deploy/multica-backend -- ./backfill_task_usage_hourly --sleep-between-slices=2s`), then restart the backend deployment to re-apply migrations. See [Advanced Configuration → Usage Dashboard Rollup](SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup) for the full recovery flow.
 
 ### Tearing down
 
 ```bash
 # Remove the workloads but keep the PVCs and the Secret
-helm -n multica uninstall multica
+helm -n uniai uninstall uniai
 
 # Wipe everything, including PostgreSQL data and uploads
-kubectl delete namespace multica
+kubectl delete namespace uniai
 ```
 
 ---
@@ -403,7 +403,7 @@ If you cloned the repo manually:
 make selfhost-stop
 
 # Stop the local daemon
-multica daemon stop
+uniai daemon stop
 ```
 
 ## Switching to Multica Cloud
@@ -411,7 +411,7 @@ multica daemon stop
 If you've been self-hosting and want to switch your CLI to [Multica Cloud](https://multica.ai):
 
 ```bash
-multica setup
+uniai setup
 ```
 
 This reconfigures the CLI for multica.ai, re-authenticates, and restarts the daemon. You will be prompted before overwriting the existing configuration.
@@ -438,7 +438,7 @@ If you prefer running Docker Compose steps manually instead of `make selfhost`:
 
 ```bash
 git clone https://github.com/multica-ai/multica.git
-cd multica
+cd uniai
 cp .env.example .env
 ```
 
@@ -457,27 +457,27 @@ docker compose -f docker-compose.selfhost.yml up -d
 
 ## Manual CLI Configuration
 
-If you prefer configuring the CLI step by step instead of `multica setup`:
+If you prefer configuring the CLI step by step instead of `uniai setup`:
 
 ```bash
 # Point CLI to your local server
-multica config set server_url http://localhost:8080
-multica config set app_url http://localhost:3000
+uniai config set server_url http://localhost:8080
+uniai config set app_url http://localhost:3000
 
 # Login (opens browser)
-multica login
+uniai login
 
 # Start the daemon
-multica daemon start
+uniai daemon start
 ```
 
 For production deployments with TLS:
 
 ```bash
-multica config set app_url https://app.example.com
-multica config set server_url https://api.example.com
-multica login
-multica daemon start
+uniai config set app_url https://app.example.com
+uniai config set server_url https://api.example.com
+uniai login
+uniai daemon start
 ```
 
 ## Advanced Configuration

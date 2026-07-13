@@ -15,7 +15,7 @@ UniAI では、[エージェント](/agents)は私たちのサーバーでは実
 デーモンは UniAI CLI の一部です。[UniAI CLI](/cli) をインストールしたら、あなた自身のマシンで実行してください。
 
 ```bash
-multica daemon start
+uniai daemon start
 ```
 
 起動時にデーモンは 4 つのことを行います。
@@ -29,15 +29,15 @@ multica daemon start
 
 | コマンド | 用途 |
 |---|---|
-| `multica daemon start` | 起動（デフォルトはバックグラウンド。フォアグラウンドで実行するには `--foreground` を追加） |
-| `multica daemon stop` | 停止 |
-| `multica daemon restart` | 再起動 |
-| `multica daemon status` | ステータス表示 |
-| `multica daemon logs` | ログ表示（追従するには `-f` を追加） |
+| `uniai daemon start` | 起動（デフォルトはバックグラウンド。フォアグラウンドで実行するには `--foreground` を追加） |
+| `uniai daemon stop` | 停止 |
+| `uniai daemon restart` | 再起動 |
+| `uniai daemon status` | ステータス表示 |
+| `uniai daemon logs` | ログ表示（追従するには `-f` を追加） |
 
 完全な CLI リファレンスは [CLI コマンド](/cli)を確認してください。
 
-**デスクトップアプリにはデーモンが同梱されています。** [デスクトップアプリ](/desktop-app)を使う場合、`multica daemon start` を手動で実行する必要はありません。起動時にデーモンを自動的に立ち上げます。あなたのワークフローにどの方式が合うかは、[デスクトップアプリ](/desktop-app)ページを参照してください。
+**デスクトップアプリにはデーモンが同梱されています。** [デスクトップアプリ](/desktop-app)を使う場合、`uniai daemon start` を手動で実行する必要はありません。起動時にデーモンを自動的に立ち上げます。あなたのワークフローにどの方式が合うかは、[デスクトップアプリ](/desktop-app)ページを参照してください。
 
 ## 1 つのマシンに複数のランタイムができる理由
 
@@ -63,10 +63,10 @@ graph TD
 組み込み provider 検出は一般的なツールを対象にしていますが、UniAI が対応するプロトコルファミリーで動作し、ワークスペース固有の起動コマンドが必要な AI CLI には **custom runtime profile** を定義できます。Runtimes UI か CLI で管理します。
 
 ```bash
-multica runtime profile list
-multica runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
-multica runtime profile update <profile-id> --command-name agent
-multica runtime profile delete <profile-id>
+uniai runtime profile list
+uniai runtime profile create --display-name "Composer" --protocol-family codex --command-name agent
+uniai runtime profile update <profile-id> --command-name agent
+uniai runtime profile delete <profile-id>
 ```
 
 入力するコマンドは shell 文字列ではなく argv 形式です。UniAI は実行ファイル名と固定引数を保存し、デーモンは `exec.Command(command_name, fixed_args...)` で直接起動します。通常の引数、引用符、バックスラッシュエスケープは使えますが、パイプ、リダイレクト、`&&`、`;`、バッククォート、`$VAR` / `$(...)` 展開は使えません。shell の動作が必要な場合は wrapper script を使ってください。
@@ -75,8 +75,8 @@ multica runtime profile delete <profile-id>
 デスクトップアプリから起動したデーモンが、ターミナルでは動くコマンドを見つけられない場合は、そのマシンで絶対パスを固定できます。
 
 ```bash
-multica runtime profile set-path <profile-id> --path /abs/path/to/agent
-multica runtime profile unset-path <profile-id>
+uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
+uniai runtime profile unset-path <profile-id>
 ```
 
 profile のコマンドや引数の変更は、デーモンが再登録された後に新しく取得するタスクへ適用されます。実行中のタスクは開始時の引数を使い続けます。混在デプロイでは、先に server をアップグレードしてから daemon を順次更新することを推奨します。`fixed_args` の入力は server 側の Runtimes UI が担い、`failed_profiles` 登録レポートも server が表示します。古いコンポーネントは未知のフィールドを明示的に失敗させず無視することがあるため、server を先に更新すると rollout を観測しやすくなります。
@@ -122,8 +122,8 @@ UniAI は 2 つの層で同時実行数の制限を適用します。
 
 「自分のエージェントが動かない」という問題に遭遇したら、まずこの 3 ステップのチェックリストを進めてください。
 
-1. `multica daemon status` を実行し、デーモンが実行中でオンラインかを確認します
-2. `multica daemon logs -f` を実行し、エラーがないかを確認します
+1. `uniai daemon status` を実行し、デーモンが実行中でオンラインかを確認します
+2. `uniai daemon logs -f` を実行し、エラーがないかを確認します
 3. UniAI UI の**ランタイム**ページを開き、ランタイムが「オンライン」と表示されているかを確認します
 
 より多くのシナリオは[トラブルシューティング](/troubleshooting)を参照してください。

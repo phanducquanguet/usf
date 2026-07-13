@@ -60,7 +60,7 @@ function normalizeRuntimeArch(arch) {
 }
 
 function binaryNameForPlatform(platform) {
-  return platform === "win32" ? "multica.exe" : "multica";
+  return platform === "win32" ? "uniai.exe" : "uniai";
 }
 
 const targetPlatform = normalizeRuntimePlatform(

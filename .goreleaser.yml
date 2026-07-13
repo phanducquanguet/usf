@@ -1,9 +1,31 @@
 version: 2
 
-project_name: multica
+project_name: uniai
 
 builds:
-  - id: multica
+  - id: uniai
+    main: ./cmd/multica
+    dir: server
+    binary: uniai
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.ShortCommit}}
+      - -X main.date={{.Date}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+  # Same code, pre-rename binary name. Packed into the multica-named
+  # compatibility archives below: already-released CLIs extract a binary
+  # named `multica` when self-updating. Remove together with those archives
+  # once pre-rename versions are no longer in use.
+  - id: multica-compat
     main: ./cmd/multica
     dir: server
     binary: multica
@@ -23,20 +45,35 @@ builds:
       - arm64
 
 archives:
-  # Legacy archive name kept so already-released CLIs (whose `multica update`
-  # looks for `multica_{os}_{arch}.{ext}`) can keep self-updating. Remove
-  # once those versions are no longer in use.
+  # Pre-rename compatibility archives so already-released CLIs can keep
+  # self-updating. The oldest CLIs look for `multica_{os}_{arch}`, newer
+  # pre-rename CLIs look for `multica-cli-<version>-...`; both extract a
+  # binary named `multica`. Remove once those versions are no longer in use.
   - id: legacy
+    ids:
+      - multica-compat
     formats:
       - tar.gz
     format_overrides:
       - goos: windows
         formats:
           - zip
-    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
-  # Versioned archive name used by current CLI / install scripts /
-  # desktop bootstrap going forward.
+    name_template: "multica_{{ .Os }}_{{ .Arch }}"
+  - id: legacy-versioned
+    ids:
+      - multica-compat
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    name_template: "multica-cli-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+  # Current archive name used by CLI self-update / install scripts /
+  # desktop bootstrap.
   - id: versioned
+    ids:
+      - uniai
     formats:
       - tar.gz
     format_overrides:

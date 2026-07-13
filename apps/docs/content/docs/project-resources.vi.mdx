@@ -34,7 +34,7 @@ Kiểu mặc định — checkout theo từng task vào worktree cách ly:
 }
 ```
 
-`ref` là tùy chọn — nếu có, `multica repo checkout <url>` dùng nó làm nhánh, tag hoặc commit mặc định cho task trong dự án này. Một lệnh `multica repo checkout <url> --ref <other-ref>` tường minh vẫn được ưu tiên cho lần checkout đó.
+`ref` là tùy chọn — nếu có, `uniai repo checkout <url>` dùng nó làm nhánh, tag hoặc commit mặc định cho task trong dự án này. Một lệnh `uniai repo checkout <url> --ref <other-ref>` tường minh vẫn được ưu tiên cho lần checkout đó.
 
 `default_branch_hint` là ngữ cảnh tùy chọn cho prompt. Nó không được dùng khi checkout; hãy dùng `ref` khi dự án cần ghim nhánh, tag hoặc SHA.
 
@@ -85,17 +85,17 @@ Trên Desktop, nút vẫn hiện nhưng **bị vô hiệu kèm gợi ý** khi da
 Từ CLI (dùng được cả trong môi trường chỉ có web, miễn bạn tự cung cấp ID daemon):
 
 ```bash
-multica project resource add <project-id> \
+uniai project resource add <project-id> \
   --type local_directory \
   --local-path /Users/me/code/big-game \
   --daemon-id <daemon-uuid> \
   --ref-label "main checkout"        # tùy chọn
 
-multica project resource update <project-id> <resource-id> \
+uniai project resource update <project-id> <resource-id> \
   --local-path /Users/me/code/big-game-new
 ```
 
-`--daemon-id` lấy từ `multica daemon list`. CLI cũng chấp nhận tùy chọn vạn năng `--ref '<json>'` nếu bạn muốn truyền thẳng payload.
+`--daemon-id` lấy từ `uniai daemon list`. CLI cũng chấp nhận tùy chọn vạn năng `--ref '<json>'` nếu bạn muốn truyền thẳng payload.
 
 ### Quy tắc đường dẫn
 
@@ -164,19 +164,19 @@ Từ **CLI**:
 # Tạo + đính trong một lệnh. Server đính tài nguyên trong cùng transaction
 # với việc tạo dự án — tài nguyên không hợp lệ sẽ rollback toàn bộ,
 # nên không bao giờ có dự án chỉ đính được một nửa.
-multica project create \
+uniai project create \
   --title "Agent UX 2026" \
   --repo https://github.com/phanducquanguet/usf
 
 # Quản lý tài nguyên về sau
-multica project resource list <project-id>
-multica project resource add  <project-id> --type github_repo --url <url>
-multica project resource add  <project-id> --type github_repo --url <url> --ref <branch-or-sha>
-multica project resource remove <project-id> <resource-id>
+uniai project resource list <project-id>
+uniai project resource add  <project-id> --type github_repo --url <url>
+uniai project resource add  <project-id> --type github_repo --url <url> --ref <branch-or-sha>
+uniai project resource remove <project-id> <resource-id>
 
 # Tùy chọn vạn năng cho mọi resource_type server hiểu —
 # không cần đổi CLI khi có kiểu mới:
-multica project resource add <project-id> \
+uniai project resource add <project-id> \
   --type notion_page \
   --ref '{"page_id":"…","title":"…"}'
 ```
@@ -224,7 +224,7 @@ Project resources (also written to `.multica/project/resources.json`):
 - **GitHub repo**: https://github.com/phanducquanguet/usf (default branch: `main`)
 
 Resources are pointers — open them only when relevant to the task. For
-`github_repo` resources, use `multica repo checkout <url>` to fetch the code.
+`github_repo` resources, use `uniai repo checkout <url>` to fetch the code.
 ```
 
 Đoạn văn bản này cố tình tối giản. Payload đầy đủ nằm trên đĩa; prompt chỉ định hướng để agent biết dự án tồn tại và có gì đính kèm.
@@ -255,12 +255,12 @@ Danh sách repo hiển thị cho agent (khối `## Repositories` trong `CLAUDE.m
 
 Điều này giữ tập làm việc của agent gọn: khi dự án đã nói rõ repo của mình, danh sách đó là chuẩn. Danh sách tài nguyên có cấu trúc tại `.multica/project/resources.json` luôn mang tập đầy đủ, nên skill nào cần xem toàn bộ vẫn xem được.
 
-Daemon áp dụng cùng logic ở phía checkout: khi task tới với các URL `github_repo` thuộc phạm vi dự án, các URL đó được gộp vào allowlist theo không gian làm việc *và* đồng bộ vào cache repo cục bộ trước khi agent khởi chạy. Vì vậy một URL repo dự án chưa gắn ở tầng không gian làm việc vẫn là đối số hợp lệ cho `multica repo checkout` — daemon sẽ không từ chối với lý do "chưa cấu hình". Nếu tài nguyên dự án có `ref`, ref đó thành mặc định cho `multica repo checkout <url>` trong task đó; truyền `--ref` cho lệnh checkout sẽ ghi đè. Việc tách allowlist là nội bộ: URL gắn không gian làm việc và URL theo task được theo dõi riêng, nên một lần refresh repo không gian làm việc không vô tình thu hồi URL dự án giữa chừng.
+Daemon áp dụng cùng logic ở phía checkout: khi task tới với các URL `github_repo` thuộc phạm vi dự án, các URL đó được gộp vào allowlist theo không gian làm việc *và* đồng bộ vào cache repo cục bộ trước khi agent khởi chạy. Vì vậy một URL repo dự án chưa gắn ở tầng không gian làm việc vẫn là đối số hợp lệ cho `uniai repo checkout` — daemon sẽ không từ chối với lý do "chưa cấu hình". Nếu tài nguyên dự án có `ref`, ref đó thành mặc định cho `uniai repo checkout <url>` trong task đó; truyền `--ref` cho lệnh checkout sẽ ghi đè. Việc tách allowlist là nội bộ: URL gắn không gian làm việc và URL theo task được theo dõi riêng, nên một lần refresh repo không gian làm việc không vô tình thu hồi URL dự án giữa chừng.
 
 ## Những gì chủ ý **không** nằm trong phạm vi
 
 - **Chia sẻ chéo giữa các dự án.** Hiện mỗi tài nguyên thuộc đúng một dự án.
 - **Giới hạn tài nguyên theo skill.** Mọi tài nguyên hiện ra với mọi skill trong lần chạy của agent; lọc theo kiểu sẽ làm trong bước tiếp theo.
-- **Cache / đồng bộ.** `github_repo` chỉ là metadata — checkout vẫn qua `multica repo checkout` khi cần. Việc cache nội dung tài liệu cho Notion / Google Docs sẽ ra mắt cùng các kiểu đó.
+- **Cache / đồng bộ.** `github_repo` chỉ là metadata — checkout vẫn qua `uniai repo checkout` khi cần. Việc cache nội dung tài liệu cho Notion / Google Docs sẽ ra mắt cùng các kiểu đó.
 
 Đây là những thiếu sót có chủ đích — mục tiêu của bản đầu là kiểm chứng lớp trừu tượng với ít thành phần nhất có thể.

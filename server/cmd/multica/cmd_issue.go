@@ -236,7 +236,7 @@ var issueReorderCmd = &cobra.Command{
 		"  --top          move it to the top of its column\n" +
 		"  --bottom       move it to the bottom of its column\n\n" +
 		"Reorder stays inside the issue's current column. To move an issue to a\n" +
-		"different column, change its status first with `multica issue status`.",
+		"different column, change its status first with `uniai issue status`.",
 	Args: exactArgs(1),
 	RunE: runIssueReorder,
 }
@@ -1135,7 +1135,7 @@ func runIssueCreate(cmd *cobra.Command, _ []string) error {
 	}
 
 	// Quick-create stamp: when the daemon sets MULTICA_QUICK_CREATE_TASK_ID
-	// before invoking the agent, the agent's `multica issue create` call
+	// before invoking the agent, the agent's `uniai issue create` call
 	// inherits the env var and tags the new issue with origin_type=
 	// quick_create + origin_id=<task_id>. The completion handler then
 	// locates the issue deterministically by origin instead of "most
@@ -1647,7 +1647,7 @@ func issueReorderOutput(cmd *cobra.Command, issue map[string]any) error {
 func reorderTargetNotInColumnError(ctx context.Context, client *cli.APIClient, otherRef, issueRef resolvedID, status string) error {
 	if other, err := fetchIssue(ctx, client, otherRef.ID); err == nil {
 		if otherStatus := strVal(other, "status"); otherStatus != "" && otherStatus != status {
-			return fmt.Errorf("issue %s is in the %q column but %s is in %q; move one with `multica issue status` first, or pick a target in the same column", otherRef.Display, otherStatus, issueRef.Display, status)
+			return fmt.Errorf("issue %s is in the %q column but %s is in %q; move one with `uniai issue status` first, or pick a target in the same column", otherRef.Display, otherStatus, issueRef.Display, status)
 		}
 	}
 	return fmt.Errorf("issue %s was not found in the %q column", otherRef.Display, status)
@@ -2645,7 +2645,7 @@ func ambiguousAssigneeError(input string, matches []assigneeMatch) error {
 // assignee_id) by looking it up against the workspace's members, agents, and
 // (when allowed) squads. It is the deterministic counterpart to
 // resolveAssignee: callers that already hold a UUID (e.g. agents reading IDs
-// from `multica workspace member list --output json`) should use this instead of
+// from `uniai workspace member list --output json`) should use this instead of
 // round-tripping through name matching, which can be ambiguous in workspaces
 // with overlapping names.
 func resolveAssigneeByID(ctx context.Context, client *cli.APIClient, id string, kinds assigneeKinds) (string, string, error) {

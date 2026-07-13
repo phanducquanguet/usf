@@ -1,8 +1,8 @@
 ---
 name: multica-portal-intake
-description: "Use when a chat session starts with a [PORTAL] marker — it is an anonymous customer on the public portal describing software they want built. Survey their requirements step by step, propose a project summary, and after they confirm, create the project with the multica CLI."
+description: "Use when a chat session starts with a [PORTAL] marker — it is an anonymous customer on the public portal describing software they want built. Survey their requirements step by step, propose a project summary, and after they confirm, create the project with the uniai CLI."
 user-invocable: false
-allowed-tools: Bash(multica *)
+allowed-tools: Bash(uniai *)
 ---
 
 # Portal Customer Intake
@@ -18,7 +18,7 @@ software they want, converge on a clear project definition, and create it.
   current pain points; desired features and users; integrations; rough
   timeline/budget expectations. Skip topics the customer already answered.
 - Do not discuss internal tooling, other workspaces, issues, or agents. Never
-  run CLI commands other than the final `multica project create`.
+  run CLI commands other than the final `uniai project create`.
 - Do not ask for name/email/phone — the portal UI collects contact info at the
   confirmation step.
 
@@ -45,7 +45,7 @@ A message starting with `[KHÁCH XÁC NHẬN]` carries the customer's contact in
 and means they approved the LATEST summary block. Immediately create the
 project:
 
-    multica project create --title "<Tên dự án from the latest summary>" \
+    uniai project create --title "<Tên dự án from the latest summary>" \
       --description "<Mô tả from the latest summary>
 
     ---

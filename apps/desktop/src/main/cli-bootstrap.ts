@@ -8,9 +8,12 @@ import { pipeline } from "stream/promises";
 import { tmpdir } from "os";
 import { Readable } from "stream";
 
-import { selectPlatformReleaseAssetName } from "./cli-release-asset";
+import {
+  archiveBinaryName,
+  selectPlatformReleaseAssetName,
+} from "./cli-release-asset";
 
-// Desktop prefers the bundled `multica` CLI shipped inside the app for
+// Desktop prefers the bundled `uniai` CLI shipped inside the app for
 // same-repo builds, but it can also repair or bootstrap a managed copy in
 // userData on first launch when the bundled binary is missing or unusable.
 
@@ -18,6 +21,12 @@ const GITHUB_LATEST_BASE =
   "https://github.com/phanducquanguet/usf/releases/latest/download";
 
 function binaryName(): string {
+  return process.platform === "win32" ? "uniai.exe" : "uniai";
+}
+
+// Managed binary installed by pre-rename desktop builds; superseded by the
+// `uniai` one but cleaned up on fresh installs.
+function legacyBinaryName(): string {
   return process.platform === "win32" ? "multica.exe" : "multica";
 }
 
@@ -102,7 +111,7 @@ async function installFresh(): Promise<string> {
   }
   const url = `${GITHUB_LATEST_BASE}/${assetName}`;
 
-  const workDir = join(tmpdir(), `multica-cli-${Date.now()}`);
+  const workDir = join(tmpdir(), `uniai-cli-${Date.now()}`);
   await mkdir(workDir, { recursive: true });
 
   try {
@@ -116,10 +125,11 @@ async function installFresh(): Promise<string> {
     console.log(`[cli-bootstrap] extracting ${assetName}`);
     await extractArchive(archivePath, workDir);
 
-    const extractedBin = join(workDir, binaryName());
+    // Pre-rename archives contain a `multica` binary; current ones `uniai`.
+    const extractedBin = join(workDir, archiveBinaryName(assetName));
     if (!existsSync(extractedBin)) {
       throw new Error(
-        `archive ${assetName} did not contain ${binaryName()} at its root`,
+        `archive ${assetName} did not contain ${archiveBinaryName(assetName)} at its root`,
       );
     }
 
@@ -127,6 +137,11 @@ async function installFresh(): Promise<string> {
     await rm(target, { force: true }).catch(() => {});
     await rename(extractedBin, target);
     await chmod(target, 0o755);
+
+    // Drop the managed binary left behind by pre-rename desktop builds.
+    await rm(join(dirname(target), legacyBinaryName()), { force: true }).catch(
+      () => {},
+    );
 
     // macOS: ad-hoc sign so spawning the child never hits a gatekeeper quirk.
     // Non-fatal: unsigned binaries still execute when the parent app is trusted.
@@ -144,7 +159,7 @@ async function installFresh(): Promise<string> {
 }
 
 /**
- * Returns the path to a usable `multica` binary. If one is already present at
+ * Returns the path to a usable `uniai` binary. If one is already present at
  * the managed userData location, returns it immediately. Otherwise downloads
  * the latest release asset for the current platform and installs it.
  */

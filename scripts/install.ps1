@@ -1,9 +1,9 @@
-# Multica installer for Windows — one command to get started.
+# UniAI installer for Windows — one command to get started.
 #
 # Install CLI (default): connects to multica.ai
 #   irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex
 #
-# Self-host: starts a local Multica server + installs CLI + configures
+# Self-host: starts a local UniAI server + installs CLI + configures
 #   $env:MULTICA_MODE="local"; irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex
 #
 
@@ -214,8 +214,9 @@ function Get-WindowsCliArch {
 }
 
 function Get-InstalledCliVersion {
+    param([string]$Command = "uniai")
     try {
-        $firstLine = multica version 2>$null | Select-Object -First 1
+        $firstLine = & $Command version 2>$null | Select-Object -First 1
         if ("$firstLine" -match '\b(v?\d+(?:\.\d+)+)\b') {
             $version = $Matches[1]
             if ($version -notlike 'v*') {
@@ -232,10 +233,10 @@ function Get-InstalledCliVersion {
 # CLI Installation
 # ---------------------------------------------------------------------------
 function Install-CliBinary {
-    Write-Info "Installing Multica CLI from GitHub Releases..."
+    Write-Info "Installing UniAI CLI from GitHub Releases..."
 
     if (-not [Environment]::Is64BitOperatingSystem) {
-        Write-Fail "Multica requires a 64-bit Windows installation."
+        Write-Fail "UniAI requires a 64-bit Windows installation."
     }
 
     $arch = Get-WindowsCliArch
@@ -246,18 +247,28 @@ function Install-CliBinary {
     }
 
     $version = $latest.TrimStart('v')
-    $url = "https://github.com/phanducquanguet/usf/releases/download/$latest/multica-cli-$version-windows-$arch.zip"
-    $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) "multica-install"
+    # Prefer the current `uniai-cli-*` asset; releases published before the
+    # CLI rename only carry `multica-cli-*` (with a `multica.exe` inside).
+    $binaryName = "uniai"
+    $url = "https://github.com/phanducquanguet/usf/releases/download/$latest/uniai-cli-$version-windows-$arch.zip"
+    $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) "uniai-install"
 
     if (Test-Path $tmpDir) { Remove-Item $tmpDir -Recurse -Force }
     New-Item -ItemType Directory -Path $tmpDir | Out-Null
 
     Write-Info "Downloading $url ..."
     try {
-        Invoke-WebRequest -Uri $url -OutFile (Join-Path $tmpDir "multica.zip") -UseBasicParsing
+        Invoke-WebRequest -Uri $url -OutFile (Join-Path $tmpDir "cli.zip") -UseBasicParsing
     } catch {
-        Remove-Item $tmpDir -Recurse -Force
-        Write-Fail "Failed to download CLI binary: $_"
+        $binaryName = "multica"
+        $url = "https://github.com/phanducquanguet/usf/releases/download/$latest/multica-cli-$version-windows-$arch.zip"
+        Write-Info "Falling back to $url ..."
+        try {
+            Invoke-WebRequest -Uri $url -OutFile (Join-Path $tmpDir "cli.zip") -UseBasicParsing
+        } catch {
+            Remove-Item $tmpDir -Recurse -Force
+            Write-Fail "Failed to download CLI binary: $_"
+        }
     }
 
     # Verify SHA256 checksum
@@ -269,14 +280,12 @@ function Install-CliBinary {
         } else {
             [string]$checksums.Content
         }
-        $zipFile = Join-Path $tmpDir "multica.zip"
+        $zipFile = Join-Path $tmpDir "cli.zip"
         $actualHash = (Get-FileHash -Path $zipFile -Algorithm SHA256).Hash.ToLower()
-        $releaseAsset = "multica-cli-$version-windows-$arch.zip"
-        $legacyAsset = "multica_windows_$arch.zip"
+        $releaseAsset = "$binaryName-cli-$version-windows-$arch.zip"
         $expectedLine = ($checksumContent -split "`r?`n") |
             Where-Object {
-                $_ -match [regex]::Escape($releaseAsset) -or
-                $_ -match [regex]::Escape($legacyAsset)
+                $_ -match [regex]::Escape($releaseAsset)
             } |
             Select-Object -First 1
         if ($expectedLine) {
@@ -293,27 +302,37 @@ function Install-CliBinary {
         Write-Warn "Could not download checksums.txt — skipping verification."
     }
 
-    Expand-Archive -Path (Join-Path $tmpDir "multica.zip") -DestinationPath $tmpDir -Force
+    Expand-Archive -Path (Join-Path $tmpDir "cli.zip") -DestinationPath $tmpDir -Force
 
     $binDir = Join-Path $env:USERPROFILE ".multica\bin"
     if (-not (Test-Path $binDir)) {
         New-Item -ItemType Directory -Path $binDir -Force | Out-Null
     }
 
-    $exeSrc = Join-Path $tmpDir "multica.exe"
+    $exeSrc = Join-Path $tmpDir "$binaryName.exe"
     if (-not (Test-Path $exeSrc)) {
-        $exeSrc = Get-ChildItem -Path $tmpDir -Filter "multica.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        $exeSrc = Get-ChildItem -Path $tmpDir -Filter "$binaryName.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
     }
     if (-not $exeSrc -or -not (Test-Path $exeSrc)) {
         Remove-Item $tmpDir -Recurse -Force
-        Write-Fail "multica.exe not found in downloaded archive."
+        Write-Fail "$binaryName.exe not found in downloaded archive."
     }
 
-    Copy-Item $exeSrc (Join-Path $binDir "multica.exe") -Force
+    Copy-Item $exeSrc (Join-Path $binDir "uniai.exe") -Force
+    # Pre-rename installs left a multica.exe here. Replace it with a .cmd
+    # forwarder that resolves uniai.exe by name at call time, so `multica`
+    # keeps tracking future self-updates (a copy or hard link would freeze on
+    # the binary present at install time — self-update renames a new file
+    # over uniai.exe, leaving old inodes behind).
+    $legacyExe = Join-Path $binDir "multica.exe"
+    if (Test-Path $legacyExe) {
+        Remove-Item $legacyExe -Force
+        Set-Content -Path (Join-Path $binDir "multica.cmd") -Value "@`"%~dp0uniai.exe`" %*" -Encoding ASCII
+    }
     Remove-Item $tmpDir -Recurse -Force
 
     Add-ToUserPath $binDir
-    Write-Ok "Multica CLI installed to $binDir\multica.exe"
+    Write-Ok "UniAI CLI installed to $binDir\uniai.exe"
 }
 
 function Add-ToUserPath {
@@ -332,8 +351,15 @@ function Add-ToUserPath {
 }
 
 function Install-Cli {
-    if (Test-CommandExists "multica") {
-        $currentVer = Get-InstalledCliVersion
+    $existingCli = $null
+    if (Test-CommandExists "uniai") {
+        $existingCli = "uniai"
+    } elseif (Test-CommandExists "multica") {
+        # Pre-rename install; upgrade it to `uniai`.
+        $existingCli = "multica"
+    }
+    if ($existingCli) {
+        $currentVer = Get-InstalledCliVersion -Command $existingCli
         $latestVer = Get-LatestVersion
 
         $currentCmp = if ($currentVer) { $currentVer -replace '^v','' } else { $null }
@@ -348,23 +374,23 @@ function Install-Cli {
             }
         }
 
-        if ($isUpToDate) {
-            Write-Ok "Multica CLI is up to date ($currentVer)"
+        if ($isUpToDate -and $existingCli -eq "uniai") {
+            Write-Ok "UniAI CLI is up to date ($currentVer)"
             return
         }
 
-        Write-Info "Multica CLI $currentVer installed, latest is $latestVer - upgrading..."
+        Write-Info "UniAI CLI $currentVer installed, latest is $latestVer - upgrading..."
         Install-CliBinary
 
         $newVer = Get-InstalledCliVersion
-        Write-Ok "Multica CLI upgraded ($currentVer -> $newVer)"
+        Write-Ok "UniAI CLI upgraded ($currentVer -> $newVer)"
         return
     }
 
     Install-CliBinary
 
-    if (-not (Test-CommandExists "multica")) {
-        Write-Fail "CLI installed but 'multica' not found on PATH. Restart your terminal and try again."
+    if (-not (Test-CommandExists "uniai")) {
+        Write-Fail "CLI installed but 'uniai' not found on PATH. Restart your terminal and try again."
     }
 }
 
@@ -374,7 +400,7 @@ function Install-Cli {
 function Test-Docker {
     if (-not (Test-CommandExists "docker")) {
         Write-Fail @"
-Docker is not installed. Multica self-hosting requires Docker and Docker Compose.
+Docker is not installed. UniAI self-hosting requires Docker and Docker Compose.
 
 Install Docker Desktop for Windows:
   https://docs.docker.com/desktop/install/windows-install/
@@ -396,7 +422,7 @@ After installing Docker, re-run this script with `$env:MULTICA_MODE="local"`.
 # Server setup (self-host / local)
 # ---------------------------------------------------------------------------
 function Install-Server {
-    Write-Info "Setting up Multica server..."
+    Write-Info "Setting up UniAI server..."
     $serverRef = Get-SelfHostRef
     Write-Info "Using self-host assets from $serverRef..."
 
@@ -404,7 +430,7 @@ function Install-Server {
         Write-Info "Updating existing installation at $InstallDir..."
         Write-Warn "Any local changes in $InstallDir will be overwritten."
     } else {
-        Write-Info "Cloning Multica repository..."
+        Write-Info "Cloning UniAI repository..."
         if (-not (Test-CommandExists "git")) {
             Write-Fail "Git is not installed. Please install git and re-run."
         }
@@ -438,9 +464,9 @@ function Install-Server {
         Write-Ok "Using existing .env"
     }
 
-    Write-Info "Pulling official Multica images..."
+    Write-Info "Pulling official UniAI images..."
     Pull-OfficialSelfHostImages
-    Write-Info "Starting Multica services (this may take a few minutes on first run)..."
+    Write-Info "Starting UniAI services (this may take a few minutes on first run)..."
     docker compose -f docker-compose.selfhost.yml up -d
 
     Write-Info "Waiting for backend to be ready..."
@@ -457,7 +483,7 @@ function Install-Server {
     }
 
     if ($ready) {
-        Write-Ok "Multica server is running"
+        Write-Ok "UniAI server is running"
     } else {
         Write-Warn "Server is still starting. Check logs with:"
         Write-Host "  cd $InstallDir; docker compose -f docker-compose.selfhost.yml logs"
@@ -472,20 +498,20 @@ function Install-Server {
 # ---------------------------------------------------------------------------
 function Start-DefaultInstall {
     Write-Host ""
-    Write-Host "  Multica - Installer" -ForegroundColor White
+    Write-Host "  UniAI - Installer" -ForegroundColor White
     Write-Host ""
 
     Install-Cli
 
     Write-Host ""
     Write-Host "  ============================================" -ForegroundColor Green
-    Write-Host "  [OK] Multica CLI is ready!" -ForegroundColor Green
+    Write-Host "  [OK] UniAI CLI is ready!" -ForegroundColor Green
     Write-Host "  ============================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "  Next: configure your environment"
     Write-Host ""
-    Write-Host "     multica setup               " -NoNewline; Write-Host "# Connect to Multica Cloud (multica.ai)" -ForegroundColor DarkGray
-    Write-Host "     multica setup self-host      " -NoNewline; Write-Host "# Connect to a self-hosted server" -ForegroundColor DarkGray
+    Write-Host "     uniai setup               " -NoNewline; Write-Host "# Connect to UniAI Cloud (multica.ai)" -ForegroundColor DarkGray
+    Write-Host "     uniai setup self-host      " -NoNewline; Write-Host "# Connect to a self-hosted server" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Self-hosting? Install the server first:"
     Write-Host '     $env:MULTICA_MODE="with-server"; irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex'
@@ -497,7 +523,7 @@ function Start-DefaultInstall {
 # ---------------------------------------------------------------------------
 function Start-LocalInstall {
     Write-Host ""
-    Write-Host "  Multica - Self-Host Installer" -ForegroundColor White
+    Write-Host "  UniAI - Self-Host Installer" -ForegroundColor White
     Write-Host "  Provisioning server infrastructure + installing CLI"
     Write-Host ""
 
@@ -507,7 +533,7 @@ function Start-LocalInstall {
 
     Write-Host ""
     Write-Host "  ============================================" -ForegroundColor Green
-    Write-Host "  [OK] Multica server is running and CLI is ready!" -ForegroundColor Green
+    Write-Host "  [OK] UniAI server is running and CLI is ready!" -ForegroundColor Green
     Write-Host "  ============================================" -ForegroundColor Green
     Write-Host ""
     $frontendPort = Get-SelfHostFrontendPort
@@ -518,7 +544,7 @@ function Start-LocalInstall {
     Write-Host ""
     Write-Host "  Next: configure your CLI to connect"
     Write-Host ""
-    Write-Host "     multica setup self-host  " -NoNewline; Write-Host "# Configure + authenticate + start daemon" -ForegroundColor DarkGray
+    Write-Host "     uniai setup self-host  " -NoNewline; Write-Host "# Configure + authenticate + start daemon" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Login: configure RESEND_API_KEY in .env for email codes,"
     Write-Host "  or read the generated code from backend logs when Resend is unset."
@@ -533,7 +559,7 @@ function Start-LocalInstall {
 # ---------------------------------------------------------------------------
 function Start-Stop {
     Write-Host ""
-    Write-Info "Stopping Multica services..."
+    Write-Info "Stopping UniAI services..."
 
     if (Test-Path $InstallDir) {
         Push-Location $InstallDir
@@ -545,10 +571,15 @@ function Start-Stop {
         }
         Pop-Location
     } else {
-        Write-Warn "No Multica installation found at $InstallDir"
+        Write-Warn "No UniAI installation found at $InstallDir"
     }
 
-    if (Test-CommandExists "multica") {
+    if (Test-CommandExists "uniai") {
+        try {
+            uniai daemon stop 2>$null
+            Write-Ok "Daemon stopped"
+        } catch {}
+    } elseif (Test-CommandExists "multica") {
         try {
             multica daemon stop 2>$null
             Write-Ok "Daemon stopped"

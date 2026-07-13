@@ -24,7 +24,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 ```bash
 git clone https://github.com/phanducquanguet/usf.git
-cd multica
+cd uniai
 make selfhost
 ```
 
@@ -99,7 +99,7 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com  # From: 헤더로도 재사용됨
 ```bash
 SMTP_HOST=smtp.internal.example.com
 SMTP_PORT=587
-SMTP_USERNAME=multica
+SMTP_USERNAME=uniai
 SMTP_PASSWORD=...
 SMTP_TLS_INSECURE=false        # 비공개 CA / 자체 서명 인증서일 때만 true로 설정
 RESEND_FROM_EMAIL=noreply@yourdomain.com
@@ -110,7 +110,7 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com
 ```bash
 SMTP_HOST=smtp.qiye.aliyun.com
 SMTP_PORT=465
-SMTP_USERNAME=multica@yourdomain.com
+SMTP_USERNAME=uniai@yourdomain.com
 SMTP_PASSWORD=...
 SMTP_TLS=implicit              # optional on 465; required on a non-standard SMTPS port
 RESEND_FROM_EMAIL=noreply@yourdomain.com
@@ -147,7 +147,7 @@ CLI 설치는 [Cloud 빠른 시작 → 2. CLI 설치](/cloud-quickstart#2-instal
 CLI와 서버가 같은 호스트에서 실행된다면 기본값으로 이미 동작합니다.
 
 ```bash
-multica setup self-host
+uniai setup self-host
 ```
 
 이렇게 하면 CLI가 `http://localhost:8080`(백엔드)과 `http://localhost:3000`(프런트엔드)을 가리키고, 브라우저 로그인을 안내하며, PAT를 로컬에 저장하고, **데몬을 자동으로 시작합니다**.
@@ -157,7 +157,7 @@ multica setup self-host
 compose 스택은 `127.0.0.1`에서만 수신하므로, 다른 기기에 있는 데몬은 `http://<server-ip>:8080`에 직접 연결할 수 없습니다 — 그리고 그렇게 되기를 원해서도 안 됩니다. 그렇지 않으면 서버 시크릿이 공개 인터넷에서 접근 가능해지기 때문입니다. 서버에 TLS를 종료하고 `127.0.0.1:8080`(백엔드)과 `127.0.0.1:3000`(프런트엔드)으로 전달하는 리버스 프록시를 두고, CLI를 공개 HTTPS URL로 연결하세요.
 
 ```bash
-multica setup self-host \
+uniai setup self-host \
   --server-url https://<your-domain> \
   --app-url https://<your-domain>
 ```
@@ -224,9 +224,9 @@ SELECT cron.unschedule('rollup_task_usage_hourly')
 이 차트는 **시크릿 값을 템플릿화하지 않습니다**. `multica-secrets`라는 이름의 Secret을 이름으로 참조하므로, 실제 JWT / DB / Resend / Google 키가 git이나 `values.yaml`에 들어갈 필요가 전혀 없습니다. 네임스페이스와 Secret을 kubectl로 한 번 생성하세요.
 
 ```bash
-kubectl create namespace multica
+kubectl create namespace uniai
 
-kubectl -n multica create secret generic multica-secrets \
+kubectl -n uniai create secret generic multica-secrets \
   --from-literal=JWT_SECRET="$(openssl rand -hex 32)" \
   --from-literal=POSTGRES_PASSWORD="$(openssl rand -hex 16)" \
   --from-literal=RESEND_API_KEY="" \
@@ -239,8 +239,8 @@ kubectl -n multica create secret generic multica-secrets \
 
 ```bash
 git clone https://github.com/phanducquanguet/usf.git
-cd multica
-helm install multica deploy/helm/multica -n multica
+cd uniai
+helm install uniai deploy/helm/multica -n uniai
 ```
 
 기본값은 호스트네임 `multica.dev.lan`(web)과 `api.multica.dev.lan`(백엔드)을 가정합니다. 이것들을 `/etc/hosts`(또는 로컬 DNS)에 추가해, Ingress에 도달 가능한 임의의 노드 IP를 가리키도록 하세요. 다른 호스트네임을 사용하려면 `deploy/helm/multica/values.yaml`을 복사한 뒤 `ingress.frontend.host` / `ingress.backend.host`와 그에 대응하는 `backend.config.appUrl` / `frontendOrigin` / `localUploadBaseUrl` / `googleRedirectUri`를 편집하고, `-f my-values.yaml`로 설치하세요.
@@ -255,12 +255,12 @@ curl -H "Host: api.multica.dev.lan" http://<ingress-ip>/healthz
 그런 다음 `http://multica.dev.lan`을 열고 위의 [4단계 — 첫 로그인](#4-first-login--create-a-workspace)에서 이어서 진행하세요. CLI를 Ingress 호스트네임으로 연결합니다.
 
 ```bash
-multica setup self-host \
+uniai setup self-host \
   --server-url http://api.multica.dev.lan \
   --app-url http://multica.dev.lan
 ```
 
-차트를 변경하지 않고 최신 이미지만 받아오려면 `kubectl -n multica rollout restart deploy/multica-backend deploy/multica-frontend`를 실행하세요. 특정 UniAI 릴리스를 고정하려면 values 파일에서 `images.backend.tag` / `images.frontend.tag`를 설정하고 `helm upgrade`를 실행하세요. `helm -n multica uninstall multica`는 워크로드를 제거하지만 PVC와 Secret은 유지합니다. `kubectl delete namespace multica`는 모든 것을 삭제합니다.
+차트를 변경하지 않고 최신 이미지만 받아오려면 `kubectl -n uniai rollout restart deploy/multica-backend deploy/multica-frontend`를 실행하세요. 특정 UniAI 릴리스를 고정하려면 values 파일에서 `images.backend.tag` / `images.frontend.tag`를 설정하고 `helm upgrade`를 실행하세요. `helm -n uniai uninstall uniai`는 워크로드를 제거하지만 PVC와 Secret은 유지합니다. `kubectl delete namespace uniai`는 모든 것을 삭제합니다.
 
 전체 레퍼런스 — 세 가지 로그인 모드, web 이미지에 빌드 타임에 굳혀진 `REMOTE_API_URL`에 대한 `backend` ExternalName 우회책, 리소스 제한, TLS — 는 저장소의 [`SELF_HOSTING.md`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING.md#kubernetes-deployment-alternative)에 있습니다.
 

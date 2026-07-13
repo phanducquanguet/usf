@@ -132,8 +132,8 @@ export function DaemonSettingsTab() {
             This device&apos;s daemon runs outside the app — for example inside
             WSL2 — so the app can&apos;t start or stop it. Start or stop it from
             that environment with{" "}
-            <code className="font-mono text-xs">multica daemon start</code> /{" "}
-            <code className="font-mono text-xs">multica daemon stop</code>.
+            <code className="font-mono text-xs">uniai daemon start</code> /{" "}
+            <code className="font-mono text-xs">uniai daemon stop</code>.
           </p>
         </div>
       )}
@@ -167,8 +167,8 @@ export function DaemonSettingsTab() {
             {cliInstalled === null
               ? "Checking…"
               : cliInstalled
-                ? "multica CLI is installed and available in PATH."
-                : "multica CLI not found. Install it to enable daemon management."}
+                ? "UniAI CLI is installed and available in PATH."
+                : "UniAI CLI not found. Install it to enable daemon management."}
           </p>
           {cliInstalled === false && (
             <Button

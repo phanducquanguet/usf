@@ -82,17 +82,17 @@ description: 给项目挂上有类型的指针（GitHub 仓库、本地目录，
 也可以用 CLI（即便环境是纯网页端也行，只要你自己提供守护进程 ID）：
 
 ```bash
-multica project resource add <project-id> \
+uniai project resource add <project-id> \
   --type local_directory \
   --local-path /Users/me/code/big-game \
   --daemon-id <daemon-uuid> \
   --ref-label "主开发目录"        # 可选
 
-multica project resource update <project-id> <resource-id> \
+uniai project resource update <project-id> <resource-id> \
   --local-path /Users/me/code/big-game-new
 ```
 
-`--daemon-id` 可以通过 `multica daemon list` 拿到。CLI 也接受 `--ref '<json>'` 这种通用形式，直接传 payload。
+`--daemon-id` 可以通过 `uniai daemon list` 拿到。CLI 也接受 `--ref '<json>'` 这种通用形式，直接传 payload。
 
 ### 路径规则
 
@@ -161,18 +161,18 @@ multica project resource update <project-id> <resource-id> \
 # 创建 + 挂资源一步到位。资源是在同一个事务里挂上的 ——
 # 任何一个资源不合法都会让整个 create 回滚，绝不会出现
 # "项目建好了但资源只挂了一半"的状态。
-multica project create \
+uniai project create \
   --title "Agent UX 2026" \
   --repo https://github.com/phanducquanguet/usf
 
 # 后续管理资源
-multica project resource list <project-id>
-multica project resource add  <project-id> --type github_repo --url <url>
-multica project resource remove <project-id> <resource-id>
+uniai project resource list <project-id>
+uniai project resource add  <project-id> --type github_repo --url <url>
+uniai project resource remove <project-id> <resource-id>
 
 # 任何服务器认识的 resource_type 都可以用这个通用入口 ——
 # 加新类型时不需要改 CLI：
-multica project resource add <project-id> \
+uniai project resource add <project-id> \
   --type notion_page \
   --ref '{"page_id":"…","title":"…"}'
 ```
@@ -220,7 +220,7 @@ Project resources (also written to `.multica/project/resources.json`):
 - **GitHub repo**: https://github.com/phanducquanguet/usf (default branch: `main`)
 
 Resources are pointers — open them only when relevant to the task. For
-`github_repo` resources, use `multica repo checkout <url>` to fetch the code.
+`github_repo` resources, use `uniai repo checkout <url>` to fetch the code.
 ```
 
 这段文字故意做得很精简：完整 payload 已经写到磁盘上了，prompt 只是给智能体一个定位 —— 让它知道项目存在、知道挂了什么。
@@ -251,12 +251,12 @@ Resources are pointers — open them only when relevant to the task. For
 
 这样可以把智能体的工作集压紧：项目把仓库说清楚了，那就是权威答案。而 `.multica/project/resources.json` 里始终带着完整列表，需要查看全部资源的 skill 仍然能拿到。
 
-守护进程在 checkout 这一侧也是配套的：当任务带着项目级别的 `github_repo` URL 进来时，这些 URL 会被合并进每工作区的白名单，并在智能体启动前同步进本地仓库缓存。所以即便某个项目仓库 URL 没被绑到工作区，`multica repo checkout` 也能正常处理它，不会以"未配置"为由拒绝。白名单的划分只是内部实现：工作区绑定的 URL 和任务级别的 URL 分开记录，工作区仓库列表的刷新不会顺手吊销某条项目 URL。
+守护进程在 checkout 这一侧也是配套的：当任务带着项目级别的 `github_repo` URL 进来时，这些 URL 会被合并进每工作区的白名单，并在智能体启动前同步进本地仓库缓存。所以即便某个项目仓库 URL 没被绑到工作区，`uniai repo checkout` 也能正常处理它，不会以"未配置"为由拒绝。白名单的划分只是内部实现：工作区绑定的 URL 和任务级别的 URL 分开记录，工作区仓库列表的刷新不会顺手吊销某条项目 URL。
 
 ## 当前**不**做的事
 
 - **跨项目共享**。每条资源现在只能挂在一个项目上。
 - **按 skill 划定资源可见性**。所有资源对智能体本次运行里的每个 skill 都可见；按类型过滤是后续工作。
-- **缓存 / 同步**。`github_repo` 目前只是元数据 —— checkout 仍然按需走 `multica repo checkout`。Notion / Google Docs 之类的文档文本缓存会随对应类型一起到位。
+- **缓存 / 同步**。`github_repo` 目前只是元数据 —— checkout 仍然按需走 `uniai repo checkout`。Notion / Google Docs 之类的文档文本缓存会随对应类型一起到位。
 
 这些是有意的留白 —— 第一版的目标是用最小的活动部件去验证这个抽象。

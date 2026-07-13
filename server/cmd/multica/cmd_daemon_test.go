@@ -155,16 +155,16 @@ func TestPrintDiskUsageOtherRootsHintSuggestsProfilesWithTasks(t *testing.T) {
 	if !strings.Contains(got, "Other workspace roots contain task directories:") {
 		t.Fatalf("hint output = %q, want profile suggestion header", got)
 	}
-	if !strings.Contains(got, "multica --profile two-tasks daemon disk-usage") {
+	if !strings.Contains(got, "uniai --profile two-tasks daemon disk-usage") {
 		t.Fatalf("hint output = %q, want two-tasks profile command", got)
 	}
-	if !strings.Contains(got, "multica --profile one-task daemon disk-usage") {
+	if !strings.Contains(got, "uniai --profile one-task daemon disk-usage") {
 		t.Fatalf("hint output = %q, want one-task profile command", got)
 	}
-	if !strings.Contains(got, "multica --profile 'space profile' daemon disk-usage") {
+	if !strings.Contains(got, "uniai --profile 'space profile' daemon disk-usage") {
 		t.Fatalf("hint output = %q, want shell-quoted profile command", got)
 	}
-	if !strings.Contains(got, "multica daemon disk-usage --all-profiles") {
+	if !strings.Contains(got, "uniai daemon disk-usage --all-profiles") {
 		t.Fatalf("hint output = %q, want --all-profiles tip", got)
 	}
 	if strings.Contains(got, "(0 task") {
@@ -194,7 +194,7 @@ func TestPrintDiskUsageOtherRootsHintFiresWhenCurrentRootNonEmpty(t *testing.T) 
 	}, "", "")
 
 	got := out.String()
-	if !strings.Contains(got, "multica --profile desktop-host daemon disk-usage") {
+	if !strings.Contains(got, "uniai --profile desktop-host daemon disk-usage") {
 		t.Fatalf("hint output = %q, want desktop-host suggestion even with a non-empty current root", got)
 	}
 }
@@ -212,7 +212,7 @@ func TestPrintDiskUsageOtherRootsHintSuggestsDefaultFromNamedProfile(t *testing.
 	}, "named", "")
 
 	got := out.String()
-	if !strings.Contains(got, "multica daemon disk-usage  #") {
+	if !strings.Contains(got, "uniai daemon disk-usage  #") {
 		t.Fatalf("hint output = %q, want default profile command", got)
 	}
 }

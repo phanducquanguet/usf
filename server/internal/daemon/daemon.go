@@ -849,9 +849,9 @@ func (d *Daemon) resolveAuth() error {
 		return fmt.Errorf("load CLI config: %w", err)
 	}
 	if cfg.Token == "" {
-		loginHint := "'multica login'"
+		loginHint := "'uniai login'"
 		if d.cfg.Profile != "" {
-			loginHint = fmt.Sprintf("'multica login --profile %s'", d.cfg.Profile)
+			loginHint = fmt.Sprintf("'uniai login --profile %s'", d.cfg.Profile)
 		}
 		d.logger.Warn("not authenticated — run " + loginHint + " to authenticate, then restart the daemon")
 		return fmt.Errorf("not authenticated: run %s first", loginHint)
@@ -1054,7 +1054,7 @@ func (d *Daemon) appendProfileRuntimes(ctx context.Context, workspaceID string, 
 			continue
 		}
 		// Resolve the executable to launch for this profile. A per-machine
-		// path override (MUL-3284, `multica runtime profile set-path`) wins
+		// path override (MUL-3284, `uniai runtime profile set-path`) wins
 		// over the PATH lookup when it is set AND points at a real
 		// executable — this is how an operator pins a profile to a binary
 		// that isn't on the daemon's PATH, or selects between multiple
@@ -1255,7 +1255,7 @@ func (d *Daemon) workspaceCoAuthoredByEnabled(workspaceID string) bool {
 //
 // It's safe to call with the workspace's own repos — duplicates are
 // idempotent. Called from runTask before the agent spawns so
-// `multica repo checkout` accepts project-only URLs without an extra round
+// `uniai repo checkout` accepts project-only URLs without an extra round
 // trip back to GetWorkspaceRepos (which doesn't carry project resources).
 func (d *Daemon) registerTaskRepos(workspaceID, taskID string, repos []RepoData) {
 	if len(repos) == 0 {
@@ -1627,7 +1627,7 @@ const DefaultTokenRenewalInterval = 3 * 24 * time.Hour
 // preflightAuth runs the two auth-sensitive startup steps in their
 // required order: a synchronous PAT renewal first, then the initial
 // workspace sync. The order matters — running tryRenewToken before any
-// other API call is what surfaces a user-actionable "run multica login"
+// other API call is what surfaces a user-actionable "run uniai login"
 // WARN when the PAT is already revoked or expired. If we let the
 // workspace sync go first, its 401 would short-circuit Run before the
 // renewal loop's first tick ever fires, and the operator would see only
@@ -1683,9 +1683,9 @@ func (d *Daemon) tryRenewToken(ctx context.Context) {
 	resp, err := d.client.RenewToken(reqCtx)
 	if err != nil {
 		if isUnauthorizedError(err) {
-			loginHint := "'multica login'"
+			loginHint := "'uniai login'"
 			if d.cfg.Profile != "" {
-				loginHint = fmt.Sprintf("'multica login --profile %s'", d.cfg.Profile)
+				loginHint = fmt.Sprintf("'uniai login --profile %s'", d.cfg.Profile)
 			}
 			d.logger.Warn("auth token rejected by server — run "+loginHint+" to re-authenticate, then restart the daemon", "error", err)
 			return
@@ -3464,7 +3464,7 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	// claimed task belongs to a project with github_repo resources the server
 	// has already narrowed it to project repos only. Make sure those URLs are
 	// in the per-workspace allowlist and the local cache, otherwise
-	// `multica repo checkout` would reject project-only URLs that aren't also
+	// `uniai repo checkout` would reject project-only URLs that aren't also
 	// bound at the workspace level.
 	d.registerTaskRepos(task.WorkspaceID, task.ID, task.Repos)
 	defer d.clearTaskRepoRefs(task.WorkspaceID, task.ID)
@@ -3511,7 +3511,7 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 
 	// Prepare isolated execution environment.
 	// Repos are passed as metadata only — the agent checks them out on demand
-	// via `multica repo checkout <url>`.
+	// via `uniai repo checkout <url>`.
 	taskCtx := execenv.TaskContextForEnv{
 		IssueID:                          task.IssueID,
 		TriggerCommentID:                 task.TriggerCommentID,
@@ -3709,7 +3709,7 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	prompt := BuildPrompt(task, provider)
 
 	// Pass task-scoped auth credentials and context so the spawned agent CLI
-	// can call the Multica API and the local daemon (e.g. `multica repo checkout`).
+	// can call the Multica API and the local daemon (e.g. `uniai repo checkout`).
 	// MULTICA_TASK_SLOT is allocated from the daemon-wide concurrency pool, not
 	// per-agent. When one daemon hosts multiple agents, slots index shared
 	// daemon-level resources such as GPUs.
@@ -3740,7 +3740,7 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	if task.AutopilotID != "" {
 		agentEnv["MULTICA_AUTOPILOT_ID"] = task.AutopilotID
 	}
-	// Quick-create marker — when set, the multica CLI's `issue create`
+	// Quick-create marker — when set, the uniai CLI's `issue create`
 	// command stamps the new issue with origin_type=quick_create +
 	// origin_id=<task_id> so the completion handler can find it
 	// deterministically (see GetIssueByOrigin).
@@ -3754,13 +3754,26 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 			}
 		}
 	}
-	// Ensure the multica CLI is on PATH inside the agent's environment.
+	// Ensure the uniai CLI is on PATH inside the agent's environment.
 	// Some runtimes (e.g. Codex) run in an isolated sandbox that may not
 	// inherit the daemon's PATH. Prepend the directory of the running
-	// multica binary so that `multica` commands in the agent always resolve.
+	// uniai binary so that `uniai` commands in the agent always resolve.
+	// Prompts and skills may reference the CLI as `uniai` (current name) or
+	// `multica` (pre-rename), while the installed file carries whichever name
+	// it was installed under — self-updated installs keep the old `multica`
+	// file name. A process-lifetime shim dir exposes the running binary under
+	// both names so either spelling resolves.
 	if selfBin, err := os.Executable(); err == nil {
+		// binDir stays on PATH alongside the shim so sibling tools shipped
+		// next to the binary keep resolving even when the shim is available.
 		binDir := filepath.Dir(selfBin)
-		agentEnv["PATH"] = binDir + string(os.PathListSeparator) + os.Getenv("PATH")
+		pathPrefix := binDir
+		if shimDir, serr := cliNameShimDir(selfBin); serr == nil {
+			pathPrefix = shimDir + string(os.PathListSeparator) + binDir
+		} else {
+			taskLog.Warn("cli name shim dir unavailable; only the installed binary name will resolve", "error", serr)
+		}
+		agentEnv["PATH"] = pathPrefix + string(os.PathListSeparator) + os.Getenv("PATH")
 	}
 	// Point Codex to the per-task CODEX_HOME so it discovers skills natively
 	// without polluting the system ~/.codex/skills/.
@@ -3911,7 +3924,7 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	// identity/persona + skills + project context) so the backend prepends the
 	// same payload that file-based runtimes pick up from disk. Without this,
 	// these providers silently miss the workflow section and never call
-	// `multica issue status` / `multica issue comment add`, leaving issues
+	// `uniai issue status` / `uniai issue comment add`, leaving issues
 	// stuck in `todo`.
 	//
 	// Hermes is intentionally excluded: ACP sessions start in the task cwd and
@@ -4658,6 +4671,65 @@ func composeOpenclawIncludeRoots(addRoot, userValue string) (string, bool) {
 		parts = append(parts, p)
 	}
 	return strings.Join(parts, string(os.PathListSeparator)), true
+}
+
+// cliShimDir memoizes the CLI name shim dir: selfBin is invariant for the
+// daemon's lifetime and link failures are static platform properties, so the
+// dir is built once per process instead of per task.
+var (
+	cliShimDirOnce sync.Once
+	cliShimDirPath string
+	cliShimDirErr  error
+)
+
+// cliNameShimDir returns a process-lifetime dir exposing the running CLI
+// binary under both its current name (`uniai`) and its pre-rename name
+// (`multica`). Agent prompts and skills reference the CLI by name, and the
+// installed file may carry either one (self-updated installs keep the old
+// `multica` file name), so both spellings must resolve on the agent's PATH.
+// Symlink first, hard link second (Windows without developer mode), full
+// copy last (hard links can fail across volumes) — the copy is affordable
+// because the dir is built once per process. Either both names resolve or an
+// error is returned; a partial shim would silently break whichever spelling
+// is missing.
+func cliNameShimDir(selfBin string) (string, error) {
+	cliShimDirOnce.Do(func() {
+		dir, err := os.MkdirTemp(socketSafeTempBaseDir(), "uniai-cli-shim-")
+		if err != nil {
+			cliShimDirErr = err
+			return
+		}
+		ext := ""
+		if strings.EqualFold(filepath.Ext(selfBin), ".exe") {
+			ext = ".exe"
+		}
+		for _, name := range []string{"uniai", "multica"} {
+			dst := filepath.Join(dir, name+ext)
+			if err := os.Symlink(selfBin, dst); err == nil {
+				continue
+			}
+			if err := os.Link(selfBin, dst); err == nil {
+				continue
+			}
+			if err := copyExecutable(selfBin, dst); err != nil {
+				cliShimDirErr = fmt.Errorf("shim %s: %w", dst, err)
+				return
+			}
+		}
+		cliShimDirPath = dir
+	})
+	return cliShimDirPath, cliShimDirErr
+}
+
+// copyExecutable copies src to dst with executable permissions. Last-resort
+// fallback for cliNameShimDir on filesystems that refuse both symlinks and
+// hard links.
+func copyExecutable(src, dst string) error {
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(dst, data, 0o755)
 }
 
 func ensureTaskTempDir(envRoot string, workspaceID string, taskID string) (string, error) {

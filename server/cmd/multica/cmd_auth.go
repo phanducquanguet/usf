@@ -24,7 +24,7 @@ import (
 	"github.com/multica-ai/multica/server/internal/cli"
 )
 
-// loginTokenPrefixes are the token prefixes `multica login --token` accepts.
+// loginTokenPrefixes are the token prefixes `uniai login --token` accepts.
 // The CLI used to hardcode `mul_` only, which made it impossible to log in
 // with a Multica Cloud Node PAT (`mcn_`) even though the server happily
 // authenticates both kinds. Keep this list in sync with the prefix branches
@@ -45,7 +45,7 @@ func validateLoginTokenPrefix(token string) error {
 
 var authCmd = &cobra.Command{
 	Use:   "auth",
-	Short: "Authenticate multica with UniAI",
+	Short: "Authenticate the CLI with UniAI",
 }
 
 var authStatusCmd = &cobra.Command{
@@ -99,7 +99,7 @@ func resolveAppURL(cmd *cobra.Command) string {
 	if err == nil && cfg.AppURL != "" {
 		return strings.TrimRight(cfg.AppURL, "/")
 	}
-	fmt.Fprintln(os.Stderr, "No app URL configured. Run 'multica setup' first.")
+	fmt.Fprintln(os.Stderr, "No app URL configured. Run 'uniai setup' first.")
 	os.Exit(1)
 	return "" // unreachable
 }
@@ -330,7 +330,7 @@ func runAuthLoginBrowser(cmd *cobra.Command) error {
 		"expires_in_days": expiresInDays,
 	}, &patResp)
 	if err != nil {
-		return cli.WithUserMessage("Sign-in did not complete: the server could not issue an access token for the CLI. Run `multica login` again.", err)
+		return cli.WithUserMessage("Sign-in did not complete: the server could not issue an access token for the CLI. Run `uniai login` again.", err)
 	}
 
 	// Verify the PAT works.
@@ -340,7 +340,7 @@ func runAuthLoginBrowser(cmd *cobra.Command) error {
 		Email string `json:"email"`
 	}
 	if err := patClient.GetJSON(ctx, "/api/me", &me); err != nil {
-		return cli.WithUserMessage("Sign-in did not complete: the server did not accept the new credential. Run `multica login` again.", err)
+		return cli.WithUserMessage("Sign-in did not complete: the server did not accept the new credential. Run `uniai login` again.", err)
 	}
 
 	// Save to config. Reset workspace data on every login — the user or
@@ -443,7 +443,7 @@ func runAuthLoginToken(cmd *cobra.Command, providedToken string) error {
 		Email string `json:"email"`
 	}
 	if err := client.GetJSON(ctx, "/api/me", &me); err != nil {
-		return cli.WithUserMessage("Could not sign in with that token — make sure it is valid and not expired, then run `multica login --token <token>` again.", err)
+		return cli.WithUserMessage("Could not sign in with that token — make sure it is valid and not expired, then run `uniai login --token <token>` again.", err)
 	}
 
 	profile := resolveProfile(cmd)
@@ -464,7 +464,7 @@ func runAuthStatus(cmd *cobra.Command, _ []string) error {
 	serverURL := resolveServerURL(cmd)
 
 	if token == "" {
-		fmt.Fprintln(os.Stderr, "Not authenticated. Run 'multica login' to authenticate.")
+		fmt.Fprintln(os.Stderr, "Not authenticated. Run 'uniai login' to authenticate.")
 		return nil
 	}
 
@@ -478,7 +478,7 @@ func runAuthStatus(cmd *cobra.Command, _ []string) error {
 		Email string `json:"email"`
 	}
 	if err := client.GetJSON(ctx, "/api/me", &me); err != nil {
-		fmt.Fprintf(os.Stderr, "Token is invalid or expired: %v\nRun 'multica login' to re-authenticate.\n", err)
+		fmt.Fprintf(os.Stderr, "Token is invalid or expired: %v\nRun 'uniai login' to re-authenticate.\n", err)
 		return nil
 	}
 

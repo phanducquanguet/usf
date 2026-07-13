@@ -2,7 +2,7 @@
 name: multica-projects-and-resources
 description: "Use when creating, inspecting, updating, or debugging UniAI projects and project resources. Covers durable project context, github_repo and local_directory resources, how resources affect future agent task context, when to bind repos, and when not to mutate resources."
 user-invocable: false
-allowed-tools: Bash(multica *)
+allowed-tools: Bash(uniai *)
 ---
 
 # UniAI Projects and Resources
@@ -12,9 +12,9 @@ allowed-tools: Bash(multica *)
 Projects are durable context containers. Resources attached to a project can affect future agent tasks.
 
 ```bash
-multica project list --output json
-multica project get <project-id> --output json
-multica project resource list <project-id> --output json
+uniai project list --output json
+uniai project get <project-id> --output json
+uniai project resource list <project-id> --output json
 ```
 
 Project resources are mutated through project resource commands/endpoints. Issue
@@ -34,18 +34,18 @@ Common resource types:
 ## CLI
 
 ```bash
-multica project list --output json
-multica project get <project-id> --output json
-multica project create --title "<title>" --repo <github-url> --output json
-multica project update <project-id> --title "<title>" --output json
-multica project status <project-id> in_progress --output json
-multica project resource list <project-id> --output json
-multica project resource add <project-id> --type github_repo --url <github-url> --output json
-multica project resource add <project-id> --type github_repo --url <github-url> --ref <branch-or-sha> --output json
-multica project resource add <project-id> --type local_directory --local-path <abs-path> --daemon-id <daemon-id> --output json
-multica project resource update <project-id> <resource-id> --url <new-github-url> --output json
-multica project resource update <project-id> <resource-id> --ref <branch-or-sha> --output json
-multica project resource remove <project-id> <resource-id> --output json
+uniai project list --output json
+uniai project get <project-id> --output json
+uniai project create --title "<title>" --repo <github-url> --output json
+uniai project update <project-id> --title "<title>" --output json
+uniai project status <project-id> in_progress --output json
+uniai project resource list <project-id> --output json
+uniai project resource add <project-id> --type github_repo --url <github-url> --output json
+uniai project resource add <project-id> --type github_repo --url <github-url> --ref <branch-or-sha> --output json
+uniai project resource add <project-id> --type local_directory --local-path <abs-path> --daemon-id <daemon-id> --output json
+uniai project resource update <project-id> <resource-id> --url <new-github-url> --output json
+uniai project resource update <project-id> <resource-id> --ref <branch-or-sha> --output json
+uniai project resource remove <project-id> <resource-id> --output json
 ```
 
 For `github_repo`, non-JSON `--ref` sets `resource_ref.ref`, the default checkout branch/tag/SHA for future tasks in that project. JSON `--ref '<json>'` remains the escape hatch for full payloads or resource types not covered by shortcuts.
@@ -54,13 +54,13 @@ For `github_repo`, non-JSON `--ref` sets `resource_ref.ref`, the default checkou
 
 Add/update a project resource when the user asks for durable project context: "把这个 GitHub repo 绑到项目上", "以后都用这个 repo", "agent 总是拿不到这个项目的仓库", or "这个项目要在我的本地目录里跑".
 
-Project resources are durable and affect future tasks. `multica repo checkout`
+Project resources are durable and affect future tasks. `uniai repo checkout`
 is task-local checkout state.
 
 ## Debugging wrong context
 
-1. `multica project get <project-id> --output json`.
-2. `multica project resource list <project-id> --output json`.
+1. `uniai project get <project-id> --output json`.
+2. `uniai project resource list <project-id> --output json`.
 3. Check `github_repo.resource_ref.url`, optional `ref`, `default_branch_hint`, and `local_directory.resource_ref.daemon_id`.
 4. Updating resources is a durable mutation. After an update, listing the
    resource is the verification path.

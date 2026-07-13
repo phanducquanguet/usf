@@ -7,7 +7,7 @@
 # Install CLI + provision self-host server:
 #   curl -fsSL https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.sh | bash -s -- --with-server
 #
-# After installation, run `multica setup` to configure your environment.
+# After installation, run `uniai setup` to configure your environment.
 #
 set -euo pipefail
 
@@ -113,30 +113,47 @@ install_cli_binary() {
   fi
 
   local version="${latest#v}"
-  local url="$REPO_WEB_URL/releases/download/${latest}/multica-cli-${version}-${OS}-${ARCH}.tar.gz"
   local tmp_dir
   tmp_dir=$(mktemp -d)
 
+  # Prefer the current `uniai-cli-*` asset; releases published before the
+  # CLI rename only carry `multica-cli-*` (with a binary named `multica`).
+  local url="$REPO_WEB_URL/releases/download/${latest}/uniai-cli-${version}-${OS}-${ARCH}.tar.gz"
   info "Downloading $url ..."
-  if ! curl -fsSL "$url" -o "$tmp_dir/multica.tar.gz"; then
-    rm -rf "$tmp_dir"
-    fail "Failed to download CLI binary."
+  if ! curl -fsSL "$url" -o "$tmp_dir/cli.tar.gz"; then
+    url="$REPO_WEB_URL/releases/download/${latest}/multica-cli-${version}-${OS}-${ARCH}.tar.gz"
+    info "Falling back to $url ..."
+    if ! curl -fsSL "$url" -o "$tmp_dir/cli.tar.gz"; then
+      rm -rf "$tmp_dir"
+      fail "Failed to download CLI binary."
+    fi
   fi
 
-  tar -xzf "$tmp_dir/multica.tar.gz" -C "$tmp_dir" multica
+  # The binary inside the archive is `uniai` (current) or `multica`
+  # (pre-rename releases); detect rather than assume.
+  local archive_binary
+  archive_binary=$(tar -tzf "$tmp_dir/cli.tar.gz" | grep -x -e uniai -e multica | head -n 1 || true)
+  if [ -z "$archive_binary" ]; then
+    rm -rf "$tmp_dir"
+    fail "CLI binary not found in downloaded archive."
+  fi
+  tar -xzf "$tmp_dir/cli.tar.gz" -C "$tmp_dir" "$archive_binary"
+  if [ "$archive_binary" != "uniai" ]; then
+    mv "$tmp_dir/$archive_binary" "$tmp_dir/uniai"
+  fi
 
   # Try /usr/local/bin first, fall back to ~/.local/bin. Tests and scripted
   # installs can override the first choice with MULTICA_BIN_DIR.
   local bin_dir="${MULTICA_BIN_DIR:-/usr/local/bin}"
   if [ -w "$bin_dir" ]; then
-    mv "$tmp_dir/multica" "$bin_dir/multica"
+    mv "$tmp_dir/uniai" "$bin_dir/uniai"
   elif command_exists sudo; then
-    sudo mv "$tmp_dir/multica" "$bin_dir/multica"
+    sudo mv "$tmp_dir/uniai" "$bin_dir/uniai"
   else
     bin_dir="$HOME/.local/bin"
     mkdir -p "$bin_dir"
-    mv "$tmp_dir/multica" "$bin_dir/multica"
-    chmod +x "$bin_dir/multica"
+    mv "$tmp_dir/uniai" "$bin_dir/uniai"
+    chmod +x "$bin_dir/uniai"
     # Add to PATH if not already there
     if ! echo "$PATH" | tr ':' '\n' | grep -q "^$bin_dir$"; then
       export PATH="$bin_dir:$PATH"
@@ -145,7 +162,35 @@ install_cli_binary() {
   fi
 
   rm -rf "$tmp_dir"
-  ok "UniAI CLI installed to $bin_dir/multica"
+  replace_legacy_multica_binary "$bin_dir"
+  ok "UniAI CLI installed to $bin_dir/uniai"
+}
+
+# Pre-rename installs left a `multica` binary next to the new `uniai` one.
+# Swap it for a symlink so the old command keeps working without shipping a
+# second stale copy.
+replace_legacy_multica_binary() {
+  local bin_dir="$1"
+  [ -f "$bin_dir/multica" ] || return 0
+  if [ -w "$bin_dir" ]; then
+    ln -sf "$bin_dir/uniai" "$bin_dir/multica"
+  elif command_exists sudo; then
+    sudo ln -sf "$bin_dir/uniai" "$bin_dir/multica"
+  fi
+}
+
+# A pre-rename `multica` binary in a DIFFERENT PATH dir (one this installer
+# could not touch) keeps running stale code forever — it self-updates only
+# the file it lives in. Surface it instead of silently leaving it behind.
+warn_stale_multica_on_path() {
+  command_exists multica || return 0
+  local resolved
+  resolved=$(command -v multica)
+  case "$(readlink "$resolved" 2>/dev/null)" in
+    *uniai) return 0 ;;
+  esac
+  warn "A pre-rename 'multica' binary remains at $resolved and will no longer receive updates."
+  warn "Remove it and use 'uniai' instead: rm \"$resolved\""
 }
 
 add_to_path() {
@@ -213,10 +258,17 @@ pull_official_selfhost_images() {
 }
 
 install_cli() {
-  if command_exists multica; then
+  local existing_cli=""
+  if command_exists uniai; then
+    existing_cli="uniai"
+  elif command_exists multica; then
+    # Pre-rename install; upgrade it to `uniai`.
+    existing_cli="multica"
+  fi
+  if [ -n "$existing_cli" ]; then
     local current_ver
-    # `multica version` outputs "multica 0.3.23 (commit: f46b929eb, built: 2026-06-16T10:11:56Z)" — extract just the version
-    current_ver=$(multica version 2>/dev/null | awk 'NR==1{print $2}' || echo "unknown")
+    # `version` outputs e.g. "uniai 0.3.23 (commit: f46b929eb, built: 2026-06-16T10:11:56Z)" — extract just the version
+    current_ver=$("$existing_cli" version 2>/dev/null | awk 'NR==1{print $2}' || echo "unknown")
 
     local latest_ver
     latest_ver=$(get_latest_version)
@@ -225,7 +277,10 @@ install_cli() {
     local current_cmp="${current_ver#v}"
     local latest_cmp="${latest_ver#v}"
 
-    if [ -z "$latest_ver" ] || [ "$current_cmp" = "$latest_cmp" ]; then
+    # A pre-rename `multica`-only install is never "up to date" — it still
+    # needs the uniai binary installed, even when the latest-version lookup
+    # comes back empty (install_cli_binary then fails loudly instead).
+    if [ "$existing_cli" = "uniai" ] && { [ -z "$latest_ver" ] || [ "$current_cmp" = "$latest_cmp" ]; }; then
       ok "UniAI CLI is up to date ($current_ver)"
       return 0
     fi
@@ -234,7 +289,7 @@ install_cli() {
     install_cli_binary
 
     local new_ver
-    new_ver=$(multica version 2>/dev/null | awk 'NR==1{print $2}' || echo "unknown")
+    new_ver=$(uniai version 2>/dev/null | awk 'NR==1{print $2}' || echo "unknown")
     ok "UniAI CLI upgraded ($current_ver → $new_ver)"
     return 0
   fi
@@ -242,8 +297,8 @@ install_cli() {
   install_cli_binary
 
   # Verify
-  if ! command_exists multica; then
-    fail "CLI installed but 'multica' not found on PATH. You may need to restart your shell."
+  if ! command_exists uniai; then
+    fail "CLI installed but 'uniai' not found on PATH. You may need to restart your shell."
   fi
 }
 
@@ -360,6 +415,7 @@ run_default() {
 
   detect_os
   install_cli
+  warn_stale_multica_on_path
 
   printf "\n"
   printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
@@ -368,8 +424,8 @@ run_default() {
   printf "\n"
   printf "  ${BOLD}Next: configure your environment${RESET}\n"
   printf "\n"
-  printf "     ${CYAN}multica setup${RESET}                # Connect to UniAI Cloud (multica.ai)\n"
-  printf "     ${CYAN}multica setup self-host${RESET}       # Connect to a self-hosted server\n"
+  printf "     ${CYAN}uniai setup${RESET}                # Connect to UniAI Cloud (multica.ai)\n"
+  printf "     ${CYAN}uniai setup self-host${RESET}       # Connect to a self-hosted server\n"
   printf "\n"
   printf "  ${BOLD}Self-hosting?${RESET} Install the server first:\n"
   printf "     curl -fsSL https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.sh | bash -s -- --with-server\n"
@@ -389,6 +445,7 @@ run_with_server() {
   check_docker
   setup_server
   install_cli
+  warn_stale_multica_on_path
 
   printf "\n"
   printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
@@ -404,7 +461,7 @@ run_with_server() {
   printf "\n"
   printf "  ${BOLD}Next: configure your CLI to connect${RESET}\n"
   printf "\n"
-  printf "     ${CYAN}multica setup self-host${RESET}   # Configure + authenticate + start daemon\n"
+  printf "     ${CYAN}uniai setup self-host${RESET}   # Configure + authenticate + start daemon\n"
   printf "\n"
   printf "  ${BOLD}Login:${RESET} configure ${CYAN}RESEND_API_KEY${RESET} in .env for email codes,\n"
   printf "  or read the generated code from backend logs when Resend is unset.\n"
@@ -433,7 +490,9 @@ run_stop() {
     warn "No UniAI installation found at $INSTALL_DIR"
   fi
 
-  if command_exists multica; then
+  if command_exists uniai; then
+    uniai daemon stop 2>/dev/null && ok "Daemon stopped" || true
+  elif command_exists multica; then
     multica daemon stop 2>/dev/null && ok "Daemon stopped" || true
   fi
 
@@ -467,7 +526,7 @@ main() {
         echo "  MULTICA_SELFHOST_REF  Git ref to check out for self-host assets"
         echo "                        (default: latest release tag, falling back to main)"
         echo ""
-        echo "After installation, run 'multica setup' to configure your environment."
+        echo "After installation, run 'uniai setup' to configure your environment."
         exit 0
         ;;
       *) warn "Unknown option: $1" ;;

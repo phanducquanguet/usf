@@ -736,7 +736,7 @@ func fakeStat(present ...string) func(string) (os.FileInfo, error) {
 func TestResolveOpenCodeNativeFromShimResolvesNpmShim(t *testing.T) {
 	t.Parallel()
 
-	// Reporter's exact layout from multica#1717.
+	// Reporter's exact layout from uniai#1717.
 	shim := filepath.Join("C:\\nvm4w", "nodejs", "opencode.cmd")
 	native := filepath.Join("C:\\nvm4w", "nodejs", "node_modules", "opencode-ai", "node_modules", "opencode-windows-x64", "bin", "opencode.exe")
 

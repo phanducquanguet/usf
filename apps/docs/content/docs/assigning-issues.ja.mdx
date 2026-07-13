@@ -31,16 +31,16 @@ import { Callout } from "fumadocs-ui/components/callout";
 コマンドラインでの同等の操作です。
 
 ```bash
-multica issue assign MUL-42 --to alice
-multica issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+uniai issue assign MUL-42 --to alice
+uniai issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
 ```
 
-`--to` はメンバーのユーザー名またはエージェント名（あいまい一致）を受け付けます。名前が重複するとき — たとえばエージェント `J` の隣に `Cursor - J` がある場合 — は、代わりに `--to-id <uuid>` を渡してください。このとき `multica workspace member list --output json` の `user_id`（メンバー）または `multica agent list --output json` の `id`（エージェント）を使います。UUID 一致は厳密かつ曖昧さがないため、スクリプトや CLI を駆動するエージェントに適しています。`--to` と `--to-id` は同時に使えません。
+`--to` はメンバーのユーザー名またはエージェント名（あいまい一致）を受け付けます。名前が重複するとき — たとえばエージェント `J` の隣に `Cursor - J` がある場合 — は、代わりに `--to-id <uuid>` を渡してください。このとき `uniai workspace member list --output json` の `user_id`（メンバー）または `uniai agent list --output json` の `id`（エージェント）を使います。UUID 一致は厳密かつ曖昧さがないため、スクリプトや CLI を駆動するエージェントに適しています。`--to` と `--to-id` は同時に使えません。
 
 割り当て解除:
 
 ```bash
-multica issue assign MUL-42 --unassign
+uniai issue assign MUL-42 --unassign
 ```
 
 ## 割り当て後に起こること

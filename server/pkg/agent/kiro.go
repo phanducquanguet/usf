@@ -442,7 +442,7 @@ func isKiroIssueCommentAddTool(msg Message) bool {
 func isKiroIssueCommentAddCommand(command string) bool {
 	parts := trimLeadingEnvAssignments(strings.Fields(command))
 	// Some runtimes route terminal calls through a shell wrapper such as
-	// `sh -c "multica issue comment add ..."`; unwrap a single such layer so
+	// `sh -c "uniai issue comment add ..."`; unwrap a single such layer so
 	// the real invocation is still recognized.
 	if len(parts) >= 3 && isPOSIXShellName(parts[0]) && parts[1] == "-c" {
 		inner := strings.Trim(strings.Join(parts[2:], " "), "\"'")
@@ -452,14 +452,17 @@ func isKiroIssueCommentAddCommand(command string) bool {
 		return false
 	}
 	executable := strings.TrimPrefix(parts[0], "./")
-	if executable != "multica" && !strings.HasSuffix(executable, "/multica") {
+	// Accept both the current `uniai` CLI name and the pre-rename `multica`
+	// (older prompts/binaries can still invoke it under that name).
+	if executable != "uniai" && !strings.HasSuffix(executable, "/uniai") &&
+		executable != "multica" && !strings.HasSuffix(executable, "/multica") {
 		return false
 	}
 	return parts[1] == "issue" && parts[2] == "comment" && parts[3] == "add"
 }
 
 // trimLeadingEnvAssignments drops leading `KEY=VALUE` tokens so an invocation
-// like `MULTICA_TOKEN=x multica issue comment add ...` is still recognized.
+// like `MULTICA_TOKEN=x uniai issue comment add ...` is still recognized.
 func trimLeadingEnvAssignments(parts []string) []string {
 	for len(parts) > 0 && isEnvAssignment(parts[0]) {
 		parts = parts[1:]

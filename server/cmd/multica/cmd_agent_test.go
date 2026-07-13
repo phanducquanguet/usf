@@ -65,7 +65,7 @@ func chdirWithDaemonTaskMarker(t *testing.T) {
 
 // TestNewAPIClient_WorkdirParentEscapeFailsClosed reproduces the confirmed
 // impersonation escape: a sandbox fault strips every MULTICA_* env var from
-// an agent subprocess, which then runs `multica` from the *parent* directory
+// an agent subprocess, which then runs `uniai` from the *parent* directory
 // of its workdir. The per-workdir marker sits below cwd, so the upward walk
 // used to find no daemon signal and silently fell back to the user's config
 // PAT, posting agent writes as the workspace owner (author_type=member).
@@ -623,8 +623,8 @@ func TestAgentUpdateNoFieldsErrorPointsAtEnvCommand(t *testing.T) {
 		t.Fatal("runAgentUpdate with no flags: expected 'no fields' error, got nil")
 	}
 	msg := err.Error()
-	if !strings.Contains(msg, "multica agent env set") {
-		t.Fatalf("no-fields error must direct users to `multica agent env set`; got: %q", msg)
+	if !strings.Contains(msg, "uniai agent env set") {
+		t.Fatalf("no-fields error must direct users to `uniai agent env set`; got: %q", msg)
 	}
 }
 
@@ -635,7 +635,7 @@ func TestAgentUpdateNoFieldsErrorPointsAtEnvCommand(t *testing.T) {
 func TestAgentUpdateDoesNotExposeCustomEnvFlags(t *testing.T) {
 	for _, flag := range []string{"custom-env", "custom-env-stdin", "custom-env-file"} {
 		if agentUpdateCmd.Flag(flag) != nil {
-			t.Errorf("agent update must NOT expose --%s after MUL-2600; use `multica agent env set` instead", flag)
+			t.Errorf("agent update must NOT expose --%s after MUL-2600; use `uniai agent env set` instead", flag)
 		}
 	}
 }

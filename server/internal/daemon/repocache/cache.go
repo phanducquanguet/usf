@@ -804,7 +804,7 @@ func bareHeadBranch(barePath string) string {
 // hook installed by the daemon. removeCoAuthoredByHook uses it to recognize
 // hooks it owns so it never deletes a hook installed by the user or another
 // tool. Do not change without bumping the recognition logic.
-const multicaHookMarker = "# multica:prepare-commit-msg:co-authored-by"
+const multicaHookMarker = "# uniai:prepare-commit-msg:co-authored-by"
 
 // daemonInstalledHookSignatures lists substrings that identify a
 // prepare-commit-msg hook as one the daemon installed. removeCoAuthoredByHook
@@ -816,13 +816,15 @@ const multicaHookMarker = "# multica:prepare-commit-msg:co-authored-by"
 // prepareCommitMsgHook keep recognizing every previously-shipped variant.
 var daemonInstalledHookSignatures = []string{
 	multicaHookMarker,
+	// Marker written by pre-rename daemons (CLI was `multica`).
+	"# multica:prepare-commit-msg:co-authored-by",
 	"# Installed by the Multica daemon.",
 }
 
 // prepareCommitMsgHook is the prepare-commit-msg hook script that appends a
 // Co-authored-by trailer for the Multica Agent to every commit message.
 const prepareCommitMsgHook = `#!/bin/sh
-# multica:prepare-commit-msg:co-authored-by
+# uniai:prepare-commit-msg:co-authored-by
 # UniAI: add Co-authored-by trailer for the UniAI Agent.
 # Installed by the UniAI daemon. Do not edit — it will be overwritten.
 

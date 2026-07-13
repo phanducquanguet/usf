@@ -2,7 +2,7 @@
 name: multica-squads
 description: "Use when creating, inspecting, updating, assigning, mentioning, or debugging UniAI squads. Explains what squads are, squad/member fields, CLI commands, leader routing, issue assignment, comments, mentions, autopilot behavior, leader briefing, side effects, and product-gap handling."
 user-invocable: false
-allowed-tools: Bash(multica *)
+allowed-tools: Bash(uniai *)
 ---
 
 # UniAI Squads
@@ -12,19 +12,19 @@ allowed-tools: Bash(multica *)
 If debugging why a squad did or did not run, inspect first:
 
 ```bash
-multica issue get <issue-id> --output json
-multica squad get <squad-id> --output json
-multica squad member list <squad-id> --output json
-multica issue comment list <issue-id> --recent 10 --output json
+uniai issue get <issue-id> --output json
+uniai squad get <squad-id> --output json
+uniai squad member list <squad-id> --output json
+uniai issue comment list <issue-id> --recent 10 --output json
 ```
 
 If the command shape is unclear, check help instead of guessing:
 
 ```bash
-multica squad --help
-multica squad member --help
-multica issue update --help
-multica issue comment add --help
+uniai squad --help
+uniai squad member --help
+uniai issue update --help
+uniai issue comment add --help
 ```
 
 Do not assign, comment, mention, update, delete, or record squad activity just
@@ -50,26 +50,26 @@ Important consequences:
 Squad commands:
 
 ```bash
-multica squad list --output json
-multica squad get <squad-id> --output json
-multica squad create --name <name> --leader <agent-name-or-id> --output json
-multica squad update <squad-id> --instructions "<leader coordination policy>" --output json
-multica squad delete <squad-id>
+uniai squad list --output json
+uniai squad get <squad-id> --output json
+uniai squad create --name <name> --leader <agent-name-or-id> --output json
+uniai squad update <squad-id> --instructions "<leader coordination policy>" --output json
+uniai squad delete <squad-id>
 ```
 
 Member commands:
 
 ```bash
-multica squad member list <squad-id> --output json
-multica squad member add <squad-id> --member-id <id> --type agent|member --role <role> --output json
-multica squad member remove <squad-id> --member-id <id> --type agent|member
-multica squad member set-role <squad-id> --member-id <id> --member-type agent|member --role <role> --output json
+uniai squad member list <squad-id> --output json
+uniai squad member add <squad-id> --member-id <id> --type agent|member --role <role> --output json
+uniai squad member remove <squad-id> --member-id <id> --type agent|member
+uniai squad member set-role <squad-id> --member-id <id> --member-type agent|member --role <role> --output json
 ```
 
 Squad leader evaluation command:
 
 ```bash
-multica squad activity <issue-id> action|no_action|failed --reason "<why>" --output json
+uniai squad activity <issue-id> action|no_action|failed --reason "<why>" --output json
 ```
 
 `activity` is a write: it records the leader's evaluation decision on an issue.
@@ -78,10 +78,10 @@ Use it only when acting as the squad leader after evaluating a trigger.
 Issue/comment commands often needed with squads:
 
 ```bash
-multica issue get <issue-id> --output json
-multica issue update <issue-id> --help
-multica issue comment list <issue-id> --output json
-multica issue comment add <issue-id> --help
+uniai issue get <issue-id> --output json
+uniai issue update <issue-id> --help
+uniai issue comment list <issue-id> --output json
+uniai issue comment add <issue-id> --help
 ```
 
 Prefer `--output json` for reads. Use `--help` before writes.
@@ -228,7 +228,7 @@ These actions can trigger agent work or mutate durable state:
 - commenting on a squad-assigned issue;
 - mentioning a squad;
 - creating or triggering squad-assigned autopilots;
-- recording squad activity with `multica squad activity`;
+- recording squad activity with `uniai squad activity`;
 - deleting/archive squad.
 
 Do not perform side-effecting actions as tests unless the user explicitly
