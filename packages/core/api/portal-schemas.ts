@@ -38,6 +38,8 @@ export const portalMessagesPageSchema = z
     messages: z.array(portalChatMessageSchema).optional(),
     pending: z.boolean().optional(),
     status: z.string().optional(),
+    // A malformed partial must not discard the whole page — degrade to "".
+    partial: z.string().optional().catch(undefined),
   })
   .loose();
 
@@ -93,5 +95,6 @@ export const EMPTY_PORTAL_MESSAGES_PAGE: PortalMessagesPage = {
   messages: [],
   pending: false,
   status: "active",
+  partial: "",
 };
 export const EMPTY_PORTAL_ADMIN_CONFIG: PortalAdminConfig = { enabled: false };

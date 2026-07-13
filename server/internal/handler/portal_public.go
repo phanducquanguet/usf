@@ -229,6 +229,11 @@ type portalMessagesResponse struct {
 	Messages []portalChatMessage `json:"messages"`
 	Pending  bool                `json:"pending"`
 	Status   string              `json:"status"`
+	// Partial is the concatenation of the in-flight task's streamed text
+	// fragments, so the guest sees the reply forming instead of a bare
+	// typing indicator. Only type='text' fragments are exposed — thinking
+	// and tool traffic stay internal. Empty when nothing is pending.
+	Partial string `json:"partial,omitempty"`
 }
 
 func portalMessageToResponse(m db.ChatMessage) portalChatMessage {
@@ -375,14 +380,24 @@ func (h *Handler) ListPortalMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	pending := false
-	if _, perr := h.Queries.GetPendingChatTask(r.Context(), ps.ChatSessionID); perr == nil {
+	partial := ""
+	if task, perr := h.Queries.GetPendingChatTask(r.Context(), ps.ChatSessionID); perr == nil {
 		pending = true
+		// Best-effort: a failed fragment read degrades to the plain typing
+		// indicator, never to an error for the guest.
+		if fragments, ferr := h.Queries.ListTaskTextContents(r.Context(), task.ID); ferr == nil {
+			var b strings.Builder
+			for _, f := range fragments {
+				b.WriteString(f.String)
+			}
+			partial = b.String()
+		}
 	}
 	items := make([]portalChatMessage, 0, len(msgs))
 	for _, m := range msgs {
 		items = append(items, portalMessageToResponse(m))
 	}
-	writeJSON(w, http.StatusOK, portalMessagesResponse{Messages: items, Pending: pending, Status: ps.Status})
+	writeJSON(w, http.StatusOK, portalMessagesResponse{Messages: items, Pending: pending, Status: ps.Status, Partial: partial})
 }
 
 func (h *Handler) ConfirmPortalSession(w http.ResponseWriter, r *http.Request) {

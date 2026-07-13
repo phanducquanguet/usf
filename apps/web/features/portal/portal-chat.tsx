@@ -30,6 +30,23 @@ function stripSummaryMarkers(content: string): string {
     .trim();
 }
 
+/** Display-safe slice of the in-flight reply. Everything from a summary
+ * marker onward is held back — the summary reveals as a complete block with
+ * the confirm form once the turn finishes — and a partially streamed marker
+ * at the tail ("…[TÓM TẮT DỰ") is trimmed so the guest never sees it typing
+ * out character by character. */
+function visiblePartial(partial: string): string {
+  const idx = partial.indexOf(PORTAL_SUMMARY_MARKER);
+  let text = idx >= 0 ? partial.slice(0, idx) : partial;
+  for (let i = Math.min(PORTAL_SUMMARY_MARKER.length - 1, text.length); i > 0; i--) {
+    if (text.endsWith(PORTAL_SUMMARY_MARKER.slice(0, i))) {
+      text = text.slice(0, text.length - i);
+      break;
+    }
+  }
+  return text.trim();
+}
+
 export function PortalChat({
   onClose,
   greeting,
@@ -94,7 +111,9 @@ export function PortalChat({
     } else {
       el.scrollTop = el.scrollHeight;
     }
-  }, [chat.messages.length, chat.outgoing, chat.pending, chat.failed]);
+  }, [chat.messages.length, chat.outgoing, chat.pending, chat.failed, chat.partial]);
+
+  const partialText = visiblePartial(chat.partial);
 
   const submit = () => {
     const content = draft.trim();
@@ -214,6 +233,7 @@ export function PortalChat({
               </div>
             </>
           ) : null}
+          {chat.pending && partialText ? <AgentBubble content={partialText} /> : null}
           {chat.pending ? <TypingIndicator label={t(($) => $.chat.thinking)} /> : null}
           {chat.summaryReady ? (
             <div className="portal-gradient-border rounded-xl bg-card p-4 duration-300 animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none sm:p-5">

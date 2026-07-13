@@ -2006,6 +2006,7 @@ export class ApiClient {
       messages: (parsed.messages ?? []) as PortalChatMessage[],
       pending: parsed.pending === true,
       status: parsed.status ?? "active",
+      partial: typeof parsed.partial === "string" ? parsed.partial : "",
     };
   }
 

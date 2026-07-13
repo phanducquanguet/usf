@@ -26,6 +26,12 @@ export interface PortalMessagesPage {
   messages: PortalChatMessage[];
   pending: boolean;
   status: string; // "active" | "confirmed" | "closed" — keep open for drift
+  /**
+   * Streamed text of the in-flight assistant reply, concatenated server-side
+   * from the running task's text fragments. Empty when nothing is pending or
+   * the server predates the field.
+   */
+  partial: string;
 }
 
 export interface PortalContact {

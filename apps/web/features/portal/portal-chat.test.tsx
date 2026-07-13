@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { I18nProvider } from "@multica/core/i18n/react";
 import enPortal from "@multica/views/locales/en/portal.json";
 import type { ReactNode } from "react";
-import { PORTAL_TOKEN_STORAGE_KEY } from "./constants";
+import { PORTAL_SUMMARY_MARKER, PORTAL_TOKEN_STORAGE_KEY } from "./constants";
 import { PortalChat } from "./portal-chat";
 
 const TEST_RESOURCES = { en: { portal: enPortal } };
@@ -124,6 +124,35 @@ describe("PortalChat session start", () => {
   });
 });
 
+describe("PortalChat streaming reply", () => {
+  it("shows the in-flight assistant text while pending", async () => {
+    mockCreateSession.mockResolvedValue({ token: "tok-1" });
+    mockListMessages.mockResolvedValue({
+      messages: [],
+      pending: true,
+      status: "active",
+      partial: "Chào bạn, tôi đang phân tích yêu cầu",
+    });
+    renderChat();
+    expect(
+      await screen.findByText("Chào bạn, tôi đang phân tích yêu cầu"),
+    ).toBeInTheDocument();
+  });
+
+  it("hides summary-marker content from the streaming bubble", async () => {
+    mockCreateSession.mockResolvedValue({ token: "tok-1" });
+    mockListMessages.mockResolvedValue({
+      messages: [],
+      pending: true,
+      status: "active",
+      partial: `Phần thấy được.\n${PORTAL_SUMMARY_MARKER}\nNội dung tóm tắt`,
+    });
+    renderChat();
+    expect(await screen.findByText("Phần thấy được.")).toBeInTheDocument();
+    expect(screen.queryByText(/Nội dung tóm tắt/)).not.toBeInTheDocument();
+  });
+});
+
 describe("PortalChat send failure", () => {
   it("keeps a failed message visible with a working resend action", async () => {
     const user = userEvent.setup();
@@ -148,6 +177,11 @@ describe("PortalChat send failure", () => {
     await user.click(screen.getByRole("button", { name: enPortal.chat.resend }));
 
     expect(mockSendMessage).toHaveBeenCalledTimes(2);
-    expect(mockSendMessage).toHaveBeenLastCalledWith("tok-1", "I need an inventory system");
+    // Third arg is the marketplace project slug; none in this landing flow.
+    expect(mockSendMessage).toHaveBeenLastCalledWith(
+      "tok-1",
+      "I need an inventory system",
+      undefined,
+    );
   });
 });

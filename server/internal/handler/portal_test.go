@@ -370,6 +370,62 @@ func TestPortalSendMessage_RejectsWhilePending(t *testing.T) {
 	}
 }
 
+func TestPortalListMessages_PartialStreamsAssistantText(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	agentID, _ := enablePortalForTests(t)
+	token := createPortalGuestSessionForTest(t)
+	var chatSessionID string
+	testPool.QueryRow(context.Background(),
+		`SELECT chat_session_id::text FROM portal_session WHERE guest_token_hash = $1`,
+		hashPortalToken(token)).Scan(&chatSessionID)
+
+	// No in-flight task → no partial.
+	rec0, req0 := portalTokenRequest(t, "GET", "/portal/sessions/"+token+"/messages", token, nil)
+	testHandler.ListPortalMessages(rec0, req0)
+	if strings.Contains(rec0.Body.String(), "partial") {
+		t.Fatalf("expected no partial without a pending task: %s", rec0.Body.String())
+	}
+
+	taskID := insertPendingChatTask(t, agentID, chatSessionID, "running")
+	// Streamed fragments: only type='text' may reach the guest.
+	for i, m := range []struct{ typ, content string }{
+		{"thinking", "internal reasoning"},
+		{"text", "Chào bạn, "},
+		{"tool_use", "tool input"},
+		{"text", "tôi đang phân tích yêu cầu."},
+	} {
+		if _, err := testPool.Exec(context.Background(), `
+			INSERT INTO task_message (task_id, seq, type, content)
+			VALUES ($1, $2, $3, $4)`, taskID, i+1, m.typ, m.content); err != nil {
+			t.Fatalf("insert task_message: %v", err)
+		}
+	}
+
+	rec, req := portalTokenRequest(t, "GET", "/portal/sessions/"+token+"/messages", token, nil)
+	testHandler.ListPortalMessages(rec, req)
+	if rec.Code != 200 {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+	var resp struct {
+		Pending bool   `json:"pending"`
+		Partial string `json:"partial"`
+	}
+	json.Unmarshal(rec.Body.Bytes(), &resp)
+	if !resp.Pending {
+		t.Fatalf("expected pending=true: %s", rec.Body.String())
+	}
+	if resp.Partial != "Chào bạn, tôi đang phân tích yêu cầu." {
+		t.Fatalf("unexpected partial: %q", resp.Partial)
+	}
+	for _, leak := range []string{"internal reasoning", "tool input"} {
+		if strings.Contains(rec.Body.String(), leak) {
+			t.Fatalf("non-text fragment leaked to guest: %s", rec.Body.String())
+		}
+	}
+}
+
 func TestPortalConfirm_PersistsContactAndAppendsMarkerMessage(t *testing.T) {
 	if testHandler == nil {
 		t.Skip("database not available")

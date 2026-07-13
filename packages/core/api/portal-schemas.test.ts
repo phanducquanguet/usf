@@ -46,6 +46,22 @@ describe("portal API schema fallbacks", () => {
     expect((await client.listPortalMessages("pgt_x")).status).toBe("future_state");
   });
 
+  it("listPortalMessages exposes streamed partial text", async () => {
+    stubFetchJson({ messages: [], pending: true, status: "active", partial: "Chào bạn, " });
+    const client = new ApiClient("https://api.example.test");
+    const page = await client.listPortalMessages("pgt_x");
+    expect(page.pending).toBe(true);
+    expect(page.partial).toBe("Chào bạn, ");
+  });
+
+  it("listPortalMessages keeps the page when partial is malformed", async () => {
+    stubFetchJson({ messages: [], pending: true, status: "active", partial: 123 });
+    const client = new ApiClient("https://api.example.test");
+    const page = await client.listPortalMessages("pgt_x");
+    expect(page.pending).toBe(true);
+    expect(page.partial).toBe("");
+  });
+
   it("sendPortalMessage returns null when the body is malformed", async () => {
     stubFetchJson({ nope: true });
     const client = new ApiClient("https://api.example.test");

@@ -138,3 +138,29 @@ func (q *Queries) ListTaskMessagesSince(ctx context.Context, arg ListTaskMessage
 	}
 	return items, nil
 }
+
+const listTaskTextContents = `-- name: ListTaskTextContents :many
+SELECT content FROM task_message
+WHERE task_id = $1 AND type = 'text'
+ORDER BY seq ASC
+`
+
+func (q *Queries) ListTaskTextContents(ctx context.Context, taskID pgtype.UUID) ([]pgtype.Text, error) {
+	rows, err := q.db.Query(ctx, listTaskTextContents, taskID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pgtype.Text{}
+	for rows.Next() {
+		var content pgtype.Text
+		if err := rows.Scan(&content); err != nil {
+			return nil, err
+		}
+		items = append(items, content)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

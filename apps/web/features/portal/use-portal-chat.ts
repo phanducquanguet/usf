@@ -70,6 +70,10 @@ export function usePortalChat(projectSlug?: string) {
   const pageMessages = page.data?.messages;
   const messages: PortalChatMessage[] = useMemo(() => pageMessages ?? [], [pageMessages]);
   const status = page.data?.status ?? "active";
+  // Streamed text of the reply being written right now. Gated on the same
+  // payload's pending flag so a stale partial can never outlive its task —
+  // the response carrying the final message also carries pending=false.
+  const partial = page.data?.pending === true ? page.data.partial ?? "" : "";
 
   // The pending bubble is derived, so the frame where the server list first
   // contains the message never paints it twice; the state itself is released
@@ -136,6 +140,7 @@ export function usePortalChat(projectSlug?: string) {
       if (token != null && failed != null) send.mutate(failed);
     },
     pending,
+    partial,
     status,
     summaryReady,
     agentUnavailable,

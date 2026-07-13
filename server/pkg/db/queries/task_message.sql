@@ -13,6 +13,11 @@ SELECT * FROM task_message
 WHERE task_id = $1 AND seq > $2
 ORDER BY seq ASC;
 
+-- name: ListTaskTextContents :many
+SELECT content FROM task_message
+WHERE task_id = $1 AND type = 'text'
+ORDER BY seq ASC;
+
 -- name: DeleteTaskMessages :exec
 DELETE FROM task_message
 WHERE task_id = $1;
