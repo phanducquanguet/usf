@@ -145,9 +145,13 @@ install_cli_binary() {
   # Try /usr/local/bin first, fall back to ~/.local/bin. Tests and scripted
   # installs can override the first choice with MULTICA_BIN_DIR.
   local bin_dir="${MULTICA_BIN_DIR:-/usr/local/bin}"
+  # A fresh macOS box may not have /usr/local/bin at all; create the target
+  # dir (without sudo when possible) so the mv below has somewhere to land.
+  [ -d "$bin_dir" ] || mkdir -p "$bin_dir" 2>/dev/null || true
   if [ -w "$bin_dir" ]; then
     mv "$tmp_dir/uniai" "$bin_dir/uniai"
   elif command_exists sudo; then
+    sudo mkdir -p "$bin_dir"
     sudo mv "$tmp_dir/uniai" "$bin_dir/uniai"
   else
     bin_dir="$HOME/.local/bin"

@@ -57,10 +57,11 @@ STUB
 
 _run_installer() {
   local tmp="$1"
+  local bin_dir="${2:-$tmp/install-bin}"
   local out="$tmp/install.out"
   local err="$tmp/install.err"
-  if ! PATH="$tmp/stub-bin:$tmp/install-bin:/usr/bin:/bin" \
-    MULTICA_BIN_DIR="$tmp/install-bin" \
+  if ! PATH="$tmp/stub-bin:$bin_dir:/usr/bin:/bin" \
+    MULTICA_BIN_DIR="$bin_dir" \
     MULTICA_TEST_ARCHIVE="$tmp/cli.tar.gz" \
     MULTICA_TEST_FAIL_UNIAI_ASSET="${MULTICA_TEST_FAIL_UNIAI_ASSET:-}" \
     bash "$ROOT_DIR/scripts/install.sh" >"$out" 2>"$err"; then
@@ -70,8 +71,8 @@ _run_installer() {
     return 1
   fi
 
-  if [[ ! -x "$tmp/install-bin/uniai" ]]; then
-    echo "expected CLI binary at $tmp/install-bin/uniai" >&2
+  if [[ ! -x "$bin_dir/uniai" ]]; then
+    echo "expected CLI binary at $bin_dir/uniai" >&2
     cat "$out" >&2 || true
     cat "$err" >&2 || true
     return 1
@@ -118,7 +119,47 @@ STUB
   fi
 }
 
+test_creates_missing_bin_dir_without_sudo() {
+  local tmp
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' RETURN
+
+  _setup_sandbox "$tmp" "uniai"
+  # Any sudo invocation here is a regression: the dir is user-creatable.
+  cat >"$tmp/stub-bin/sudo" <<'STUB'
+#!/usr/bin/env bash
+echo "unexpected sudo: $*" >&2
+exit 1
+STUB
+  chmod +x "$tmp/stub-bin/sudo"
+
+  _run_installer "$tmp" "$tmp/missing-bin"
+}
+
+test_creates_missing_root_owned_bin_dir_via_sudo() {
+  local tmp
+  tmp="$(mktemp -d)"
+  trap 'chmod -R u+w "$tmp" 2>/dev/null || true; rm -rf "$tmp"' RETURN
+
+  _setup_sandbox "$tmp" "uniai"
+  # Model a fresh macOS box: the bin dir does not exist and its parent is
+  # not user-writable (like /usr/local). The sudo stub grants "root" by
+  # unlocking the parent before running the requested command.
+  mkdir -p "$tmp/usr-local"
+  chmod 555 "$tmp/usr-local"
+  cat >"$tmp/stub-bin/sudo" <<STUB
+#!/usr/bin/env bash
+chmod 755 "$tmp/usr-local"
+exec "\$@"
+STUB
+  chmod +x "$tmp/stub-bin/sudo"
+
+  _run_installer "$tmp" "$tmp/usr-local/bin"
+}
+
 test_installs_uniai_from_current_release
 test_falls_back_to_pre_rename_release_asset
 test_replaces_legacy_multica_binary_with_symlink
+test_creates_missing_bin_dir_without_sudo
+test_creates_missing_root_owned_bin_dir_via_sudo
 echo "install.sh tests passed"
