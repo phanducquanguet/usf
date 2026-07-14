@@ -404,6 +404,11 @@ function findCliOnPath(): string | null {
   if (process.platform === "darwin") {
     paths.push("/opt/homebrew/bin", "/usr/local/bin");
   }
+  if (process.platform !== "win32") {
+    // Default install dir of scripts/install.sh; PATH from a GUI launch may
+    // miss it when the shell rc was never sourced.
+    paths.push(join(homedir(), ".local", "bin"));
+  }
   for (const name of candidates) {
     for (const dir of paths) {
       const full = join(dir, name);

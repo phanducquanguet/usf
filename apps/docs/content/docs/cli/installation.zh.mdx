@@ -17,8 +17,11 @@ brew install multica-ai/tap/multica
 git clone https://github.com/phanducquanguet/usf.git
 cd uniai
 make build
-cp server/bin/multica /usr/local/bin/multica
+mkdir -p ~/.local/bin
+cp server/bin/multica ~/.local/bin/uniai
 ```
+
+请确保 `~/.local/bin` 已在 `$PATH` 中。
 
 ### Download from GitHub Releases
 
@@ -38,12 +41,18 @@ LATEST=$(curl -sI https://github.com/phanducquanguet/usf/releases/latest \
   | grep -i '^location:' | sed 's/.*tag\///' | tr -d '\r\n')
 
 # Download and extract
-curl -sL "https://github.com/phanducquanguet/usf/releases/download/${LATEST}/multica_${OS}_${ARCH}.tar.gz" \
-  -o /tmp/multica.tar.gz
-tar -xzf /tmp/multica.tar.gz -C /tmp uniai
-sudo mv /tmp/multica /usr/local/bin/multica
-rm /tmp/multica.tar.gz
+VERSION="${LATEST#v}"
+curl -sL "https://github.com/phanducquanguet/usf/releases/download/${LATEST}/uniai-cli-${VERSION}-${OS}-${ARCH}.tar.gz" \
+  -o /tmp/uniai.tar.gz
+tar -xzf /tmp/uniai.tar.gz -C /tmp uniai
+
+# Install to ~/.local/bin (no sudo needed)
+mkdir -p ~/.local/bin
+mv /tmp/uniai ~/.local/bin/uniai
+rm /tmp/uniai.tar.gz
 ```
+
+请确保 `~/.local/bin` 已在 `$PATH` 中。
 
 ### Update
 

@@ -16,8 +16,11 @@ brew install multica-ai/tap/multica
 git clone https://github.com/multica-ai/multica.git
 cd uniai
 make build
-cp server/bin/multica /usr/local/bin/multica
+mkdir -p ~/.local/bin
+cp server/bin/multica ~/.local/bin/uniai
 ```
+
+Make sure `~/.local/bin` is in `$PATH`.
 
 ### Update
 

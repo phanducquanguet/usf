@@ -102,6 +102,20 @@ detect_os() {
 # ---------------------------------------------------------------------------
 # CLI Installation
 # ---------------------------------------------------------------------------
+
+# Directory of an already-installed CLI (uniai, or pre-rename multica), so
+# upgrades replace the binary where it lives. Empty when nothing is installed.
+existing_install_dir() {
+  local name
+  for name in uniai multica; do
+    if command_exists "$name"; then
+      dirname "$(command -v "$name")"
+      return
+    fi
+  done
+  printf ''
+}
+
 install_cli_binary() {
   info "Installing UniAI CLI from GitHub Releases..."
 
@@ -142,11 +156,19 @@ install_cli_binary() {
     mv "$tmp_dir/$archive_binary" "$tmp_dir/uniai"
   fi
 
-  # Try /usr/local/bin first, fall back to ~/.local/bin. Tests and scripted
-  # installs can override the first choice with MULTICA_BIN_DIR.
-  local bin_dir="${MULTICA_BIN_DIR:-/usr/local/bin}"
-  # A fresh macOS box may not have /usr/local/bin at all; create the target
-  # dir (without sudo when possible) so the mv below has somewhere to land.
+  # Target dir: explicit MULTICA_BIN_DIR wins; an existing install is
+  # upgraded in place (a second copy elsewhere on PATH would shadow it and
+  # go stale); fresh installs go to ~/.local/bin so no sudo is needed.
+  local bin_dir="${MULTICA_BIN_DIR:-}"
+  if [ -z "$bin_dir" ]; then
+    bin_dir="$(existing_install_dir)"
+  fi
+  if [ -z "$bin_dir" ]; then
+    bin_dir="$HOME/.local/bin"
+  fi
+
+  # The target dir may not exist yet (fresh box); create it without sudo
+  # when possible so the mv below has somewhere to land.
   [ -d "$bin_dir" ] || mkdir -p "$bin_dir" 2>/dev/null || true
   if [ -w "$bin_dir" ]; then
     mv "$tmp_dir/uniai" "$bin_dir/uniai"
@@ -157,12 +179,12 @@ install_cli_binary() {
     bin_dir="$HOME/.local/bin"
     mkdir -p "$bin_dir"
     mv "$tmp_dir/uniai" "$bin_dir/uniai"
-    chmod +x "$bin_dir/uniai"
-    # Add to PATH if not already there
-    if ! echo "$PATH" | tr ':' '\n' | grep -q "^$bin_dir$"; then
-      export PATH="$bin_dir:$PATH"
-      add_to_path "$bin_dir"
-    fi
+  fi
+
+  # Make sure the chosen dir is reachable from this shell and future ones.
+  if ! echo "$PATH" | tr ':' '\n' | grep -q "^$bin_dir$"; then
+    export PATH="$bin_dir:$PATH"
+    add_to_path "$bin_dir"
   fi
 
   rm -rf "$tmp_dir"
@@ -526,7 +548,8 @@ main() {
         echo "                        (default: \$HOME/.multica/server)"
         echo "  MULTICA_BIN_DIR       Target directory for the CLI binary when"
         echo "                        installing from GitHub Releases"
-        echo "                        (default: /usr/local/bin, then \$HOME/.local/bin)"
+        echo "                        (default: dir of an existing install,"
+        echo "                        otherwise \$HOME/.local/bin)"
         echo "  MULTICA_SELFHOST_REF  Git ref to check out for self-host assets"
         echo "                        (default: latest release tag, falling back to main)"
         echo ""

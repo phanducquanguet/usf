@@ -157,9 +157,87 @@ STUB
   _run_installer "$tmp" "$tmp/usr-local/bin"
 }
 
+# Forbid sudo for scenarios that must stay entirely in user-writable dirs.
+_stub_sudo_forbidden() {
+  local tmp="$1"
+  cat >"$tmp/stub-bin/sudo" <<'STUB'
+#!/usr/bin/env bash
+echo "unexpected sudo: $*" >&2
+exit 1
+STUB
+  chmod +x "$tmp/stub-bin/sudo"
+}
+
+test_fresh_install_defaults_to_user_local_bin() {
+  local tmp
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' RETURN
+
+  _setup_sandbox "$tmp" "uniai"
+  _stub_sudo_forbidden "$tmp"
+  mkdir -p "$tmp/home"
+
+  # No MULTICA_BIN_DIR and no existing install: must land in ~/.local/bin
+  # without ever touching sudo.
+  if ! PATH="$tmp/stub-bin:/usr/bin:/bin" \
+    HOME="$tmp/home" \
+    MULTICA_TEST_ARCHIVE="$tmp/cli.tar.gz" \
+    bash "$ROOT_DIR/scripts/install.sh" >"$tmp/install.out" 2>"$tmp/install.err"; then
+    echo "install.sh exited non-zero" >&2
+    cat "$tmp/install.out" "$tmp/install.err" >&2 || true
+    return 1
+  fi
+
+  if [[ ! -x "$tmp/home/.local/bin/uniai" ]]; then
+    echo "expected fresh install to default to \$HOME/.local/bin/uniai" >&2
+    cat "$tmp/install.out" "$tmp/install.err" >&2 || true
+    return 1
+  fi
+}
+
+test_upgrades_existing_install_in_place() {
+  local tmp
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' RETURN
+
+  _setup_sandbox "$tmp" "uniai"
+  _stub_sudo_forbidden "$tmp"
+  mkdir -p "$tmp/home" "$tmp/existing-bin"
+
+  # An outdated install already lives outside the default dir.
+  cat >"$tmp/existing-bin/uniai" <<'STUB'
+#!/usr/bin/env bash
+echo "uniai 0.1.0 (commit: old)"
+STUB
+  chmod +x "$tmp/existing-bin/uniai"
+
+  if ! PATH="$tmp/stub-bin:$tmp/existing-bin:/usr/bin:/bin" \
+    HOME="$tmp/home" \
+    MULTICA_TEST_ARCHIVE="$tmp/cli.tar.gz" \
+    bash "$ROOT_DIR/scripts/install.sh" >"$tmp/install.out" 2>"$tmp/install.err"; then
+    echo "install.sh exited non-zero" >&2
+    cat "$tmp/install.out" "$tmp/install.err" >&2 || true
+    return 1
+  fi
+
+  # The upgrade must replace the binary where it already lives, not fork a
+  # second copy into the default dir.
+  if ! "$tmp/existing-bin/uniai" version 2>/dev/null | grep -q "0.3.2"; then
+    echo "expected existing install at $tmp/existing-bin to be upgraded in place" >&2
+    cat "$tmp/install.out" "$tmp/install.err" >&2 || true
+    return 1
+  fi
+  if [[ -e "$tmp/home/.local/bin/uniai" ]]; then
+    echo "upgrade must not install a duplicate binary into \$HOME/.local/bin" >&2
+    return 1
+  fi
+}
+
 test_installs_uniai_from_current_release
 test_falls_back_to_pre_rename_release_asset
 test_replaces_legacy_multica_binary_with_symlink
 test_creates_missing_bin_dir_without_sudo
 test_creates_missing_root_owned_bin_dir_via_sudo
+test_fresh_install_defaults_to_user_local_bin
+test_upgrades_existing_install_in_place
 echo "install.sh tests passed"

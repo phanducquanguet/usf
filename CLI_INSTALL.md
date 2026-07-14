@@ -77,10 +77,13 @@ LATEST=$(curl -sI https://github.com/multica-ai/multica/releases/latest | grep -
 
 # Download and extract
 VERSION="${LATEST#v}"
-curl -sL "https://github.com/multica-ai/multica/releases/download/${LATEST}/multica-cli-${VERSION}-${OS}-${ARCH}.tar.gz" -o /tmp/multica.tar.gz
-tar -xzf /tmp/multica.tar.gz -C /tmp uniai
-sudo mv /tmp/multica /usr/local/bin/multica
-rm /tmp/multica.tar.gz
+curl -sL "https://github.com/multica-ai/multica/releases/download/${LATEST}/uniai-cli-${VERSION}-${OS}-${ARCH}.tar.gz" -o /tmp/uniai.tar.gz
+tar -xzf /tmp/uniai.tar.gz -C /tmp uniai
+
+# Install to ~/.local/bin (no sudo needed)
+mkdir -p ~/.local/bin
+mv /tmp/uniai ~/.local/bin/uniai
+rm /tmp/uniai.tar.gz
 ```
 
 Verify:
@@ -90,9 +93,9 @@ uniai version
 ```
 
 **If this fails:**
-- Check that `/usr/local/bin` is in `$PATH`.
-- On Linux, you may need `chmod +x /usr/local/bin/multica`.
-- If `sudo` is not available, install to a user-writable directory: `mv /tmp/multica ~/.local/bin/multica` and ensure `~/.local/bin` is in `$PATH`.
+- Check that `~/.local/bin` is in `$PATH`; if not, add `export PATH="$HOME/.local/bin:$PATH"` to your shell rc file and restart the shell.
+- On Linux, you may need `chmod +x ~/.local/bin/uniai`.
+- To install system-wide instead, use `sudo mkdir -p /usr/local/bin && sudo mv /tmp/uniai /usr/local/bin/uniai`.
 
 ### Option C: Windows (PowerShell)
 
