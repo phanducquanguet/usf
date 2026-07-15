@@ -44,6 +44,7 @@ func createTestPortalProject(t *testing.T, name string, published bool) PortalAd
 		"features": []string{"Đặt bàn", "Thanh toán"}, "images": []string{"https://cdn.example.com/a.png"},
 		"demo_url": "https://demo.example.com", "portfolio_url": "https://p.example.com",
 		"source_url": "git@internal:repo.git", "published": published, "sort_order": 1,
+		"i18n": map[string]any{"en": map[string]any{"name": name + " (en)"}},
 	})
 	testHandler.CreatePortalProject(rec, req)
 	if rec.Code != 201 {
@@ -95,6 +96,7 @@ func TestPortalProject_UpdateAndList(t *testing.T) {
 		"name": "App bán lẻ", "description": "Mới", "industry": "Retail",
 		"features": []string{}, "images": []string{}, "demo_url": "", "portfolio_url": "",
 		"source_url": "", "published": true, "sort_order": 5,
+		"i18n": map[string]any{"en": map[string]any{"name": "Retail app", "description": "New"}},
 	})
 	testHandler.UpdatePortalProject(rec, req)
 	if rec.Code != 200 {
@@ -104,6 +106,9 @@ func TestPortalProject_UpdateAndList(t *testing.T) {
 	json.Unmarshal(rec.Body.Bytes(), &updated)
 	if !updated.Published || updated.SortOrder != 5 || updated.Description != "Mới" {
 		t.Fatalf("unexpected update result: %+v", updated)
+	}
+	if !strings.Contains(string(updated.I18n), "Retail app") {
+		t.Fatalf("i18n must round-trip through update: %s", updated.I18n)
 	}
 	// List includes unpublished + published.
 	createTestPortalProject(t, "Ẩn", false)
@@ -168,6 +173,10 @@ func TestPortalPublicProjects_DetailAndUnpublished404(t *testing.T) {
 	testHandler.GetPortalPublicProject(rec, req)
 	if rec.Code != 200 || strings.Contains(rec.Body.String(), "source_url") {
 		t.Fatalf("detail: %d %s", rec.Code, rec.Body.String())
+	}
+	// Locale overrides round-trip to the guest-facing payload.
+	if !strings.Contains(rec.Body.String(), `Chi tiết app (en)`) {
+		t.Fatalf("detail must include i18n overrides: %s", rec.Body.String())
 	}
 
 	rec2, req2 := publicProjectRequest(t, "/portal/projects/nhap", "nhap")

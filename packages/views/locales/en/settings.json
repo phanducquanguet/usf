@@ -387,7 +387,6 @@
     "add": "Add repository",
     "save": "Save",
     "saving": "Saving...",
-    "saved_hint": "All changes saved",
     "empty": "No repositories yet.",
     "edit_aria": "Edit repository",
     "cancel_aria": "Cancel edit",
@@ -455,6 +454,10 @@
       }
     }
   },
+  "save_bar": {
+    "unsaved": "Unsaved changes",
+    "reset": "Reset"
+  },
   "portal": {
     "title": "Customer portal",
     "description": "Public consultation page: customers describe the software they need, the agent surveys them and creates a project once they confirm.",
@@ -462,6 +465,8 @@
     "enable": "Enable portal",
     "enable_hint": "When enabled, the consultation page is public to anyone.",
     "status_live": "Live",
+    "status_offline": "Offline",
+    "view_portal": "View portal",
     "agent": "Consulting agent",
     "agent_hint": "This agent chats with customers and surveys their needs.",
     "agent_placeholder": "Select an agent",
@@ -493,6 +498,7 @@
     "industry": "Industry",
     "industry_placeholder": "F&B",
     "features": "Features (one per line)",
+    "i18n_hint": "Shown when guests browse the portal in English. Blank fields fall back to the Vietnamese copy.",
     "images": "Images",
     "upload_image": "Upload image",
     "remove_image": "Remove",

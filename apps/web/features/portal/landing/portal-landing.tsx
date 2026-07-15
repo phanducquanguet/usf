@@ -24,6 +24,7 @@ import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
 import {
   SUPPORTED_LOCALES,
+  localizePortalProject,
   matchLocale,
   type SupportedLocale,
 } from "@multica/core/i18n";
@@ -268,7 +269,8 @@ export function PortalLanding() {
   const hero = config?.hero_content ?? {};
   // Admin copy is locale-keyed; missing fields fall back to the built-in
   // translations so the language switch never leaves mixed-language copy.
-  const heroCopy = hero[matchLocale([i18n.language])] ?? {};
+  const locale = matchLocale([i18n.language]);
+  const heroCopy = hero[locale] ?? {};
   const heroSubs = t(($) => $.hero.subs, { returnObjects: true }) as string[];
   const problems = t(($) => $.problem.items, { returnObjects: true }) as Item[];
   const layers = t(($) => $.solution.layers, { returnObjects: true }) as (Item & {
@@ -558,7 +560,7 @@ export function PortalLanding() {
           <Reveal>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {featured.slice(0, 6).map((p) => (
-                <ProjectCard key={p.slug} project={p} />
+                <ProjectCard key={p.slug} project={localizePortalProject(p, locale)} />
               ))}
             </div>
             <div className="mt-10 text-center">

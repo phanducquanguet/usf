@@ -29,6 +29,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@multica/ui/components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@multica/ui/components/ui/tabs";
 import { Skeleton } from "@multica/ui/components/ui/skeleton";
 import {
   AlertDialog,
@@ -48,9 +54,13 @@ import {
 } from "@multica/core/workspace/queries";
 import type {
   PortalAdminProject,
+  PortalProjectCopy,
   PortalProjectInput,
 } from "@multica/core/types/portal";
 import { useT } from "../../i18n";
+
+// Autonyms, never translated — matches the landing's VI|EN switch.
+const LOCALE_LABELS = { vi: "Tiếng Việt", en: "English" } as const;
 
 const EMPTY_INPUT: PortalProjectInput = {
   name: "",
@@ -63,6 +73,7 @@ const EMPTY_INPUT: PortalProjectInput = {
   source_url: "",
   published: false,
   sort_order: 0,
+  i18n: {},
 };
 
 function toInput(p: PortalAdminProject): PortalProjectInput {
@@ -77,6 +88,7 @@ function toInput(p: PortalAdminProject): PortalProjectInput {
     source_url: p.source_url,
     published: p.published,
     sort_order: p.sort_order,
+    i18n: p.i18n ?? {},
   };
 }
 
@@ -157,6 +169,16 @@ export function PortalProjectsSection() {
     key: K,
     value: PortalProjectInput[K],
   ) => setForm((f) => ({ ...f, [key]: value }));
+
+  const setEnField = <K extends keyof PortalProjectCopy>(
+    key: K,
+    value: PortalProjectCopy[K],
+  ) =>
+    setForm((f) => ({
+      ...f,
+      i18n: { ...f.i18n, en: { ...f.i18n?.en, [key]: value } },
+    }));
+  const enCopy = form.i18n?.en ?? {};
 
   const publishedCount = projects.filter((p) => p.published).length;
 
@@ -308,59 +330,133 @@ export function PortalProjectsSection() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="pp-name">{t(($) => $.portal_projects.name)}</Label>
-              <Input
-                id="pp-name"
-                value={form.name}
-                placeholder={t(($) => $.portal_projects.name_placeholder)}
-                onChange={(e) => setField("name", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="pp-desc">{t(($) => $.portal_projects.description_label)}</Label>
-              <Textarea
-                id="pp-desc"
-                value={form.description}
-                onChange={(e) => setField("description", e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="pp-industry">{t(($) => $.portal_projects.industry)}</Label>
-                <Input
-                  id="pp-industry"
-                  value={form.industry}
-                  placeholder={t(($) => $.portal_projects.industry_placeholder)}
-                  onChange={(e) => setField("industry", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pp-sort">{t(($) => $.portal_projects.sort_order)}</Label>
-                <Input
-                  id="pp-sort"
-                  type="number"
-                  value={form.sort_order}
-                  onChange={(e) => setField("sort_order", Number(e.target.value) || 0)}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="pp-features">{t(($) => $.portal_projects.features)}</Label>
-              <Textarea
-                id="pp-features"
-                value={form.features.join("\n")}
-                onChange={(e) =>
-                  setField(
-                    "features",
-                    e.target.value
-                      .split("\n")
-                      .map((s) => s.trim())
-                      .filter(Boolean),
-                  )
-                }
-              />
-            </div>
+            {/* One tab per marketplace language, mirroring the portal hero
+             * editor. Tab labels are autonyms, never translated. Blank
+             * English fields fall back to the Vietnamese copy. */}
+            <Tabs defaultValue="vi">
+              <TabsList>
+                {(["vi", "en"] as const).map((locale) => (
+                  <TabsTrigger key={locale} value={locale} lang={locale}>
+                    {LOCALE_LABELS[locale]}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              <TabsContent value="vi">
+                <fieldset lang="vi" className="space-y-5 pt-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-name">{t(($) => $.portal_projects.name)}</Label>
+                    <Input
+                      id="pp-name"
+                      value={form.name}
+                      placeholder={t(($) => $.portal_projects.name_placeholder)}
+                      onChange={(e) => setField("name", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-desc">
+                      {t(($) => $.portal_projects.description_label)}
+                    </Label>
+                    <Textarea
+                      id="pp-desc"
+                      value={form.description}
+                      onChange={(e) => setField("description", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-industry">
+                      {t(($) => $.portal_projects.industry)}
+                    </Label>
+                    <Input
+                      id="pp-industry"
+                      value={form.industry}
+                      placeholder={t(($) => $.portal_projects.industry_placeholder)}
+                      onChange={(e) => setField("industry", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-features">
+                      {t(($) => $.portal_projects.features)}
+                    </Label>
+                    <Textarea
+                      id="pp-features"
+                      value={form.features.join("\n")}
+                      onChange={(e) =>
+                        setField(
+                          "features",
+                          e.target.value
+                            .split("\n")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                    />
+                  </div>
+                </fieldset>
+              </TabsContent>
+              <TabsContent value="en">
+                <fieldset lang="en" className="space-y-5 pt-3">
+                  <p id="pp-i18n-hint" className="text-xs text-muted-foreground">
+                    {t(($) => $.portal_projects.i18n_hint)}
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-name-en">
+                      {t(($) => $.portal_projects.name)}
+                    </Label>
+                    <Input
+                      id="pp-name-en"
+                      aria-describedby="pp-i18n-hint"
+                      value={enCopy.name ?? ""}
+                      placeholder={form.name}
+                      onChange={(e) => setEnField("name", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-desc-en">
+                      {t(($) => $.portal_projects.description_label)}
+                    </Label>
+                    <Textarea
+                      id="pp-desc-en"
+                      aria-describedby="pp-i18n-hint"
+                      value={enCopy.description ?? ""}
+                      placeholder={form.description}
+                      onChange={(e) => setEnField("description", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-industry-en">
+                      {t(($) => $.portal_projects.industry)}
+                    </Label>
+                    <Input
+                      id="pp-industry-en"
+                      aria-describedby="pp-i18n-hint"
+                      value={enCopy.industry ?? ""}
+                      placeholder={form.industry}
+                      onChange={(e) => setEnField("industry", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pp-features-en">
+                      {t(($) => $.portal_projects.features)}
+                    </Label>
+                    <Textarea
+                      id="pp-features-en"
+                      aria-describedby="pp-i18n-hint"
+                      value={(enCopy.features ?? []).join("\n")}
+                      placeholder={form.features.join("\n")}
+                      onChange={(e) =>
+                        setEnField(
+                          "features",
+                          e.target.value
+                            .split("\n")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                    />
+                  </div>
+                </fieldset>
+              </TabsContent>
+            </Tabs>
 
             <Separator />
 
@@ -443,6 +539,17 @@ export function PortalProjectsSection() {
               <p className="text-xs text-muted-foreground">
                 {t(($) => $.portal_projects.source_url_hint)}
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pp-sort">{t(($) => $.portal_projects.sort_order)}</Label>
+              <Input
+                id="pp-sort"
+                type="number"
+                className="w-32"
+                value={form.sort_order}
+                onChange={(e) => setField("sort_order", Number(e.target.value) || 0)}
+              />
             </div>
 
             <div className="flex items-center justify-between gap-4 rounded-lg border p-3">

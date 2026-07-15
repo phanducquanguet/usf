@@ -324,6 +324,7 @@ function normalizePortalProject(p: {
   images?: string[];
   demo_url?: string;
   portfolio_url?: string;
+  i18n?: PortalProject["i18n"];
 }): PortalProject {
   return {
     slug: p.slug,
@@ -334,6 +335,7 @@ function normalizePortalProject(p: {
     images: p.images ?? [],
     demo_url: p.demo_url ?? "",
     portfolio_url: p.portfolio_url ?? "",
+    i18n: p.i18n,
   };
 }
 

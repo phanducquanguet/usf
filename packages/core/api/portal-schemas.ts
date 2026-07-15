@@ -70,6 +70,23 @@ export const portalAdminConfigSchema = z
   })
   .loose();
 
+// Malformed locale overrides must not drop the project — degrade to base copy.
+export const portalProjectI18nSchema = z
+  .object({
+    en: z
+      .object({
+        name: z.string().optional(),
+        description: z.string().optional(),
+        industry: z.string().optional(),
+        features: z.array(z.string()).optional(),
+      })
+      .loose()
+      .optional(),
+  })
+  .loose()
+  .optional()
+  .catch(undefined);
+
 export const portalPublicProjectSchema = z
   .object({
     slug: z.string(),
@@ -80,6 +97,7 @@ export const portalPublicProjectSchema = z
     images: z.array(z.string()).optional(),
     demo_url: z.string().optional(),
     portfolio_url: z.string().optional(),
+    i18n: portalProjectI18nSchema,
   })
   .loose();
 

@@ -101,8 +101,29 @@ describe("PortalProjectsSection", () => {
     render(<PortalProjectsSection />, { wrapper: I18nWrapper });
     await screen.findByText("Quản lý nhà hàng");
     await userEvent.click(screen.getByRole("button", { name: "Add project" }));
+    // Vietnamese tab is active by default; the English override fields live
+    // in the (unmounted) English tab.
     expect(await screen.findByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "English" })).toBeInTheDocument();
     expect(screen.getByLabelText("Source URL (internal)")).toBeInTheDocument();
+  });
+
+  it("saves English overrides under i18n.en", async () => {
+    render(<PortalProjectsSection />, { wrapper: I18nWrapper });
+    await screen.findByText("Quản lý nhà hàng");
+    await userEvent.click(screen.getByRole("button", { name: "Add project" }));
+    await userEvent.type(await screen.findByLabelText("Name"), "App bán lẻ");
+    await userEvent.click(screen.getByRole("tab", { name: "English" }));
+    await userEvent.type(await screen.findByLabelText("Name"), "Retail app");
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "App bán lẻ",
+          i18n: { en: { name: "Retail app" } },
+        }),
+      ),
+    );
   });
 
   it("toggling publish sends a full update with the flipped flag", async () => {

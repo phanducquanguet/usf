@@ -46,7 +46,8 @@
     "copy_action": "Copy",
     "copied_toast": "Copied",
     "copy_failed_toast": "Copy failed",
-    "loading_older": "Loading older messages…"
+    "loading_older": "Loading older messages…",
+    "task_failed_fallback": "Task failed"
   },
   "session_history": {
     "untitled": "Untitled",

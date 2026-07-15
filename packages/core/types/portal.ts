@@ -57,6 +57,20 @@ export interface PortalAdminConfig {
   hero_content?: PortalHeroContent;
 }
 
+/** Per-field locale overrides for a marketplace project. Base columns hold
+ * the Vietnamese copy; missing fields fall back to it (hero_content pattern,
+ * migration 164). */
+export interface PortalProjectCopy {
+  name?: string;
+  description?: string;
+  industry?: string;
+  features?: string[];
+}
+
+export interface PortalProjectI18n {
+  en?: PortalProjectCopy;
+}
+
 export interface PortalProject {
   slug: string;
   name: string;
@@ -66,6 +80,7 @@ export interface PortalProject {
   images: string[];
   demo_url: string;
   portfolio_url: string;
+  i18n?: PortalProjectI18n;
 }
 
 export interface PortalAdminProject extends PortalProject {
@@ -88,6 +103,7 @@ export interface PortalProjectInput {
   source_url: string;
   published: boolean;
   sort_order: number;
+  i18n?: PortalProjectI18n;
 }
 
 export interface UpdatePortalAdminConfigRequest {

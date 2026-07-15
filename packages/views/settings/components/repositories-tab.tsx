@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X } from "lucide-react";
 import { Input } from "@multica/ui/components/ui/input";
 import { Button } from "@multica/ui/components/ui/button";
 import { Card, CardContent } from "@multica/ui/components/ui/card";
@@ -14,6 +14,7 @@ import { memberListOptions, workspaceKeys } from "@multica/core/workspace/querie
 import { api } from "@multica/core/api";
 import type { Workspace, WorkspaceRepo } from "@multica/core/types";
 import { useT } from "../../i18n";
+import { UnsavedChangesBar } from "./unsaved-changes-bar";
 
 function dropAndShiftIndex(set: Set<number>, removed: number): Set<number> {
   const next = new Set<number>();
@@ -206,26 +207,11 @@ export function RepositoriesTab() {
             })}
 
             {canManageWorkspace && (
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <div className="pt-1">
                 <Button variant="outline" size="sm" onClick={handleAddRepo}>
                   <Plus className="h-3 w-3" />
                   {t(($) => $.repositories.add)}
                 </Button>
-                <div className="flex items-center gap-3">
-                  {!dirty && repos.length > 0 && (
-                    <span className="text-xs text-muted-foreground">
-                      {t(($) => $.repositories.saved_hint)}
-                    </span>
-                  )}
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={saving || !dirty}
-                  >
-                    <Save className="h-3 w-3" />
-                    {saving ? t(($) => $.repositories.saving) : t(($) => $.repositories.save)}
-                  </Button>
-                </div>
               </div>
             )}
 
@@ -237,6 +223,21 @@ export function RepositoriesTab() {
           </CardContent>
         </Card>
       </section>
+
+      {/* Same save vocabulary as the portal tab: the bar appears only while
+       * there is something to save. */}
+      {canManageWorkspace && (dirty || saving) ? (
+        <UnsavedChangesBar
+          saving={saving}
+          onSave={() => void handleSave()}
+          onReset={() => {
+            setRepos(savedRepos);
+            setEditingIndices(new Set());
+          }}
+          saveLabel={t(($) => $.repositories.save)}
+          savingLabel={t(($) => $.repositories.saving)}
+        />
+      ) : null}
     </div>
   );
 }

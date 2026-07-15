@@ -62,9 +62,9 @@ func (q *Queries) ConfirmPortalSession(ctx context.Context, arg ConfirmPortalSes
 const createPortalProject = `-- name: CreatePortalProject :one
 INSERT INTO portal_project (
     workspace_id, slug, name, description, industry, features, images,
-    demo_url, portfolio_url, source_url, published, sort_order
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-RETURNING id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at
+    demo_url, portfolio_url, source_url, published, sort_order, i18n
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+RETURNING id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at, i18n
 `
 
 type CreatePortalProjectParams struct {
@@ -80,6 +80,7 @@ type CreatePortalProjectParams struct {
 	SourceUrl    string      `json:"source_url"`
 	Published    bool        `json:"published"`
 	SortOrder    int32       `json:"sort_order"`
+	I18n         []byte      `json:"i18n"`
 }
 
 func (q *Queries) CreatePortalProject(ctx context.Context, arg CreatePortalProjectParams) (PortalProject, error) {
@@ -96,6 +97,7 @@ func (q *Queries) CreatePortalProject(ctx context.Context, arg CreatePortalProje
 		arg.SourceUrl,
 		arg.Published,
 		arg.SortOrder,
+		arg.I18n,
 	)
 	var i PortalProject
 	err := row.Scan(
@@ -114,6 +116,7 @@ func (q *Queries) CreatePortalProject(ctx context.Context, arg CreatePortalProje
 		&i.SortOrder,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.I18n,
 	)
 	return i, err
 }
@@ -189,7 +192,7 @@ func (q *Queries) GetPortalConfig(ctx context.Context, workspaceID pgtype.UUID) 
 }
 
 const getPortalProject = `-- name: GetPortalProject :one
-SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE id = $1 AND workspace_id = $2
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at, i18n FROM portal_project WHERE id = $1 AND workspace_id = $2
 `
 
 type GetPortalProjectParams struct {
@@ -216,6 +219,7 @@ func (q *Queries) GetPortalProject(ctx context.Context, arg GetPortalProjectPara
 		&i.SortOrder,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.I18n,
 	)
 	return i, err
 }
@@ -244,7 +248,7 @@ func (q *Queries) GetPortalSessionByTokenHash(ctx context.Context, guestTokenHas
 }
 
 const getPublishedPortalProjectBySlug = `-- name: GetPublishedPortalProjectBySlug :one
-SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE workspace_id = $1 AND slug = $2 AND published
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at, i18n FROM portal_project WHERE workspace_id = $1 AND slug = $2 AND published
 `
 
 type GetPublishedPortalProjectBySlugParams struct {
@@ -271,12 +275,13 @@ func (q *Queries) GetPublishedPortalProjectBySlug(ctx context.Context, arg GetPu
 		&i.SortOrder,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.I18n,
 	)
 	return i, err
 }
 
 const listPortalProjects = `-- name: ListPortalProjects :many
-SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE workspace_id = $1 ORDER BY sort_order, name
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at, i18n FROM portal_project WHERE workspace_id = $1 ORDER BY sort_order, name
 `
 
 func (q *Queries) ListPortalProjects(ctx context.Context, workspaceID pgtype.UUID) ([]PortalProject, error) {
@@ -304,6 +309,7 @@ func (q *Queries) ListPortalProjects(ctx context.Context, workspaceID pgtype.UUI
 			&i.SortOrder,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.I18n,
 		); err != nil {
 			return nil, err
 		}
@@ -316,7 +322,7 @@ func (q *Queries) ListPortalProjects(ctx context.Context, workspaceID pgtype.UUI
 }
 
 const listPublishedPortalProjects = `-- name: ListPublishedPortalProjects :many
-SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at FROM portal_project WHERE workspace_id = $1 AND published ORDER BY sort_order, name
+SELECT id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at, i18n FROM portal_project WHERE workspace_id = $1 AND published ORDER BY sort_order, name
 `
 
 func (q *Queries) ListPublishedPortalProjects(ctx context.Context, workspaceID pgtype.UUID) ([]PortalProject, error) {
@@ -344,6 +350,7 @@ func (q *Queries) ListPublishedPortalProjects(ctx context.Context, workspaceID p
 			&i.SortOrder,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.I18n,
 		); err != nil {
 			return nil, err
 		}
@@ -395,9 +402,9 @@ const updatePortalProject = `-- name: UpdatePortalProject :one
 UPDATE portal_project
 SET name = $3, description = $4, industry = $5, features = $6, images = $7,
     demo_url = $8, portfolio_url = $9, source_url = $10, published = $11,
-    sort_order = $12, updated_at = now()
+    sort_order = $12, i18n = $13, updated_at = now()
 WHERE id = $1 AND workspace_id = $2
-RETURNING id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at
+RETURNING id, workspace_id, slug, name, description, industry, features, images, demo_url, portfolio_url, source_url, published, sort_order, created_at, updated_at, i18n
 `
 
 type UpdatePortalProjectParams struct {
@@ -413,6 +420,7 @@ type UpdatePortalProjectParams struct {
 	SourceUrl    string      `json:"source_url"`
 	Published    bool        `json:"published"`
 	SortOrder    int32       `json:"sort_order"`
+	I18n         []byte      `json:"i18n"`
 }
 
 func (q *Queries) UpdatePortalProject(ctx context.Context, arg UpdatePortalProjectParams) (PortalProject, error) {
@@ -429,6 +437,7 @@ func (q *Queries) UpdatePortalProject(ctx context.Context, arg UpdatePortalProje
 		arg.SourceUrl,
 		arg.Published,
 		arg.SortOrder,
+		arg.I18n,
 	)
 	var i PortalProject
 	err := row.Scan(
@@ -447,6 +456,7 @@ func (q *Queries) UpdatePortalProject(ctx context.Context, arg UpdatePortalProje
 		&i.SortOrder,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.I18n,
 	)
 	return i, err
 }

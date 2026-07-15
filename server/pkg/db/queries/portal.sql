@@ -53,15 +53,15 @@ SELECT * FROM portal_project WHERE workspace_id = $1 AND slug = $2 AND published
 -- name: CreatePortalProject :one
 INSERT INTO portal_project (
     workspace_id, slug, name, description, industry, features, images,
-    demo_url, portfolio_url, source_url, published, sort_order
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    demo_url, portfolio_url, source_url, published, sort_order, i18n
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING *;
 
 -- name: UpdatePortalProject :one
 UPDATE portal_project
 SET name = $3, description = $4, industry = $5, features = $6, images = $7,
     demo_url = $8, portfolio_url = $9, source_url = $10, published = $11,
-    sort_order = $12, updated_at = now()
+    sort_order = $12, i18n = $13, updated_at = now()
 WHERE id = $1 AND workspace_id = $2
 RETURNING *;
 

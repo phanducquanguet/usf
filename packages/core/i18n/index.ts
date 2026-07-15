@@ -17,4 +17,5 @@ export type {
 } from "./types";
 export { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "./types";
 export { matchLocale, pickLocale } from "./pick-locale";
+export { localizePortalProject } from "./localize-portal-project";
 export { LOCALE_COOKIE } from "./browser-cookie-adapter";

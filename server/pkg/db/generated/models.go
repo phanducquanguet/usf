@@ -710,6 +710,7 @@ type PortalProject struct {
 	SortOrder    int32              `json:"sort_order"`
 	CreatedAt    pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	I18n         []byte             `json:"i18n"`
 }
 
 type PortalSession struct {

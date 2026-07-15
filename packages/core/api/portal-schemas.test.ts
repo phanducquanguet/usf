@@ -111,6 +111,23 @@ describe("portal API schema fallbacks", () => {
     ]);
   });
 
+  it("getPortalProjects keeps locale overrides and drops malformed i18n", async () => {
+    const client = new ApiClient("https://api.example.test");
+    stubFetchJson({
+      projects: [
+        { slug: "a", name: "A", i18n: { en: { name: "A (en)", features: ["X"] } } },
+      ],
+    });
+    let projects = await client.getPortalProjects();
+    expect(projects[0]?.i18n).toEqual({ en: { name: "A (en)", features: ["X"] } });
+
+    // Malformed i18n degrades to the base copy, never drops the project.
+    stubFetchJson({ projects: [{ slug: "a", name: "A", i18n: "broken" }] });
+    projects = await client.getPortalProjects();
+    expect(projects).toHaveLength(1);
+    expect(projects[0]?.i18n).toBeUndefined();
+  });
+
   it("getPortalProject returns null on malformed body", async () => {
     stubFetchJson({ nope: true });
     const client = new ApiClient("https://api.example.test");

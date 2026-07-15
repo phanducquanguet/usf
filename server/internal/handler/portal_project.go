@@ -33,31 +33,36 @@ type PortalAdminProjectResponse struct {
 	SortOrder    int32    `json:"sort_order"`
 	CreatedAt    string   `json:"created_at"`
 	UpdatedAt    string   `json:"updated_at"`
+	// Locale overrides ({"en": {"name": ...}}); base columns are Vietnamese.
+	// JSONB passthrough like hero_content — the server never inspects it.
+	I18n json.RawMessage `json:"i18n"`
 }
 
 // PortalPublicProjectResponse is the guest-facing shape. No source_url ever.
 type PortalPublicProjectResponse struct {
-	Slug         string   `json:"slug"`
-	Name         string   `json:"name"`
-	Description  string   `json:"description"`
-	Industry     string   `json:"industry"`
-	Features     []string `json:"features"`
-	Images       []string `json:"images"`
-	DemoURL      string   `json:"demo_url"`
-	PortfolioURL string   `json:"portfolio_url"`
+	Slug         string          `json:"slug"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Industry     string          `json:"industry"`
+	Features     []string        `json:"features"`
+	Images       []string        `json:"images"`
+	DemoURL      string          `json:"demo_url"`
+	PortfolioURL string          `json:"portfolio_url"`
+	I18n         json.RawMessage `json:"i18n"`
 }
 
 type portalProjectRequest struct {
-	Name         string   `json:"name"`
-	Description  string   `json:"description"`
-	Industry     string   `json:"industry"`
-	Features     []string `json:"features"`
-	Images       []string `json:"images"`
-	DemoURL      string   `json:"demo_url"`
-	PortfolioURL string   `json:"portfolio_url"`
-	SourceURL    string   `json:"source_url"`
-	Published    bool     `json:"published"`
-	SortOrder    int32    `json:"sort_order"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Industry     string          `json:"industry"`
+	Features     []string        `json:"features"`
+	Images       []string        `json:"images"`
+	DemoURL      string          `json:"demo_url"`
+	PortfolioURL string          `json:"portfolio_url"`
+	SourceURL    string          `json:"source_url"`
+	Published    bool            `json:"published"`
+	SortOrder    int32           `json:"sort_order"`
+	I18n         json.RawMessage `json:"i18n"`
 }
 
 func portalProjectToAdminResponse(p db.PortalProject) PortalAdminProjectResponse {
@@ -76,6 +81,7 @@ func portalProjectToAdminResponse(p db.PortalProject) PortalAdminProjectResponse
 		SortOrder:    p.SortOrder,
 		CreatedAt:    timestampToString(p.CreatedAt),
 		UpdatedAt:    timestampToString(p.UpdatedAt),
+		I18n:         i18nOrEmpty(p.I18n),
 	}
 }
 
@@ -89,6 +95,7 @@ func portalProjectToPublicResponse(p db.PortalProject) PortalPublicProjectRespon
 		Images:       emptyIfNil(p.Images),
 		DemoURL:      p.DemoUrl,
 		PortfolioURL: p.PortfolioUrl,
+		I18n:         i18nOrEmpty(p.I18n),
 	}
 }
 
@@ -98,6 +105,14 @@ func emptyIfNil(s []string) []string {
 		return []string{}
 	}
 	return s
+}
+
+// i18nOrEmpty keeps the i18n JSONB as {} instead of null in responses.
+func i18nOrEmpty(b []byte) json.RawMessage {
+	if len(b) == 0 {
+		return json.RawMessage(`{}`)
+	}
+	return json.RawMessage(b)
 }
 
 // portalProjectSlugify lowercases, strips Vietnamese diacritics (đ→d), and
@@ -139,6 +154,9 @@ func decodePortalProjectRequest(w http.ResponseWriter, r *http.Request) (portalP
 	}
 	if req.Images == nil {
 		req.Images = []string{}
+	}
+	if len(req.I18n) == 0 {
+		req.I18n = json.RawMessage(`{}`)
 	}
 	return req, true
 }
@@ -192,6 +210,7 @@ func (h *Handler) CreatePortalProject(w http.ResponseWriter, r *http.Request) {
 			SourceUrl:    req.SourceURL,
 			Published:    req.Published,
 			SortOrder:    req.SortOrder,
+			I18n:         req.I18n,
 		})
 		if err == nil {
 			writeJSON(w, http.StatusCreated, portalProjectToAdminResponse(row))
@@ -232,6 +251,7 @@ func (h *Handler) UpdatePortalProject(w http.ResponseWriter, r *http.Request) {
 		SourceUrl:    req.SourceURL,
 		Published:    req.Published,
 		SortOrder:    req.SortOrder,
+		I18n:         req.I18n,
 	})
 	if err != nil {
 		writeError(w, http.StatusNotFound, "project not found")

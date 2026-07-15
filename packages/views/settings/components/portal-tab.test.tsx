@@ -136,6 +136,31 @@ describe("PortalTab", () => {
     agentsRef.current = [{ id: "agent-1", name: "Tư vấn" }];
   });
 
+  it("shows the save bar only after an edit, with a working reset", async () => {
+    const { default: userEvent } = await import("@testing-library/user-event");
+    render(<PortalTab />, { wrapper: I18nWrapper });
+    await waitFor(() => {
+      expect(screen.getByRole("switch")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("Unsaved changes")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("switch"));
+    expect(await screen.findByText("Unsaved changes")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+    await waitFor(() =>
+      expect(screen.queryByText("Unsaved changes")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole("switch")).not.toBeChecked();
+  });
+
+  it("offers a view-portal shortcut", async () => {
+    render(<PortalTab />, { wrapper: I18nWrapper });
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "View portal" }),
+      ).toBeInTheDocument();
+    });
+  });
+
   it("renders a read-only notice for non-owners", async () => {
     membersRef.current = [{ user_id: "user-1", role: "member" }];
     render(<PortalTab />, { wrapper: I18nWrapper });

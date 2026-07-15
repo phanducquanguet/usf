@@ -387,7 +387,6 @@
     "add": "Thêm repository",
     "save": "Lưu",
     "saving": "Đang lưu...",
-    "saved_hint": "Đã lưu tất cả thay đổi",
     "empty": "Chưa có repository nào.",
     "edit_aria": "Sửa repository",
     "cancel_aria": "Hủy chỉnh sửa",
@@ -455,6 +454,10 @@
       }
     }
   },
+  "save_bar": {
+    "unsaved": "Thay đổi chưa lưu",
+    "reset": "Hoàn tác"
+  },
   "portal": {
     "title": "Portal khách hàng",
     "description": "Trang tư vấn công khai: khách mô tả phần mềm họ cần, agent khảo sát và tạo dự án sau khi khách xác nhận.",
@@ -462,6 +465,8 @@
     "enable": "Bật portal",
     "enable_hint": "Khi bật, trang tư vấn sẽ công khai cho mọi khách truy cập.",
     "status_live": "Đang hoạt động",
+    "status_offline": "Đang tắt",
+    "view_portal": "Xem portal",
     "agent": "Agent tư vấn",
     "agent_hint": "Agent sẽ trò chuyện và khảo sát nhu cầu của khách.",
     "agent_placeholder": "Chọn agent",
@@ -493,6 +498,7 @@
     "industry": "Ngành",
     "industry_placeholder": "F&B",
     "features": "Tính năng (mỗi dòng một tính năng)",
+    "i18n_hint": "Hiển thị khi khách xem portal bằng tiếng Anh. Trường nào bỏ trống sẽ dùng bản tiếng Việt.",
     "images": "Hình ảnh",
     "upload_image": "Tải ảnh lên",
     "remove_image": "Xóa",

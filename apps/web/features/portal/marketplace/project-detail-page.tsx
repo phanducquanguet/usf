@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle2, ExternalLink, MessageSquare } from "lucide-rea
 import { Button, buttonVariants } from "@multica/ui/components/ui/button";
 import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
+import { localizePortalProject, matchLocale } from "@multica/core/i18n";
 import type { PortalProject } from "@multica/core/types/portal";
 import { useT } from "@multica/views/i18n";
 import { PortalChat } from "../portal-chat";
@@ -22,7 +23,8 @@ export function ProjectDetailPage({
   // content (SEO); when absent the component falls back to client fetching.
   initialProject?: PortalProject;
 }) {
-  const { t } = useT("portal");
+  const { t, i18n } = useT("portal");
+  const locale = matchLocale([i18n.language]);
   const [chatOpen, setChatOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
@@ -31,7 +33,7 @@ export function ProjectDetailPage({
     queryFn: () => api.getPortalPublicConfig(),
     staleTime: 60_000,
   });
-  const { data: project, isPending } = useQuery({
+  const { data: fetched, isPending } = useQuery({
     queryKey: ["portal", "projects", slug],
     queryFn: () => api.getPortalProject(slug),
     retry: false,
@@ -39,6 +41,7 @@ export function ProjectDetailPage({
     // Treat the SSR payload as fresh so hydration doesn't immediately refetch.
     staleTime: 30_000,
   });
+  const project = fetched == null ? fetched : localizePortalProject(fetched, locale);
 
   const enabled = config?.enabled === true;
 

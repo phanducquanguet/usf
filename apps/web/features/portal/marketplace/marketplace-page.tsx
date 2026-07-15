@@ -8,13 +8,15 @@ import { Button } from "@multica/ui/components/ui/button";
 import { Input } from "@multica/ui/components/ui/input";
 import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
+import { localizePortalProject, matchLocale } from "@multica/core/i18n";
 import { useT } from "@multica/views/i18n";
 import { ProjectCard } from "./project-card";
 
 const CARD = "rounded-xl border border-border/60 bg-card";
 
 export function MarketplacePage() {
-  const { t } = useT("portal");
+  const { t, i18n } = useT("portal");
+  const locale = matchLocale([i18n.language]);
   const [search, setSearch] = useState("");
   const [industry, setIndustry] = useState<string | null>(null);
 
@@ -23,11 +25,16 @@ export function MarketplacePage() {
     queryFn: () => api.getPortalPublicConfig(),
     staleTime: 60_000,
   });
-  const { data: projects = [], isPending } = useQuery({
+  const { data: fetched = [], isPending } = useQuery({
     queryKey: ["portal", "projects"],
     queryFn: () => api.getPortalProjects(),
     staleTime: 60_000,
   });
+  // Localize once so search, industry chips, and cards all see one language.
+  const projects = useMemo(
+    () => fetched.map((p) => localizePortalProject(p, locale)),
+    [fetched, locale],
+  );
 
   const industries = useMemo(
     () => [...new Set(projects.map((p) => p.industry).filter(Boolean))],

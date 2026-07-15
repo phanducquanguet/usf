@@ -86,9 +86,10 @@ describe("RepositoriesTab — view/edit toggle", () => {
     expect(screen.getByText("https://github.com/multica-ai/multica")).toBeTruthy();
   });
 
-  it("Save button is disabled when clean", () => {
+  it("save bar is hidden when clean", () => {
     render(<RepositoriesTab />, { wrapper: I18nWrapper });
-    expect(screen.getByRole("button", { name: /^Save$/ })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /^Save$/ })).toBeNull();
+    expect(screen.queryByText("Unsaved changes")).toBeNull();
   });
 
   it("clicking Edit reveals an input pre-filled with the URL", async () => {
@@ -101,7 +102,7 @@ describe("RepositoriesTab — view/edit toggle", () => {
     expect(inputs[0]!.value).toBe("https://github.com/multica-ai/multica");
   });
 
-  it("Save re-enables after editing, then returns to display mode + disabled on success", async () => {
+  it("save bar appears after editing, then disappears on success", async () => {
     const user = userEvent.setup();
     mockUpdateWorkspace.mockImplementation(async (_id: string, payload: { repos: { url: string; description?: string }[] }) => ({
       ...workspaceRef.current,
@@ -136,7 +137,7 @@ describe("RepositoriesTab — view/edit toggle", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toBeNull();
     });
-    expect(screen.getByRole("button", { name: /^Save$/ })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /^Save$/ })).toBeNull();
   });
 
   it("newly added rows start in edit mode", async () => {
@@ -161,7 +162,7 @@ describe("RepositoriesTab — view/edit toggle", () => {
 
     expect(screen.queryByRole("textbox")).toBeNull();
     expect(screen.getByText("https://github.com/multica-ai/multica")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^Save$/ })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /^Save$/ })).toBeNull();
     expect(mockUpdateWorkspace).not.toHaveBeenCalled();
   });
 
@@ -179,7 +180,7 @@ describe("RepositoriesTab — view/edit toggle", () => {
 
     expect(screen.queryByRole("textbox")).toBeNull();
     expect(screen.getByText("https://github.com/multica-ai/multica")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^Save$/ })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /^Save$/ })).toBeNull();
   });
 
   it("Cancel on a newly added (never saved) row removes the row entirely", async () => {
@@ -194,7 +195,7 @@ describe("RepositoriesTab — view/edit toggle", () => {
     expect(screen.queryByRole("textbox")).toBeNull();
     // Original persisted row is still there; the new empty row is gone.
     expect(screen.getByText("https://github.com/multica-ai/multica")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^Save$/ })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /^Save$/ })).toBeNull();
   });
 
   it("accepts scp-like shorthand without browser URL validation blocking submit", async () => {
