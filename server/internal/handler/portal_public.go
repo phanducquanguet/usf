@@ -91,7 +91,8 @@ type portalPublicConfigResponse struct {
 }
 
 type portalPublicAgent struct {
-	Name string `json:"name"`
+	Name      string  `json:"name"`
+	AvatarURL *string `json:"avatar_url,omitempty"`
 }
 
 func (h *Handler) GetPortalPublicConfig(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +108,7 @@ func (h *Handler) GetPortalPublicConfig(w http.ResponseWriter, r *http.Request) 
 	writeJSON(w, http.StatusOK, portalPublicConfigResponse{
 		Enabled:     true,
 		HeroContent: hero,
-		Agent:       &portalPublicAgent{Name: agent.Name},
+		Agent:       &portalPublicAgent{Name: agent.Name, AvatarURL: textToPtr(agent.AvatarUrl)},
 	})
 }
 

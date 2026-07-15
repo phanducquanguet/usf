@@ -18,7 +18,7 @@ export interface PortalHeroContent {
 export interface PortalPublicConfig {
   enabled: boolean;
   hero_content?: PortalHeroContent;
-  agent?: { name?: string };
+  agent?: { name?: string; avatar_url?: string };
 }
 
 export interface PortalGuestSession {

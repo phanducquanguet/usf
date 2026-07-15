@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
-  Bot,
   CheckCircle2,
   Loader2,
   Maximize2,
@@ -17,6 +16,7 @@ import { Textarea } from "@multica/ui/components/ui/textarea";
 import { Markdown } from "@multica/ui/markdown";
 import { cn } from "@multica/ui/lib/utils";
 import { useT } from "@multica/views/i18n";
+import { AgentAvatar } from "./agent-avatar";
 import { PORTAL_SUMMARY_END_MARKER, PORTAL_SUMMARY_MARKER } from "./constants";
 import { usePortalChat } from "./use-portal-chat";
 
@@ -51,12 +51,14 @@ export function PortalChat({
   onClose,
   greeting,
   agentName,
+  agentAvatarUrl,
   projectSlug,
   projectName,
 }: {
   onClose: () => void;
   greeting?: string;
   agentName?: string;
+  agentAvatarUrl?: string;
   projectSlug?: string;
   projectName?: string;
 }) {
@@ -136,7 +138,11 @@ export function PortalChat({
   // empty panel with a live composer (sending without a token is impossible).
   if (!hasSession) {
     return (
-      <PortalShell onClose={onClose} title={agentName ?? t(($) => $.chat.title)}>
+      <PortalShell
+      onClose={onClose}
+      title={agentName ?? t(($) => $.chat.title)}
+      avatarUrl={agentAvatarUrl}
+    >
         <div
           className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center"
           role="status"
@@ -155,9 +161,7 @@ export function PortalChat({
             </>
           ) : (
             <>
-              <div className="flex size-12 animate-pulse items-center justify-center rounded-full bg-gradient-to-br from-brand-start to-brand-end motion-reduce:animate-none">
-                <Bot className="size-6 text-white" />
-              </div>
+              <AgentAvatar src={agentAvatarUrl} className="size-12" iconClassName="size-6" />
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
                 {t(($) => $.chat.connecting)}
@@ -171,7 +175,11 @@ export function PortalChat({
 
   if (chat.status === "confirmed") {
     return (
-      <PortalShell onClose={onClose} title={agentName ?? t(($) => $.chat.title)}>
+      <PortalShell
+      onClose={onClose}
+      title={agentName ?? t(($) => $.chat.title)}
+      avatarUrl={agentAvatarUrl}
+    >
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
           <div className="flex size-14 items-center justify-center rounded-full bg-success/15">
             <CheckCircle2 className="size-7 text-success" />
@@ -186,7 +194,11 @@ export function PortalChat({
   }
 
   return (
-    <PortalShell onClose={onClose} title={agentName ?? t(($) => $.chat.title)}>
+    <PortalShell
+      onClose={onClose}
+      title={agentName ?? t(($) => $.chat.title)}
+      avatarUrl={agentAvatarUrl}
+    >
       {/* The column caps at ~70ch and centers itself, so the expanded desktop
        * panel keeps a readable measure instead of edge-to-edge bubbles.
        * tabIndex: scrollable region must be keyboard-reachable — Safari and
@@ -348,10 +360,12 @@ export function PortalChat({
 function PortalShell({
   title,
   onClose,
+  avatarUrl,
   children,
 }: {
   title: string;
   onClose: () => void;
+  avatarUrl?: string | null;
   children: React.ReactNode;
 }) {
   const { t } = useT("portal");
@@ -448,9 +462,7 @@ function PortalShell({
       <div className="portal-gradient-border portal-glow flex h-full w-full flex-col overflow-hidden bg-card pb-[env(safe-area-inset-bottom)] duration-300 animate-in fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:rounded-2xl">
         <div className="flex items-center gap-3 border-b border-border/60 px-4 py-3">
           <div className="relative shrink-0">
-            <div className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-start to-brand-end">
-              <Bot className="size-5 text-white" />
-            </div>
+            <AgentAvatar src={avatarUrl} className="size-9" iconClassName="size-5" />
             <span
               aria-hidden
               className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-card bg-success"

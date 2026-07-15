@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   ArrowUp,
-  Bot,
   CheckCircle2,
   Menu,
   MessageSquare,
@@ -30,6 +29,7 @@ import {
 } from "@multica/core/i18n";
 import { createBrowserCookieLocaleAdapter } from "@multica/core/i18n/browser";
 import { useT } from "@multica/views/i18n";
+import { AgentAvatar } from "../agent-avatar";
 import { PortalChat } from "../portal-chat";
 import { ProjectCard } from "../marketplace/project-card";
 import { Reveal } from "./reveal";
@@ -195,11 +195,13 @@ function SectionHeader({
 function ChatPreview({
   title,
   status,
+  avatarUrl,
   messages,
   outcome,
 }: {
   title: string;
   status: string;
+  avatarUrl?: string | null;
   messages: { fromUser: boolean; text: string }[];
   outcome: { label: string; title: string; meta: string };
 }) {
@@ -207,9 +209,7 @@ function ChatPreview({
     <div aria-hidden className="portal-float relative lg:rotate-1">
       <div className="portal-gradient-border portal-glow relative overflow-hidden rounded-2xl bg-card">
         <div className="flex items-center gap-3 border-b border-border/60 px-5 py-3.5">
-          <div className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-start to-brand-end">
-            <Bot className="size-5 text-white" />
-          </div>
+          <AgentAvatar src={avatarUrl} className="size-9" iconClassName="size-5" />
           <div>
             <p className="text-sm font-semibold">{title}</p>
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -455,6 +455,7 @@ export function PortalLanding() {
             <ChatPreview
               title={t(($) => $.preview.title)}
               status={t(($) => $.preview.status)}
+              avatarUrl={config?.agent?.avatar_url}
               messages={previewMessages}
               outcome={previewOutcome}
             />
@@ -735,6 +736,7 @@ export function PortalLanding() {
           onClose={() => setChatOpen(false)}
           greeting={heroCopy.greeting}
           agentName={config?.agent?.name}
+          agentAvatarUrl={config?.agent?.avatar_url}
         />
       ) : null}
     </div>

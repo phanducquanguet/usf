@@ -25,7 +25,14 @@ export const portalPublicConfigSchema = z
   .object({
     enabled: z.boolean().optional(),
     hero_content: portalHeroContentSchema.optional(),
-    agent: z.object({ name: z.string().optional() }).loose().optional(),
+    agent: z
+      .object({
+        name: z.string().optional(),
+        // A malformed avatar must not disable the whole portal — drop it.
+        avatar_url: z.string().optional().catch(undefined),
+      })
+      .loose()
+      .optional(),
   })
   .loose();
 

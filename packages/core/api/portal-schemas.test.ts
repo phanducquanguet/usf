@@ -36,6 +36,18 @@ describe("portal API schema fallbacks", () => {
     expect(cfg.hero_content?.vi?.headline).toBe("X");
   });
 
+  it("getPortalPublicConfig exposes the agent avatar and drops a malformed one", async () => {
+    stubFetchJson({ enabled: true, agent: { name: "Uniko", avatar_url: "/files/a.png" } });
+    const client = new ApiClient("https://api.example.test");
+    expect((await client.getPortalPublicConfig()).agent?.avatar_url).toBe("/files/a.png");
+
+    stubFetchJson({ enabled: true, agent: { name: "Uniko", avatar_url: 123 } });
+    const cfg = await client.getPortalPublicConfig();
+    expect(cfg.enabled).toBe(true);
+    expect(cfg.agent?.name).toBe("Uniko");
+    expect(cfg.agent?.avatar_url).toBeUndefined();
+  });
+
   it("listPortalMessages falls back to an empty page on wrong shape", async () => {
     stubFetchJson({ wrong: "shape" });
     const client = new ApiClient("https://api.example.test");

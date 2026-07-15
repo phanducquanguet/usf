@@ -208,6 +208,7 @@ export function ProjectDetailPage({
         <PortalChat
           onClose={() => setChatOpen(false)}
           agentName={config?.agent?.name}
+          agentAvatarUrl={config?.agent?.avatar_url}
           projectSlug={project.slug}
           projectName={project.name}
         />

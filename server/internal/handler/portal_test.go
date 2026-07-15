@@ -20,9 +20,9 @@ func insertPortalTestAgent(t *testing.T) string {
 	err := testPool.QueryRow(context.Background(), `
 		INSERT INTO agent (
 			workspace_id, name, description, runtime_mode, runtime_config,
-			runtime_id, visibility, max_concurrent_tasks, owner_id
+			runtime_id, visibility, max_concurrent_tasks, owner_id, avatar_url
 		)
-		VALUES ($1, 'Portal Consultant', '', 'cloud', '{}'::jsonb, $2, 'workspace', 1, $3)
+		VALUES ($1, 'Portal Consultant', '', 'cloud', '{}'::jsonb, $2, 'workspace', 1, $3, '/files/portal-avatar.png')
 		RETURNING id
 	`, testWorkspaceID, handlerTestRuntimeID(t), testUserID).Scan(&id)
 	if err != nil {
@@ -186,11 +186,13 @@ func TestPortalPublicConfig_EnabledExposesHeroAndAgent(t *testing.T) {
 		Enabled     bool           `json:"enabled"`
 		HeroContent map[string]any `json:"hero_content"`
 		Agent       struct {
-			Name string `json:"name"`
+			Name      string `json:"name"`
+			AvatarURL string `json:"avatar_url"`
 		} `json:"agent"`
 	}
 	json.Unmarshal(rec.Body.Bytes(), &resp)
-	if !resp.Enabled || resp.HeroContent["headline"] != "Xây phần mềm theo ý bạn" || resp.Agent.Name != "Portal Consultant" {
+	if !resp.Enabled || resp.HeroContent["headline"] != "Xây phần mềm theo ý bạn" ||
+		resp.Agent.Name != "Portal Consultant" || resp.Agent.AvatarURL != "/files/portal-avatar.png" {
 		t.Fatalf("unexpected response: %s", rec.Body.String())
 	}
 }
