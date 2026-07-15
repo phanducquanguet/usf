@@ -450,7 +450,7 @@ run_default() {
   printf "\n"
   printf "  ${BOLD}Next: configure your environment${RESET}\n"
   printf "\n"
-  printf "     ${CYAN}uniai setup${RESET}                # Connect to UniAI Cloud (multica.ai)\n"
+  printf "     ${CYAN}uniai setup${RESET}                # Connect to UniAI Cloud (uniai.unicomhub.com)\n"
   printf "     ${CYAN}uniai setup self-host${RESET}       # Connect to a self-hosted server\n"
   printf "\n"
   printf "  ${BOLD}Self-hosting?${RESET} Install the server first:\n"

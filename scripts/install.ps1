@@ -1,6 +1,6 @@
 # UniAI installer for Windows — one command to get started.
 #
-# Install CLI (default): connects to multica.ai
+# Install CLI (default): connects to uniai.unicomhub.com
 #   irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex
 #
 # Self-host: starts a local UniAI server + installs CLI + configures
@@ -510,7 +510,7 @@ function Start-DefaultInstall {
     Write-Host ""
     Write-Host "  Next: configure your environment"
     Write-Host ""
-    Write-Host "     uniai setup               " -NoNewline; Write-Host "# Connect to UniAI Cloud (multica.ai)" -ForegroundColor DarkGray
+    Write-Host "     uniai setup               " -NoNewline; Write-Host "# Connect to UniAI Cloud (uniai.unicomhub.com)" -ForegroundColor DarkGray
     Write-Host "     uniai setup self-host      " -NoNewline; Write-Host "# Connect to a self-hosted server" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Self-hosting? Install the server first:"
