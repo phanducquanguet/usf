@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { I18nProvider } from "@multica/core/i18n/react";
 import enPortal from "@multica/views/locales/en/portal.json";
@@ -51,6 +51,26 @@ function renderLanding() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe("PortalLanding language toggle", () => {
+  it("persists the other locale to the cookie and reloads", () => {
+    const reload = vi.fn();
+    vi.stubGlobal("location", { ...window.location, reload });
+    mockGetConfig.mockReturnValue(new Promise(() => {}));
+    renderLanding();
+    // Rendered with locale "en" → clicking the active segment is a no-op.
+    fireEvent.click(screen.getAllByRole("button", { name: "English" })[0]!);
+    expect(reload).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Tiếng Việt" })[0]!);
+    expect(document.cookie).toContain("multica-locale=vi");
+    expect(reload).toHaveBeenCalled();
+  });
 });
 
 describe("PortalLanding config states", () => {

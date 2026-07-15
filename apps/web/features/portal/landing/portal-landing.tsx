@@ -23,6 +23,12 @@ import {
 } from "@multica/ui/components/ui/accordion";
 import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  type SupportedLocale,
+} from "@multica/core/i18n";
+import { createBrowserCookieLocaleAdapter } from "@multica/core/i18n/browser";
 import { useT } from "@multica/views/i18n";
 import { PortalChat } from "../portal-chat";
 import { ProjectCard } from "../marketplace/project-card";
@@ -101,6 +107,67 @@ function ScrollProgress() {
         </button>
       ) : null}
     </>
+  );
+}
+
+/** Segmented VI | EN locale switch. Both options stay visible with the active
+ * one highlighted, so state is never ambiguous. Language names are autonyms
+ * ("Tiếng Việt" / "English", via aria-label) and never translated, so no
+ * locale keys are needed. Persist cookie → full reload, same pattern as the
+ * settings preferences tab: the SSR proxy re-resolves the locale on the next
+ * request. */
+const LOCALE_AUTONYMS: Record<SupportedLocale, string> = {
+  vi: "Tiếng Việt",
+  en: "English",
+};
+
+function LanguageToggle({ className }: { className?: string }) {
+  const { i18n } = useT("portal");
+  // i18next.language can be region-tagged (e.g. "en-US"); normalize before
+  // comparing, mirroring preferences-tab.tsx.
+  const current: SupportedLocale = SUPPORTED_LOCALES.includes(
+    i18n.language as SupportedLocale,
+  )
+    ? (i18n.language as SupportedLocale)
+    : DEFAULT_LOCALE;
+  const switchTo = (next: SupportedLocale) => {
+    if (next === current) return;
+    createBrowserCookieLocaleAdapter().persist(next);
+    window.location.reload();
+  };
+  return (
+    <div
+      role="group"
+      aria-label="Ngôn ngữ / Language"
+      className={cn(
+        "flex items-center gap-0.5 rounded-full border border-border/60 bg-background/60 p-0.5",
+        className,
+      )}
+    >
+      {SUPPORTED_LOCALES.map((locale) => {
+        const active = locale === current;
+        return (
+          <button
+            key={locale}
+            type="button"
+            lang={locale}
+            aria-label={LOCALE_AUTONYMS[locale]}
+            aria-pressed={active}
+            onClick={() => switchTo(locale)}
+            className={cn(
+              // h-11 below lg: the only sub-lg instance lives in the mobile
+              // menu, where segments must meet the 44px touch target.
+              "flex h-11 cursor-pointer items-center rounded-full px-3.5 text-xs font-medium uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:h-8",
+              active
+                ? "bg-secondary text-foreground"
+                : "text-muted-foreground hover:text-foreground active:bg-secondary/60",
+            )}
+          >
+            {locale}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -258,6 +325,7 @@ export function PortalLanding() {
             ))}
           </nav>
           <div className="flex items-center gap-3">
+            <LanguageToggle className="hidden lg:flex" />
             <Link href="/login" className={buttonVariants({ variant: "outline" })}>
               {t(($) => $.hero.login)}
             </Link>
@@ -299,6 +367,7 @@ export function PortalLanding() {
                 {item.label}
               </a>
             ))}
+            <LanguageToggle className="mt-3 w-fit" />
             {enabled ? (
               <Button
                 className="mt-2 w-full sm:hidden"
