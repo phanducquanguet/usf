@@ -75,9 +75,10 @@ const HERO_PLACEHOLDERS: Record<SupportedLocale, Required<PortalHeroCopy>> = {
 
 /** The public landing lives at the web root of the deployment. On web the
  * API base is same-origin (""), so this resolves to "/"; on desktop it is
- * the full server origin. */
+ * the full server origin. `?portal=1` tells the web proxy to skip its
+ * logged-in → workspace redirect so admins actually see the portal. */
 function portalUrl(): string {
-  return `${api.getBaseUrl() || ""}/`;
+  return `${api.getBaseUrl() || ""}/?portal=1`;
 }
 
 export function PortalTab() {

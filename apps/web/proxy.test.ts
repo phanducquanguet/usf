@@ -80,4 +80,13 @@ describe("proxy root path redirects", () => {
   it("serves the portal to logged-in users without a last workspace cookie", () => {
     expect(redirectLocation("/", { multica_logged_in: "1" })).toBeNull();
   });
+
+  it("serves the portal to logged-in users when ?portal=1 is set (settings preview)", () => {
+    expect(
+      redirectLocation("/?portal=1", {
+        multica_logged_in: "1",
+        last_workspace_slug: "acme",
+      }),
+    ).toBeNull();
+  });
 });

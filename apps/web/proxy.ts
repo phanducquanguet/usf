@@ -76,8 +76,10 @@ export function proxy(req: NextRequest) {
 
   // --- Root path: the public customer portal. Logged-in users with a
   // remembered workspace go straight there; everyone else sees the portal.
+  // `?portal=1` skips the redirect so admins can preview the portal from
+  // settings ("View portal") while logged in.
   if (pathname === "/") {
-    if (hasSession && lastSlug) {
+    if (hasSession && lastSlug && !req.nextUrl.searchParams.has("portal")) {
       const url = req.nextUrl.clone();
       url.pathname = `/${lastSlug}/issues`;
       return NextResponse.redirect(url);
