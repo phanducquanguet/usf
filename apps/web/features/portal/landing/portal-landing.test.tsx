@@ -102,6 +102,29 @@ describe("PortalLanding config states", () => {
     expect(screen.queryByText(new RegExp(enPortal.disabled.body))).not.toBeInTheDocument();
   });
 
+  it("renders the hero copy for the active locale, not the Vietnamese copy", async () => {
+    mockGetConfig.mockResolvedValue({
+      enabled: true,
+      hero_content: {
+        vi: { headline: "Tiêu đề tiếng Việt" },
+        en: { headline: "English headline" },
+      },
+    });
+    renderLanding();
+    expect(await screen.findByText("English headline")).toBeInTheDocument();
+    expect(screen.queryByText("Tiêu đề tiếng Việt")).not.toBeInTheDocument();
+  });
+
+  it("falls back to the built-in translation when the active locale has no custom copy", async () => {
+    mockGetConfig.mockResolvedValue({
+      enabled: true,
+      hero_content: { vi: { headline: "Tiêu đề tiếng Việt" } },
+    });
+    renderLanding();
+    expect(await screen.findByText(enPortal.hero.headline)).toBeInTheDocument();
+    expect(screen.queryByText("Tiêu đề tiếng Việt")).not.toBeInTheDocument();
+  });
+
   it("renders the hero CTAs when the portal is enabled", async () => {
     mockGetConfig.mockResolvedValue({ enabled: true, hero_content: {} });
     renderLanding();

@@ -1,8 +1,18 @@
-export interface PortalHeroContent {
+/** Locale-specific hero copy. Missing fields fall back to the built-in
+ * portal translations for that locale. */
+export interface PortalHeroCopy {
   greeting?: string;
   headline?: string;
   subheadline?: string;
+}
+
+/** Admin-authored landing content, keyed by locale so the language switch
+ * also switches custom copy (migration 163 moved legacy flat fields under
+ * `vi`). contact_email is language-neutral. */
+export interface PortalHeroContent {
   contact_email?: string;
+  vi?: PortalHeroCopy;
+  en?: PortalHeroCopy;
 }
 
 export interface PortalPublicConfig {

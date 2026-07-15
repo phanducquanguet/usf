@@ -24,8 +24,8 @@ import {
 import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
 import {
-  DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
+  matchLocale,
   type SupportedLocale,
 } from "@multica/core/i18n";
 import { createBrowserCookieLocaleAdapter } from "@multica/core/i18n/browser";
@@ -124,12 +124,8 @@ const LOCALE_AUTONYMS: Record<SupportedLocale, string> = {
 function LanguageToggle({ className }: { className?: string }) {
   const { i18n } = useT("portal");
   // i18next.language can be region-tagged (e.g. "en-US"); normalize before
-  // comparing, mirroring preferences-tab.tsx.
-  const current: SupportedLocale = SUPPORTED_LOCALES.includes(
-    i18n.language as SupportedLocale,
-  )
-    ? (i18n.language as SupportedLocale)
-    : DEFAULT_LOCALE;
+  // comparing.
+  const current = matchLocale([i18n.language]);
   const switchTo = (next: SupportedLocale) => {
     if (next === current) return;
     createBrowserCookieLocaleAdapter().persist(next);
@@ -251,7 +247,7 @@ function ChatPreview({
 }
 
 export function PortalLanding() {
-  const { t } = useT("portal");
+  const { t, i18n } = useT("portal");
   const [chatOpen, setChatOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: config, isPending: configLoading } = useQuery({
@@ -270,6 +266,9 @@ export function PortalLanding() {
     enabled,
   });
   const hero = config?.hero_content ?? {};
+  // Admin copy is locale-keyed; missing fields fall back to the built-in
+  // translations so the language switch never leaves mixed-language copy.
+  const heroCopy = hero[matchLocale([i18n.language])] ?? {};
   const heroSubs = t(($) => $.hero.subs, { returnObjects: true }) as string[];
   const problems = t(($) => $.problem.items, { returnObjects: true }) as Item[];
   const layers = t(($) => $.solution.layers, { returnObjects: true }) as (Item & {
@@ -396,10 +395,10 @@ export function PortalLanding() {
             </div>
 
             <h1 className="pb-2 text-[2.75rem] font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
-              {hero.headline || t(($) => $.hero.headline)}
+              {heroCopy.headline || t(($) => $.hero.headline)}
             </h1>
             <p className="mt-3 max-w-xl text-xl font-medium text-foreground/90 md:text-2xl">
-              {hero.subheadline || t(($) => $.hero.tagline)}
+              {heroCopy.subheadline || t(($) => $.hero.tagline)}
             </p>
 
             <ul className="mt-6 space-y-2">
@@ -734,7 +733,7 @@ export function PortalLanding() {
       {chatOpen ? (
         <PortalChat
           onClose={() => setChatOpen(false)}
-          greeting={hero.greeting}
+          greeting={heroCopy.greeting}
           agentName={config?.agent?.name}
         />
       ) : null}

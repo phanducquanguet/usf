@@ -5,12 +5,19 @@ import type {
   PortalPublicConfig,
 } from "../types/portal";
 
-export const portalHeroContentSchema = z
+export const portalHeroCopySchema = z
   .object({
     greeting: z.string().optional(),
     headline: z.string().optional(),
     subheadline: z.string().optional(),
+  })
+  .loose();
+
+export const portalHeroContentSchema = z
+  .object({
     contact_email: z.string().optional(),
+    vi: portalHeroCopySchema.optional(),
+    en: portalHeroCopySchema.optional(),
   })
   .loose();
 

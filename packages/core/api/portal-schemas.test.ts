@@ -25,11 +25,15 @@ describe("portal API schema fallbacks", () => {
   });
 
   it("getPortalPublicConfig tolerates unknown fields and missing agent", async () => {
-    stubFetchJson({ enabled: true, hero_content: { headline: "X", extra: 1 }, future: true });
+    stubFetchJson({
+      enabled: true,
+      hero_content: { vi: { headline: "X", extra: 1 } },
+      future: true,
+    });
     const client = new ApiClient("https://api.example.test");
     const cfg = await client.getPortalPublicConfig();
     expect(cfg.enabled).toBe(true);
-    expect(cfg.hero_content?.headline).toBe("X");
+    expect(cfg.hero_content?.vi?.headline).toBe("X");
   });
 
   it("listPortalMessages falls back to an empty page on wrong shape", async () => {

@@ -27,11 +27,39 @@ import {
   portalAdminConfigOptions,
   portalConfigKeys,
 } from "@multica/core/workspace/queries";
+import {
+  SUPPORTED_LOCALES,
+  type SupportedLocale,
+} from "@multica/core/i18n";
 import type {
   PortalHeroContent,
+  PortalHeroCopy,
   UpdatePortalAdminConfigRequest,
 } from "@multica/core/types/portal";
 import { useT } from "../../i18n";
+
+// Autonyms, deliberately untranslated — same convention as the landing's
+// VI|EN language switch.
+const HERO_LOCALE_LABELS: Record<SupportedLocale, string> = {
+  vi: "Tiếng Việt",
+  en: "English",
+};
+
+// Example copy is pinned to each group's own language (a VI example teaches
+// what to type in the VI fields regardless of UI language), so these are
+// per-group constants like the autonyms above, not UI translations.
+const HERO_PLACEHOLDERS: Record<SupportedLocale, Required<PortalHeroCopy>> = {
+  vi: {
+    headline: "VD: Kể cho chúng tôi về phần mềm bạn cần",
+    subheadline: "Một vài câu giới thiệu hiển thị dưới tiêu đề",
+    greeting: "Tin nhắn đầu tiên agent gửi cho khách",
+  },
+  en: {
+    headline: "e.g. Tell us about the software you need",
+    subheadline: "A few sentences shown under the headline",
+    greeting: "The first message the agent sends to a customer",
+  },
+};
 import { AppLink } from "../../navigation";
 import { PortalProjectsSection } from "./portal-projects-section";
 
@@ -122,9 +150,11 @@ export function PortalTab() {
   // The public portal treats an archived consulting agent as "portal
   // disabled", so surface that instead of silently looking healthy.
   const archivedAgent = enabled && !!selectedAgent?.archived_at;
-  const setHeroField = (field: keyof PortalHeroContent) =>
+  const setHeroCopyField = (locale: SupportedLocale, field: keyof PortalHeroCopy) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setHero({ ...hero, [field]: e.target.value });
+      setHero({ ...hero, [locale]: { ...hero[locale], [field]: e.target.value } });
+  const setContactEmail = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setHero({ ...hero, contact_email: e.target.value });
 
   return (
     <div className="space-y-8">
@@ -241,36 +271,55 @@ export function PortalTab() {
         </div>
 
         <Card>
-          <CardContent className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="portal-headline">{t(($) => $.portal.headline)}</Label>
-              <Input
-                id="portal-headline"
-                value={hero.headline ?? ""}
-                placeholder={t(($) => $.portal.headline_placeholder)}
-                onChange={setHeroField("headline")}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="portal-subheadline">
-                {t(($) => $.portal.subheadline)}
-              </Label>
-              <Textarea
-                id="portal-subheadline"
-                value={hero.subheadline ?? ""}
-                placeholder={t(($) => $.portal.subheadline_placeholder)}
-                onChange={setHeroField("subheadline")}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="portal-greeting">{t(($) => $.portal.greeting)}</Label>
-              <Textarea
-                id="portal-greeting"
-                value={hero.greeting ?? ""}
-                placeholder={t(($) => $.portal.greeting_placeholder)}
-                onChange={setHeroField("greeting")}
-              />
-            </div>
+          <CardContent className="space-y-8">
+            {/* One copy group per landing language. Group headings are
+             * autonyms (never translated), matching the landing's VI|EN
+             * switch. Blank fields fall back to built-in translations. */}
+            {SUPPORTED_LOCALES.map((locale) => {
+              const copy = hero[locale] ?? {};
+              return (
+                // lang on the fieldset so inputs inherit it: screen readers
+                // and spellcheck then treat typed copy as that language.
+                <fieldset key={locale} lang={locale} className="space-y-5">
+                  <legend className="text-sm font-medium">
+                    {HERO_LOCALE_LABELS[locale]}
+                  </legend>
+                  <div className="space-y-2">
+                    <Label htmlFor={`portal-headline-${locale}`}>
+                      {t(($) => $.portal.headline)}
+                    </Label>
+                    <Input
+                      id={`portal-headline-${locale}`}
+                      value={copy.headline ?? ""}
+                      placeholder={HERO_PLACEHOLDERS[locale].headline}
+                      onChange={setHeroCopyField(locale, "headline")}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`portal-subheadline-${locale}`}>
+                      {t(($) => $.portal.subheadline)}
+                    </Label>
+                    <Textarea
+                      id={`portal-subheadline-${locale}`}
+                      value={copy.subheadline ?? ""}
+                      placeholder={HERO_PLACEHOLDERS[locale].subheadline}
+                      onChange={setHeroCopyField(locale, "subheadline")}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`portal-greeting-${locale}`}>
+                      {t(($) => $.portal.greeting)}
+                    </Label>
+                    <Textarea
+                      id={`portal-greeting-${locale}`}
+                      value={copy.greeting ?? ""}
+                      placeholder={HERO_PLACEHOLDERS[locale].greeting}
+                      onChange={setHeroCopyField(locale, "greeting")}
+                    />
+                  </div>
+                </fieldset>
+              );
+            })}
             <div className="space-y-2">
               <Label htmlFor="portal-contact-email">
                 {t(($) => $.portal.contact_email)}
@@ -280,7 +329,7 @@ export function PortalTab() {
                 type="email"
                 value={hero.contact_email ?? ""}
                 placeholder={t(($) => $.portal.contact_email_placeholder)}
-                onChange={setHeroField("contact_email")}
+                onChange={setContactEmail}
               />
             </div>
           </CardContent>
