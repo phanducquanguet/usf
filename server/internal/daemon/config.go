@@ -478,7 +478,8 @@ func LoadConfig(overrides Overrides) (Config, error) {
 
 	// Auto-update config: default -> env override -> CLI override.
 	//
-	// Default is opt-in on Multica Cloud (api.multica.ai) and opt-out for
+	// Default is opt-in on the official UniAI deployment (uniai.unicomhub.com)
+	// and opt-out for
 	// self-hosted instances. Self-host operators frequently run a fork with
 	// their own patches, and silently upgrading their daemon to an upstream
 	// GitHub release would clobber that work; they also commonly stay on an
@@ -538,11 +539,12 @@ func LoadConfig(overrides Overrides) (Config, error) {
 	}, nil
 }
 
-// officialCloudHost is the hostname of Multica's hosted cloud. It's the only
-// origin we treat as "official" for the auto-update default — staging,
-// preview, and any future *.multica.ai subdomains are deliberately excluded
-// so they inherit the safer self-host default until explicitly opted in.
-const officialCloudHost = "api.multica.ai"
+// officialCloudHost is the hostname of the UNICOM-hosted UniAI deployment.
+// It's the only origin we treat as "official" for the auto-update default —
+// daemons pointing here self-update from the fork's GitHub releases
+// (phanducquanguet/usf); any other host inherits the safer self-host default
+// until explicitly opted in via MULTICA_DAEMON_AUTO_UPDATE.
+const officialCloudHost = "uniai.unicomhub.com"
 
 // isOfficialCloudServer reports whether the resolved server base URL points
 // at Multica's hosted cloud. Used to pick the auto-update default: cloud

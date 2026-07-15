@@ -108,7 +108,9 @@ func normalizePublicURL(raw string) string {
 // isOfficialCloudDaemonConfig reports whether this deployment is the official
 // Multica Cloud, identified by its frontend host alone (multica.ai /
 // app.multica.ai). The daemon setup for the managed cloud is always
-// `uniai setup` (which hardcodes api.multica.ai), so the per-deployment URLs
+// `uniai setup` (which now hardcodes uniai.unicomhub.com on this fork; the
+// upstream hosts are kept here so upstream-cloud frontends stay recognized),
+// so the per-deployment URLs
 // must be omitted from /api/config even when MULTICA_PUBLIC_URL is unset or
 // misconfigured. Previously this also required serverURL==api.multica.ai, so a
 // cloud deployment that forgot MULTICA_PUBLIC_URL fell through and emitted a
