@@ -822,7 +822,7 @@ var daemonInstalledHookSignatures = []string{
 }
 
 // prepareCommitMsgHook is the prepare-commit-msg hook script that appends a
-// Co-authored-by trailer for the Multica Agent to every commit message.
+// Co-authored-by trailer for the UniAI Agent to every commit message.
 const prepareCommitMsgHook = `#!/bin/sh
 # uniai:prepare-commit-msg:co-authored-by
 # UniAI: add Co-authored-by trailer for the UniAI Agent.
@@ -836,7 +836,7 @@ case "$COMMIT_SOURCE" in
   merge|squash) exit 0 ;;
 esac
 
-TRAILER="Co-authored-by: multica-agent <github@multica.ai>"
+TRAILER="Co-authored-by: uniai-agent <github@unicomhub.com>"
 
 # Don't add if already present.
 if grep -qF "$TRAILER" "$COMMIT_MSG_FILE"; then
@@ -848,7 +848,7 @@ git interpret-trailers --in-place --trailer "$TRAILER" "$COMMIT_MSG_FILE"
 `
 
 // installCoAuthoredByHook installs a prepare-commit-msg git hook that appends
-// a Co-authored-by trailer for the Multica Agent. The hook is installed in the
+// a Co-authored-by trailer for the UniAI Agent. The hook is installed in the
 // git common directory (the bare repo for worktrees) so it applies to all
 // worktrees created from this cache.
 func installCoAuthoredByHook(worktreePath string) error {
