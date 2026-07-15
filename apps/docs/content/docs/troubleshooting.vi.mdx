@@ -180,7 +180,7 @@ Kiểm tra hộp thư (cả spam) tìm mã xác thực thật.
 
 **Nguyên nhân khả dĩ**:
 
-1. **`rollup_task_usage_hourly()` không bao giờ được claim** — bảng điều khiển Usage / Runtime đọc từ bảng dẫn xuất `task_usage_hourly`, do hàm đó ghi. Từ MUL-2957, backend chạy rollup trong tiến trình qua bộ lập lịch dựa trên DB (`sys_cron_executions`); build cũ, thiếu migration `113`, hoặc backend ngừng hoạt động kéo dài không còn replica nào chạy có thể khiến bảng không có dòng SUCCESS gần đây.
+1. **`rollup_task_usage_hourly()` không bao giờ được claim** — bảng điều khiển Usage / Runtime đọc từ bảng dẫn xuất `task_usage_hourly`, do hàm đó ghi. Từ UNI-2957, backend chạy rollup trong tiến trình qua bộ lập lịch dựa trên DB (`sys_cron_executions`); build cũ, thiếu migration `113`, hoặc backend ngừng hoạt động kéo dài không còn replica nào chạy có thể khiến bảng không có dòng SUCCESS gần đây.
 2. **`pg_cron` cấu hình cho tương thích nhưng trỏ sai cơ sở dữ liệu** — `pg_cron.database_name` mặc định là `postgres`; nếu database UniAI của bạn tên khác, job theo lịch không bao giờ thấy `rollup_task_usage_hourly()`. Bộ lập lịch trong tiến trình không phụ thuộc cái này, nhưng nếu bạn gỡ nó và dựa vào `pg_cron`, tên DB phải khớp.
 3. **Handler được claim nhưng lỗi âm thầm** — ví dụ hàm SQL bị thiếu do migration mới áp dụng một phần, hoặc role DB / search_path cấu hình sai. Xem các dòng audit FAILED trong `sys_cron_executions`.
 
@@ -230,11 +230,11 @@ ERROR: refusing to drop legacy daily rollups:
 
 **Nguyên nhân khả dĩ**: đây là guard fail-closed của migration `103`. Nó từ chối xóa rollup theo ngày cũ tới khi `task_usage_hourly` đuổi kịp `task_usage` thô. Guard kích hoạt khi đã có dữ liệu sẵn mà watermark của rollup vẫn ở mốc epoch — tức là lịch sử chưa được cuộn vào bảng theo giờ.
 
-Từ MUL-2957, lệnh migrate tự chạy backfill theo lát tháng idempotent (dưới advisory lock 4246) ngay trước khi áp migration `103`, nên nâng cấp thẳng v0.3.4 → v0.3.5+ hoàn tất trong một lần `migrate up`. Nếu bạn vẫn thấy lỗi này thì hoặc đang dùng binary trước MUL-2957, hoặc chính hook đó thất bại — tìm trong log migrate dòng `task_usage hourly rollup hook` xuất hiện trước đó.
+Từ UNI-2957, lệnh migrate tự chạy backfill theo lát tháng idempotent (dưới advisory lock 4246) ngay trước khi áp migration `103`, nên nâng cấp thẳng v0.3.4 → v0.3.5+ hoàn tất trong một lần `migrate up`. Nếu bạn vẫn thấy lỗi này thì hoặc đang dùng binary trước UNI-2957, hoặc chính hook đó thất bại — tìm trong log migrate dòng `task_usage hourly rollup hook` xuất hiện trước đó.
 
 **Cách sửa**:
 
-1. Nếu đang dùng binary trước MUL-2957 và chưa nâng binary được, chạy backfill độc lập trên cùng database (idempotent, ngắt an toàn, chạy lại an toàn):
+1. Nếu đang dùng binary trước UNI-2957 và chưa nâng binary được, chạy backfill độc lập trên cùng database (idempotent, ngắt an toàn, chạy lại an toàn):
 
    ```bash
    # Docker Compose

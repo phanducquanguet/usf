@@ -13,10 +13,10 @@ Ba thứ được quyết định khi bạn tạo một không gian làm việc:
 
 - **Tên** — tên hiển thị mà thành viên nhìn thấy. Cho phép dấu cách và ký tự ngoài ASCII. Có thể đổi sau.
 - **Slug** — chuỗi dùng trong URL của không gian làm việc. Chỉ chữ thường và chữ số (nối bằng `-`). **Không đổi được sau khi tạo**, nên hãy chọn kỹ. Nếu slug đã bị lấy hoặc trùng từ khóa hệ thống dành riêng, màn hình tạo sẽ yêu cầu chọn slug khác.
-- **Tiền tố issue** — tiền tố cho mọi số issue trong không gian làm việc (phần `MUL` trong `MUL-123`). Chữ hoa và chữ số, tối đa 10 ký tự.
+- **Tiền tố issue** — tiền tố cho mọi số issue trong không gian làm việc (phần `UNI` trong `UNI-123`). Chữ hoa và chữ số, tối đa 10 ký tự.
 
 <Callout type="warning">
-**Tránh đổi tiền tố issue.** Số issue được hiển thị theo tiền tố hiện tại — đổi nó thì `MUL-5` lập tức thành `NEW-5`. Mọi liên kết bên ngoài, lượt nhắc trên Slack và tham chiếu cũ trong bình luận đều hỏng vì vẫn trỏ tới số cũ. Hãy coi tiền tố issue là "đặt lúc tạo, không bao giờ đụng vào."
+**Tránh đổi tiền tố issue.** Số issue được hiển thị theo tiền tố hiện tại — đổi nó thì `UNI-5` lập tức thành `NEW-5`. Mọi liên kết bên ngoài, lượt nhắc trên Slack và tham chiếu cũ trong bình luận đều hỏng vì vẫn trỏ tới số cũ. Hãy coi tiền tố issue là "đặt lúc tạo, không bao giờ đụng vào."
 </Callout>
 
 Bạn có thể tạo không gian làm việc từ giao diện web hoặc dòng lệnh:
@@ -27,11 +27,11 @@ uniai workspace create
 
 ## Số issue
 
-Mỗi issue tạo trong không gian làm việc được tự gán số theo dạng `<tiền tố>-<số>` — `MUL-1`, `MUL-2`, `MUL-3`. Vài tính chất:
+Mỗi issue tạo trong không gian làm việc được tự gán số theo dạng `<tiền tố>-<số>` — `UNI-1`, `UNI-2`, `UNI-3`. Vài tính chất:
 
 - **Tuần tự và duy nhất trong một không gian làm việc** — mỗi không gian làm việc có bộ đếm riêng; không ảnh hưởng lẫn nhau.
 - **Không đặt số thủ công được** — khi tạo issue bạn chỉ nhập tiêu đề; số do hệ thống cấp.
-- **Không tái sử dụng khi xóa** — xóa `MUL-5` thì issue mới kế tiếp là `MUL-6`, không phải `MUL-5`.
+- **Không tái sử dụng khi xóa** — xóa `UNI-5` thì issue mới kế tiếp là `UNI-6`, không phải `UNI-5`.
 
 ## Xóa không gian làm việc
 

@@ -86,7 +86,7 @@ uniai squad member add <squad-id> --member-id <agent-or-user-uuid> --type agent 
 | 小队成员发"进展更新"，**不带任何** `@mention` | **会**——队长重新评估是否需要下一步 |
 | 任何人发的评论里**显式 `@`** 智能体 / 成员 / 小队 / `@all` | **不会**——显式 `@` 就是路由信号，队长让位 |
 | 队长自己发的评论 | **不会**——硬编码防自触发 |
-| 评论里只有 issue 互链 `[MUL-123](mention://issue/...)` | **会**——issue 引用不算路由 |
+| 评论里只有 issue 互链 `[UNI-123](mention://issue/...)` | **会**——issue 引用不算路由 |
 
 以上规则之上还有去重：如果队长在这个 issue 上已经有 `queued` 或 `dispatched` 的 task，新一次触发不会重复入队。
 

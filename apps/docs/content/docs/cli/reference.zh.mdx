@@ -272,17 +272,17 @@ uniai issue list --full-id
 uniai issue list --limit 20 --output json
 ```
 
-表格输出默认显示可直接复制到后续命令的 issue `KEY`（例如 `MUL-123`）；需要完整 UUID 时使用 `--full-id`。Available filters: `--status`, `--priority`, `--assignee` / `--assignee-id`, `--project`, `--limit`. 在重名 workspace 下用 `--assignee-id <uuid>` 可以精确锁定一个成员或 agent。
+表格输出默认显示可直接复制到后续命令的 issue `KEY`（例如 `UNI-123`）；需要完整 UUID 时使用 `--full-id`。Available filters: `--status`, `--priority`, `--assignee` / `--assignee-id`, `--project`, `--limit`. 在重名 workspace 下用 `--assignee-id <uuid>` 可以精确锁定一个成员或 agent。
 
 ### Get Issue
 
 ```bash
-uniai issue get MUL-123
+uniai issue get UNI-123
 uniai issue get <uuid>
 uniai issue get <id> --output json
 ```
 
-`<id>` 同时接受 issue key（`uniai issue list` 表格里直接显示，例如 `MUL-123`）和完整 UUID（给 `list` 加 `--full-id` 可显示）。同样的规则适用于下面 `update` / `assign` / `status` / `comment` / `subscriber` / `runs` 等接受 `<id>` 的命令。
+`<id>` 同时接受 issue key（`uniai issue list` 表格里直接显示，例如 `UNI-123`）和完整 UUID（给 `list` 加 `--full-id` 可显示）。同样的规则适用于下面 `update` / `assign` / `status` / `comment` / `subscriber` / `runs` 等接受 `<id>` 的命令。
 
 ### Create Issue
 

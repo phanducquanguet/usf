@@ -72,7 +72,7 @@ Every `PREFIX-NUMBER` mention in **title, body, or branch** resolves to an issue
 in the workspace and writes a link row (`LinkIssueToPullRequest`, ~`github.go:762`).
 This is what `uniai issue pull-requests` later reads back.
 
-**Reference-only flag (MUL-3739).** The link row carries a `reference_only`
+**Reference-only flag (UNI-3739).** The link row carries a `reference_only`
 boolean (`migrations/127_issue_pull_request_reference_only.up.sql`). The handler
 computes a `qualifyingIdents` set = identifiers in **title or branch** (any
 `extractIdentifiers` match) ∪ **body closing keywords** (`closingIdents`). A
@@ -100,14 +100,14 @@ call-site location for the link logic.
 Only a `PREFIX-NUMBER` immediately after a closing keyword
 (`Closes`/`Fixes`/`Resolves`, optional `:` then whitespace) sets the link row's
 `close_intent` flag — the gate that auto-advances the issue to `done` on merge.
-`Fix MUL-1` closes; `Fix login MUL-1` does not (adjacency). Branch names are
+`Fix UNI-1` closes; `Fix login UNI-1` does not (adjacency). Branch names are
 deliberately excluded (function doc, `github.go:1044-1050`): a branch like
 `mul-1/fix-login` links but must never declare close intent.
 
 Drifted from the prior skill's `github.go:736` citation.
 
-Net: a bare title prefix (`MUL-2759: ...`) or a branch ref links only (shown in
-the PR list); `Closes MUL-2759` links **and** records close intent; a bare body
+Net: a bare title prefix (`UNI-2759: ...`) or a branch ref links only (shown in
+the PR list); `Closes UNI-2759` links **and** records close intent; a bare body
 mention with no title/branch ref and no closing keyword links as `reference_only`
 and is hidden from the PR list.
 

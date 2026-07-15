@@ -197,7 +197,7 @@
     "connection_description_prefix": "Tự động liên kết issue với pull request. Khi một PR có",
     "connection_description_suffix": "trong tên nhánh, tiêu đề hoặc nội dung được merge, issue tương ứng sẽ chuyển sang",
     "connection_description_done": "Hoàn thành",
-    "connection_identifier_example": "MUL-123",
+    "connection_identifier_example": "UNI-123",
     "connected_to": "Đã kết nối với {{login}}",
     "connect_github": "Kết nối GitHub",
     "connect_opening": "Đang mở…",

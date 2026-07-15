@@ -31,8 +31,8 @@ import { Callout } from "fumadocs-ui/components/callout";
 명령줄에서의 동등한 작업입니다.
 
 ```bash
-uniai issue assign MUL-42 --to alice
-uniai issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+uniai issue assign UNI-42 --to alice
+uniai issue assign UNI-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
 ```
 
 `--to`는 멤버 사용자 이름 또는 에이전트 이름(퍼지 매칭)을 받습니다. 이름이 겹칠 때 — 예를 들어 에이전트 `J` 옆에 `Cursor - J`가 있을 때 — 대신 `--to-id <uuid>`를 전달하세요. 이때 `uniai workspace member list --output json`의 `user_id`(멤버) 또는 `uniai agent list --output json`의 `id`(에이전트)를 사용합니다. UUID 매칭은 엄격하고 모호하지 않으므로, 스크립트나 CLI를 구동하는 에이전트에게 적합합니다. `--to`와 `--to-id`는 함께 쓸 수 없습니다.
@@ -40,7 +40,7 @@ uniai issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
 할당 해제:
 
 ```bash
-uniai issue assign MUL-42 --unassign
+uniai issue assign UNI-42 --unassign
 ```
 
 ## 할당 이후에 일어나는 일

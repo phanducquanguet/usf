@@ -1,11 +1,11 @@
 ---
 title: GitHub 集成
-description: 一次性连接 GitHub App，之后 PR 的分支名、标题或正文里写了 issue 编号（例如 MUL-123），就会自动挂到那个 issue 上——PR 合并时 issue 自动转 Done。
+description: 一次性连接 GitHub App，之后 PR 的分支名、标题或正文里写了 issue 编号（例如 UNI-123），就会自动挂到那个 issue 上——PR 合并时 issue 自动转 Done。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-在 **Settings → GitHub** 里一次性连一个 GitHub 账号或组织。之后任何 PR 只要分支名、标题或正文里出现 issue 编号（例如 `MUL-123`），就会**自动关联**到那个 [issue](/issues)，出现在 issue 详情页右侧的 **Pull requests** 区块里——PR 合并时，issue 自动转 **Done**。
+在 **Settings → GitHub** 里一次性连一个 GitHub 账号或组织。之后任何 PR 只要分支名、标题或正文里出现 issue 编号（例如 `UNI-123`），就会**自动关联**到那个 [issue](/issues)，出现在 issue 详情页右侧的 **Pull requests** 区块里——PR 合并时，issue 自动转 **Done**。
 
 没有 per-issue 的配置，整个流程是「编号驱动」的。
 
@@ -24,12 +24,12 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 Webhook 从三个字段抽取编号，顺序是：**PR head 分支** → **PR 标题** → **PR 正文**。匹配规则：
 
-- 大小写不敏感——`mul-123`、`MUL-123`、`Mul-123` 都能匹配
+- 大小写不敏感——`uni-123`、`UNI-123`、`Uni-123` 都能匹配
 - 有边界——左侧 `\b`、右侧只接数字，避免误抓 `v1.2-3`、email 地址等
-- 限定到本工作区——只匹配本工作区的 [issue prefix](/workspaces)。前缀是 `MUL` 的工作区里，PR 出现 `FOO-1` 不会匹配，即使数字撞另一个 issue 也不会
-- 自动去重——`Closes MUL-1, MUL-1` 只关联一次
+- 限定到本工作区——只匹配本工作区的 [issue prefix](/workspaces)。前缀是 `UNI` 的工作区里，PR 出现 `FOO-1` 不会匹配，即使数字撞另一个 issue 也不会
+- 自动去重——`Closes UNI-1, UNI-1` 只关联一次
 
-一个 PR 里**可以同时引用多个 issue**。比如 `Closes MUL-1, MUL-2`：PR 同时关联两个 issue，合并时两个 issue 都会转 `Done`。
+一个 PR 里**可以同时引用多个 issue**。比如 `Closes UNI-1, UNI-2`：PR 同时关联两个 issue，合并时两个 issue 都会转 `Done`。
 
 ## Merge 自动转 Done 的规则
 
@@ -49,7 +49,7 @@ PR **关闭但没合并**——只更新 PR 卡片的状态为 `Closed`，issue 
 
 ## 哪些情况不会自动关联
 
-- **Commit message 里的编号**——只扫 PR 的分支 / 标题 / 正文。一个 commit message 写 `MUL-123: fix login` 不会触发关联，除非同样的字符串也出现在 PR 标题或正文里
+- **Commit message 里的编号**——只扫 PR 的分支 / 标题 / 正文。一个 commit message 写 `UNI-123: fix login` 不会触发关联，除非同样的字符串也出现在 PR 标题或正文里
 - **PR 评论里的编号**——只扫 PR 自己的元数据，后续的 GitHub comment 不读
 - **App 没安装的仓库里的 PR**——没 App，UniAI 收不到 webhook
 - **手动把 PR 关联到 issue**——暂时没有这个 UI。如果你们的约定把编号放到 UniAI 不扫的地方，请改放到 PR 标题或正文里
@@ -180,10 +180,10 @@ curl -i -X POST https://<api-host>/api/webhooks/github \
 - **手动 link UI 暂未提供**——关联 PR 的唯一方法是把 issue 编号写到 PR 分支 / 标题 / 正文
 - **不读 CI / check 状态**——只镜像 PR 本身，构建状态、reviewer 评论、reviewer 列表都没接进 UniAI
 - **没有工作区级别的 merge → status 映射配置**——默认固定是 `merged → done`（cancelled 除外）。可配置映射是后续迭代
-- **同 issue 多 PR 时，merge 行为偏激进**——两个 PR 都引用 `MUL-123` 时，第一个 merge 就把 issue 转 Done。"等所有关联 PR 都解决再推进 issue 状态"的优化已经在做了
+- **同 issue 多 PR 时，merge 行为偏激进**——两个 PR 都引用 `UNI-123` 时，第一个 merge 就把 issue 转 Done。"等所有关联 PR 都解决再推进 issue 状态"的优化已经在做了
 
 ## 下一步
 
-- [Issues](/issues) —— PR 引用的 issue 编号（`MUL-123`）的来源
+- [Issues](/issues) —— PR 引用的 issue 编号（`UNI-123`）的来源
 - [工作区](/workspaces) —— 工作区 issue prefix 的设置位置
 - [环境变量](/environment-variables) —— 完整 env 清单，包含上面提到的 GitHub 变量

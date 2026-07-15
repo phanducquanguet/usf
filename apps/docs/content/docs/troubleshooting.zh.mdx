@@ -180,7 +180,7 @@ docker exec <container> env | grep -E 'APP_ENV|MULTICA_DEV_VERIFICATION_CODE'
 
 **可能原因**：
 
-1. **`rollup_task_usage_hourly()` 没被认领** —— Usage / Runtime 看板读的是派生表 `task_usage_hourly`，这张表必须靠 `rollup_task_usage_hourly()` 周期性填充。从 MUL-2957 起后端通过 DB 后端调度器（`sys_cron_executions`）在进程内跑 rollup；旧版本 binary、未应用 migration `113`、或者所有副本长时间下线，都可能让这张表里没有最近的 SUCCESS 行。
+1. **`rollup_task_usage_hourly()` 没被认领** —— Usage / Runtime 看板读的是派生表 `task_usage_hourly`，这张表必须靠 `rollup_task_usage_hourly()` 周期性填充。从 UNI-2957 起后端通过 DB 后端调度器（`sys_cron_executions`）在进程内跑 rollup；旧版本 binary、未应用 migration `113`、或者所有副本长时间下线，都可能让这张表里没有最近的 SUCCESS 行。
 2. **`pg_cron` 作为兼容路径配着、但指向了错的库** —— `pg_cron.database_name` 默认是 `postgres`；如果你的 UniAI 数据库名不是 `postgres`，调度任务根本看不到 `rollup_task_usage_hourly()`。进程内调度器不依赖这一项，但如果你刻意拿掉了进程内调度而靠 `pg_cron`，DB 名就必须对得上。
 3. **handler 被认领了、但静默报错** —— 比如 migration 没全部应用导致 SQL 函数缺失、或 DB role / search_path 配错了。看 `sys_cron_executions` 里的 FAILED 审计行。
 
@@ -229,11 +229,11 @@ ERROR: refusing to drop legacy daily rollups:
 
 **可能原因**：这是 migration `103` 的 fail-closed guard。它要求 `task_usage_hourly` 已经追平了原始的 `task_usage` 之后，才允许丢掉旧的 daily rollup。只要数据库里有历史数据、且 rollup watermark 还停在 epoch（说明还没把历史回填进 hourly 表），这条 guard 就会拦住。
 
-从 MUL-2957 起，migrate 命令在应用 migration `103` 之前会自动跑一次幂等的按月切片 backfill（advisory lock 4246 保护），所以 v0.3.4 → v0.3.5+ 直升一次 `migrate up` 就能搞定。如果你还看到这个错，要么用的是 MUL-2957 之前的二进制，要么 hook 自己也失败了 —— 看 migrate 日志里更早一行的 `task_usage hourly rollup hook` 看具体原因。
+从 UNI-2957 起，migrate 命令在应用 migration `103` 之前会自动跑一次幂等的按月切片 backfill（advisory lock 4246 保护），所以 v0.3.4 → v0.3.5+ 直升一次 `migrate up` 就能搞定。如果你还看到这个错，要么用的是 UNI-2957 之前的二进制，要么 hook 自己也失败了 —— 看 migrate 日志里更早一行的 `task_usage hourly rollup hook` 看具体原因。
 
 **怎么修**：
 
-1. 如果你跑的是 MUL-2957 之前的 binary，又没办法先升级 binary，就对同一个数据库手动跑一次独立 backfill（幂等，可以打断，可以重试）：
+1. 如果你跑的是 UNI-2957 之前的 binary，又没办法先升级 binary，就对同一个数据库手动跑一次独立 backfill（幂等，可以打断，可以重试）：
 
    ```bash
    # Docker Compose

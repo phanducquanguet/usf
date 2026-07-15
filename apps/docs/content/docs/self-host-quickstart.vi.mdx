@@ -199,7 +199,7 @@ Cùng quy trình với Cloud — xem [Bắt đầu nhanh với Cloud → Bước
 ## 7. Tổng hợp usage (không cần thao tác vận hành)
 
 <Callout type="info">
-Bảng điều khiển Usage / Runtime đọc từ bảng dẫn xuất `task_usage_hourly` do `rollup_task_usage_hourly()` ghi. Từ MUL-2957, backend chạy rollup này ngay trong tiến trình qua bộ lập lịch dựa trên DB — không cần `pg_cron` nữa, và cron ngoài / systemd timer cũng không còn là cách khuyến nghị. Image `pgvector/pgvector:pg17` đi kèm dùng được luôn, không cần chỉnh.
+Bảng điều khiển Usage / Runtime đọc từ bảng dẫn xuất `task_usage_hourly` do `rollup_task_usage_hourly()` ghi. Từ UNI-2957, backend chạy rollup này ngay trong tiến trình qua bộ lập lịch dựa trên DB — không cần `pg_cron` nữa, và cron ngoài / systemd timer cũng không còn là cách khuyến nghị. Image `pgvector/pgvector:pg17` đi kèm dùng được luôn, không cần chỉnh.
 </Callout>
 
 Bộ lập lịch trong tiến trình tick mỗi 30 giây và nhận một kế hoạch 5 phút theo UTC qua bảng `sys_cron_executions`. Nhiều bản sao backend vẫn an toàn — khóa duy nhất `(job_name, scope_kind, scope_id, plan_time)` đảm bảo mỗi kế hoạch chỉ có một bản sao giành được quyền chạy. Triển khai mới không cần thiết lập gì.
@@ -211,7 +211,7 @@ SELECT cron.unschedule('rollup_task_usage_hourly')
   FROM cron.job WHERE jobname = 'rollup_task_usage_hourly';
 ```
 
-**Nâng cấp từ `v0.3.4 → v0.3.5+`.** Bản trước yêu cầu người vận hành chạy tay `cmd/backfill_task_usage_hourly` trước khi áp migration 103, nếu không guard fail-closed của migration sẽ chặn `migrate up`. Từ MUL-2957 việc này là tự động: lệnh migrate chạy backfill idempotent theo từng lát dữ liệu tháng (dưới advisory lock 4246) ngay trước khi áp migration 103, rồi tiếp tục. Bạn vẫn có thể chạy backfill độc lập trên DB bận để giảm áp lực đọc bằng `--sleep-between-slices=2s`, nhưng không còn bắt buộc.
+**Nâng cấp từ `v0.3.4 → v0.3.5+`.** Bản trước yêu cầu người vận hành chạy tay `cmd/backfill_task_usage_hourly` trước khi áp migration 103, nếu không guard fail-closed của migration sẽ chặn `migrate up`. Từ UNI-2957 việc này là tự động: lệnh migrate chạy backfill idempotent theo từng lát dữ liệu tháng (dưới advisory lock 4246) ngay trước khi áp migration 103, rồi tiếp tục. Bạn vẫn có thể chạy backfill độc lập trên DB bận để giảm áp lực đọc bằng `--sleep-between-slices=2s`, nhưng không còn bắt buộc.
 
 Tham chiếu đầy đủ — gồm ghi chú vận hành và cấu trúc triển khai Kubernetes — nằm trong [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup) của repo.
 
@@ -268,7 +268,7 @@ Tham chiếu đầy đủ — ba chế độ đăng nhập, workaround ExternalN
 - **Không nhận được mã xác thực**: chưa cấu hình backend email nào (cả Resend lẫn SMTP) → tìm `[DEV] Verification code` trong `docker compose logs backend`
 - **WebSocket không kết nối**: với triển khai công khai bạn phải đặt `FRONTEND_ORIGIN` đúng tên miền frontend thật; xem Khắc phục sự cố → WebSocket không kết nối được
 - **Bảng Usage / Runtime toàn số 0**: `rollup_task_usage_hourly()` không được lập lịch — xem [Bước 7](#7-usage-rollup-no-operator-action-required) phía trên và Khắc phục sự cố → Bảng usage hiện 0
-- **`migrate up` lỗi `refusing to drop legacy daily rollups`**: guard đường nâng cấp `v0.3.4 → v0.3.5+`. Từ MUL-2957, lệnh migrate tự chạy backfill trước khi áp migration 103 — xem [Bước 7](#7-usage-rollup-no-operator-action-required)
+- **`migrate up` lỗi `refusing to drop legacy daily rollups`**: guard đường nâng cấp `v0.3.4 → v0.3.5+`. Từ UNI-2957, lệnh migrate tự chạy backfill trước khi áp migration 103 — xem [Bước 7](#7-usage-rollup-no-operator-action-required)
 
 ## Bước tiếp theo
 

@@ -143,7 +143,7 @@ Alternatively, configure step by step: `uniai config set server_url http://local
 
 ## Usage Dashboard Rollup
 
-The Usage / Runtime dashboards read from a derived `task_usage_hourly` table populated by `rollup_task_usage_hourly()`. As of MUL-2957 the backend runs this rollup **in-process** on every replica via a DB-backed scheduler (`sys_cron_executions`). A fresh self-host install needs no operator action — the bundled `pgvector/pgvector:pg17` image works as-is, and you do **not** need to swap it for an image that ships `pg_cron`, register an external cron job, run a systemd timer, or schedule a Kubernetes `CronJob`.
+The Usage / Runtime dashboards read from a derived `task_usage_hourly` table populated by `rollup_task_usage_hourly()`. As of UNI-2957 the backend runs this rollup **in-process** on every replica via a DB-backed scheduler (`sys_cron_executions`). A fresh self-host install needs no operator action — the bundled `pgvector/pgvector:pg17` image works as-is, and you do **not** need to swap it for an image that ships `pg_cron`, register an external cron job, run a systemd timer, or schedule a Kubernetes `CronJob`.
 
 Multiple backend replicas are safe: every replica ticks every 30 seconds and tries to claim the current 5-minute UTC plan, but the unique key `(job_name, scope_kind, scope_id, plan_time)` means only one wins each plan. Inspect the audit table to confirm steady-state operation:
 
@@ -157,12 +157,12 @@ SELECT plan_time, status, attempt, runner_id,
 ```
 
 <Callout>
-**Upgrading from `v0.3.4` to `v0.3.5+`?** As of MUL-2957 the `migrate up` command runs an idempotent monthly-slice backfill automatically right before applying migration `103`, so the upgrade completes in a single invocation — no operator step required. If you are on a pre-MUL-2957 binary or the auto-hook fails for an environmental reason, run `backfill_task_usage_hourly` against the same database and re-run the upgrade. Full recovery flow lives in [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup).
+**Upgrading from `v0.3.4` to `v0.3.5+`?** As of UNI-2957 the `migrate up` command runs an idempotent monthly-slice backfill automatically right before applying migration `103`, so the upgrade completes in a single invocation — no operator step required. If you are on a pre-UNI-2957 binary or the auto-hook fails for an environmental reason, run `backfill_task_usage_hourly` against the same database and re-run the upgrade. Full recovery flow lives in [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup).
 </Callout>
 
 ### Compatibility paths (existing deployments only)
 
-External schedulers — **`pg_cron` registered on the database, an external cron job, a systemd timer, or a Kubernetes `CronJob`** — that call `SELECT rollup_task_usage_hourly()` directly were the only option before MUL-2957 and remain a supported compatibility path. They are no longer the recommended setup; new deployments should rely on the in-process scheduler. The SQL function holds advisory lock 4246 internally, so the in-process scheduler and any pre-existing external schedule can coexist without ever double-writing the rollup.
+External schedulers — **`pg_cron` registered on the database, an external cron job, a systemd timer, or a Kubernetes `CronJob`** — that call `SELECT rollup_task_usage_hourly()` directly were the only option before UNI-2957 and remain a supported compatibility path. They are no longer the recommended setup; new deployments should rely on the in-process scheduler. The SQL function holds advisory lock 4246 internally, so the in-process scheduler and any pre-existing external schedule can coexist without ever double-writing the rollup.
 
 If you already have a `pg_cron` job in production and want to retire it, the safe sequence is:
 

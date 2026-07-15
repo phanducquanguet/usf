@@ -92,7 +92,7 @@ uniai issue create --title "Add an ASCII architecture diagram to the README"
 Giao issue cho agent bạn vừa tạo — bấm vào avatar của nó trên web, hoặc dùng CLI:
 
 ```bash
-uniai issue assign MUL-1 --to my-agent-name
+uniai issue assign UNI-1 --to my-agent-name
 ```
 
 `--to` nhận **tên** của agent hoặc thành viên. Khớp theo chuỗi con cũng được — nếu agent tên `my-code-reviewer`, gõ `reviewer` là đủ. Nếu không gian làm việc có tên trùng nhau, dùng `--to-id <uuid>` thay thế (không dùng chung được với `--to`); tra UUID bằng `uniai agent list --output json` hoặc `uniai workspace member list --output json`.

@@ -343,7 +343,7 @@ uniai issue list --status todo --sort position       # board order (the default)
 uniai issue list --sort created_at --direction desc  # newest first
 ```
 
-Table output shows a routable issue `KEY` such as `MUL-123`; copy that key into follow-up commands like `issue get`, `issue comment list`, `issue status`, or `--parent`. Add `--full-id` when you need canonical UUIDs. Available filters: `--status`, `--priority`, `--assignee` / `--assignee-id`, `--project`, `--metadata`, `--limit`. Use `--assignee-id <uuid>` for unambiguous filtering when names overlap.
+Table output shows a routable issue `KEY` such as `UNI-123`; copy that key into follow-up commands like `issue get`, `issue comment list`, `issue status`, or `--parent`. Add `--full-id` when you need canonical UUIDs. Available filters: `--status`, `--priority`, `--assignee` / `--assignee-id`, `--project`, `--metadata`, `--limit`. Use `--assignee-id <uuid>` for unambiguous filtering when names overlap.
 
 Results come back in board order (`position`, ascending) by default. Pass `--sort` to change the column (`position`, `title`, `created_at`, `start_date`, `due_date`, `priority`) and `--direction asc|desc` to flip the order. `position` is always ascending (it is the manual drag order), so `--direction` is rejected when `--sort` is `position` or omitted — use it only with `title`, `created_at`, `start_date`, `due_date`, or `priority`.
 
@@ -775,7 +775,7 @@ precedence order), messages switch to **Chinese**. No flag is needed; set the
 locale as usual:
 
 ```bash
-LANG=zh_CN.UTF-8 uniai issue get MUL-9999   # 错误信息显示为中文
+LANG=zh_CN.UTF-8 uniai issue get UNI-9999   # 错误信息显示为中文
 ```
 
 ### Exit codes
@@ -792,7 +792,7 @@ The process exit code is tiered so scripts can branch on the failure class:
 | `5` | validation (HTTP 400, 422) |
 
 ```bash
-uniai issue get MUL-9999
+uniai issue get UNI-9999
 if [ $? -eq 4 ]; then echo "no such issue"; fi
 ```
 
@@ -805,7 +805,7 @@ to file a bug or understand exactly what the server returned:
 
 ```bash
 uniai issue list --debug
-MULTICA_DEBUG=1 uniai issue update MUL-1234 --title "x"
+MULTICA_DEBUG=1 uniai issue update UNI-1234 --title "x"
 ```
 
 ### Request timeout

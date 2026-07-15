@@ -201,7 +201,7 @@ Cloud と同じ流れです — [Cloud クイックスタート → ステップ
 ## 7. 使用量ロールアップ（オペレーターの操作は不要）
 
 <Callout type="info">
-使用量 / ランタイムのダッシュボードは、`rollup_task_usage_hourly()` が埋める派生テーブル `task_usage_hourly` からデータを読み取ります。MUL-2957 以降、バックエンドは DB バックドのスケジューラー経由でこのロールアップをインプロセスで実行するようになり、`pg_cron` は不要になりました。外部 cron / systemd タイマーも推奨セットアップではなくなっています。バンドルされた `pgvector/pgvector:pg17` イメージは変更なしで動作します。
+使用量 / ランタイムのダッシュボードは、`rollup_task_usage_hourly()` が埋める派生テーブル `task_usage_hourly` からデータを読み取ります。UNI-2957 以降、バックエンドは DB バックドのスケジューラー経由でこのロールアップをインプロセスで実行するようになり、`pg_cron` は不要になりました。外部 cron / systemd タイマーも推奨セットアップではなくなっています。バンドルされた `pgvector/pgvector:pg17` イメージは変更なしで動作します。
 </Callout>
 
 インプロセススケジューラーは 30 秒おきにティックし、`sys_cron_executions` テーブルを介して 5 分ごとの UTC プランをクレームします。複数のバックエンドレプリカでも安全です — 一意キー `(job_name, scope_kind, scope_id, plan_time)` により、各プランで勝者は 1 つだけです。新規デプロイでは何の設定も不要です。
@@ -213,7 +213,7 @@ SELECT cron.unschedule('rollup_task_usage_hourly')
   FROM cron.job WHERE jobname = 'rollup_task_usage_hourly';
 ```
 
-**`v0.3.4 → v0.3.5+` からのアップグレード。** 以前のリリースでは、migration 103 を適用する前にオペレーターが手動で `cmd/backfill_task_usage_hourly` を実行する必要があり、そうしないと migration の fail-closed ガードが `migrate up` を中断していました。MUL-2957 以降、これは自動化されました — migrate コマンドが migration 103 を適用する直前に冪等な月単位スライスのバックフィル（advisory lock 4246 の下）を実行してから処理を続行します。忙しい DB では `--sleep-between-slices=2s` で読み取り負荷を絞るためにスタンドアロンの backfill を実行することもできますが、もはや必須ではありません。
+**`v0.3.4 → v0.3.5+` からのアップグレード。** 以前のリリースでは、migration 103 を適用する前にオペレーターが手動で `cmd/backfill_task_usage_hourly` を実行する必要があり、そうしないと migration の fail-closed ガードが `migrate up` を中断していました。UNI-2957 以降、これは自動化されました — migrate コマンドが migration 103 を適用する直前に冪等な月単位スライスのバックフィル（advisory lock 4246 の下）を実行してから処理を続行します。忙しい DB では `--sleep-between-slices=2s` で読み取り負荷を絞るためにスタンドアロンの backfill を実行することもできますが、もはや必須ではありません。
 
 完全なリファレンス（運用ノートと Kubernetes デプロイ形態を含む）は、リポジトリの [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup) にあります。
 
@@ -270,7 +270,7 @@ uniai setup self-host \
 - **認証コードが届かない**: メールバックエンドが構成されていない場合（Resend も SMTP もない）→ `docker compose logs backend` で `[DEV] Verification code` を探してください
 - **WebSocket が接続できない**: 公開デプロイでは、`FRONTEND_ORIGIN` を実際のフロントエンドのドメインに必ず設定する必要があります。[トラブルシューティング → WebSocket が接続できない](/troubleshooting#websocket-wont-connect)を参照してください
 - **使用量 / ランタイムのダッシュボードがゼロのまま**: `rollup_task_usage_hourly()` がスケジューリングされていません — 上記の [ステップ7](#7-usage-rollup-no-operator-action-required)と[トラブルシューティング → 使用量ダッシュボードがゼロと表示される](/troubleshooting#usage-dashboard-stays-at-zero)を参照してください
-- **`migrate up` が `refusing to drop legacy daily rollups` で失敗する**: `v0.3.4 → v0.3.5+` のアップグレード経路ガードです。MUL-2957 以降、migrate コマンドは migration 103 を適用する前に自動でバックフィルを実行します — [ステップ7](#7-usage-rollup-no-operator-action-required)を参照してください
+- **`migrate up` が `refusing to drop legacy daily rollups` で失敗する**: `v0.3.4 → v0.3.5+` のアップグレード経路ガードです。UNI-2957 以降、migrate コマンドは migration 103 を適用する前に自動でバックフィルを実行します — [ステップ7](#7-usage-rollup-no-operator-action-required)を参照してください
 
 ## 次のステップ
 

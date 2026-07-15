@@ -200,7 +200,7 @@ Same flow as Cloud — see [Cloud quickstart → Steps 5-6](/cloud-quickstart#5-
 ## 7. Usage rollup (no operator action required)
 
 <Callout type="info">
-The Usage / Runtime dashboards read from a derived `task_usage_hourly` table populated by `rollup_task_usage_hourly()`. As of MUL-2957 the backend runs this rollup in-process via the DB-backed scheduler — `pg_cron` is no longer required, and external cron / systemd timers are no longer the recommended setup. The bundled `pgvector/pgvector:pg17` image works without changes.
+The Usage / Runtime dashboards read from a derived `task_usage_hourly` table populated by `rollup_task_usage_hourly()`. As of UNI-2957 the backend runs this rollup in-process via the DB-backed scheduler — `pg_cron` is no longer required, and external cron / systemd timers are no longer the recommended setup. The bundled `pgvector/pgvector:pg17` image works without changes.
 </Callout>
 
 The in-process scheduler ticks every 30 seconds and claims a 5-minute UTC plan via the `sys_cron_executions` table. Multiple backend replicas are safe — the unique key `(job_name, scope_kind, scope_id, plan_time)` means only one wins each plan. No setup is needed for new deployments.
@@ -212,7 +212,7 @@ SELECT cron.unschedule('rollup_task_usage_hourly')
   FROM cron.job WHERE jobname = 'rollup_task_usage_hourly';
 ```
 
-**Upgrade from `v0.3.4 → v0.3.5+`.** The previous release asked operators to run `cmd/backfill_task_usage_hourly` manually before applying migration 103, otherwise the migration's fail-closed guard would abort `migrate up`. As of MUL-2957 this is automatic: the migrate command runs an idempotent monthly-slice backfill (under advisory lock 4246) immediately before applying migration 103, then continues. You may still run the standalone backfill on a busy DB to throttle read pressure with `--sleep-between-slices=2s`, but it is no longer required.
+**Upgrade from `v0.3.4 → v0.3.5+`.** The previous release asked operators to run `cmd/backfill_task_usage_hourly` manually before applying migration 103, otherwise the migration's fail-closed guard would abort `migrate up`. As of UNI-2957 this is automatic: the migrate command runs an idempotent monthly-slice backfill (under advisory lock 4246) immediately before applying migration 103, then continues. You may still run the standalone backfill on a busy DB to throttle read pressure with `--sleep-between-slices=2s`, but it is no longer required.
 
 Full reference — including operations notes and the Kubernetes deployment shape — lives in the repo's [`SELF_HOSTING_ADVANCED.md → Usage Dashboard Rollup`](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#usage-dashboard-rollup).
 
@@ -269,7 +269,7 @@ The full reference — three login modes, the `backend` ExternalName workaround 
 - **Verification code not received**: no email backend is configured (neither Resend nor SMTP) → look for `[DEV] Verification code` in `docker compose logs backend`
 - **WebSocket won't connect**: for public deployments you must set `FRONTEND_ORIGIN` to your real frontend domain; see Troubleshooting → WebSocket won't connect
 - **Usage / Runtime dashboard stays at zero**: `rollup_task_usage_hourly()` isn't being scheduled — see [Step 7](#7-usage-rollup-no-operator-action-required) above and Troubleshooting → Usage dashboard shows zero
-- **`migrate up` fails with `refusing to drop legacy daily rollups`**: upgrade-path guard from `v0.3.4 → v0.3.5+`. As of MUL-2957 the migrate command runs the backfill automatically before applying migration 103 — see [Step 7](#7-usage-rollup-no-operator-action-required)
+- **`migrate up` fails with `refusing to drop legacy daily rollups`**: upgrade-path guard from `v0.3.4 → v0.3.5+`. As of UNI-2957 the migrate command runs the backfill automatically before applying migration 103 — see [Step 7](#7-usage-rollup-no-operator-action-required)
 
 ## Next steps
 

@@ -96,7 +96,7 @@ uniai issue create --title "Add an ASCII architecture diagram to the README"
 방금 만든 에이전트에게 이슈를 할당하세요 — 웹 UI에서 아바타를 클릭하거나, CLI를 사용하세요:
 
 ```bash
-uniai issue assign MUL-1 --to my-agent-name
+uniai issue assign UNI-1 --to my-agent-name
 ```
 
 `--to`는 에이전트 또는 멤버의 **이름**을 받습니다. 부분 문자열 일치도 동작합니다 — 에이전트 이름이 `my-code-reviewer`라면 `reviewer`로 해석됩니다. 워크스페이스에 이름이 겹치는 경우, 대신 `--to-id <uuid>`(`--to`와 상호 배타적)를 전달하세요. UUID는 `uniai agent list --output json` 또는 `uniai workspace member list --output json`으로 조회하세요.

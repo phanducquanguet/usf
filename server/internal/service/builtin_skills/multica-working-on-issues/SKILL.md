@@ -22,13 +22,13 @@ The GitHub webhook runs two separate scans over an incoming PR. They are not the
 same gate and they read different fields.
 
 **Linking** scans the PR **title, body, OR branch** for a routable issue key
-(`PREFIX-NUMBER`, e.g. `MUL-2759`). Each match writes an issue ↔ PR link row.
+(`PREFIX-NUMBER`, e.g. `UNI-2759`). Each match writes an issue ↔ PR link row.
 This is the link that `uniai issue pull-requests` reads back — but see the
 reference-only rule below: a key that appears **only** as a bare mention in the
 body is linked yet hidden from that list.
 
 ```text
-MUL-2759: add built-in issue working skill        # title prefix → links, shown
+UNI-2759: add built-in issue working skill        # title prefix → links, shown
 agent/matt/mul-2759-working-on-issues             # branch ref   → links, shown
 ```
 
@@ -39,10 +39,10 @@ adjacency is what sets the link row's close-intent flag, the gate that
 auto-advances the issue to `done` when the PR merges.
 
 ```text
-Closes MUL-2759                                    # links AND records close intent
-Fixes MUL-2759
-Resolves MUL-2759
-Fix login MUL-2759                                 # links only — keyword not adjacent
+Closes UNI-2759                                    # links AND records close intent
+Fixes UNI-2759
+Resolves UNI-2759
+Fix login UNI-2759                                 # links only — keyword not adjacent
 ```
 
 Consequence: a bare title prefix or a branch reference links the PR but does not
@@ -54,14 +54,14 @@ records close intent; on merge, that close intent can move the linked issue to
 as a bare mention in the body — no closing keyword, and not in the title or
 branch — still writes a link row, but the row is flagged `reference_only` and
 **excluded from `uniai issue pull-requests`** (and the issue's right-side PR
-list in the UI). This keeps passing mentions like `Related MUL-2759` or
-`Follow up in MUL-2759` from surfacing an unrelated PR as if it were working on
+list in the UI). This keeps passing mentions like `Related UNI-2759` or
+`Follow up in UNI-2759` from surfacing an unrelated PR as if it were working on
 that issue. To make a PR show up for an issue, put the key in the title, the
 branch, or after a closing keyword in the body — not as a loose body reference.
 
 ```text
-Closes MUL-2759 in the body                        # links and shown
-Related to MUL-2759 in the body (no title/branch)  # links but reference_only → hidden
+Closes UNI-2759 in the body                        # links and shown
+Related to UNI-2759 in the body (no title/branch)  # links but reference_only → hidden
 ```
 
 ### Default for code-changing issue work
@@ -78,8 +78,8 @@ the PR back to the issue. If the PR should close the issue on merge, put the key
 immediately after a closing keyword in the title or body, for example:
 
 ```text
-MUL-2759: fix login redirect        # links only
-Closes MUL-2759                     # links and records close intent
+UNI-2759: fix login redirect        # links only
+Closes UNI-2759                     # links and records close intent
 ```
 
 In the final issue comment, include the PR URL when a PR exists. If the task did
@@ -157,7 +157,7 @@ on it. These are the contracts, not advice:
 - **`in_review`** is an accepted issue status. Some workflows use it while a PR
   is open and awaiting review; moving to it is an explicit mutation.
 - **`done`** on a child issue posts a system comment on its parent. If a PR
-  carries close intent (`Closes MUL-XXXX`), it advances the issue to `done`
+  carries close intent (`Closes UNI-XXXX`), it advances the issue to `done`
   itself on merge — you do not also need to flip it manually.
 - **`cancelled`** stops outstanding work; treat it as a user-driven decision.
 
@@ -222,7 +222,7 @@ PR title (link the issue):
 
 ```text
 Fix login redirect                  # incorrect — no issue key, won't link
-MUL-2759: fix login redirect        # correct — links the PR
+UNI-2759: fix login redirect        # correct — links the PR
 ```
 
 Serial / phased sub-issues (don't start the whole chain at once):

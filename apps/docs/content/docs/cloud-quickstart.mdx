@@ -92,7 +92,7 @@ uniai issue create --title "Add an ASCII architecture diagram to the README"
 Assign the issue to the agent you just created — click its avatar in the web UI, or use the CLI:
 
 ```bash
-uniai issue assign MUL-1 --to my-agent-name
+uniai issue assign UNI-1 --to my-agent-name
 ```
 
 `--to` takes the **name** of an agent or member. A substring match works — if the agent is called `my-code-reviewer`, `reviewer` resolves to it. If your workspace has overlapping names, pass `--to-id <uuid>` instead (mutually exclusive with `--to`); look up the UUID via `uniai agent list --output json` or `uniai workspace member list --output json`.

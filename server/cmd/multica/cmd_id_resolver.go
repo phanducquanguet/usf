@@ -161,12 +161,12 @@ func resolveIssueRef(ctx context.Context, client *cli.APIClient, input string) (
 	if _, err := normalizeUUIDPrefix(trimmed); err == nil {
 		return resolvedID{}, fmt.Errorf(
 			"issue ref %q looks like a short UUID prefix; short prefixes are no longer supported for issues. "+
-				"Use the issue key (e.g. MUL-123) shown by `uniai issue list`, or pass the full UUID (run a list command with --full-id to copy it)",
+				"Use the issue key (e.g. UNI-123) shown by `uniai issue list`, or pass the full UUID (run a list command with --full-id to copy it)",
 			input,
 		)
 	}
 	return resolvedID{}, fmt.Errorf(
-		"issue ref %q is not a recognized issue reference; use the issue key (e.g. MUL-123) shown by `uniai issue list`, or pass the full UUID",
+		"issue ref %q is not a recognized issue reference; use the issue key (e.g. UNI-123) shown by `uniai issue list`, or pass the full UUID",
 		input,
 	)
 }

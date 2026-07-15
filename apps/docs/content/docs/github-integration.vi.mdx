@@ -5,7 +5,7 @@ description: Kết nối GitHub App một lần, sau đó các PR có tên nhán
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Kết nối một tài khoản hoặc tổ chức GitHub một lần trong **Cài đặt → GitHub**. Sau đó, bất kỳ pull request nào có tên nhánh, tiêu đề hoặc phần thân chứa mã issue (ví dụ `MUL-123`) được **tự liên kết** vào [issue](/issues) đó, xuất hiện dưới mục **Pull requests** ở thanh bên của issue, và — khi PR được merge — chuyển issue sang **Done**.
+Kết nối một tài khoản hoặc tổ chức GitHub một lần trong **Cài đặt → GitHub**. Sau đó, bất kỳ pull request nào có tên nhánh, tiêu đề hoặc phần thân chứa mã issue (ví dụ `UNI-123`) được **tự liên kết** vào [issue](/issues) đó, xuất hiện dưới mục **Pull requests** ở thanh bên của issue, và — khi PR được merge — chuyển issue sang **Done**.
 
 Không cần thiết lập theo từng issue. Toàn bộ luồng chạy theo mã định danh.
 
@@ -24,12 +24,12 @@ Chỉ bản thân PR được phản chiếu. Commit, ref nhánh không có PR m
 
 Webhook trích mã từ ba trường, theo thứ tự: **nhánh head của PR**, **tiêu đề PR**, **thân PR**. Cơ chế khớp như sau:
 
-- Không phân biệt hoa thường — `mul-123`, `MUL-123`, `Mul-123` đều khớp.
+- Không phân biệt hoa thường — `uni-123`, `UNI-123`, `Uni-123` đều khớp.
 - Có biên — `\b` bên trái và neo chữ số bên phải giúp tránh khớp nhầm số phiên bản như `v1.2-3` hay chuỗi kiểu email.
-- Theo phạm vi không gian làm việc — chỉ khớp [tiền tố issue](/workspaces) của chính không gian làm việc. `FOO-1` trong không gian làm việc có tiền tố `MUL` bị bỏ qua, kể cả khi phần số trùng một issue khác.
-- Khử trùng lặp — ghi `MUL-1, MUL-1` trong thân chỉ liên kết issue một lần.
+- Theo phạm vi không gian làm việc — chỉ khớp [tiền tố issue](/workspaces) của chính không gian làm việc. `FOO-1` trong không gian làm việc có tiền tố `UNI` bị bỏ qua, kể cả khi phần số trùng một issue khác.
+- Khử trùng lặp — ghi `UNI-1, UNI-1` trong thân chỉ liên kết issue một lần.
 
-Bạn có thể nhắc **nhiều issue** trong một PR. `Closes MUL-1, MUL-2` liên kết PR với cả hai, và merge nó đưa cả hai lên `Done`.
+Bạn có thể nhắc **nhiều issue** trong một PR. `Closes UNI-1, UNI-2` liên kết PR với cả hai, và merge nó đưa cả hai lên `Done`.
 
 ## Quy tắc tự chuyển sang Done khi merge
 
@@ -49,7 +49,7 @@ Hành động được ghi cho actor `system` trên dòng thời gian. Người 
 
 ## Những gì không tự liên kết
 
-- **Mã trong commit message** — chỉ nhánh / tiêu đề / thân được quét. Commit tên `MUL-123: fix login` không tự liên kết trừ khi chuỗi đó cũng xuất hiện trong tiêu đề hoặc thân PR.
+- **Mã trong commit message** — chỉ nhánh / tiêu đề / thân được quét. Commit tên `UNI-123: fix login` không tự liên kết trừ khi chuỗi đó cũng xuất hiện trong tiêu đề hoặc thân PR.
 - **Mã trong bình luận của PR** — chỉ metadata của chính PR được quét; các bình luận GitHub về sau bị bỏ qua.
 - **PR trong repo chưa cài App** — không có App, UniAI không bao giờ nhận webhook.
 - **Liên kết PR vào issue thủ công** — chưa có UI cho việc này. Nếu quy ước của nhóm đặt mã ở chỗ UniAI không đọc, thêm nó vào tiêu đề hoặc thân PR.
@@ -179,9 +179,9 @@ Một vài hạn chế hiện tại cần lưu ý:
 - **Chưa có UI liên kết thủ công** — cách duy nhất để liên kết PR là có mã trong nhánh, tiêu đề hoặc thân của nó.
 - **Không có trạng thái CI / check** — chỉ bản thân PR được phản chiếu. Trạng thái build, bình luận review và reviewer không hiện trong UniAI.
 - **Không có cấu hình mức không gian làm việc** cho quy tắc merge → Done — quy tắc là mặc định cố định (`merged → done`, trừ `cancelled`). Ánh xạ tùy biến theo không gian làm việc sẽ được bổ sung trong tương lai.
-- **Trường hợp nhiều PR trỏ vào một issue được xử lý đơn giản khi merge** — nếu hai PR cùng nhắc `MUL-123` và PR đầu tiên merge, issue được chuyển sang `Done` ngay. Cải tiến để chờ mọi PR liên kết được xử lý xong mới chuyển trạng thái đang được phát triển.
+- **Trường hợp nhiều PR trỏ vào một issue được xử lý đơn giản khi merge** — nếu hai PR cùng nhắc `UNI-123` và PR đầu tiên merge, issue được chuyển sang `Done` ngay. Cải tiến để chờ mọi PR liên kết được xử lý xong mới chuyển trạng thái đang được phát triển.
 
 ## Tiếp theo
 
-- [Issue](/issues) — mã issue (`MUL-123`) được nhắc từ PR
+- [Issue](/issues) — mã issue (`UNI-123`) được nhắc từ PR
 - [Không gian làm việc](/workspaces) — nơi đặt tiền tố issue riêng của không gian làm việc

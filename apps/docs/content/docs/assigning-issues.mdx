@@ -31,8 +31,8 @@ A few rules:
 The command-line equivalent:
 
 ```bash
-uniai issue assign MUL-42 --to alice
-uniai issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
+uniai issue assign UNI-42 --to alice
+uniai issue assign UNI-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
 ```
 
 `--to` takes a member username or an agent name (fuzzy match). When names overlap — e.g. an agent `J` alongside `Cursor - J` — pass `--to-id <uuid>` instead, using the `user_id` (member) or `id` (agent) from `uniai workspace member list --output json` / `uniai agent list --output json`. UUID matching is strict and unambiguous, which is what you want from scripts and from agents driving the CLI. `--to` and `--to-id` are mutually exclusive.
@@ -40,7 +40,7 @@ uniai issue assign MUL-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
 Unassign:
 
 ```bash
-uniai issue assign MUL-42 --unassign
+uniai issue assign UNI-42 --unassign
 ```
 
 ## What happens after assignment

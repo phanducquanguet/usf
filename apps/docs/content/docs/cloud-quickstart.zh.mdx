@@ -96,7 +96,7 @@ uniai issue create --title "给 README 加一段 ASCII 架构图"
 把这条 issue 分配给你刚创建的那个智能体——可以在 Web 上点它的头像，或用命令行：
 
 ```bash
-uniai issue assign MUL-1 --to my-agent-name
+uniai issue assign UNI-1 --to my-agent-name
 ```
 
 `--to` 后面填智能体或成员的**名字**，子串就行——如果智能体叫 `my-code-reviewer`，填 `reviewer` 也能命中。如果工作区里名字相互重叠或冲突，改用 `--to-id <uuid>`（与 `--to` 互斥）；UUID 来自 `uniai agent list --output json` 或 `uniai workspace member list --output json`。
