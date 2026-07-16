@@ -6,10 +6,10 @@ import { Card, CardContent } from "@multica/ui/components/ui/card";
 import { CODE_LIGATURE_CLASS } from "@multica/ui/lib/code-style";
 import { cn } from "@multica/ui/lib/utils";
 import { copyText } from "@multica/ui/lib/clipboard";
+import { INSTALL_COMMANDS } from "../../common/install-command";
+import { InstallOsToggle, useInstallOS } from "../../common/install-os-toggle";
 import { useT } from "../../i18n";
 
-const INSTALL_CMD =
-  "curl -fsSL https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.sh | bash";
 const SETUP_CMD = "uniai setup";
 
 function CopyButton({ text }: { text: string }) {
@@ -40,12 +40,25 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function Step({ n, label, cmd }: { n: number; label: string; cmd: string }) {
+function Step({
+  n,
+  label,
+  cmd,
+  labelExtra,
+}: {
+  n: number;
+  label: string;
+  cmd: string;
+  labelExtra?: React.ReactNode;
+}) {
   return (
     <div>
-      <p className="mb-1.5 text-xs font-medium text-foreground">
-        {n}. {label}
-      </p>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-foreground">
+          {n}. {label}
+        </p>
+        {labelExtra}
+      </div>
       <div className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2.5 font-mono text-sm">
         <Terminal className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <code
@@ -63,22 +76,29 @@ function Step({ n, label, cmd }: { n: number; label: string; cmd: string }) {
 }
 
 /**
- * CLI install instructions — two copy-and-run commands. Hardcoded because
- * there's nothing environmental to infer: step 1 is the public install
- * script, step 2 is the cloud `uniai setup` which the CLI itself knows
- * the endpoints for. Local development tests a self-host variant by
- * typing the extended command directly in the terminal; no need to
- * thread env vars through React.
+ * CLI install instructions — two copy-and-run commands. Step 1 is the
+ * public install script, defaulted to the visitor's OS and switchable
+ * because the command may be copied for another machine. Step 2 is the
+ * cloud `uniai setup` which the CLI itself knows the endpoints for.
+ * Local development tests a self-host variant by typing the extended
+ * command directly in the terminal; no need to thread env vars through
+ * React.
  */
 export function CliInstallInstructions() {
   const { t } = useT("onboarding");
+  const [os, setOs] = useInstallOS();
   return (
     <Card className="w-full">
       <CardContent className="space-y-4 pt-4">
         <p className="text-xs leading-[1.55] text-muted-foreground">
           {t(($) => $.cli_install.intro)}
         </p>
-        <Step n={1} label={t(($) => $.cli_install.step1_label)} cmd={INSTALL_CMD} />
+        <Step
+          n={1}
+          label={t(($) => $.cli_install.step1_label)}
+          cmd={INSTALL_COMMANDS[os]}
+          labelExtra={<InstallOsToggle os={os} onChange={setOs} />}
+        />
         <Step n={2} label={t(($) => $.cli_install.step2_label)} cmd={SETUP_CMD} />
       </CardContent>
     </Card>

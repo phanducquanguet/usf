@@ -19,6 +19,9 @@
     "loading": "Loading…",
     "load_failed": "Couldn't load image"
   },
+  "install_os": {
+    "aria_label": "Operating system"
+  },
   "save": "Save",
   "cancel": "Cancel",
   "delete": "Delete",

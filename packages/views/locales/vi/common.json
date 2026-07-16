@@ -19,6 +19,9 @@
     "loading": "Đang tải…",
     "load_failed": "Không thể tải ảnh"
   },
+  "install_os": {
+    "aria_label": "Hệ điều hành"
+  },
   "save": "Lưu",
   "cancel": "Hủy",
   "delete": "Xóa",

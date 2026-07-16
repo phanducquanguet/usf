@@ -20,13 +20,16 @@ import { Button } from "@multica/ui/components/ui/button";
 import { CODE_LIGATURE_CLASS } from "@multica/ui/lib/code-style";
 import { copyText } from "@multica/ui/lib/clipboard";
 import { cn } from "@multica/ui/lib/utils";
+import { INSTALL_COMMANDS } from "../../common/install-command";
+import {
+  InstallOsToggle,
+  useInstallOS,
+} from "../../common/install-os-toggle";
 import { useNavigation } from "../../navigation";
 import { useT } from "../../i18n";
 
 type Step = "instructions" | "success";
 
-const INSTALL_CMD =
-  "curl -fsSL https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.sh | bash";
 const CLOUD_SERVER_URL = "https://api.multica.ai";
 const CLOUD_APP_URL = "https://multica.ai";
 
@@ -154,17 +157,22 @@ function CommandStep({
   label,
   cmd,
   copyAria,
+  labelExtra,
 }: {
   n: number;
   label: string;
   cmd: string;
   copyAria: string;
+  labelExtra?: React.ReactNode;
 }) {
   return (
     <div>
-      <p className="mb-1.5 text-xs font-medium text-foreground">
-        {n}. {label}
-      </p>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-foreground">
+          {n}. {label}
+        </p>
+        {labelExtra}
+      </div>
       <div className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2.5 font-mono text-sm">
         <Terminal
           className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground"
@@ -190,6 +198,7 @@ function CommandStep({
 
 function InstructionsStep({ onClose }: { onClose: () => void }) {
   const { t } = useT("runtimes");
+  const [os, setOs] = useInstallOS();
   const daemonServerUrl = useConfigStore((s) => s.daemonServerUrl);
   const daemonAppUrl = useConfigStore((s) => s.daemonAppUrl);
   const { setupCmd, tokenCmd } = daemonCommands(daemonServerUrl, daemonAppUrl);
@@ -209,8 +218,9 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
           <CommandStep
             n={1}
             label={t(($) => $.connect.step1_label)}
-            cmd={INSTALL_CMD}
+            cmd={INSTALL_COMMANDS[os]}
             copyAria={t(($) => $.connect.copy_aria)}
+            labelExtra={<InstallOsToggle os={os} onChange={setOs} />}
           />
 
           <div>

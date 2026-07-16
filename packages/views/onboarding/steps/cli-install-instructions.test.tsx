@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { I18nProvider } from "@multica/core/i18n/react";
 import enCommon from "../../locales/en/common.json";
@@ -21,5 +22,23 @@ describe("CliInstallInstructions", () => {
     );
 
     expect(screen.getByText("uniai setup")).toHaveClass(...ligatureClasses);
+  });
+
+  it("switches the install command when the OS toggle changes", async () => {
+    const user = userEvent.setup();
+    render(
+      <I18nProvider locale="en" resources={TEST_RESOURCES}>
+        <CliInstallInstructions />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByText(/install\.sh \| bash/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: "Windows" }));
+    expect(screen.getByText(/install\.ps1 \| iex/)).toBeInTheDocument();
+    expect(screen.queryByText(/install\.sh/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: "macOS / Linux" }));
+    expect(screen.getByText(/install\.sh \| bash/)).toBeInTheDocument();
   });
 });
