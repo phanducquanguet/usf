@@ -1,0 +1,741 @@
+<title>UniAI — Hội nghị người dùng UNICOM</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --ink: #16222f;
+    --muted: #5b6b7c;
+    --line: #dbe4ee;
+    --accent: #1d6fd8;
+    --accent-ink: #ffffff;
+    --k-intake: #1d6fd8;
+    --k-orch: #d97706;
+    --k-exec: #16a34a;
+    --k-human: #dc2626;
+    --k-learn: #7c3aed;
+    --shadow: 0 2px 16px rgba(22, 34, 47, .07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1520;
+      --surface: #16212f;
+      --ink: #e8eef5;
+      --muted: #8fa1b5;
+      --line: #263447;
+      --accent: #4c93e8;
+      --accent-ink: #0d1520;
+      --shadow: 0 2px 16px rgba(0, 0, 0, .35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1520; --surface: #16212f; --ink: #e8eef5; --muted: #8fa1b5;
+    --line: #263447; --accent: #4c93e8; --accent-ink: #0d1520;
+    --shadow: 0 2px 16px rgba(0, 0, 0, .35);
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f7fb; --surface: #ffffff; --ink: #16222f; --muted: #5b6b7c;
+    --line: #dbe4ee; --accent: #1d6fd8; --accent-ink: #ffffff;
+    --shadow: 0 2px 16px rgba(22, 34, 47, .07);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: clamp(14px, 1.55vw, 21px);
+    line-height: 1.5;
+    overflow: hidden;
+  }
+
+  .deck { height: 100dvh; position: relative; }
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 4.5vh 6vw 9vh;
+    overflow-y: auto;
+  }
+  .slide.on { display: flex; }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .62em; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.1em;
+  }
+  .eyebrow .kchip { margin-left: .8em; }
+
+  h1 {
+    font-size: 2.1em; font-weight: 800; line-height: 1.15;
+    letter-spacing: -.015em; margin: 0 0 .55em;
+    text-wrap: balance;
+  }
+  h2 { font-size: 1.15em; font-weight: 700; margin: 1em 0 .4em; }
+  p { margin: .35em 0; max-width: 34em; }
+  .muted { color: var(--muted); }
+  .big { font-size: 1.25em; max-width: 30em; }
+  .grow { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+  table {
+    border-collapse: collapse; width: 100%;
+    background: var(--surface); box-shadow: var(--shadow);
+    border-radius: 10px; overflow: hidden;
+    font-size: .85em;
+  }
+  th, td { text-align: left; padding: .6em .9em; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th {
+    font-size: .78em; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+  }
+  td strong { font-weight: 700; }
+  .tbl-wrap { overflow-x: auto; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4em; align-items: start; }
+  .card {
+    background: var(--surface); border-radius: 12px;
+    box-shadow: var(--shadow); padding: 1em 1.2em;
+  }
+  .card h3 { margin: 0 0 .3em; font-size: .95em; font-weight: 700; }
+  ul { margin: .3em 0; padding-left: 1.2em; }
+  li { margin: .3em 0; }
+  li::marker { color: var(--accent); }
+
+  .kchip {
+    display: inline-block; font-size: .68em; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: .25em .8em; border-radius: 99px;
+    color: #fff;
+  }
+  .k-intake { background: var(--k-intake); }
+  .k-orch { background: var(--k-orch); }
+  .k-exec { background: var(--k-exec); }
+  .k-human { background: var(--k-human); }
+  .k-learn { background: var(--k-learn); }
+
+  .lesson {
+    margin-top: auto;
+    border-left: 4px solid var(--accent);
+    background: var(--surface); box-shadow: var(--shadow);
+    border-radius: 0 10px 10px 0;
+    padding: .8em 1.1em;
+    font-size: 1.02em; font-weight: 600;
+    max-width: 36em;
+  }
+  .lesson .tag {
+    display: block; font-size: .62em; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: .3em;
+  }
+
+  .agent-head { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; margin-bottom: .2em; }
+  .agent-name { font-size: 2.6em; font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+  .agent-role { font-size: 1.1em; color: var(--muted); font-weight: 600; }
+  .spec { display: grid; grid-template-columns: auto 1fr; gap: .45em 1.2em; margin: 1em 0 1.4em; max-width: 40em; }
+  .spec dt {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .72em; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+    padding-top: .35em;
+  }
+  .spec dd { margin: 0; }
+
+  .flow { display: flex; align-items: stretch; gap: .5em; flex-wrap: wrap; margin: 1.2em 0; }
+  .flow .node {
+    background: var(--surface); box-shadow: var(--shadow);
+    border-radius: 10px; padding: .55em .9em;
+    font-weight: 700; font-size: .85em;
+    border-top: 4px solid var(--line);
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .flow .node small { font-weight: 400; color: var(--muted); font-size: .78em; }
+  .flow .arrow { align-self: center; color: var(--muted); font-size: 1.1em; }
+  .bt-intake { border-top-color: var(--k-intake) !important; }
+  .bt-orch { border-top-color: var(--k-orch) !important; }
+  .bt-exec { border-top-color: var(--k-exec) !important; }
+  .bt-human { border-top-color: var(--k-human) !important; }
+  .bt-learn { border-top-color: var(--k-learn) !important; }
+
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; }
+  .vs .card.bad { border-top: 4px solid var(--k-human); }
+  .vs .card.good { border-top: 4px solid var(--k-exec); }
+
+  .title-slide { justify-content: center; }
+  .title-slide .brand {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--accent); font-weight: 700; letter-spacing: .2em;
+    font-size: .8em; text-transform: uppercase; margin-bottom: 1.5em;
+  }
+  .title-slide h1 { font-size: 3em; max-width: 14em; }
+  .title-slide .promise {
+    font-size: 1.2em; max-width: 26em; color: var(--muted);
+    border-left: 4px solid var(--accent); padding-left: .9em; margin-top: 1.2em;
+  }
+
+  .hud {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; gap: 1em;
+    padding: .55em 1.4em;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    border-top: 1px solid var(--line);
+    user-select: none;
+  }
+  .hud .sect { flex: 1; }
+  .hud .bar { flex: 2; height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .hud .bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+  .hud button {
+    all: unset; cursor: pointer; padding: .2em .6em; color: var(--muted);
+  }
+  .hud button:hover, .hud button:focus-visible { color: var(--accent); outline: 1px solid var(--accent); border-radius: 4px; }
+
+  .demo-cue {
+    display: inline-block; margin-top: 1em;
+    background: color-mix(in srgb, var(--k-exec) 14%, var(--surface));
+    border: 1px dashed var(--k-exec);
+    border-radius: 8px; padding: .5em .9em; font-size: .8em; font-weight: 600;
+  }
+
+  .schema {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .78em; line-height: 1.9;
+    background: var(--surface); box-shadow: var(--shadow);
+    border-radius: 12px; padding: 1.2em 1.5em;
+    overflow-x: auto; white-space: pre;
+  }
+  .schema b { color: var(--accent); }
+
+  .steps { counter-reset: st; list-style: none; padding: 0; max-width: 36em; }
+  .steps li {
+    counter-increment: st; display: flex; gap: .9em; align-items: baseline;
+    padding: .5em 0; border-bottom: 1px solid var(--line);
+  }
+  .steps li::before {
+    content: counter(st);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-weight: 700; color: var(--accent);
+    min-width: 1.4em; text-align: right;
+  }
+
+  @media (prefers-reduced-motion: reduce) { .hud .bar i { transition: none; } }
+  @media (max-width: 760px) {
+    .cols, .vs { grid-template-columns: 1fr; }
+    .slide { padding: 3.5vh 6vw 11vh; }
+  }
+</style>
+
+<div class="deck" id="deck">
+
+<!-- 1 -->
+<section class="slide title-slide" data-sect="Mở đầu">
+  <div class="brand">UNICOM · Hội nghị người dùng nội bộ</div>
+  <h1>UniAI — Làm chủ nền tảng, tự xây đội cộng sự AI của bạn</h1>
+  <p class="promise">Sau buổi hôm nay: bạn tự giao được việc cho một agent — và ra về với bản thiết kế cộng sự AI đầu tiên của chính mình, đã điền xong trên giấy. Không cần biết code.</p>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-sect="Mở đầu">
+  <div class="eyebrow">Sơ đồ gốc</div>
+  <h1>Cả buổi hôm nay chỉ zoom vào một vòng tròn này</h1>
+  <div class="grow">
+    <div class="flow" style="font-size:1.1em">
+      <div class="node bt-intake">Bạn tạo <b>Issue</b><small>đề bài</small></div>
+      <div class="arrow">→</div>
+      <div class="node bt-orch">giao cho <b>Agent</b><small>đồng nghiệp AI</small></div>
+      <div class="arrow">→</div>
+      <div class="node bt-exec">agent dùng <b>Skill</b><small>sổ tay nghiệp vụ</small></div>
+      <div class="arrow">→</div>
+      <div class="node">báo cáo trong issue</div>
+      <div class="arrow">→</div>
+      <div class="node bt-human"><b>Bạn duyệt</b></div>
+    </div>
+    <p class="muted">Lạc ở đâu — quay về sơ đồ này là tìm lại được đường.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-sect="Vì sao">
+  <div class="eyebrow">Vì sao</div>
+  <h1>Hôm nay chúng ta đang làm việc thế nào?</h1>
+  <ol class="steps grow" style="justify-content:center">
+    <li>Giao việc qua chat, email — trôi tin, không ai biết việc đang ở đâu</li>
+    <li>Việc lặp lại (báo cáo tuần, tổng hợp, soạn theo mẫu) vẫn làm tay từ đầu mỗi lần</li>
+    <li>AI ai dùng nấy biết: copy-paste prompt, kết quả không đều, không lưu vết</li>
+    <li>Muốn biết tiến độ — phải đi hỏi từng người</li>
+  </ol>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-sect="Vì sao">
+  <div class="eyebrow">Vì sao</div>
+  <h1>Với UniAI thì khác gì?</h1>
+  <div class="tbl-wrap grow" style="justify-content:center">
+    <table>
+      <tr><th>Hiện tại</th><th>Với UniAI</th></tr>
+      <tr><td>Giao việc qua chat, trôi tin</td><td><strong>Mọi việc là issue</strong> — có trạng thái, người phụ trách, lịch sử</td></tr>
+      <tr><td>Việc lặp lại làm tay mỗi lần</td><td><strong>Agent + Autopilot tự làm</strong> — bạn chỉ duyệt kết quả</td></tr>
+      <tr><td>AI mỗi người một kiểu</td><td><strong>Skill chuẩn hoá</strong> — mọi agent làm đúng chuẩn công ty</td></tr>
+      <tr><td>Đi hỏi mới biết tiến độ</td><td><strong>Mở issue / Inbox là thấy</strong> agent đang làm gì, đến đâu</td></tr>
+    </table>
+  </div>
+  <p class="muted">Nhớ cột bên phải — cuối buổi ta quay lại bảng này.</p>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-sect="Vì sao">
+  <div class="eyebrow">Vì sao</div>
+  <h1>Cụ thể, bạn được gì?</h1>
+  <div class="grow" style="justify-content:center">
+    <ul class="big" style="list-style:none;padding:0">
+      <li>▸ <strong>Bớt việc tay chân lặp lại</strong> — dành đầu óc cho việc cần đầu óc</li>
+      <li>▸ <strong>Giao xong đi làm việc khác</strong> — không ngồi canh AI chạy</li>
+      <li>▸ <strong>Minh bạch</strong> — đỡ họp, đỡ hỏi, đỡ bị hỏi</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-sect="Vì sao">
+  <div class="eyebrow">Vì sao</div>
+  <h1>Không phải slide vẽ tương lai — đang chạy thật</h1>
+  <div class="cols grow" style="align-items:center">
+    <div class="card"><h3>Số liệu pilot</h3>
+      <p class="muted">［Điền trước hội nghị: giờ công tiết kiệm / tháng · thời gian xử lý giảm · số quy trình đã tự động hoá］</p>
+    </div>
+    <div class="card"><h3>Một câu chuyện</h3>
+      <p>Quy trình làm demo cho khách: trước mất <strong>vài ngày công dev</strong> — giờ dây chuyền tự chạy, người chỉ góp <strong>~30 phút duyệt</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-sect="Khái niệm">
+  <div class="eyebrow">Khái niệm · 1/2</div>
+  <h1>Nơi làm việc &amp; công việc</h1>
+  <div class="tbl-wrap grow" style="justify-content:center">
+    <table>
+      <tr><td style="width:9em"><strong>Workspace</strong></td><td>"Văn phòng" của phòng ban — thành viên, dữ liệu, agent nằm trong đó. Ngoài workspace không thấy gì</td></tr>
+      <tr><td><strong>Project</strong></td><td>Nhóm việc theo một mục tiêu — nhìn project là thấy tiến độ tổng</td></tr>
+      <tr><td><strong>Issue</strong></td><td>Đơn vị công việc nhỏ nhất: mô tả, trạng thái, người phụ trách. <strong>Mô tả issue = đề bài bạn ra cho agent</strong></td></tr>
+      <tr><td><strong>Inbox</strong></td><td>Mọi cập nhật đổ về một chỗ. Thói quen mới duy nhất: <strong>mở Inbox đầu ngày</strong> thay vì đi hỏi</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-sect="Khái niệm">
+  <div class="eyebrow">Khái niệm · 2/2</div>
+  <h1>Bộ máy AI</h1>
+  <div class="tbl-wrap grow" style="justify-content:center">
+    <table>
+      <tr><td style="width:9em"><strong>Agent</strong></td><td>Đồng nghiệp AI có tên trong danh sách thành viên. Khác chatbot: <strong>nhận việc và làm đến xong</strong>, không cần bạn ngồi canh</td></tr>
+      <tr><td><strong>Runtime</strong></td><td>"Chỗ ngồi" của agent — máy của công ty nơi agent thực sự chạy. Chỉ cần nhớ: <strong>đèn xanh = agent làm việc được</strong></td></tr>
+      <tr><td><strong>Skill</strong></td><td>Sổ tay nghiệp vụ đóng gói sẵn — agent tự tra, làm đúng chuẩn công ty mọi lần. <em>Khái niệm quan trọng nhất hôm nay — lát nữa quay lại</em></td></tr>
+      <tr><td><strong>Autopilot</strong></td><td>Đồng hồ báo thức của agent — đến giờ tự chạy việc định kỳ, kết quả về Inbox</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-sect="Khái niệm">
+  <div class="eyebrow">Khái niệm</div>
+  <h1>Viết issue tốt = kết quả tốt</h1>
+  <div class="vs grow" style="align-content:center">
+    <div class="card bad">
+      <h3>Đề bài tệ</h3>
+      <p>"Làm cho anh cái báo cáo doanh số."</p>
+      <p class="muted">Agent phải đoán: số nào, mẫu nào, kỳ nào, gửi ai?</p>
+    </div>
+    <div class="card good">
+      <h3>Đề bài tốt</h3>
+      <p>"Tổng hợp doanh số T6 từ file X, theo mẫu báo cáo tháng (đính kèm), so sánh cùng kỳ, xong trước 15h thứ Sáu. Kết quả: file + 5 dòng tóm tắt."</p>
+      <p class="muted">Nguồn — mẫu — hạn — tiêu chí xong.</p>
+    </div>
+  </div>
+  <p class="muted">Agent không đọc được suy nghĩ — nhưng đọc rất kỹ đề bài.</p>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-sect="Khái niệm">
+  <div class="eyebrow">Khái niệm</div>
+  <h1>Vòng đời một issue giao cho agent</h1>
+  <div class="grow" style="justify-content:center">
+    <div class="flow">
+      <div class="node">Bạn gán issue</div>
+      <div class="arrow">→</div>
+      <div class="node bt-orch">Agent chuyển "Đang làm"</div>
+      <div class="arrow">→</div>
+      <div class="node bt-exec">Comment tiến độ từng bước</div>
+      <div class="arrow">→</div>
+      <div class="node">"Chờ duyệt"</div>
+      <div class="arrow">→</div>
+      <div class="node bt-human">Bạn duyệt / yêu cầu sửa</div>
+    </div>
+    <p class="big" style="margin-top:1em"><strong>Mọi thứ agent làm đều nhìn thấy trong issue.</strong> Không có hộp đen.</p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-sect="Khái niệm">
+  <div class="eyebrow">Khái niệm</div>
+  <h1>Khi nào chat, khi nào tạo issue?</h1>
+  <div class="cols grow" style="align-items:center">
+    <div class="card"><h3>Chat</h3><p>Hỏi nhanh, trao đổi, thăm dò ý tưởng.</p></div>
+    <div class="card"><h3>Issue</h3><p>Việc có <strong>kết quả cần lưu vết</strong> — có trạng thái, có người chịu trách nhiệm, tra lại được.</p></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-sect="Khái niệm">
+  <div class="eyebrow">Khái niệm</div>
+  <h1>Con người luôn duyệt cuối</h1>
+  <div class="grow" style="justify-content:center">
+    <p class="big"><strong>Agent đề xuất — bạn quyết.</strong></p>
+    <p class="big">Ba động tác khi nhận kết quả: <strong>đọc — kiểm — phản hồi</strong> ngay trong issue nếu chưa đạt.</p>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-sect="Khái niệm">
+  <div class="eyebrow">Khái niệm</div>
+  <h1>Dùng ở đâu cũng được</h1>
+  <div class="grow" style="justify-content:center">
+    <p class="big">Web · Desktop · Mobile — <strong>cùng một dữ liệu, cập nhật realtime</strong>.</p>
+    <p class="muted">Tìm kiếm + bảng lệnh để nhảy nhanh tới mọi thứ.</p>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Làm mẫu — UNICOM Demo Factory</div>
+  <h1>Nhà máy demo: từ câu hỏi của khách đến email bàn giao — tự động</h1>
+  <div class="grow" style="justify-content:center">
+    <div class="flow">
+      <div class="node bt-intake">2 cửa vào<small>Sale · Portal</small></div>
+      <div class="arrow">→</div>
+      <div class="node bt-intake">UNIKO</div>
+      <div class="arrow">→</div>
+      <div class="node bt-human">Người gọi xác nhận</div>
+      <div class="arrow">→</div>
+      <div class="node bt-orch">MAX</div>
+      <div class="arrow">→</div>
+      <div class="node bt-exec">LEVI</div>
+      <div class="arrow">→</div>
+      <div class="node bt-exec">LOVIBUILD</div>
+      <div class="arrow">→</div>
+      <div class="node bt-exec">DEPLO</div>
+      <div class="arrow">→</div>
+      <div class="node bt-exec">MILO</div>
+      <div class="arrow">→</div>
+      <div class="node bt-human">Người duyệt mail</div>
+      <div class="arrow">→</div>
+      <div class="node">📧 Khách nhận demo</div>
+    </div>
+    <p>Trước: vài ngày công dev. Nay: dây chuyền <strong>6 agent + 1 người</strong> tự sản xuất — người chỉ chạm <strong>3 điểm, ~30 phút</strong>.</p>
+  </div>
+  <div class="lesson"><span class="tag">Câu chốt</span>Mỗi agent như một công nhân lành nghề: có não, có kiến thức, có cánh tay — và có bản mô tả công việc.</div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khung tư duy trung tâm</div>
+  <h1>Giải phẫu một đội hình AI: 5 khối</h1>
+  <div class="tbl-wrap grow" style="justify-content:center">
+    <table>
+      <tr><th>Khối</th><th>Chức năng</th><th>Trong Demo Factory</th></tr>
+      <tr><td><span class="kchip k-intake">Tiếp nhận</span></td><td>Cửa vào duy nhất: hiểu yêu cầu, chuẩn hoá, đưa vào hàng đợi</td><td>UNIKO (portal) + form sale</td></tr>
+      <tr><td><span class="kchip k-orch">Điều phối</span></td><td>Giữ nhịp: chia việc, giao đúng người, đôn đốc — không làm chuyên môn</td><td>MAX + autopilot demo-ops</td></tr>
+      <tr><td><span class="kchip k-exec">Thực thi</span></td><td>Thợ chuyên môn hẹp — mỗi người một nghề, một cánh tay</td><td>LEVI → LOVIBUILD → DEPLO → MILO</td></tr>
+      <tr><td><span class="kchip k-human">Con người</span></td><td>Phán quyết tại điểm không uỷ quyền được</td><td>HUMAN + dự phòng, 3 điểm chạm</td></tr>
+      <tr><td><span class="kchip k-learn">Cải tiến</span></td><td>Vòng học: điều lặp lại thăng cấp thành luật mới</td><td>Assumption lặp → vào playbook</td></tr>
+    </table>
+  </div>
+  <div class="lesson"><span class="tag">Tự soi</span>Thiếu Tiếp nhận → việc trôi · thiếu Điều phối → tắc · thiếu Con người → rủi ro · thiếu Cải tiến → dậm chân.</div>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Công thức</div>
+  <h1>Công thức tạo một agent</h1>
+  <div class="cols grow" style="align-content:center">
+    <div class="card"><h3>🧠 Bộ não — Model</h3><p>Việc khó dùng model mạnh. Chọn khi tạo agent.</p></div>
+    <div class="card"><h3>📚 Kiến thức — Skill</h3><p>Sổ tay nghiệp vụ đóng gói. Gắn skill nào, giỏi nghề đó.</p></div>
+    <div class="card"><h3>🦾 Cánh tay — Tool / MCP</h3><p>Agent chỉ làm được việc nó được cắm tay. <strong>Không cắm tay gửi mail thì vật lý không gửi được</strong> — an toàn bằng thiết kế, không bằng dặn dò.</p></div>
+    <div class="card"><h3>📋 Bản mô tả công việc — Instructions</h3><p>Vai trò, phạm vi, khi nào dừng lại hỏi người.</p></div>
+  </div>
+  <p class="muted">Cuối buổi, bạn điền chính công thức này vào Phiếu tuyển cộng sự — cho đội của mình.</p>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-intake">Tiếp nhận</span></div>
+  <div class="agent-head"><span class="agent-name">UNIKO</span><span class="agent-role">— lễ tân trên Portal</span></div>
+  <dl class="spec">
+    <dt>Nghề</dt><dd>Tư vấn khách vãng lai 24/7 → chốt tóm tắt → tạo project → <strong>hết nhiệm vụ</strong></dd>
+    <dt>Kiến thức</dt><dd><strong>Không gắn skill nội bộ nào — cố ý.</strong> Tiếp khách thì không được biết bí mật dây chuyền</dd>
+    <dt>Cánh tay</dt><dd>Đúng <strong>1 lệnh tạo project</strong> — muốn cũng không làm được gì khác</dd>
+  </dl>
+  <span class="demo-cue">👉 DEMO LIVE: mở portal ẩn danh — đóng vai khách "app quản lý thư viện" — xem UNIKO chốt tóm tắt và project xuất hiện</span>
+  <div class="lesson"><span class="tag">Bài học</span>Quyền tối thiểu — agent tiếp khách chỉ biết và làm đúng phần việc tiếp khách.</div>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-orch">Điều phối</span></div>
+  <div class="agent-head"><span class="agent-name">MAX</span><span class="agent-role">— quản đốc</span></div>
+  <dl class="spec">
+    <dt>Nghề</dt><dd><strong>Không làm chuyên môn.</strong> Tạo issue, đóng gói ngữ cảnh, giao việc, gom báo cáo, giữ nhịp băng chuyền</dd>
+    <dt>Bộ não</dt><dd>Model mạnh nhất dây chuyền — điều phối là việc khó nhất</dd>
+    <dt>Kiến thức</dt><dd>Skill <strong>shared-contract</strong> — "bộ luật nhà máy": định nghĩa "xong" nghĩa là gì</dd>
+    <dt>Cánh tay</dt><dd>Chỉ CLI của UniAI — không build, không gửi mail được</dd>
+  </dl>
+  <div class="lesson"><span class="tag">Bài học</span>Tách người điều phối khỏi người thi công — y như quản lý con người.</div>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-orch">Điều phối</span></div>
+  <div class="agent-head"><span class="agent-name">demo-ops</span><span class="agent-role">— autopilot, nhịp tim nhà máy</span></div>
+  <dl class="spec">
+    <dt>Nhịp</dt><dd>Cứ <strong>10 phút</strong> một phiên tuần tra tự chạy</dd>
+    <dt>Việc 1</dt><dd>Quét project mới được xác nhận → tạo việc tổng, giao MAX</dd>
+    <dt>Việc 2</dt><dd>Nhắc agent quên bàn giao — lưới an toàn của băng chuyền</dd>
+    <dt>Việc 3</dt><dd>Ghi <strong>heartbeat</strong> vào issue giám sát — "sáng liếc một cái là biết nhà máy còn thở"</dd>
+  </dl>
+  <div class="lesson"><span class="tag">Bài học</span>Autopilot không làm chuyên môn — nó giữ nhịp và làm lưới an toàn.</div>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-exec">Thực thi</span></div>
+  <div class="agent-head"><span class="agent-name">LEVI</span><span class="agent-role">— kiến trúc sư</span></div>
+  <dl class="spec">
+    <dt>Nghề</dt><dd>Biến yêu cầu khách thành <strong>gói bàn giao</strong> đủ chi tiết để thợ xây làm không cần hỏi lại</dd>
+    <dt>Kiến thức</dt><dd>shared-contract + <strong>demo-default-playbook</strong>: bộ quyết định sẵn cấp công ty — màu thương hiệu, bộ vai trò mẫu, vòng đời trạng thái, dữ liệu mẫu tiếng Việt</dd>
+    <dt>Vì sao</dt><dd>Để <strong>không phải hỏi khách</strong> những câu khách không quan tâm</dd>
+  </dl>
+  <div class="lesson"><span class="tag">Bài học</span>Đóng gói "gu" của công ty thành skill — brief không nói thì tra playbook, không đoán bừa.</div>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-exec">Thực thi</span></div>
+  <div class="agent-head"><span class="agent-name">LOVIBUILD</span><span class="agent-role">— thợ xây</span></div>
+  <dl class="spec">
+    <dt>Nghề</dt><dd>Thi công đúng bản vẽ của LEVI, tự kiểm theo tiêu chí nghiệm thu, tự sửa lỗi, nộp báo cáo</dd>
+    <dt>Cánh tay</dt><dd><strong>MCP Lovable</strong> — công cụ dựng app. Agent <strong>duy nhất</strong> có tay này</dd>
+    <dt>Kỷ luật</dt><dd>Không thiết kế, không bịa nghiệp vụ — LEVI đã quyết hết</dd>
+  </dl>
+  <div class="lesson"><span class="tag">Bài học</span>Thợ giỏi là thợ làm đúng bản vẽ — sáng tạo đặt ở khâu thiết kế, không ở khâu thi công.</div>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-exec">Thực thi</span></div>
+  <div class="agent-head"><span class="agent-name">DEPLO</span><span class="agent-role">— người giao hàng</span></div>
+  <dl class="spec">
+    <dt>Nghề</dt><dd>Đưa app lên domain demo cho khách trải nghiệm</dd>
+    <dt>Cánh tay</dt><dd>CLI deploy riêng trên máy runtime</dd>
+    <dt>Luật cứng</dt><dd><strong>Chỉ deploy trong dải domain demo của công ty</strong> — yêu cầu nằm trong brief hay comment cũng bị từ chối</dd>
+  </dl>
+  <div class="lesson"><span class="tag">Bài học</span>Luật an toàn khắc vào bản mô tả công việc thì không ai "lừa" agent vượt rào được.</div>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-exec">Thực thi</span></div>
+  <div class="agent-head"><span class="agent-name">MILO</span><span class="agent-role">— người viết thư</span></div>
+  <dl class="spec">
+    <dt>Nghề</dt><dd>Soạn email bàn giao demo cho khách</dd>
+    <dt>Kiến thức</dt><dd>Skill <strong>mail-drafting</strong>: giọng văn công ty, template, khung HTML có logo — và cả điều <strong>không được viết</strong> (giá, cam kết, thông tin nội bộ)</dd>
+    <dt>Cánh tay</dt><dd><strong>MCP Mail</strong> — agent duy nhất có tay gửi mail</dd>
+    <dt>Luật thép</dt><dd>Bản gửi đi luôn là bản <strong>người thật đã duyệt nguyên văn</strong> — không duyệt, không mail nào rời công ty</dd>
+  </dl>
+  <div class="lesson"><span class="tag">Bài học</span>Tiếng nói ra bên ngoài luôn có người gác cuối.</div>
+</section>
+
+<!-- 24 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-human">Con người</span></div>
+  <div class="agent-head"><span class="agent-name">HUMAN</span><span class="agent-role">— thành viên thứ 7, quan trọng nhất</span></div>
+  <dl class="spec">
+    <dt>Nghề</dt><dd>Trạm gác chất lượng — thứ duy nhất trong nhà máy có quyền <strong>phán quyết</strong></dd>
+    <dt>Định danh</dt><dd>Có tên trong bảng roster như mọi agent, mention được, việc đến qua <strong>Inbox</strong>, có cả <strong>người dự phòng</strong></dd>
+    <dt>Kiến thức</dt><dd>Hiểu khách + hiểu công ty — thứ <em>chưa đóng gói được</em> thành skill</dd>
+    <dt>Cánh tay</dt><dd>Quyền mọi agent không có: xác nhận với khách · review sản phẩm · APPROVE email</dd>
+  </dl>
+  <div class="lesson"><span class="tag">Bài học</span>Thiết kế hệ AI tốt không phải bỏ con người ra — mà đặt con người vào đúng vị trí quyền lực nhất, định danh và giao việc rõ như mọi thành viên.</div>
+</section>
+
+<!-- 25 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-human">Con người</span></div>
+  <h1>Một ngày của HUMAN trong nhà máy</h1>
+  <ol class="steps grow" style="justify-content:center">
+    <li><strong>Sáng:</strong> liếc hàng đợi project chờ gọi xác nhận — gọi điện chốt yêu cầu với khách trước khi máy chạy</li>
+    <li><strong>Trong ngày:</strong> nhận mention qua Inbox — review demo trước khi bàn giao</li>
+    <li><strong>Trước khi gửi:</strong> duyệt email nguyên văn — không duyệt, mail không đi</li>
+  </ol>
+  <div class="lesson"><span class="tag">Câu chốt</span>~30 phút mỗi demo — toàn ở việc cần óc phán đoán. Máy làm phần máy giỏi, người làm phần người giỏi.</div>
+</section>
+
+<!-- 26 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Khối <span class="kchip k-learn">Cải tiến</span></div>
+  <h1>Vòng học: nhà máy tuần sau giỏi hơn tuần trước</h1>
+  <div class="grow" style="justify-content:center">
+    <div class="flow">
+      <div class="node">3 demo liền, khách muốn cùng một thứ</div>
+      <div class="arrow">→</div>
+      <div class="node bt-learn">Thăng cấp vào playbook thành DEFAULT</div>
+      <div class="arrow">→</div>
+      <div class="node bt-exec">Demo thứ 4: LEVI không phải luận nữa</div>
+    </div>
+    <p style="margin-top:1em">Lỗi bàn giao lặp lại → <strong>siết instruction</strong>. Mỗi tuần vận hành, sổ tay công ty dày thêm một trang.</p>
+  </div>
+  <div class="lesson"><span class="tag">Câu chốt</span>Đây chính là Skill: tri thức không còn nằm trong đầu ai — nó nằm trong nhà máy.</div>
+</section>
+
+<!-- 27 -->
+<section class="slide" data-sect="Demo Factory">
+  <div class="eyebrow">Tổng hợp</div>
+  <h1>7 thành viên &amp; chất keo phối hợp</h1>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Thành viên</th><th>Nghề</th><th>Kiến thức</th><th>Cánh tay</th></tr>
+      <tr><td><span class="kchip k-intake">UNIKO</span></td><td>Lễ tân portal</td><td>— (cố ý)</td><td>1 lệnh tạo project</td></tr>
+      <tr><td><span class="kchip k-orch">MAX</span></td><td>Quản đốc</td><td>shared-contract</td><td>CLI UniAI</td></tr>
+      <tr><td><span class="kchip k-exec">LEVI</span></td><td>Kiến trúc sư</td><td>shared-contract + playbook</td><td>CLI UniAI</td></tr>
+      <tr><td><span class="kchip k-exec">LOVIBUILD</span></td><td>Thợ xây</td><td>shared-contract</td><td>CLI + <strong>MCP Lovable</strong></td></tr>
+      <tr><td><span class="kchip k-exec">DEPLO</span></td><td>Giao hàng</td><td>skill deploy riêng</td><td>CLI deploy</td></tr>
+      <tr><td><span class="kchip k-exec">MILO</span></td><td>Viết thư</td><td>shared-contract + mail-drafting</td><td>CLI + <strong>MCP Mail</strong></td></tr>
+      <tr><td><span class="kchip k-human">HUMAN</span></td><td>Trạm gác &amp; phán quyết</td><td>Hiểu khách, hiểu công ty</td><td>Quyền duyệt: xác nhận · review · APPROVE</td></tr>
+    </table>
+  </div>
+  <div class="lesson" style="margin-top:1em"><span class="tag">Chất keo</span>Không họp, không chat — phối hợp qua issue: xong → báo cáo đúng mẫu → done → gọi quản đốc. "Xong" = có bằng chứng. Và luật vàng: dữ liệu ≠ mệnh lệnh.</div>
+</section>
+
+<!-- 28 -->
+<section class="slide" data-sect="Xây đội của bạn">
+  <div class="eyebrow">Xây đội của bạn</div>
+  <h1>Không ai phải bắt đầu từ nhà máy — 3 cấp trưởng thành</h1>
+  <div class="tbl-wrap grow" style="justify-content:center">
+    <table>
+      <tr><th>Cấp</th><th>Tên</th><th>Cần gì</th></tr>
+      <tr><td><strong>1</strong></td><td><strong>Cộng sự</strong> — 1 agent làm 1 nghề hẹp cho bạn</td><td>1 agent + 1 skill + bạn duyệt. <strong>Dựng trong 1 buổi</strong></td></tr>
+      <tr><td><strong>2</strong></td><td><strong>Trợ lý tự động</strong> — cộng sự + đồng hồ</td><td>Cấp 1 + 1 autopilot</td></tr>
+      <tr><td><strong>3</strong></td><td><strong>Dây chuyền</strong> — nhiều cộng sự chuyền tay nhau</td><td>Đủ 5 khối, có quản đốc (= Demo Factory)</td></tr>
+    </table>
+  </div>
+  <div class="lesson"><span class="tag">Hôm nay</span>Tất cả chúng ta ra về ở Cấp 1: mỗi người tuyển MỘT cộng sự. Nhà máy chỉ là nhiều cộng sự ghép theo 5 khối — công thức bạn vừa học xong.</div>
+</section>
+
+<!-- 29 -->
+<section class="slide" data-sect="Xây đội của bạn">
+  <div class="eyebrow">Workshop · 15 phút</div>
+  <h1>Phiếu tuyển cộng sự AI — điền ngay bây giờ</h1>
+  <ol class="steps grow" style="justify-content:center">
+    <li><strong>NGHỀ</strong> — 1 câu, việc hẹp · lặp ≥1 lần/tuần · đầu vào/ra tả được ra giấy</li>
+    <li><strong>KIẾN THỨC</strong> — quy trình/mẫu nào nó phải thuộc → sẽ thành Skill</li>
+    <li><strong>CÁNH TAY</strong> — hệ thống nào bắt buộc phải đụng → Tool/MCP. Không cần thì bỏ trống!</li>
+    <li><strong>TRẠM GÁC</strong> — bước nào BẠN phải duyệt trước khi kết quả đi tiếp</li>
+    <li><strong>ĐỀ BÀI ĐẦU TIÊN</strong> — issue #1 giao ngay tuần này</li>
+  </ol>
+  <div class="lesson"><span class="tag">Mẹo</span>Việc càng hẹp càng dễ thành công — đừng tuyển cộng sự "làm mọi thứ". Đội nền tảng đang ở các bàn để hỗ trợ.</div>
+</section>
+
+<!-- 30 -->
+<section class="slide" data-sect="Xây đội của bạn">
+  <div class="eyebrow">Bắt đầu từ ngày mai</div>
+  <h1>3 việc — và một lời hẹn</h1>
+  <ol class="steps">
+    <li>Đăng nhập workspace phòng mình</li>
+    <li>Nộp Phiếu tuyển cộng sự — <strong>đội nền tảng dựng agent trong 48 giờ</strong></li>
+    <li>Tự tạo và giao <strong>issue #1</strong> cho cộng sự của bạn</li>
+  </ol>
+  <div class="tbl-wrap" style="margin-top:1em">
+    <table>
+      <tr><th>Hôm qua</th><th>Từ ngày mai</th></tr>
+      <tr><td>Giao việc qua chat, trôi tin</td><td>Mọi việc là issue</td></tr>
+      <tr><td>Việc lặp lại làm tay</td><td>Agent + Autopilot làm, bạn duyệt</td></tr>
+      <tr><td>AI mỗi người một kiểu</td><td>Skill chuẩn công ty</td></tr>
+      <tr><td>Đi hỏi tiến độ</td><td>Mở Inbox là thấy</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 31 -->
+<section class="slide" data-sect="Q&A">
+  <div class="eyebrow">Hỏi đáp</div>
+  <div class="grow" style="justify-content:center">
+    <h1 style="font-size:3em">Q&amp;A</h1>
+    <p class="muted big">Tài liệu bỏ túi + phiếu đã phát tại bàn · kênh hỗ trợ: đội nền tảng UniAI</p>
+  </div>
+</section>
+
+<!-- 32 -->
+<section class="slide" data-sect="Phụ lục">
+  <div class="eyebrow">Phụ lục — cho phòng ban muốn lên Cấp 3</div>
+  <h1>Nhân rộng = trả lời 5 câu hỏi</h1>
+  <div class="tbl-wrap grow" style="justify-content:center">
+    <table>
+      <tr><td><span class="kchip k-intake">Tiếp nhận</span></td><td>Việc vào đội bạn qua <strong>cửa nào</strong>?</td></tr>
+      <tr><td><span class="kchip k-orch">Điều phối</span></td><td>Ai / cái gì <strong>giữ nhịp</strong>?</td></tr>
+      <tr><td><span class="kchip k-exec">Thực thi</span></td><td>Nghề nào <strong>tách được</strong> thành agent chuyên?</td></tr>
+      <tr><td><span class="kchip k-human">Con người</span></td><td>Điểm nào con người <strong>phải gác</strong>?</td></tr>
+      <tr><td><span class="kchip k-learn">Cải tiến</span></td><td>Bài học <strong>chảy về đâu</strong>?</td></tr>
+    </table>
+  </div>
+  <p class="muted">Trả lời đủ 5 câu — phòng ban bạn tự dựng được đội hình của mình.</p>
+</section>
+
+</div>
+
+<div class="hud">
+  <button id="prev" aria-label="Slide trước">‹ Prev</button>
+  <button id="next" aria-label="Slide sau">Next ›</button>
+  <span class="sect" id="sect"></span>
+  <div class="bar"><i id="fill"></i></div>
+  <span id="count"></span>
+</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let cur = Math.min(parseInt(location.hash.slice(1)) || 0, slides.length - 1);
+  const sect = document.getElementById('sect'),
+        count = document.getElementById('count'),
+        fill = document.getElementById('fill');
+  function show(i) {
+    cur = Math.max(0, Math.min(i, slides.length - 1));
+    slides.forEach((s, j) => s.classList.toggle('on', j === cur));
+    sect.textContent = slides[cur].dataset.sect || '';
+    count.textContent = (cur + 1) + ' / ' + slides.length;
+    fill.style.width = ((cur + 1) / slides.length * 100) + '%';
+    location.hash = cur;
+    slides[cur].scrollTop = 0;
+  }
+  document.getElementById('next').onclick = () => show(cur + 1);
+  document.getElementById('prev').onclick = () => show(cur - 1);
+  addEventListener('keydown', e => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(slides.length - 1);
+  });
+  let tx = null;
+  addEventListener('touchstart', e => tx = e.touches[0].clientX, {passive: true});
+  addEventListener('touchend', e => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 60) show(cur + (dx < 0 ? 1 : -1));
+    tx = null;
+  }, {passive: true});
+  show(cur);
+</script>
