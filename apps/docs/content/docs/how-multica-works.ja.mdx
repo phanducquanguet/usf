@@ -15,7 +15,7 @@ UniAI は**分散型**プラットフォームです。あなたが目にする 
 - **デーモン** — UniAI CLI の一部であり、あなた自身のマシンで実行されます。起動時にローカルにインストールされた AI コーディングツールを検出し、サーバーに登録したうえで、3 秒ごとにタスクをポーリングし、15 秒ごとにハートビートを送信し始めます。
 - **AI コーディングツール** — 次の 14 種類のうちの 1 つ（または複数を並列で）: [Antigravity](/providers#antigravity)、[Claude Code](/providers#claude-code)、[CodeBuddy](/providers#codebuddy)、[Codex](/providers#codex)、[Cursor](/providers#cursor)、[Copilot](/providers#copilot)、[Hermes](/providers#hermes)、[Kimi](/providers#kimi)、[Kiro CLI](/providers#kiro-cli)、[OpenCode](/providers#opencode)、[OpenClaw](/providers#openclaw)、[Pi](/providers#pi)、[Qoder](/providers#qoder)、[Trae CLI](/providers#trae)。デーモンがタスクを取得した後は、これらのツールを使って実際の作業を行います。
 
-ツールチェーンがローカルに留まるため、**あなたの API キー、コードディレクトリ、認可されたツール**は、あなたのマシン上でのみ使用されます。UniAI サーバーはそのいずれも目にすることはありません。これはセルフホストでも Cloud でも同じように適用されます。
+ツールチェーンがローカルに留まるため、**あなたの API キー、コードディレクトリ、認可されたツール**は、あなたのマシン上でのみ使用されます。UniAI サーバーはそのいずれも目にすることはありません。
 
 ## タスクのライフサイクル
 
@@ -45,10 +45,9 @@ UniAI は**分散型**プラットフォームです。あなたが目にする 
 
 **ランタイム**とは「デーモン × 1 つの AI コーディングツール」の組み合わせです。あるマシンのデーモンに Claude Code と Codex の両方がインストールされており、2 つのワークスペースに参加している場合、UniAI は 4 つの独立したランタイム（ワークスペース 2 個 × ツール 2 個）を登録します。
 
-現在は**ローカルデーモン**のランタイムモデルのみがサポートされています。クラウドランタイム（自分のマシンを起動しておく必要がない方式）は**近日提供予定**で、現在はウェイトリストの登録のみを受け付けています。[ダウンロード](https://github.com/phanducquanguet/usf/releases/latest)ページでお申し込みください。
+現在は**ローカルデーモン**のランタイムモデルのみがサポートされています。
 
 ## 次のステップ
 
 - [Cloud Quickstart](/cloud-quickstart) — 5 分で UniAI Cloud に接続する
-- Self-Host Quickstart — 自前のバックエンドを実行する
 - [デーモンとランタイム](/daemon-runtimes) — アーキテクチャが依存する構成要素を深掘りする

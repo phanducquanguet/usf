@@ -159,28 +159,7 @@ Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integration
 - **Nói chuyện với bot** yêu cầu là thành viên của không gian làm việc và đã liên kết danh tính Slack. Tin nhắn của những người khác đều bị bỏ qua.
 - Nội dung của tin nhắn bị bỏ qua không bao giờ được lưu — chỉ lưu lý do, để kiểm toán.
 
-## Thiết lập tự vận hành
-
-Trên UniAI Cloud tích hợp đã sẵn sàng — bỏ qua mục này.
-
-Với tự vận hành, Slack **tắt cho tới khi bạn đặt khóa mã hóa at-rest**. Khóa này mã hóa bot token + app-level token của từng app trước khi ghi vào cơ sở dữ liệu. BYO **không** cần OAuth client id/secret và **không** cần app token cấp triển khai — mỗi installation dùng chính token mà admin dán vào.
-
-1. Sinh một khóa 32 byte và đặt trên API server:
-
-   ```dotenv
-   MULTICA_SLACK_SECRET_KEY=<khóa 32 byte mã hóa base64>
-   ```
-
-   Ví dụ: `openssl rand -base64 32`.
-
-2. Khởi động lại API. Chừng nào khóa chưa đặt, **Cài đặt → Integrations** hiện thông báo "Slack integration not enabled" và các nút **Connect Slack** vẫn bị ẩn.
-
-<Callout type="info">
-Khóa phải giải mã ra đúng 32 byte — `openssl rand -base64 32` làm đúng vậy. Hãy coi nó như một secret dài hạn: thay khóa hoặc làm mất khóa sẽ khiến token đã lưu không giải mã được, buộc mọi bot phải kết nối lại. Liên kết "liên kết tài khoản" được dựng từ URL web app của bạn (`MULTICA_APP_URL`, dự phòng là `FRONTEND_ORIGIN`) — triển khai bình thường đã đặt sẵn, không cần cấu hình thêm.
-</Callout>
-
 ## Tiếp theo
 
 - [Tích hợp chat](/channels) — bộ máy kênh, phiên và ủy quyền hoạt động ra sao
 - [Agent](/agents) · [Chat](/chat) · [Issue](/issues)
-- Biến môi trường — tham chiếu cấu hình tự vận hành đầy đủ

@@ -37,8 +37,6 @@ uniai daemon start
 
 完整 CLI 参考见 [CLI 命令速查](/cli)。
 
-**桌面应用自带守护进程。**用 [桌面应用](/desktop-app) 就不必手动 `uniai daemon start`——它启动时会自动拉起守护进程。哪种方式更适合你的工作流，详见 [桌面应用](/desktop-app) 页面。
-
 ## 为什么一台机器会有多个运行时
 
 运行时不是一个服务器，也不是一个容器——它是「**守护进程 × 一款 AI 编程工具**」的组合。举例：你在一台 MacBook 上启动守护进程，本机装了 Claude Code 和 Codex；你是两个工作区的成员。那么 UniAI 会注册 4 个运行时：
@@ -72,7 +70,7 @@ uniai runtime profile delete <profile-id>
 这里填写的是 argv 风格命令，不是 shell 字符串。UniAI 存的是可执行文件名和固定参数，守护进程会直接用 `exec.Command(command_name, fixed_args...)` 启动。支持普通参数、引号和反斜杠转义；不支持管道、重定向、`&&`、`;`、反引号、`$VAR` / `$(...)` 展开。需要 shell 行为时，用 wrapper script 包一层。
 目前命令和参数的解析入口在 Runtimes UI；CLI 的 profile 命令负责管理 profile 记录和本机路径覆盖。
 
-如果桌面应用拉起的守护进程找不到你在终端里能运行的命令，可以在这台机器上固定绝对路径：
+如果守护进程找不到你在终端里能运行的命令，可以在这台机器上固定绝对路径：
 
 ```bash
 uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
@@ -80,10 +78,6 @@ uniai runtime profile unset-path <profile-id>
 ```
 
 修改 profile 的命令或参数后，已开始的任务仍使用启动时的参数；守护进程重新注册后，新领取的任务才会使用新配置。混合版本部署时，建议先升级 server，再逐步升级 daemon：`fixed_args` 的录入在 server 侧 Runtimes UI，`failed_profiles` 注册报告也由 server 展示。旧组件可能会忽略自己不认识的字段，而不是明确报错；先升 server 能让 rollout 更可观察。
-
-<Callout type="info">
-**云端运行时即将开放**，目前处于等待名单阶段。上线后，你无需在本地运行守护进程，即可在 UniAI Cloud 上直接执行智能体任务。在 [下载页面](https://github.com/phanducquanguet/usf/releases/latest) 登记邮箱以获取通知。
-</Callout>
 
 ## 运行时什么时候被判定为离线
 

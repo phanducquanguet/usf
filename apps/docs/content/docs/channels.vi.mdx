@@ -75,17 +75,6 @@ Vì vậy, thêm bot vào kênh công khai vẫn an toàn: chỉ thành viên đ
 **Slack — tự mang app.** Admin của không gian làm việc tạo một app Slack, cài vào Slack workspace của mình, rồi dán bot token + app-level token vào UniAI. Mỗi agent có app Slack riêng, nên nhiều agent có thể cùng hoạt động trong một Slack workspace, mỗi agent một bot riêng.
 </Callout>
 
-## Tự vận hành
-
-Mỗi kênh **mặc định tắt cho tới khi bạn đặt khóa mã hóa at-rest cho nó** (khóa này mã hóa token của từng bot trước khi ghi vào cơ sở dữ liệu):
-
-```dotenv
-MULTICA_LARK_SECRET_KEY=<khóa 32 byte mã hóa base64>
-MULTICA_SLACK_SECRET_KEY=<khóa 32 byte mã hóa base64>
-```
-
-Trên UniAI Cloud cả hai đã cấu hình sẵn.
-
 ## Tiếp theo
 
 - [Agent](/agents) · [Chat](/chat) · [Task](/tasks)

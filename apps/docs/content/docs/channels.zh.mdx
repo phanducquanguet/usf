@@ -75,17 +75,6 @@ flowchart LR
 **Slack —— 自带应用。** workspace 管理员创建一个 Slack app，把它安装到自己的 Slack workspace，再把它的 bot token + app-level token 粘贴进 UniAI。每个智能体都有自己的 Slack app，所以多个智能体可以在同一个 Slack workspace 里各自拥有一个独立的 Bot。manifest 和分步设置见 [Slack Bot 接入](/slack-bot-integration)。
 </Callout>
 
-## 自部署
-
-每个 channel 在**你设置好它的静态加密密钥之前都是关闭的**（这个密钥会在每个 Bot 的 token 落库之前对其加密）：
-
-```dotenv
-MULTICA_LARK_SECRET_KEY=<base64-encoded 32-byte key>
-MULTICA_SLACK_SECRET_KEY=<base64-encoded 32-byte key>
-```
-
-在 UniAI Cloud 上两者都已配置好。完整参考见环境变量。
-
 ## 下一步
 
 - [Lark Bot 接入](/lark-bot-integration) —— 扫码安装，私聊 / @ 提及 / `/issue`

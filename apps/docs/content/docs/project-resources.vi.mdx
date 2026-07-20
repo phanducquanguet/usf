@@ -74,15 +74,7 @@ Chọn `local_directory` khi **một trong hai** điều này đúng:
 
 ### Đính thư mục cục bộ
 
-Bộ chọn thư mục chỉ có trong **app Desktop** — web không có cách đọc đường dẫn hệ điều hành, nên nút "Add local directory" bị ẩn ở đó. Trên Desktop:
-
-1. Mở dự án → khung **Tài nguyên**.
-2. Bấm **Add local directory**. Bộ chọn thư mục native mở ra.
-3. Chọn thư mục. Đường dẫn được gắn với **daemon mà bản Desktop này đang đăng ký** — bản ghi tài nguyên lưu cả đường dẫn lẫn ID daemon đó.
-
-Trên Desktop, nút vẫn hiện nhưng **bị vô hiệu kèm gợi ý** khi daemon trên máy này offline, hoặc khi dự án đã có `local_directory` gắn với daemon này — để bạn thấy *vì sao* nó không dùng được. (Trên web, nút bị ẩn hẳn vì hoàn toàn không có bộ chọn thư mục.) Muốn gắn thư mục của máy khác, cài Desktop trên máy đó và thêm tài nguyên từ đó.
-
-Từ CLI (dùng được cả trong môi trường chỉ có web, miễn bạn tự cung cấp ID daemon):
+Web không có cách đọc đường dẫn hệ điều hành nên giao diện không có bộ chọn thư mục. Hãy đính thư mục từ **CLI**, trên đúng máy có daemon sở hữu đường dẫn đó:
 
 ```bash
 uniai project resource add <project-id> \
@@ -111,7 +103,7 @@ Danh sách chặn cố tình gắt — chọn thư mục home sẽ đặt file r
 
 ### Mỗi cặp (dự án, daemon) chỉ một thư mục
 
-Một dự án giữ **tối đa một `local_directory` cho mỗi daemon**. Thêm cái thứ hai trên cùng daemon sẽ nhận `409` từ API; nút trên Desktop tự ẩn khi đã chạm giới hạn và hiện tooltip giải thích.
+Một dự án giữ **tối đa một `local_directory` cho mỗi daemon**. Thêm cái thứ hai trên cùng daemon sẽ nhận `409` từ API.
 
 Các daemon khác nhau độc lập với nhau — một dự án dùng chung có thể có một `local_directory` cho máy của từng đồng đội, mỗi cái gắn cùng dự án với một thư mục khác trên một máy khác. Khi daemon nhận task, nó chọn dòng khớp ID của chính nó và bỏ qua phần còn lại.
 
@@ -156,7 +148,7 @@ Những hạn chế này được theo dõi trong hạng mục tiếp nối agen
 
 ## Đính repo lúc tạo dự án
 
-Trong app **Web** hoặc **Desktop**, mở *New project* giờ có pill **Repos** cạnh Trạng thái / Độ ưu tiên / Lead. Chọn các repo đã gắn với không gian làm việc (hoặc dán một URL bất kỳ) sẽ đính chúng làm tài nguyên `github_repo` ngay khi dự án được tạo.
+Trong app web, mở *New project* có pill **Repos** cạnh Trạng thái / Độ ưu tiên / Lead. Chọn các repo đã gắn với không gian làm việc (hoặc dán một URL bất kỳ) sẽ đính chúng làm tài nguyên `github_repo` ngay khi dự án được tạo.
 
 Từ **CLI**:
 

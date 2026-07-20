@@ -65,31 +65,8 @@ import { Callout } from "fumadocs-ui/components/callout";
 - **和 Bot 对话** 需要你是工作区成员且已绑定飞书身份。其余的人一律被丢弃。
 - 对于被丢弃的消息，集成不会保存消息内容——只记录一个丢弃原因，用于审计。
 
-## 自部署配置
-
-在 UniAI Cloud 上这个集成已经可用——可跳过本节。
-
-自部署时，**在你设置好静态加密密钥之前，飞书集成是关闭的**。这个密钥会在每个 Bot 的 app secret 落库之前对其加密。
-
-1. 生成一个 32 字节的密钥并设置到 API 服务器：
-
-   ```dotenv
-   MULTICA_LARK_SECRET_KEY=<base64 编码的 32 字节密钥>
-   ```
-
-2. 重启 API。在密钥设置好之前，**设置 → 集成** 会显示「未启用飞书集成」提示，**绑定到飞书** 入口也会保持隐藏。
-
-<Callout type="info">
-**同时支持飞书与海外版 Lark。** 每个 Bot 属于哪个云——中国大陆飞书（`open.feishu.cn`）还是海外版 Lark（`open.larksuite.com`）——会在你扫码时自动识别、记录在该安装上，并用于对这个 Bot 的所有调用。同一个部署可以同时服务两者，因此两个租户的团队都能直接绑定，无需任何额外配置。
-
-`MULTICA_LARK_HTTP_BASE_URL` / `MULTICA_LARK_CALLBACK_BASE_URL` 仅作为可选的部署级覆盖项保留（用于代理或 mock）；正常运行时请保持不设置，让每个安装各自连到自己的云。
-
-**从单云部署升级？** 如果你之前是把这两个变量设为 `https://open.larksuite.com` 来跑海外版 Lark，升级后服务会在首次启动时自动把存量安装重标记为 Lark region，之后你就可以清掉这个覆盖项。国内飞书部署无需任何操作。
-</Callout>
-
 ## 下一步
 
 - [智能体](/agents) —— 每个 Bot 都绑定到恰好一个智能体
 - [Chat](/chat) —— 一段 Bot 对话在 UniAI 里对应什么
 - [Issues](/issues) —— `/issue` 创建的是什么
-- 环境变量 —— 完整的自部署配置参考

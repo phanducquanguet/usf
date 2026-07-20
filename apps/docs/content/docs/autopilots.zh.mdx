@@ -242,15 +242,6 @@ curl -X POST "$UNIAI_WEBHOOK_URL" \
 - `413` —— 请求体超过 256 KiB。
 - `429` —— 单 token 速率限制（默认 60 次 / 分钟）。
 
-### 自托管：配置公开 URL
-
-服务端设置 `MULTICA_PUBLIC_URL`（例如 `https://uniai.unicomhub.com`）后，
-触发器响应里会带绝对的 `webhook_url`，UI 直接显示可复制的 URL。没设
-时 UI 会用客户端的 API origin 拼出 URL——desktop 和同源 web 没问题，
-但自定义反向代理就不行了。UniAI **故意不**从 `Host` /
-`X-Forwarded-Host` header 推断公开主机，避免反代配置失误时被诱导生成
-指向攻击者域名的 webhook URL。
-
 ## 看运行历史
 
 每次触发都会产生一条**运行记录**（run），可以在 Autopilot 详情页的"历史"tab 看到：

@@ -28,7 +28,7 @@ if (!Array.isArray(meta.pages)) {
 // .<locale>.mdx translation exists.
 const LOCALES = ["en", "vi"];
 // Features temporarily closed — pages hidden from the in-app viewer.
-const EXCLUDED_PAGES = new Set(["desktop-app"]);
+const EXCLUDED_PAGES = new Set();
 
 function transform(mdx) {
   let src = mdx;

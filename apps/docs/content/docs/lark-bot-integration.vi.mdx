@@ -65,31 +65,8 @@ Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integration
 - **Nói chuyện với Bot** yêu cầu là thành viên của không gian làm việc và đã liên kết danh tính Lark. Tin nhắn của những người khác đều bị bỏ qua.
 - Tích hợp không bao giờ lưu nội dung của tin nhắn bị bỏ qua — chỉ lưu lý do, để kiểm toán.
 
-## Thiết lập tự vận hành
-
-Trên UniAI Cloud tích hợp đã sẵn sàng — bỏ qua mục này.
-
-Với tự vận hành, Lark **tắt cho tới khi bạn đặt khóa mã hóa at-rest**. Khóa này mã hóa app secret của từng Bot trước khi ghi vào cơ sở dữ liệu.
-
-1. Sinh một khóa 32 byte và đặt trên API server:
-
-   ```dotenv
-   MULTICA_LARK_SECRET_KEY=<khóa 32 byte mã hóa base64>
-   ```
-
-2. Khởi động lại API. Chừng nào khóa chưa đặt, **Cài đặt → Integrations** hiện thông báo "Lark integration not enabled" và các nút **Bind to Lark** vẫn bị ẩn.
-
-<Callout type="info">
-**Feishu và Lark quốc tế, song song.** Đám mây mà từng Bot thuộc về — Feishu đại lục (`open.feishu.cn`) hay Lark quốc tế (`open.larksuite.com`) — được phát hiện tự động khi bạn quét QR, lưu trên installation và dùng cho mọi lệnh gọi tới Bot đó. Một bản triển khai phục vụ cả hai cùng lúc, nên nhóm ở tenant nào cũng gắn được mà không cần cấu hình thêm.
-
-Các biến env `MULTICA_LARK_HTTP_BASE_URL` / `MULTICA_LARK_CALLBACK_BASE_URL` chỉ còn dùng làm cơ chế ghi đè tùy chọn cho toàn bộ triển khai (proxy hoặc mock); để trống trong vận hành bình thường để mỗi installation kết nối đúng đám mây của nó.
-
-**Nâng cấp từ thiết lập một đám mây?** Nếu bạn từng chạy bản Lark quốc tế bằng cách đặt các biến đó về `https://open.larksuite.com`, server sẽ tự chuyển các installation sẵn có sang vùng Lark ở lần khởi động đầu sau nâng cấp — sau đó bạn có thể xóa phần ghi đè. Triển khai đại lục không cần làm gì.
-</Callout>
-
 ## Tiếp theo
 
 - [Agent](/agents) — mỗi Bot gắn với đúng một agent
 - [Chat](/chat) — cuộc trò chuyện với Bot ánh xạ thành gì trong UniAI
 - [Issue](/issues) — `/issue` tạo ra gì
-- Biến môi trường — tham chiếu cấu hình tự vận hành đầy đủ

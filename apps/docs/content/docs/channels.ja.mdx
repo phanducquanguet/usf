@@ -75,17 +75,6 @@ flowchart LR
 **Slack — 自分のアプリを持ち込む。** ワークスペースの admin が Slack アプリを作成し、自分の Slack ワークスペースにインストールして、その bot token + app-level token を UniAI に貼り付けます。エージェントごとに専用の Slack アプリを持つため、1 つの Slack ワークスペース内で複数のエージェントがそれぞれ異なる Bot を持てます。マニフェストと手順は [Slack Bot 連携](/slack-bot-integration)を参照してください。
 </Callout>
 
-## セルフホスト
-
-各チャンネルは、**保存時の暗号化キーを設定するまでオフ**です（このキーは、各 Bot のトークンがデータベースに触れる前にそれを暗号化します）。
-
-```dotenv
-MULTICA_LARK_SECRET_KEY=<base64-encoded 32-byte key>
-MULTICA_SLACK_SECRET_KEY=<base64-encoded 32-byte key>
-```
-
-UniAI Cloud では両方ともすでに設定済みです。完全なリファレンスは環境変数を参照してください。
-
 ## 次に
 
 - [Lark Bot 連携](/lark-bot-integration) — スキャンしてインストール、DM / @ メンション / `/issue`

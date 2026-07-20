@@ -37,8 +37,6 @@ uniai daemon start
 
 完全な CLI リファレンスは [CLI コマンド](/cli)を確認してください。
 
-**デスクトップアプリにはデーモンが同梱されています。** [デスクトップアプリ](/desktop-app)を使う場合、`uniai daemon start` を手動で実行する必要はありません。起動時にデーモンを自動的に立ち上げます。あなたのワークフローにどの方式が合うかは、[デスクトップアプリ](/desktop-app)ページを参照してください。
-
 ## 1 つのマシンに複数のランタイムができる理由
 
 ランタイムはサーバーでもコンテナでもありません。「**デーモン × AI コーディングツール 1 つ**」の組み合わせです。たとえば、Claude Code と Codex の両方がインストールされた MacBook でデーモンを起動し、あなたが 2 つのワークスペースのメンバーだとします。すると UniAI は 4 つのランタイムを登録します。
@@ -72,7 +70,7 @@ uniai runtime profile delete <profile-id>
 入力するコマンドは shell 文字列ではなく argv 形式です。UniAI は実行ファイル名と固定引数を保存し、デーモンは `exec.Command(command_name, fixed_args...)` で直接起動します。通常の引数、引用符、バックスラッシュエスケープは使えますが、パイプ、リダイレクト、`&&`、`;`、バッククォート、`$VAR` / `$(...)` 展開は使えません。shell の動作が必要な場合は wrapper script を使ってください。
 現在、コマンドと引数の解析は Runtimes UI が担当します。CLI の profile コマンドは profile 行とローカルのパス上書きを管理します。
 
-デスクトップアプリから起動したデーモンが、ターミナルでは動くコマンドを見つけられない場合は、そのマシンで絶対パスを固定できます。
+デーモンが、ターミナルでは動くコマンドを見つけられない場合は、そのマシンで絶対パスを固定できます。
 
 ```bash
 uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
@@ -80,10 +78,6 @@ uniai runtime profile unset-path <profile-id>
 ```
 
 profile のコマンドや引数の変更は、デーモンが再登録された後に新しく取得するタスクへ適用されます。実行中のタスクは開始時の引数を使い続けます。混在デプロイでは、先に server をアップグレードしてから daemon を順次更新することを推奨します。`fixed_args` の入力は server 側の Runtimes UI が担い、`failed_profiles` 登録レポートも server が表示します。古いコンポーネントは未知のフィールドを明示的に失敗させず無視することがあるため、server を先に更新すると rollout を観測しやすくなります。
-
-<Callout type="info">
-**クラウドランタイムが近日提供されます。** 現在は順番待ちリストの段階です。提供が始まれば、ローカルのデーモンを実行せずに UniAI Cloud 上で直接エージェントタスクを実行できるようになります。[ダウンロードページ](https://github.com/phanducquanguet/usf/releases/latest)でメールアドレスを登録すると通知を受け取れます。
-</Callout>
 
 ## ランタイムがオフラインと表示される時点
 

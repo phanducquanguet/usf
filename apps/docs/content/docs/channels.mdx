@@ -75,17 +75,6 @@ So adding a bot to a public channel is safe: only workspace members who have bou
 **Slack — bring your own app.** A workspace admin creates a Slack app, installs it to their Slack workspace, and pastes its bot token + app-level token into UniAI. Each agent gets its own Slack app, so several agents can each have a distinct bot in one Slack workspace.
 </Callout>
 
-## Self-host
-
-Each channel is **off until you set its at-rest encryption key** (the key encrypts each bot's tokens before they touch the database):
-
-```dotenv
-MULTICA_LARK_SECRET_KEY=<base64-encoded 32-byte key>
-MULTICA_SLACK_SECRET_KEY=<base64-encoded 32-byte key>
-```
-
-On UniAI Cloud both are already configured.
-
 ## Next
 
 - [Agents](/agents) · [Chat](/chat) · [Tasks](/tasks)

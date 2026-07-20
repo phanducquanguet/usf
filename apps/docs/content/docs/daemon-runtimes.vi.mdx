@@ -69,7 +69,7 @@ uniai runtime profile delete <profile-id>
 
 Lệnh được định nghĩa theo dạng argv, không phải một chuỗi shell. UniAI lưu tên file thực thi cùng các đối số cố định, rồi daemon khởi chạy trực tiếp bằng `exec.Command(command_name, fixed_args...)`. Hỗ trợ đối số thường, dấu nháy và escape bằng backslash; không hỗ trợ pipe, redirect, `&&`, `;`, backtick và mở rộng `$VAR` / `$(...)`. Khi runtime cần hành vi shell, hãy dùng một script bọc ngoài. Hiện việc phân tích lệnh và đối số do giao diện Runtime đảm nhận; các lệnh profile của CLI quản lý bản ghi profile và ghi đè đường dẫn cục bộ.
 
-Nếu daemon được khởi chạy từ ứng dụng desktop không tìm thấy một lệnh vốn chạy được trong terminal của bạn, ghim đường dẫn tuyệt đối trên máy đó:
+Nếu daemon không tìm thấy một lệnh vốn chạy được trong terminal của bạn, ghim đường dẫn tuyệt đối trên máy đó:
 
 ```bash
 uniai runtime profile set-path <profile-id> --path /abs/path/to/agent
