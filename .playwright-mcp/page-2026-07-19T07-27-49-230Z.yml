@@ -1,0 +1,185 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - img "UNICOM — AI Software Factory" [ref=e7]
+        - navigation "Landing" [ref=e8]:
+          - link "Giải pháp" [ref=e9] [cursor=pointer]:
+            - /url: "#solutions"
+          - link "Dịch vụ" [ref=e10] [cursor=pointer]:
+            - /url: "#services"
+          - link "Chợ dự án" [ref=e11] [cursor=pointer]:
+            - /url: /marketplace
+          - link "Quy trình" [ref=e12] [cursor=pointer]:
+            - /url: "#process"
+          - link "FAQ" [ref=e13] [cursor=pointer]:
+            - /url: "#faq"
+        - generic [ref=e14]:
+          - group "Ngôn ngữ / Language" [ref=e15]:
+            - button "Tiếng Việt" [pressed] [ref=e16] [cursor=pointer]: vi
+            - button "English" [ref=e17] [cursor=pointer]: en
+          - link "Đăng nhập" [ref=e18] [cursor=pointer]:
+            - /url: /login
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: AI-Powered Software Production
+        - heading "AI Software Factory" [level=1] [ref=e26]
+        - paragraph [ref=e27]: Phần mềm may đo cho SME – chi phí & vận hành như SaaS
+        - list [ref=e28]:
+          - listitem [ref=e29]: Không lệ thuộc nền tảng SaaS cứng nhắc.
+          - listitem [ref=e33]: Hệ thống riêng, triển khai trong 7 ngày, tích hợp AI thực dụng.
+          - listitem [ref=e37]: Không cần đội IT nội bộ – vận hành 24/7.
+      - generic [ref=e46]:
+        - generic [ref=e56]:
+          - paragraph [ref=e57]: Trợ lý UNICOM
+          - paragraph [ref=e58]: Trực tuyến
+        - generic [ref=e60]:
+          - generic [ref=e61]: Xin chào! Bạn đang cần xây dựng phần mềm gì?
+          - generic [ref=e62]: Mình cần hệ thống quản lý kho cho chuỗi 5 cửa hàng.
+          - generic [ref=e63]: Tuyệt! Cho mình hỏi thêm về quy trình nhập – xuất hàng hiện tại của bạn nhé…
+          - generic [ref=e68]:
+            - paragraph [ref=e69]: Dự án được tạo trong hệ thống UNICOM
+            - paragraph [ref=e70]: Quản lý kho — chuỗi 5 cửa hàng
+            - paragraph [ref=e71]: UNI-108 · Đã tiếp nhận
+    - generic [ref=e73]:
+      - paragraph [ref=e74]: Lợi thế cạnh tranh
+      - list [ref=e75]:
+        - listitem [ref=e76]: Bàn giao dưới 7 ngày
+        - listitem [ref=e78]: Hệ thống riêng, chi phí như SaaS
+        - listitem [ref=e80]: Không cần đội IT nội bộ
+        - listitem [ref=e82]: Hỗ trợ vận hành 24/7
+    - generic [ref=e84]:
+      - heading "SME đang gặp những vấn đề gì?" [level=2] [ref=e86]
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - heading "Quản lý bằng Excel rời rạc" [level=3] [ref=e90]
+          - paragraph [ref=e91]: Dữ liệu phân tán, khó tổng hợp và dễ sai sót khi vận hành thủ công.
+        - generic [ref=e92]:
+          - heading "Lệ thuộc SaaS cứng nhắc" [level=3] [ref=e93]
+          - paragraph [ref=e94]: Nền tảng SaaS không linh hoạt theo đặc thù doanh nghiệp, không sở hữu dữ liệu.
+        - generic [ref=e95]:
+          - heading "Không có đội IT nội bộ" [level=3] [ref=e96]
+          - paragraph [ref=e97]: Không đủ nguồn lực để xây dựng và duy trì hệ thống công nghệ riêng.
+        - generic [ref=e98]:
+          - heading "AI chỉ dừng ở mức thử nghiệm" [level=3] [ref=e99]
+          - paragraph [ref=e100]: Chưa biết cách tích hợp AI vào phần mềm nội bộ để tạo giá trị thực.
+    - generic [ref=e102]:
+      - heading "Mô hình 3 tầng của AI Software Factory" [level=2] [ref=e104]
+      - generic [ref=e105]:
+        - generic [ref=e108]:
+          - text: Layer 1
+          - heading "Digital & AI Consulting" [level=3] [ref=e109]
+          - paragraph [ref=e110]: Tư vấn chuyển đổi số & AI thực dụng – phân tích quy trình, đề xuất giải pháp dùng được ngay.
+        - generic [ref=e116]:
+          - text: Layer 2
+          - heading "Rapid Custom Software" [level=3] [ref=e117]
+          - paragraph [ref=e118]: Xây dựng phần mềm may đo theo đặc thù doanh nghiệp – chi phí tối ưu, vận hành như SaaS.
+        - generic [ref=e124]:
+          - text: Layer 3
+          - heading "AI Integration & Optimization" [level=3] [ref=e125]
+          - paragraph [ref=e126]: Tích hợp AI trực tiếp vào hệ thống nội bộ khách hàng – tự động hóa & nâng cao hiệu suất.
+    - generic [ref=e127]:
+      - heading "Bắt đầu theo cách phù hợp với bạn" [level=2] [ref=e129]
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - heading "Tư vấn chuyển đổi số & AI" [level=3] [ref=e133]
+          - paragraph [ref=e134]: Chuyên gia phân tích quy trình, đề xuất giải pháp AI thực dụng tích hợp vào hệ thống nội bộ.
+        - generic [ref=e135]:
+          - heading "Phần mềm may đo tinh gọn" [level=3] [ref=e136]
+          - paragraph [ref=e137]: Hệ thống riêng theo đặc thù doanh nghiệp – không lệ thuộc SaaS, chi phí tối ưu.
+        - generic [ref=e138]:
+          - heading "Xem demo & dùng thử" [level=3] [ref=e139]
+          - paragraph [ref=e140]: Trải nghiệm trực tiếp hệ thống trước khi quyết định.
+        - generic [ref=e141]:
+          - heading "Tích hợp AI vào hệ thống có sẵn" [level=3] [ref=e142]
+          - paragraph [ref=e143]: Đưa AI vào phần mềm nội bộ đang vận hành – dùng được, đo lường được.
+    - generic [ref=e145]:
+      - generic [ref=e146]:
+        - heading "Phù hợp với doanh nghiệp" [level=2] [ref=e148]
+        - generic [ref=e150]:
+          - generic [ref=e151]: 10–200 nhân sự
+          - generic [ref=e156]: Đang vận hành thủ công hoặc Excel
+          - generic [ref=e161]: Muốn có phần mềm riêng, không lệ thuộc SaaS
+          - generic [ref=e166]: Ngân sách CNTT giới hạn
+          - generic [ref=e171]: Muốn tích hợp AI vào vận hành thực tế
+      - generic [ref=e176]:
+        - heading "Mô hình hợp tác & chi phí" [level=2] [ref=e178]
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - heading "Implementation Fee" [level=3] [ref=e182]
+            - paragraph [ref=e183]: Phí triển khai ban đầu cho mỗi dự án.
+          - generic [ref=e184]:
+            - heading "Managed Operations" [level=3] [ref=e185]
+            - paragraph [ref=e186]: Phí vận hành hàng tháng – chi phí như SaaS, hệ thống riêng.
+          - generic [ref=e187]:
+            - heading "AI Upgrade Packages" [level=3] [ref=e188]
+            - paragraph [ref=e189]: Gói tích hợp AI thực dụng theo nhu cầu mở rộng.
+          - generic [ref=e190]:
+            - heading "Support Contracts" [level=3] [ref=e191]
+            - paragraph [ref=e192]: Hợp đồng hỗ trợ vận hành dài hạn.
+    - generic [ref=e193]:
+      - generic [ref=e194]:
+        - heading "Quy trình triển khai" [level=2] [ref=e195]
+        - paragraph [ref=e196]:
+          - generic [ref=e197]: Dưới 7 ngày cho gói tiêu chuẩn
+      - generic [ref=e200]:
+        - generic [ref=e203]:
+          - generic [ref=e204]: "1"
+          - heading "Khảo sát & phân tích" [level=3] [ref=e205]
+          - paragraph [ref=e206]: Đánh giá quy trình và nhu cầu hiện tại.
+        - generic [ref=e208]:
+          - generic [ref=e209]: "2"
+          - heading "Thiết kế giải pháp" [level=3] [ref=e210]
+          - paragraph [ref=e211]: Thiết kế hệ thống may đo phù hợp đặc thù.
+        - generic [ref=e213]:
+          - generic [ref=e214]: "3"
+          - heading "Xây dựng & tùy chỉnh" [level=3] [ref=e215]
+          - paragraph [ref=e216]: Phát triển phần mềm riêng, tích hợp AI.
+        - generic [ref=e218]:
+          - generic [ref=e219]: "4"
+          - heading "Bàn giao & vận hành" [level=3] [ref=e220]
+          - paragraph [ref=e221]: Đào tạo, bàn giao và hỗ trợ vận hành liên tục.
+    - generic [ref=e222]:
+      - heading "Bắt đầu chỉ bằng một cuộc trò chuyện" [level=2] [ref=e224]
+      - generic [ref=e226]:
+        - generic [ref=e227]:
+          - generic [ref=e228]: "1"
+          - heading "Kể cho AI nghe ý tưởng" [level=3] [ref=e229]
+          - paragraph [ref=e230]: "Trợ lý AI hỏi đúng trọng tâm: nghiệp vụ, tính năng, người dùng, tích hợp."
+        - generic [ref=e231]:
+          - generic [ref=e232]: "2"
+          - heading "Chốt bản yêu cầu" [level=3] [ref=e233]
+          - paragraph [ref=e234]: Bạn nhận bản tóm tắt dự án rõ ràng và xác nhận trước khi gửi.
+        - generic [ref=e235]:
+          - generic [ref=e236]: "3"
+          - heading "Đội ngũ tiếp nhận ngay" [level=3] [ref=e237]
+          - paragraph [ref=e238]: Dự án được tạo thẳng vào hệ thống quản lý của chúng tôi, không thất lạc yêu cầu.
+    - generic [ref=e239]:
+      - heading "Câu hỏi thường gặp" [level=2] [ref=e241]
+      - region [ref=e243]:
+        - heading [level=3] [ref=e245]:
+          - button "Tư vấn có mất phí không?" [ref=e246] [cursor=pointer]
+        - heading [level=3] [ref=e248]:
+          - button "Tôi cần chuẩn bị gì?" [ref=e249] [cursor=pointer]
+        - heading [level=3] [ref=e251]:
+          - button "Sau khi xác nhận thì sao?" [ref=e252] [cursor=pointer]
+    - contentinfo [ref=e253]:
+      - generic [ref=e254]:
+        - generic [ref=e255]:
+          - img "UNICOM — AI Software Factory" [ref=e256]
+          - paragraph [ref=e257]: Phần mềm may đo & AI thực dụng cho doanh nghiệp SME
+        - generic [ref=e258]:
+          - navigation "Footer" [ref=e259]:
+            - link "Giải pháp" [ref=e260] [cursor=pointer]:
+              - /url: "#solutions"
+            - link "Dịch vụ" [ref=e261] [cursor=pointer]:
+              - /url: "#services"
+            - link "Chợ dự án" [ref=e262] [cursor=pointer]:
+              - /url: /marketplace
+            - link "Quy trình" [ref=e263] [cursor=pointer]:
+              - /url: "#process"
+            - link "FAQ" [ref=e264] [cursor=pointer]:
+              - /url: "#faq"
+          - paragraph [ref=e265]: © UNICOM. Đặt làm phần mềm theo yêu cầu.
+  - region "Notifications alt+T"
+  - alert [ref=e266]
