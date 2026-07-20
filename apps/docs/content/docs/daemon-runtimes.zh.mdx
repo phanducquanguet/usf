@@ -8,7 +8,7 @@ import { Mermaid } from "@/components/mermaid";
 
 在 UniAI 里，[智能体](/agents) **不**在我们的服务器上运行——它们跑在你自己的机器上，由一个叫**守护进程**（daemon）的小程序调用本地安装的 [AI 编程工具](/providers)。UniAI 服务器只做协调：存 [issue](/issues)、排 [任务](/tasks)、派发给正确的**运行时**（runtime = 守护进程 × 一款 AI 编程工具）。
 
-这个结构带来 UniAI 和 Linear / Jira 最大的差别：**你的 API 密钥、工具链、代码目录都留在本地**，UniAI 服务器一个都看不到。"我的智能体不工作"类问题几乎都是本地问题——守护进程没启动、某款 AI 工具没装、密钥过期——请先从本地查起；定位指引见 [故障排查](/troubleshooting)。
+这个结构带来 UniAI 和 Linear / Jira 最大的差别：**你的 API 密钥、工具链、代码目录都留在本地**，UniAI 服务器一个都看不到。"我的智能体不工作"类问题几乎都是本地问题——守护进程没启动、某款 AI 工具没装、密钥过期——请先从本地查起；定位指引见 故障排查。
 
 ## 启动守护进程
 
@@ -126,7 +126,7 @@ UniAI 对并发有两层限额：
 2. 跑 `uniai daemon logs -f`，看是否有错误
 3. 去 UniAI 界面的 **Runtimes** 页面，确认你的运行时显示「在线」
 
-更多场景见 [Troubleshooting](/troubleshooting)。
+更多场景见 Troubleshooting。
 
 ## 下一步
 
