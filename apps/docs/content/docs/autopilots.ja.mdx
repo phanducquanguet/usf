@@ -55,13 +55,13 @@ uniai autopilot trigger <autopilot-id>
 オートパイロットはインバウンドの HTTP webhook でも発火できます。オートパイロット詳細ページで **Webhook** トリガーを追加すると、UniAI は次のような形の一意の URL を生成します。
 
 ```
-https://<your-multica-host>/api/webhooks/autopilots/awt_…
+https://uniai.unicomhub.com/api/webhooks/autopilots/awt_…
 ```
 
 その URL に任意の JSON を POST してください — UniAI は `source = webhook` で実行を記録し、本文を実行の `trigger_payload` として保存し、schedule トリガーとまったく同じ方法でエージェントをディスパッチします。
 
 ```bash
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H "Content-Type: application/json" \
   -d '{"event":"demo.received","eventPayload":{"message":"hello"}}'
 ```
@@ -111,7 +111,7 @@ UniAI は次の順序でインバウンドリクエストから `event` 名と `
 **1. 本文エンベロープ（Body envelope）。** 本文が文字列の `event` フィールドを持つ JSON オブジェクトであれば、その値がそのままイベント名になります。任意の `eventPayload` オブジェクトは、自身の `action` / `state` / `conclusion` / `status` フィールドから action 候補を提供します。
 
 ```bash
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'Content-Type: application/json' \
   -d '{"event":"trigger","eventPayload":{"action":"true"}}'
 # inferred: event = trigger, action candidate = true
@@ -125,7 +125,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 
 ```bash
 # GitHub-style: header gives the event name, body gives the action.
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-GitHub-Event: workflow_run' \
   -H 'Content-Type: application/json' \
   -d '{"action":"completed"}'
@@ -133,7 +133,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 #        → matches a filter row of workflow_run / completed
 
 # Generic event-type header — no body fields needed.
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-Event-Type: trigger.true' \
   -H 'Content-Type: application/json' \
   -d '{}'
@@ -143,7 +143,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 **3. 本文フォールバック（Body fallback）。** 本文エンベロープも既知のヘッダーもない場合、UniAI は次の順序で最上位の本文文字列フィールドにフォールバックします: `event` → `type` → `action`。
 
 ```bash
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'Content-Type: application/json' \
   -d '{"type":"trigger","action":"true"}'
 # inferred: event = trigger (from `type`), action candidate = true
@@ -164,14 +164,14 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 
 ```bash
 # Allowed — header drives event=workflow_run, body drives action=completed
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-GitHub-Event: workflow_run' \
   -H 'Content-Type: application/json' \
   -d '{"action":"completed"}'
 # → 200 {"status":"accepted", ...}
 
 # Filtered — same event, action not in allowlist
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-GitHub-Event: workflow_run' \
   -H 'Content-Type: application/json' \
   -d '{"action":"in_progress"}'
@@ -206,7 +206,7 @@ UniAI は正常な no-op の結果に対して `status` フィールド付きで
 
 ### セルフホスト: 公開 URL を構成する
 
-サーバーに `MULTICA_PUBLIC_URL` が設定されている場合（例: `https://multica.example.com`）、トリガー応答に絶対パスの `webhook_url` が含まれ、UI にはすぐにコピーできる URL が表示されます。設定しない場合、UI はクライアントの API origin から URL を構成します — デスクトップと同一オリジンの Web には問題ありませんが、カスタムのセルフホストリバースプロキシには適しません。UniAI は、誤って構成されたリバースプロキシが攻撃者の制御するホストを指す webhook URL をサーバーに発行させて欺くことができないよう、`Host` / `X-Forwarded-Host` ヘッダーから公開ホストを導出しないよう意図的に設計されています。
+サーバーに `MULTICA_PUBLIC_URL` が設定されている場合（例: `https://uniai.unicomhub.com`）、トリガー応答に絶対パスの `webhook_url` が含まれ、UI にはすぐにコピーできる URL が表示されます。設定しない場合、UI はクライアントの API origin から URL を構成します — デスクトップと同一オリジンの Web には問題ありませんが、カスタムのセルフホストリバースプロキシには適しません。UniAI は、誤って構成されたリバースプロキシが攻撃者の制御するホストを指す webhook URL をサーバーに発行させて欺くことができないよう、`Host` / `X-Forwarded-Host` ヘッダーから公開ホストを導出しないよう意図的に設計されています。
 
 ## 実行履歴を見る
 

@@ -56,7 +56,7 @@ Autopilots can also fire on inbound HTTP webhooks. Add a **Webhook** trigger
 on the autopilot detail page; UniAI generates a unique URL of the shape:
 
 ```
-https://<your-multica-host>/api/webhooks/autopilots/awt_…
+https://uniai.unicomhub.com/api/webhooks/autopilots/awt_…
 ```
 
 POST any JSON to that URL — UniAI records a run with `source = webhook`,
@@ -64,7 +64,7 @@ stores the body as the run's `trigger_payload`, and dispatches the agent
 exactly the way a schedule trigger would.
 
 ```bash
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H "Content-Type: application/json" \
   -d '{"event":"demo.received","eventPayload":{"message":"hello"}}'
 ```
@@ -134,7 +134,7 @@ in this order — **the first match wins**.
 `action` / `state` / `conclusion` / `status` fields.
 
 ```bash
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'Content-Type: application/json' \
   -d '{"event":"trigger","eventPayload":{"action":"true"}}'
 # inferred: event = trigger, action candidate = true
@@ -150,7 +150,7 @@ following well-known provider headers:
 
 ```bash
 # GitHub-style: header gives the event name, body gives the action.
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-GitHub-Event: workflow_run' \
   -H 'Content-Type: application/json' \
   -d '{"action":"completed"}'
@@ -158,7 +158,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
 #        → matches a filter row of workflow_run / completed
 
 # Generic event-type header — no body fields needed.
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-Event-Type: trigger.true' \
   -H 'Content-Type: application/json' \
   -d '{}'
@@ -170,7 +170,7 @@ present, UniAI falls back to top-level body string fields in this
 order: `event` → `type` → `action`.
 
 ```bash
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'Content-Type: application/json' \
   -d '{"type":"trigger","action":"true"}'
 # inferred: event = trigger (from `type`), action candidate = true
@@ -205,14 +205,14 @@ Once a filter is configured, you can confirm both branches with `curl`:
 
 ```bash
 # Allowed — header drives event=workflow_run, body drives action=completed
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-GitHub-Event: workflow_run' \
   -H 'Content-Type: application/json' \
   -d '{"action":"completed"}'
 # → 200 {"status":"accepted", ...}
 
 # Filtered — same event, action not in allowlist
-curl -X POST "$MULTICA_WEBHOOK_URL" \
+curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H 'X-GitHub-Event: workflow_run' \
   -H 'Content-Type: application/json' \
   -d '{"action":"in_progress"}'
