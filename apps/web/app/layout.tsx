@@ -64,11 +64,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://uniai.unicomhub.com"),
   title: {
-    default: "UniAI — Project Management for Human + Agent Teams",
+    default: "UniAI — Quản lý dự án cho đội ngũ Người + Agent",
     template: "%s | UniAI",
   },
   description:
-    "Open-source platform that turns coding agents into real teammates. Assign tasks, track progress, compound skills.",
+    "Nền tảng nhà máy sản xuất phần mềm UNICOM. Giao việc cho coding agent, theo dõi tiến độ, tích lũy kỹ năng.",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: ["/favicon.svg"],
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "UniAI",
-    locale: "en_US",
+    locale: "vi_VN",
   },
   twitter: {
     card: "summary_large_image",
