@@ -11,13 +11,9 @@ vi.mock("node:fs", () => ({
 
 const pages = new Map<string, { url: string }>([
   ["en:", { url: "/" }],
-  ["zh:", { url: "/zh" }],
-  ["ko:", { url: "/ko" }],
-  ["ja:", { url: "/ja" }],
+  ["vi:", { url: "/vi" }],
   ["en:agents", { url: "/agents" }],
-  ["zh:agents", { url: "/zh/agents" }],
-  ["ko:agents", { url: "/ko/agents" }],
-  ["ja:agents", { url: "/ja/agents" }],
+  ["vi:agents", { url: "/vi/agents" }],
 ]);
 
 vi.mock("@/lib/source", () => ({
@@ -28,59 +24,43 @@ vi.mock("@/lib/source", () => ({
   },
 }));
 
+// Suffixes carry the containing "docs/" segment so `agents/index.vi.mdx`
+// (a per-page candidate) can never match the home page's `docs/index.vi.mdx`.
 beforeEach(() => {
   existingDocs.clear();
-  existingDocs.add("index.mdx");
-  existingDocs.add("index.zh.mdx");
-  existingDocs.add("agents.mdx");
-  existingDocs.add("agents.zh.mdx");
+  existingDocs.add("docs/index.mdx");
+  existingDocs.add("docs/index.vi.mdx");
+  existingDocs.add("docs/agents.mdx");
 });
 
 describe("docsAlternates", () => {
-  it("omits Korean hreflang when no Korean MDX file exists for the page", async () => {
+  it("omits Vietnamese hreflang when no Vietnamese MDX file exists for the page", async () => {
     const { docsAlternates } = await import("./site");
 
     expect(docsAlternates(["agents"])).toEqual({
       canonical: "https://uniai.unicomhub.com/docs/agents",
       languages: {
         en: "https://uniai.unicomhub.com/docs/agents",
-        zh: "https://uniai.unicomhub.com/docs/zh/agents",
         "x-default": "https://uniai.unicomhub.com/docs/agents",
       },
     });
   });
 
-  it("omits Korean hreflang even when source.getPage returns a page for Korean", async () => {
+  it("omits Vietnamese hreflang even when source.getPage returns a page for Vietnamese", async () => {
     const { docsAlternates } = await import("./site");
 
-    expect(docsAlternates(["agents"]).languages).not.toHaveProperty("ko");
+    expect(docsAlternates(["agents"]).languages).not.toHaveProperty("vi");
   });
 
-  it("includes Korean hreflang when a real *.ko.mdx page exists", async () => {
-    existingDocs.add("agents.ko.mdx");
+  it("includes Vietnamese hreflang when a real *.vi.mdx page exists", async () => {
+    existingDocs.add("docs/agents.vi.mdx");
     const { docsAlternates } = await import("./site");
 
     expect(docsAlternates(["agents"])).toEqual({
       canonical: "https://uniai.unicomhub.com/docs/agents",
       languages: {
         en: "https://uniai.unicomhub.com/docs/agents",
-        zh: "https://uniai.unicomhub.com/docs/zh/agents",
-        ko: "https://uniai.unicomhub.com/docs/ko/agents",
-        "x-default": "https://uniai.unicomhub.com/docs/agents",
-      },
-    });
-  });
-
-  it("includes Japanese hreflang when a real *.ja.mdx page exists", async () => {
-    existingDocs.add("agents.ja.mdx");
-    const { docsAlternates } = await import("./site");
-
-    expect(docsAlternates(["agents"])).toEqual({
-      canonical: "https://uniai.unicomhub.com/docs/agents",
-      languages: {
-        en: "https://uniai.unicomhub.com/docs/agents",
-        zh: "https://uniai.unicomhub.com/docs/zh/agents",
-        ja: "https://uniai.unicomhub.com/docs/ja/agents",
+        vi: "https://uniai.unicomhub.com/docs/vi/agents",
         "x-default": "https://uniai.unicomhub.com/docs/agents",
       },
     });
@@ -93,7 +73,7 @@ describe("docsAlternates", () => {
       canonical: "https://uniai.unicomhub.com/docs",
       languages: {
         en: "https://uniai.unicomhub.com/docs",
-        zh: "https://uniai.unicomhub.com/docs/zh",
+        vi: "https://uniai.unicomhub.com/docs/vi",
         "x-default": "https://uniai.unicomhub.com/docs",
       },
     });
