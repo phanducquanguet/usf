@@ -3,9 +3,11 @@ import { PortalLanding } from "@/features/portal/landing/portal-landing";
 import { buildPortalPageMetadata, organizationJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildPortalPageMetadata({
-  title: "UNICOM — Custom Software, Built to Order",
+  // og:site_name and the banner logo already carry the UNICOM brand, so the
+  // title and description stay brand-free to avoid repetition in previews.
+  title: "Custom Software, Built to Order",
   description:
-    "Free consulting with an AI assistant: describe the software you need, get a clear requirements brief, and the UNICOM team gets in touch right away.",
+    "Describe the software you need to an AI assistant, explore a marketplace of ready-made solutions, and get a working demo fast.",
   path: "/",
   image: "/og-en.png",
   locale: "en_US",
