@@ -20,6 +20,10 @@ under the kustomize layout when installed as `helm install multica ...`.
 {{ .Release.Name }}-frontend
 {{- end -}}
 
+{{- define "multica.docs.fullname" -}}
+{{ .Release.Name }}-docs
+{{- end -}}
+
 {{- define "multica.postgres.fullname" -}}
 {{ .Release.Name }}-postgres
 {{- end -}}

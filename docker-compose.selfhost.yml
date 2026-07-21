@@ -1,4 +1,4 @@
-# Self-hosting Docker Compose — starts PostgreSQL, backend, and frontend.
+# Self-hosting Docker Compose — starts PostgreSQL, backend, frontend, and docs.
 #
 # Services bind to 127.0.0.1 only. For cross-machine or public access, front
 # them with a reverse proxy (Caddy / nginx / Cloudflare Tunnel) that terminates
@@ -130,8 +130,18 @@ services:
     image: ${MULTICA_WEB_IMAGE:-ghcr.io/multica-ai/multica-web}:${MULTICA_IMAGE_TAG:-latest}
     depends_on:
       - backend
+      - docs
     ports:
       - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
+    environment:
+      HOSTNAME: "0.0.0.0"
+    restart: unless-stopped
+
+  # Documentation site. Not exposed on the host: the frontend proxies /docs
+  # here via the DOCS_URL=http://docs:4000 baked into the web image, so the
+  # service name must stay "docs".
+  docs:
+    image: ${MULTICA_DOCS_IMAGE:-ghcr.io/multica-ai/multica-docs}:${MULTICA_IMAGE_TAG:-latest}
     environment:
       HOSTNAME: "0.0.0.0"
     restart: unless-stopped

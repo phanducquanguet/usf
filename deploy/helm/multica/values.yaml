@@ -13,6 +13,11 @@ images:
     # Empty defaults to Chart.appVersion. Set explicitly to override.
     tag: ""
     pullPolicy: IfNotPresent
+  docs:
+    repository: ghcr.io/multica-ai/multica-docs
+    # Empty defaults to Chart.appVersion. Set explicitly to override.
+    tag: ""
+    pullPolicy: IfNotPresent
   postgres:
     repository: pgvector/pgvector
     tag: pg17
@@ -163,6 +168,11 @@ frontend:
     # --take-ownership). Set to false if you run a web image built with a
     # patched REMOTE_API_URL and don't need the alias.
     backendAlias: true
+    # Same shim for the docs site: the web image bakes DOCS_URL=http://docs:4000
+    # into its /docs rewrite, so the chart creates an ExternalName Service
+    # literally named "docs". Same single-release-per-namespace caveat as
+    # backendAlias. Set to false if you patched DOCS_URL at image build time.
+    docsAlias: true
   resources:
     requests:
       cpu: 100m
@@ -170,6 +180,19 @@ frontend:
     limits:
       cpu: 1000m
       memory: 1Gi
+
+# -----------------------------------------------------------------------------
+# Docs (Next.js standalone, fumadocs) — served by the frontend's /docs rewrite
+# -----------------------------------------------------------------------------
+docs:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 # -----------------------------------------------------------------------------
 # Ingress
