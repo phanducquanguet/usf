@@ -226,7 +226,7 @@ func TestWorkingOnIssuesSkillCoversIssueLoopContracts(t *testing.T) {
 		"This is a default, not",
 		"Use a routable issue key in the PR title, body, or branch",
 		"include the PR URL when a PR exists",
-		"Closes MUL-2759",
+		"Closes UNI-2759",
 		"--status backlog",
 		"pr_url",
 		"references/working-on-issues-source-map.md",

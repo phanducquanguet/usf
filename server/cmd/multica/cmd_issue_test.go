@@ -926,7 +926,7 @@ func TestResolveIssueRef(t *testing.T) {
 		if msg := err.Error(); !strings.Contains(msg, "short UUID prefix") {
 			t.Fatalf("expected error to flag the short-prefix case, got: %s", msg)
 		}
-		if msg := err.Error(); !strings.Contains(msg, "MUL-") {
+		if msg := err.Error(); !strings.Contains(msg, "UNI-") {
 			t.Fatalf("expected error to suggest the issue key form, got: %s", msg)
 		}
 		if len(hits) != 0 {
