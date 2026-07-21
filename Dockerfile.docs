@@ -34,10 +34,15 @@ RUN corepack enable && \
 # Copy installed dependencies (preserves pnpm symlink structure)
 COPY --from=deps /app ./
 
-# Copy source
+# Copy source. Only the workspace packages declared in the deps stage may
+# appear here: copying all of packages/ would surface extra importers
+# (core, views) whose dependencies are absent from the offline store, and
+# the offline re-install below would fail with ERR_PNPM_NO_OFFLINE_TARBALL.
 COPY package.json turbo.json pnpm-workspace.yaml ./
 COPY apps/docs/ apps/docs/
-COPY packages/ packages/
+COPY packages/ui/ packages/ui/
+COPY packages/tsconfig/ packages/tsconfig/
+COPY packages/eslint-config/ packages/eslint-config/
 
 # Re-link after source overlay (fixes any symlinks overwritten by COPY)
 RUN pnpm install --frozen-lockfile --offline
