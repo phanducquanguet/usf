@@ -64,11 +64,13 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://uniai.unicomhub.com"),
   title: {
-    default: "UniAI — UNICOM Software Factory Platform",
+    default: "UniAI",
     template: "%s | UniAI",
   },
-  description:
-    "Get free AI-powered software consulting, explore UNICOM's massive marketplace of ready-made solutions, and receive a working demo fast.",
+  // The layout default only reaches in-app pages (issues, workspaces, ...)
+  // shared internally, so keep the preview compact: one short line, no OG
+  // banner. Public portal pages define their own richer metadata.
+  description: "UNICOM software factory workspace.",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: ["/favicon.svg"],
@@ -77,15 +79,11 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "UniAI",
     locale: "en_US",
-    // English banner for the app's global default; the Vietnamese-branded
-    // portal pages use /og.png via buildPortalPageMetadata.
-    images: [{ url: "/og-en.png", width: 1200, height: 630 }],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     site: "@multica_hq",
     creator: "@multica_hq",
-    images: ["/og-en.png"],
   },
   // No `alternates` here: a root-layout canonical is inherited by every page
   // that doesn't override it, silently canonicalizing them all to "/".

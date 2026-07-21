@@ -5,8 +5,9 @@ import type { PortalProject } from "@multica/core/types/portal";
 // app/robots.ts and apps/docs/lib/site.ts (SITE_ORIGIN there).
 export const SITE_ORIGIN = "https://uniai.unicomhub.com";
 
-// Public portal (landing + marketplace) is UNICOM-branded Vietnamese copy;
-// the product app itself is UniAI. See memory/brand conventions.
+// Public portal is UNICOM-branded; the product app itself is UniAI. The
+// landing page uses English (global) copy, marketplace project pages keep
+// Vietnamese data-driven copy. See memory/brand conventions.
 export const PORTAL_SITE_NAME = "UNICOM";
 
 export const DEFAULT_OG_IMAGE = "/og.png";
@@ -45,11 +46,13 @@ export function buildPortalPageMetadata({
   description,
   path,
   image = DEFAULT_OG_IMAGE,
+  locale = "vi_VN",
 }: {
   title: string;
   description: string;
   path: string;
   image?: string;
+  locale?: string;
 }): Metadata {
   const imageUrl = absoluteUrl(image);
   return {
@@ -59,7 +62,7 @@ export function buildPortalPageMetadata({
     openGraph: {
       type: "website",
       siteName: PORTAL_SITE_NAME,
-      locale: "vi_VN",
+      locale,
       title,
       description,
       url: absoluteUrl(path),
