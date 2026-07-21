@@ -9,7 +9,9 @@ export const metadata: Metadata = buildPortalPageMetadata({
   description:
     "Describe the software you need to an AI assistant, explore a marketplace of ready-made solutions, and get a working demo fast.",
   path: "/",
-  image: "/og-en.png",
+  // Chat apps cache OG images by URL; bump the version whenever og-en.png
+  // changes so scrapers fetch the new file.
+  image: "/og-en.png?v=2",
   locale: "en_US",
 });
 
