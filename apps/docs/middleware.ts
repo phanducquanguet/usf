@@ -3,6 +3,13 @@ import { i18n } from "@/lib/i18n";
 
 const BASE_PATH = "/docs";
 
+// The standalone production server re-runs the middleware on the rewritten
+// URL (next dev does not), so the no-locale rewrite below must mark the
+// forwarded request: without the marker, `/docs` rewrites to `/docs/en`,
+// the re-run hits the default-locale strip branch, redirects back to
+// `/docs`, and the two responses form an infinite 307/308 loop.
+const LOCALE_REWRITE_HEADER = "x-docs-locale-rewritten";
+
 // Self-contained i18n middleware. We don't use fumadocs-core's built-in
 // middleware because it isn't basePath-aware — both its rewrite targets
 // and redirect Location headers are built from the basePath-stripped path,
@@ -11,6 +18,10 @@ const BASE_PATH = "/docs";
 // flavor: hide `/en` prefix for the default language, keep `/zh` prefix
 // for other languages.
 export default function middleware(request: NextRequest) {
+  if (request.headers.has(LOCALE_REWRITE_HEADER)) {
+    return NextResponse.next();
+  }
+
   const pathname = request.nextUrl.pathname;
   const pathLocale = i18n.languages.find(
     (loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`),
@@ -22,7 +33,11 @@ export default function middleware(request: NextRequest) {
     // base)` replaces only the pathname, so we emit the full prefixed path
     // once and Next does not double-add basePath.
     const target = `${BASE_PATH}/${i18n.defaultLanguage}${pathname === "/" ? "" : pathname}`;
-    return NextResponse.rewrite(new URL(target, request.url));
+    const headers = new Headers(request.headers);
+    headers.set(LOCALE_REWRITE_HEADER, "1");
+    return NextResponse.rewrite(new URL(target, request.url), {
+      request: { headers },
+    });
   }
 
   if (pathLocale === i18n.defaultLanguage) {
