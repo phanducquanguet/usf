@@ -80,10 +80,10 @@ export const metadata: Metadata = {
     siteName: "UniAI",
     locale: "en_US",
   },
+  // No site/creator handle: UNICOM has no X/Twitter account yet; cards render
+  // fine without one, and a dead legacy handle is worse than none.
   twitter: {
     card: "summary",
-    site: "@multica_hq",
-    creator: "@multica_hq",
   },
   // No `alternates` here: a root-layout canonical is inherited by every page
   // that doesn't override it, silently canonicalizing them all to "/".
