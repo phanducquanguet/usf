@@ -145,6 +145,8 @@ services:
   # service name must stay "docs".
   docs:
     image: ${MULTICA_DOCS_IMAGE:-ghcr.io/phanducquanguet/multica-docs}:latest
+    ports:
+      - "${DOCS_PORT:-4000}:4000"
     environment:
       HOSTNAME: "0.0.0.0"
     restart: unless-stopped
