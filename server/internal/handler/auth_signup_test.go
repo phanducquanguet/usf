@@ -35,11 +35,53 @@ func TestSignupGating(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := newTestHandler(tt.cfg)
-			err := h.checkSignupAllowed(tt.email, tt.isNew)
+			// The pending-invitation lookup scans into ErrNoRows here, which the
+			// gate treats as "not invited" — these cases exercise config gating only.
+			h.Queries = db.New(&mockDB{getUserErr: pgx.ErrNoRows})
+			err := h.checkSignupAllowed(context.Background(), tt.email, tt.isNew)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("got err=%v wantErr=%v", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+// Regression: users invited to a workspace must be able to register even when
+// ALLOW_SIGNUP=false — the invitation flow only creates a workspace_invitation
+// row, so their first login is a "new user" signup from the gate's perspective.
+func TestSignupAllowedWithPendingInvitation(t *testing.T) {
+	clearInvitationsForTestWorkspace(t)
+	ctx := context.Background()
+
+	h := newTestHandler(Config{AllowSignup: false})
+	h.Queries = db.New(testPool)
+
+	const invitedEmail = "invited-signup-test@example.com"
+	if _, err := h.Queries.CreateInvitation(ctx, db.CreateInvitationParams{
+		WorkspaceID:  parseUUID(testWorkspaceID),
+		InviterID:    parseUUID(testUserID),
+		InviteeEmail: invitedEmail,
+		Role:         "member",
+	}); err != nil {
+		t.Fatalf("create invitation: %v", err)
+	}
+
+	if err := h.checkSignupAllowed(ctx, invitedEmail, true); err != nil {
+		t.Fatalf("expected invited email to pass the signup gate, got %v", err)
+	}
+
+	if err := h.checkSignupAllowed(ctx, "stranger@example.com", true); err == nil {
+		t.Fatal("expected non-invited email to stay blocked")
+	}
+
+	if _, err := testPool.Exec(ctx,
+		`UPDATE workspace_invitation SET expires_at = now() - interval '1 hour' WHERE invitee_email = $1`,
+		invitedEmail,
+	); err != nil {
+		t.Fatalf("expire invitation: %v", err)
+	}
+	if err := h.checkSignupAllowed(ctx, invitedEmail, true); err == nil {
+		t.Fatal("expected expired invitation to stay blocked")
 	}
 }
 
