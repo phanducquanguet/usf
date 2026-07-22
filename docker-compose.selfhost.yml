@@ -69,6 +69,10 @@ x-backend-env: &backend-env
   MULTICA_LARK_HTTP_BASE_URL: ${MULTICA_LARK_HTTP_BASE_URL:-}
   MULTICA_LARK_CALLBACK_BASE_URL: ${MULTICA_LARK_CALLBACK_BASE_URL:-}
   MULTICA_SLACK_SECRET_KEY: ${MULTICA_SLACK_SECRET_KEY:-}
+  # Required for multi-node load balancing: realtime WS fan-out, rate limiting,
+  # PAT/daemon-token cache, and cross-node daemon skill import/list stores.
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+  REDIS_DISABLE_CLIENT_NAME: ${REDIS_DISABLE_CLIENT_NAME:-}
 
 services:
   postgres:
@@ -92,13 +96,28 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   # To add more backend instances for load balancing, copy this service,
   # rename it (e.g. backend-2), and add it to the nginx upstream list.
   # All instances share the same environment via the x-backend-env anchor above.
+  # Multi-node requires the bundled redis service (REDIS_URL above).
   backend:
     image: ${MULTICA_BACKEND_IMAGE:-ghcr.io/multica-ai/multica-backend}:${MULTICA_IMAGE_TAG:-latest}
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - backend_uploads:/app/data/uploads
@@ -111,6 +130,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - backend_uploads:/app/data/uploads
     environment:
@@ -122,6 +143,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - backend_uploads:/app/data/uploads
     environment:
@@ -132,6 +155,8 @@ services:
     image: nginx:alpine
     depends_on:
       - backend
+      - backend-2
+      - backend-3
     ports:
       - "${BACKEND_PORT:-8080}:80"
     volumes:
@@ -162,4 +187,5 @@ services:
 
 volumes:
   pgdata:
+  redisdata:
   backend_uploads:
