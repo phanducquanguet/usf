@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Trò chuyện",
-    "select_prompt": "Chọn một cuộc trò chuyện, hoặc bắt đầu cuộc mới bằng +"
+    "select_prompt": "Chọn một cuộc trò chuyện, hoặc bắt đầu cuộc mới bằng +",
+    "agent_link_no_access": "Bạn không có quyền trò chuyện với agent này."
   },
   "fab": {
     "running": "UniAI đang làm việc...",
@@ -12,14 +13,35 @@
     "placeholder_no_agent": "Tạo một agent để bắt đầu trò chuyện",
     "placeholder_archived": "Phiên trò chuyện này đã được lưu trữ",
     "placeholder_archived_agent": "Agent này đã được lưu trữ",
+    "placeholder_runtime_required": "Gắn runtime để tiếp tục",
     "placeholder_named": "Nhắn cho {{name}}…",
     "placeholder_default": "Bắt đầu soạn tin nhắn…",
     "send_tooltip": "Gửi",
+    "queue_send_tooltip": "Xếp tin nhắn vào hàng đợi",
     "stop_tooltip": "Dừng",
     "send_failed_toast": "Không thể gửi tin nhắn",
+    "send_blocked_toast": "Tin nhắn chưa được gửi — bạn không còn quyền sử dụng agent này",
+    "runtime_required_toast": "Tin nhắn chưa được gửi — hãy gắn runtime cho agent này trước",
     "attachment_bind_failed_toast": "Tin nhắn đã gửi, nhưng tệp chưa được đính kèm. Vui lòng thử lại sau giây lát.",
     "add_tooltip": "Thêm",
-    "upload_file": "Ảnh hoặc tệp"
+    "upload_file": "Ảnh hoặc tệp",
+    "project_context": "Ngữ cảnh dự án",
+    "change_project_context": "Đổi ngữ cảnh dự án",
+    "remove_project_context": "Gỡ ngữ cảnh dự án",
+    "no_projects": "Chưa có dự án nào",
+    "project_context_unsupported": "Mô tả dự án sẽ không được áp dụng — daemon của agent này cần được nâng cấp"
+  },
+  "queue": {
+    "title_other": "{{count}} tin nhắn trong hàng đợi",
+    "clear": "Xóa tất cả",
+    "steer": "Điều hướng",
+    "steer_unavailable": "Điều hướng khả dụng sau khi trả lời hiện tại bắt đầu",
+    "steer_unavailable_toast": "Không thể điều hướng lúc này. Đang làm mới hàng đợi.",
+    "edit": "Sửa tin nhắn trong hàng đợi",
+    "remove": "Gỡ tin nhắn khỏi hàng đợi",
+    "more": "Thao tác khác với hàng đợi",
+    "fallback": "Tin nhắn trong hàng đợi",
+    "action_failed_toast": "Không thể cập nhật tin nhắn trong hàng đợi"
   },
   "message_list": {
     "show_details": "Xem chi tiết",
@@ -34,6 +56,14 @@
       "runtime_offline": "Agent hiện đang ngoại tuyến nên không thể trả lời. Hãy thử lại khi agent trực tuyến trở lại.",
       "runtime_recovery": "Agent đã khởi động lại trước khi kịp hoàn thành. Vui lòng thử lại.",
       "manual": "Trả lời này đã bị hủy.",
+      "skill_bundle_unavailable": "Không tải xuống được các skill của agent nên agent chưa thể khởi động. Thường do lỗi kết nối — vui lòng thử lại.",
+      "provider_network": "Mất kết nối tới provider của model trước khi trả lời hoàn tất. Hãy kiểm tra mạng và thử lại.",
+      "provider_auth_or_access": "Tài khoản model của agent không còn đăng nhập. Hãy đăng nhập lại rồi thử lại.",
+      "provider_quota_limit": "Tài khoản model của agent đã hết credit. Hãy nạp thêm hoặc đổi tài khoản, rồi thử lại.",
+      "provider_capacity_or_rate_limit": "Provider của model đang quá tải hoặc đang giới hạn tần suất tài khoản này. Vui lòng thử lại sau giây lát.",
+      "context_overflow": "Cuộc trò chuyện đã quá dài so với giới hạn của model. Hãy bắt đầu phiên mới, hoặc chia yêu cầu thành các bước nhỏ hơn.",
+      "runtime_missing_executable": "Không tìm thấy CLI của agent trên máy này. Hãy kiểm tra CLI đã được cài và có trong PATH, rồi thử lại.",
+      "runtime_version_unsupported": "CLI của agent quá cũ so với runtime này. Hãy nâng cấp rồi thử lại.",
       "fallback": "Đã có lỗi xảy ra và agent không thể trả lời xong. Vui lòng thử lại."
     },
     "tools_other": "{{count}} công cụ",
@@ -44,7 +74,9 @@
     "copied_toast": "Đã sao chép",
     "copy_failed_toast": "Sao chép thất bại",
     "loading_older": "Đang tải tin nhắn cũ hơn…",
-    "task_failed_fallback": "Task thất bại"
+    "quick_actions_heading": "Câu hỏi tiếp theo",
+    "quick_actions_regenerate": "Tạo lại gợi ý",
+    "quick_actions_regenerate_failed": "Không thể làm mới gợi ý. Vui lòng thử lại."
   },
   "session_history": {
     "untitled": "Chưa đặt tên",
@@ -95,7 +127,9 @@
     "others": "Khác",
     "no_agents": "Không có agent",
     "history_group": "Lịch sử trò chuyện",
-    "agent_filter_placeholder": "Tìm agent..."
+    "agent_filter_placeholder": "Tìm agent...",
+    "agent_needs_runtime": "Cần runtime",
+    "agent_needs_runtime_hint": "Gắn runtime trước khi bắt đầu trò chuyện với agent này"
   },
   "empty_state": {
     "first_time_title": "Trò chuyện với các agent của bạn",
@@ -113,8 +147,33 @@
     "summarize_today": "Tóm tắt những gì tôi đã làm hôm nay",
     "plan_next": "Lên kế hoạch việc cần làm tiếp theo"
   },
+  "onboarding_cards": {
+    "aria_label": "Các cách bắt đầu",
+    "cta": "Bắt đầu",
+    "board": {
+      "title": "Dựng bảng việc trong vài phút",
+      "desc": "Cho mình biết mục tiêu — mình sẽ tạo dự án, chia nhỏ issue và đặt độ ưu tiên.",
+      "prompt": "Biến các mục tiêu hiện tại của chúng tôi thành một bảng dự án"
+    },
+    "delegate": {
+      "title": "Giao cho mình một việc trước đã",
+      "desc": "Chẳng hạn một nghiên cứu nhanh — kết quả trả về dưới dạng một issue kèm báo cáo.",
+      "prompt": "Đỡ giúp tôi một việc: thực hiện một nghiên cứu nhanh và gửi lại kết quả dưới dạng báo cáo"
+    },
+    "digest": {
+      "title": "Để bản tin hằng ngày tự viết",
+      "desc": "Bản tóm tắt tiến độ không gian làm việc mỗi sáng, gửi thẳng vào hộp thư đến của bạn.",
+      "prompt": "Thiết lập một tự động hóa hằng ngày đăng bản tóm tắt tiến độ không gian làm việc mỗi sáng"
+    },
+    "digest_badge": "Hằng ngày 9:00"
+  },
   "no_agent_banner": "Bạn cần một agent để bắt đầu trò chuyện.",
   "archived_agent_banner": "{{name}} đã được lưu trữ — cuộc trò chuyện này chỉ đọc.",
+  "runtime_required_banner": {
+    "fallback_name": "Agent",
+    "message": "{{name}} cần một runtime trước khi có thể trả lời.",
+    "action": "Gắn runtime"
+  },
   "offline_banner": {
     "fallback_name": "agent",
     "unstable": "Kết nối của {{name}} không ổn định — phản hồi có thể bị chậm.",
@@ -124,6 +183,7 @@
     "stages": {
       "offline": "Ngoại tuyến",
       "reconnecting": "Đang kết nối lại",
+      "retrying": "Đang thử lại",
       "queued": "Trong hàng đợi",
       "waiting_local_directory": "Đang chờ thư mục cục bộ",
       "starting_up": "Đang khởi động",

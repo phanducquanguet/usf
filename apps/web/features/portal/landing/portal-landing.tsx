@@ -154,7 +154,7 @@ function LanguageToggle({ className }: { className?: string }) {
             className={cn(
               // h-11 below lg: the only sub-lg instance lives in the mobile
               // menu, where segments must meet the 44px touch target.
-              "flex h-11 cursor-pointer items-center rounded-full px-3.5 text-xs font-medium uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:h-8",
+              "flex h-11 cursor-pointer items-center rounded-full px-3.5 text-caption font-medium uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:h-8",
               active
                 ? "bg-secondary text-foreground"
                 : "text-muted-foreground hover:text-foreground active:bg-secondary/60",
@@ -181,7 +181,7 @@ function SectionHeader({
 }) {
   return (
     <Reveal className={cn("mb-14 text-center", className)}>
-      <h2 className="mx-auto max-w-2xl text-balance text-3xl font-bold md:text-[2.75rem] md:leading-[1.15]">
+      <h2 className="mx-auto max-w-2xl text-balance text-display font-bold md:text-display md:leading-[1.15]">
         {title}
       </h2>
       {children}
@@ -212,8 +212,8 @@ function ChatPreview({
         <div className="flex items-center gap-3 border-b border-border/60 px-5 py-3.5">
           <AgentAvatar src={avatarUrl} className="size-9" iconClassName="size-5" />
           <div>
-            <p className="text-sm font-semibold">{title}</p>
-            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <p className="text-body font-semibold">{title}</p>
+            <p className="flex items-center gap-1.5 text-caption text-muted-foreground">
               <span className="size-1.5 rounded-full bg-success" />
               {status}
             </p>
@@ -224,7 +224,7 @@ function ChatPreview({
             <div
               key={m.text}
               className={cn(
-                "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                "max-w-[85%] rounded-2xl px-4 py-2.5 text-body leading-relaxed",
                 m.fromUser
                   ? "self-end rounded-br-sm bg-brand/15 text-foreground"
                   : "self-start rounded-bl-sm bg-secondary text-secondary-foreground",
@@ -236,9 +236,9 @@ function ChatPreview({
           <div className="mt-1 flex items-start gap-3 rounded-lg border border-success/30 bg-success/10 p-3.5">
             <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">{outcome.label}</p>
-              <p className="mt-0.5 truncate text-sm font-medium">{outcome.title}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">{outcome.meta}</p>
+              <p className="text-caption text-muted-foreground">{outcome.label}</p>
+              <p className="mt-0.5 truncate text-body font-medium">{outcome.title}</p>
+              <p className="mt-0.5 text-caption text-muted-foreground">{outcome.meta}</p>
             </div>
           </div>
         </div>
@@ -319,7 +319,7 @@ export function PortalLanding() {
               <a
                 key={item.href}
                 href={item.href}
-                className="py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="py-2 text-body text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}
               </a>
@@ -363,7 +363,7 @@ export function PortalLanding() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className="flex min-h-11 items-center text-base text-muted-foreground transition-colors hover:text-foreground"
+                className="flex min-h-11 items-center text-title-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}
               </a>
@@ -393,19 +393,19 @@ export function PortalLanding() {
           <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-1.5">
               <span className="size-2 animate-pulse rounded-full bg-brand" />
-              <span className="text-xs font-medium text-brand">{t(($) => $.hero.badge)}</span>
+              <span className="text-caption font-medium text-brand">{t(($) => $.hero.badge)}</span>
             </div>
 
-            <h1 className="pb-2 text-[2.75rem] font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
+            <h1 className="pb-2 text-display font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
               {heroCopy.headline || t(($) => $.hero.headline)}
             </h1>
-            <p className="mt-3 max-w-xl text-xl font-medium text-foreground/90 md:text-2xl">
+            <p className="mt-3 max-w-xl text-title-lg font-medium text-foreground md:text-display-sm">
               {heroCopy.subheadline || t(($) => $.hero.tagline)}
             </p>
 
             <ul className="mt-6 space-y-2">
               {heroSubs.map((s) => (
-                <li key={s} className="flex items-start gap-2.5 text-lg text-muted-foreground">
+                <li key={s} className="flex items-start gap-2.5 text-title text-muted-foreground">
                   <CheckCircle2 className="mt-1.5 size-4 shrink-0 text-brand" />
                   {s}
                 </li>
@@ -419,7 +419,7 @@ export function PortalLanding() {
               </div>
             ) : enabled ? (
               <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-                <Button size="lg" className="h-12 px-7 text-base" onClick={openChat}>
+                <Button size="lg" className="h-12 px-7 text-title-sm" onClick={openChat}>
                   <MessageSquare className="mr-2 size-5" />
                   {t(($) => $.hero.cta)}
                 </Button>
@@ -427,7 +427,7 @@ export function PortalLanding() {
                   href="#solutions"
                   className={cn(
                     buttonVariants({ variant: "outline", size: "lg" }),
-                    "h-12 px-7 text-base",
+                    "h-12 px-7 text-title-sm",
                   )}
                 >
                   {t(($) => $.hero.cta_secondary)}
@@ -437,7 +437,7 @@ export function PortalLanding() {
             ) : (
               <div className={cn(CARD, "mt-9 max-w-md p-6")}>
                 <p className="font-medium">{t(($) => $.disabled.title)}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-body text-muted-foreground">
                   {hero.contact_email ? (
                     <>
                       {t(($) => $.disabled.body)}{" "}
@@ -471,7 +471,7 @@ export function PortalLanding() {
           <p className="sr-only">{t(($) => $.advantages.title)}</p>
           <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 border-y border-border/60 px-2 py-5 lg:justify-between">
             {advantages.map((a) => (
-              <li key={a} className="flex items-center gap-2.5 text-sm text-foreground/85">
+              <li key={a} className="flex items-center gap-2.5 text-body text-muted-foreground">
                 <span className="size-1 shrink-0 rounded-full bg-brand/70" />
                 {a}
               </li>
@@ -487,8 +487,8 @@ export function PortalLanding() {
           <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
             {problems.map((p) => (
               <div key={p.title} className="h-full border-t border-border/60 pt-5">
-                <h3 className="mb-2 text-lg font-semibold">{p.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{p.body}</p>
+                <h3 className="mb-2 text-title font-semibold">{p.title}</h3>
+                <p className="text-body leading-relaxed text-muted-foreground">{p.body}</p>
               </div>
             ))}
           </div>
@@ -504,9 +504,9 @@ export function PortalLanding() {
               <div key={layer.title} className="flex items-stretch lg:flex-1">
                 <Reveal delayMs={i * 120} className="flex-1">
                   <div className={cn(CARD, "h-full p-8")}>
-                    <span className="text-sm font-medium text-brand">{layer.label}</span>
-                    <h3 className="mb-2 mt-4 text-xl font-bold">{layer.title}</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">{layer.body}</p>
+                    <span className="text-body font-medium text-brand">{layer.label}</span>
+                    <h3 className="mb-2 mt-4 text-title-lg font-bold">{layer.title}</h3>
+                    <p className="text-body leading-relaxed text-muted-foreground">{layer.body}</p>
                   </div>
                 </Reveal>
                 {i < layers.length - 1 ? (
@@ -533,15 +533,15 @@ export function PortalLanding() {
                   "group flex h-full flex-col p-6 transition-colors hover:border-brand/40",
                 )}
               >
-                <h3 className="mb-2 text-lg font-semibold">{s.title}</h3>
-                <p className="mb-6 flex-1 text-sm leading-relaxed text-muted-foreground">
+                <h3 className="mb-2 text-title font-semibold">{s.title}</h3>
+                <p className="mb-6 flex-1 text-body leading-relaxed text-muted-foreground">
                   {s.body}
                 </p>
                 {enabled ? (
                   <button
                     type="button"
                     onClick={openChat}
-                    className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-brand"
+                    className="inline-flex cursor-pointer items-center gap-2 text-body font-medium text-brand"
                   >
                     {s.cta}
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
@@ -568,7 +568,7 @@ export function PortalLanding() {
                 href="/marketplace"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
-                  "h-12 px-7 text-base",
+                  "h-12 px-7 text-title-sm",
                 )}
               >
                 {t(($) => $.marketplace.featured_cta)}
@@ -592,7 +592,7 @@ export function PortalLanding() {
                 {targetFit.map((item) => (
                   <div key={item} className="flex items-center gap-3.5">
                     <CheckCircle2 className="size-5 shrink-0 text-brand" />
-                    <span className="text-base md:text-lg">{item}</span>
+                    <span className="text-title-sm md:text-title">{item}</span>
                   </div>
                 ))}
               </div>
@@ -608,7 +608,7 @@ export function PortalLanding() {
                 {pricing.map((p) => (
                   <div key={p.title} className="h-full border-t border-border/60 pt-5">
                     <h3 className="mb-1 font-semibold">{p.title}</h3>
-                    <p className="text-sm text-muted-foreground">{p.body}</p>
+                    <p className="text-body text-muted-foreground">{p.body}</p>
                   </div>
                 ))}
               </div>
@@ -621,7 +621,7 @@ export function PortalLanding() {
       <section id="process" className="mx-auto max-w-6xl scroll-mt-16 px-6 py-16 md:py-24">
         <SectionHeader title={t(($) => $.process.title)}>
           <p className="mt-5">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-4 py-1.5 text-sm font-medium text-brand">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-4 py-1.5 text-body font-medium text-brand">
               <Zap className="size-4" />
               {t(($) => $.process.highlight)}
             </span>
@@ -632,11 +632,11 @@ export function PortalLanding() {
           {steps.map((step, i) => (
             <Reveal key={step.title} delayMs={i * 120}>
               <div className="relative text-center">
-                <div className="relative z-10 mx-auto mb-4 flex size-12 items-center justify-center rounded-full border border-brand/30 bg-background text-base font-semibold text-brand ring-4 ring-background">
+                <div className="relative z-10 mx-auto mb-4 flex size-12 items-center justify-center rounded-full border border-brand/30 bg-background text-title-sm font-semibold text-brand ring-4 ring-background">
                   {i + 1}
                 </div>
-                <h3 className="mb-2 text-lg font-semibold">{step.title}</h3>
-                <p className="mx-auto max-w-xs text-sm text-muted-foreground">{step.body}</p>
+                <h3 className="mb-2 text-title font-semibold">{step.title}</h3>
+                <p className="mx-auto max-w-xs text-body text-muted-foreground">{step.body}</p>
               </div>
             </Reveal>
           ))}
@@ -655,11 +655,11 @@ export function PortalLanding() {
           >
             {consultSteps.map((f, i) => (
               <div key={f.title} className="p-8">
-                <span className="flex size-8 items-center justify-center rounded-full border border-brand/30 bg-brand/10 text-sm font-semibold text-brand">
+                <span className="flex size-8 items-center justify-center rounded-full border border-brand/30 bg-brand/10 text-body font-semibold text-brand">
                   {i + 1}
                 </span>
-                <h3 className="mb-2 mt-5 text-lg font-semibold">{f.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{f.body}</p>
+                <h3 className="mb-2 mt-5 text-title font-semibold">{f.title}</h3>
+                <p className="text-body leading-relaxed text-muted-foreground">{f.body}</p>
               </div>
             ))}
           </div>
@@ -673,10 +673,10 @@ export function PortalLanding() {
           <Accordion className={cn(CARD, "divide-y divide-border/60 px-6")}>
             {faqs.map((f) => (
               <AccordionItem key={f.q} value={f.q} className="border-none">
-                <AccordionTrigger className="cursor-pointer py-5 text-left text-base font-medium hover:no-underline">
+                <AccordionTrigger className="cursor-pointer py-5 text-left text-title-sm font-medium hover:no-underline">
                   {f.q}
                 </AccordionTrigger>
-                <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
+                <AccordionContent className="pb-5 text-body leading-relaxed text-muted-foreground">
                   {f.a}
                 </AccordionContent>
               </AccordionItem>
@@ -692,13 +692,13 @@ export function PortalLanding() {
             <div className={cn(CARD, "relative overflow-hidden rounded-2xl p-10 text-center md:p-16")}>
               <div className="portal-hero-grid pointer-events-none absolute inset-0" />
               <div className="relative">
-                <h2 className="mx-auto max-w-2xl text-balance pb-1 text-3xl font-bold leading-[1.15] md:text-[2.75rem]">
+                <h2 className="mx-auto max-w-2xl text-balance pb-1 text-display font-bold leading-[1.15] md:text-display">
                   {t(($) => $.cta_section.title)}
                 </h2>
                 <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
                   {t(($) => $.cta_section.body)}
                 </p>
-                <Button size="lg" className="mt-9 h-12 px-7 text-base" onClick={openChat}>
+                <Button size="lg" className="mt-9 h-12 px-7 text-title-sm" onClick={openChat}>
                   <MessageSquare className="mr-2 size-5" />
                   {t(($) => $.hero.cta)}
                 </Button>
@@ -712,7 +712,7 @@ export function PortalLanding() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <BrandLogo className="h-6 opacity-80" />
-            <p className="text-sm text-muted-foreground">{t(($) => $.footer.tagline)}</p>
+            <p className="text-body text-muted-foreground">{t(($) => $.footer.tagline)}</p>
           </div>
           <div className="flex flex-col items-center gap-3 sm:items-end">
             <nav aria-label="Footer" className="flex flex-wrap items-center justify-center gap-x-6">
@@ -720,13 +720,13 @@ export function PortalLanding() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="inline-flex min-h-11 items-center text-body text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </a>
               ))}
             </nav>
-            <p className="text-sm text-muted-foreground">{t(($) => $.footer.copyright)}</p>
+            <p className="text-body text-muted-foreground">{t(($) => $.footer.copyright)}</p>
           </div>
         </div>
       </footer>

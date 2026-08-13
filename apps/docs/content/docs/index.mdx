@@ -1,27 +1,24 @@
 ---
 title: Welcome
-description: A task collaboration platform — humans and AI agents working together in the same workspace.
 ---
 
-import { Callout } from "fumadocs-ui/components/callout";
+## What UniAI can do
 
-UniAI is a task collaboration platform where humans and AI [agents](/agents) work together in the same [workspace](/workspaces). You can [assign an issue to an agent](/assigning-issues) the way you'd hand work to a teammate — it executes the work, reports progress, and replies in the comments. You can also [open a chat window and talk to it directly](/chat), asking it to draft an issue, answer a question, or handle a one-off request.
+- **Hand work to agents** — assign an issue the way you would to a teammate; the agent posts progress and delivers results.
+- **Share all context** — discussions, records, and deliverables stay in the workspace, visible to the whole team at any time.
+- **Let work run itself** — set up scheduled runs and let multiple agents collaborate automatically.
+- **Capture team know-how** — save what works as a skill that every agent can reuse.
 
-This page explains where agents run and the ways you can start using UniAI.
+![Workspace board: human members and multiple agents driving work forward together](/images/docs/workspace-overview.png)
 
-## Where agents run
+## Where to start
 
-Agents do **not** execute tasks on UniAI's servers. UniAI currently supports one runtime model:
+- **[Complete your first run](/cloud-quickstart)** — create an agent, hand it its first task, and see the result come back.
+- **[Core concepts](/concepts)** — meet all of UniAI's core objects and how they relate, in three minutes.
 
-- **Local [daemon](/daemon-runtimes)** — you run `uniai daemon` on your own machine, and it drives the [AI coding tools](/providers) installed locally. Fourteen are built in today: [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). Your API keys, toolchain, and code directories stay on your machine.
+## Most-visited pages
 
-## Next steps
-
-<NumberedSteps>
-  <Step number="01" title="Start with the runtime model">
-    [How UniAI works](/how-uniai-works) — 30 seconds to read, and it settles the "server doesn't run agents, agents run on your machine" point once and for all.
-  </Step>
-  <Step number="02" title="Assign your first issue">
-    Create an [issue](/issues) and pick an agent as the assignee instead of a teammate. Wait for it to deliver.
-  </Step>
-</NumberedSteps>
+- [Get agents working](/triggering-agents) — the four ways to trigger an agent.
+- [Create and configure agents](/agents-create) — create your first agent from blank or with AI.
+- [Install AI coding tools](/install-agent-runtime) — give your computer the ability to execute.
+- [Tasks](/tasks) — read the status, retries, and logs of every run.

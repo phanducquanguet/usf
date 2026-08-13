@@ -9,6 +9,13 @@
     "archive_all_read": "Lưu trữ mục đã đọc",
     "archive_completed": "Lưu trữ mục đã hoàn thành"
   },
+  "context_menu": {
+    "mark_read": "Đánh dấu đã đọc",
+    "mark_unread": "Đánh dấu chưa đọc",
+    "archive": "Lưu trữ",
+    "unarchive": "Bỏ lưu trữ",
+    "open_in_new_tab": "Mở trong thẻ mới"
+  },
   "list": {
     "empty": "Không có thông báo",
     "mark_done_tooltip": "Đánh dấu hoàn tất",
@@ -18,14 +25,18 @@
       "minutes": "{{count}} phút",
       "hours": "{{count}} giờ",
       "days": "{{count}} ngày"
-    }
+    },
+    "archived_title": "Đã lưu trữ",
+    "archived_empty": "Không có thông báo đã lưu trữ",
+    "unarchive_tooltip": "Bỏ lưu trữ"
   },
   "detail": {
     "select_prompt": "Chọn một thông báo để xem chi tiết",
     "empty": "Hộp thư đến của bạn đang trống",
     "original_input": "Nội dung nhập ban đầu",
     "edit_advanced": "Chỉnh sửa ở dạng nâng cao",
-    "archive": "Lưu trữ"
+    "archive": "Lưu trữ",
+    "unarchive": "Bỏ lưu trữ"
   },
   "types": {
     "issue_assigned": "Được giao",
@@ -45,7 +56,8 @@
     "agent_completed": "Agent hoàn thành",
     "reaction_added": "Đã bày tỏ cảm xúc",
     "quick_create_done": "Đã tạo bằng agent",
-    "quick_create_failed": "Tạo bằng agent thất bại"
+    "quick_create_failed": "Tạo bằng agent thất bại",
+    "quick_create_unconfirmed": "Tạo bằng agent chưa xác nhận"
   },
   "labels": {
     "set_status_to": "Đặt trạng thái thành",
@@ -62,11 +74,14 @@
   },
   "errors": {
     "mark_read_failed": "Không thể đánh dấu đã đọc",
+    "mark_unread_failed": "Không thể đánh dấu chưa đọc",
     "archive_failed": "Không thể lưu trữ",
     "mark_done_failed": "Không thể đánh dấu hoàn tất",
     "mark_all_read_failed": "Không thể đánh dấu tất cả đã đọc",
     "archive_all_failed": "Không thể lưu trữ tất cả",
     "archive_all_read_failed": "Không thể lưu trữ các mục đã đọc",
-    "archive_completed_failed": "Không thể lưu trữ các mục đã hoàn thành"
+    "archive_completed_failed": "Không thể lưu trữ các mục đã hoàn thành",
+    "unarchive_failed": "Không thể bỏ lưu trữ",
+    "archived_load_failed": "Không thể tải thông báo đã lưu trữ"
   }
 }

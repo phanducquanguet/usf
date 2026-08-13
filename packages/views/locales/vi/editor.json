@@ -34,7 +34,18 @@
     "copy_link": "Sao chép liên kết",
     "delete": "Xóa",
     "link_copied": "Đã sao chép liên kết",
-    "copy_link_failed": "Không thể sao chép liên kết"
+    "copy_link_failed": "Không thể sao chép liên kết",
+    "canvas_label": "Khung ảnh. Kéo để di chuyển, cuộn để thu phóng, nhấp đúp để chuyển về kích thước thật.",
+    "previous": "Ảnh trước",
+    "next": "Ảnh tiếp theo",
+    "sequence_position": "{{index}} / {{total}}",
+    "unavailable": "Ảnh đó không còn khả dụng — đã bỏ qua."
+  },
+  "canvas": {
+    "zoom_in": "Phóng to",
+    "zoom_out": "Thu nhỏ",
+    "zoom_fit": "Vừa khung nhìn",
+    "zoom_actual": "Kích thước thật"
   },
   "attachment": {
     "download_failed": "Không lấy được liên kết tải xuống. Hãy thử lại sau giây lát.",
@@ -61,7 +72,8 @@
     "no_results": "Không có kết quả",
     "group_current": "Trang hiện tại",
     "group_recent": "Đã xem gần đây",
-    "group_search": "Kết quả tìm kiếm"
+    "group_search": "Kết quả tìm kiếm",
+    "group_cancelled": "Đã hủy"
   },
   "slash_command": {
     "no_skills_configured": "Chưa cấu hình skill nào",
@@ -79,11 +91,30 @@
   "file_card": {
     "uploading": "Đang tải lên {{filename}}"
   },
+  "upload": {
+    "failed": "Không thể tải lên {{filename}}: {{reason}}",
+    "in_progress": "Đang tải lên…",
+    "interrupted": "Tải lên bị gián đoạn — tệp chưa được lưu. Hãy đính kèm lại.",
+    "remove": "Gỡ",
+    "uploading_label": "Đang tải lên {{filename}}…",
+    "failed_label": "Không thể tải lên {{filename}}"
+  },
   "title_editor": {
     "title_aria_label": "Tiêu đề"
   },
   "mermaid": {
     "render_error": "Không thể hiển thị sơ đồ Mermaid.",
-    "rendering": "Đang vẽ sơ đồ…"
+    "rendering": "Đang vẽ sơ đồ…",
+    "viewer_title": "Sơ đồ",
+    "canvas_label": "Khung sơ đồ. Kéo để di chuyển, cuộn để thu phóng.",
+    "open_viewer": "Mở trình xem sơ đồ",
+    "close_viewer": "Đóng",
+    "copy_source": "Sao chép mã nguồn sơ đồ",
+    "show_source": "Hiện mã nguồn",
+    "show_diagram": "Hiện sơ đồ",
+    "export": "Xuất",
+    "export_png": "Tải PNG",
+    "export_svg": "Tải SVG",
+    "export_source": "Tải .mmd"
   }
 }

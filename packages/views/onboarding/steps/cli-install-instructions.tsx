@@ -54,12 +54,12 @@ function Step({
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <p className="text-xs font-medium text-foreground">
+        <p className="text-caption font-medium text-foreground">
           {n}. {label}
         </p>
         {labelExtra}
       </div>
-      <div className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2.5 font-mono text-sm">
+      <div className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2.5 font-mono text-body">
         <Terminal className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <code
           className={cn(
@@ -90,7 +90,7 @@ export function CliInstallInstructions() {
   return (
     <Card className="w-full">
       <CardContent className="space-y-4 pt-4">
-        <p className="text-xs leading-[1.55] text-muted-foreground">
+        <p className="text-caption leading-[1.55] text-muted-foreground">
           {t(($) => $.cli_install.intro)}
         </p>
         <Step

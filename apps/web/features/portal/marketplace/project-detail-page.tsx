@@ -54,7 +54,7 @@ export function ProjectDetailPage({
       <div className="relative mx-auto max-w-4xl px-6 py-14 md:py-20">
         <Link
           href="/marketplace"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 text-body text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
           {t(($) => $.marketplace.back)}
@@ -67,15 +67,15 @@ export function ProjectDetailPage({
           </div>
         ) : project == null ? (
           <div className={cn(CARD, "mt-8 p-8")}>
-            <h1 className="text-xl font-semibold">{t(($) => $.marketplace.not_found_title)}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h1 className="text-title-lg font-semibold">{t(($) => $.marketplace.not_found_title)}</h1>
+            <p className="mt-2 text-body text-muted-foreground">
               {t(($) => $.marketplace.not_found_body)}
             </p>
           </div>
         ) : (
           <>
             {project.industry ? (
-              <span className="mt-8 block w-fit rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
+              <span className="mt-8 block w-fit rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-caption font-medium text-brand">
                 {project.industry}
               </span>
             ) : null}
@@ -121,18 +121,18 @@ export function ProjectDetailPage({
               </div>
             ) : null}
 
-            <p className="mt-8 whitespace-pre-line text-lg leading-relaxed text-muted-foreground">
+            <p className="mt-8 whitespace-pre-line text-title leading-relaxed text-muted-foreground">
               {project.description}
             </p>
 
             {project.features.length > 0 ? (
               <div className={cn(CARD, "mt-8 p-6")}>
-                <h2 className="text-lg font-semibold">
+                <h2 className="text-title font-semibold">
                   {t(($) => $.marketplace.features_title)}
                 </h2>
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                   {project.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                    <li key={f} className="flex items-start gap-2.5 text-body">
                       <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand" />
                       {f}
                     </li>
@@ -152,10 +152,10 @@ export function ProjectDetailPage({
               <div className="relative">
                 {enabled ? (
                   <>
-                    <h2 className="mx-auto max-w-xl text-balance text-2xl font-bold">
+                    <h2 className="mx-auto max-w-xl text-balance text-display-sm font-bold">
                       {t(($) => $.cta_section.title)}
                     </h2>
-                    <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+                    <p className="mx-auto mt-3 max-w-md text-body text-muted-foreground">
                       {t(($) => $.cta_section.body)}
                     </p>
                   </>
@@ -164,7 +164,7 @@ export function ProjectDetailPage({
                   {enabled ? (
                     <Button
                       size="lg"
-                      className="h-12 px-7 text-base"
+                      className="h-12 px-7 text-title-sm"
                       onClick={() => setChatOpen(true)}
                     >
                       <MessageSquare className="mr-2 size-5" />
@@ -178,7 +178,7 @@ export function ProjectDetailPage({
                       rel="noopener noreferrer"
                       className={cn(
                         buttonVariants({ variant: "outline", size: "lg" }),
-                        "h-12 px-7 text-base",
+                        "h-12 px-7 text-title-sm",
                       )}
                     >
                       {t(($) => $.marketplace.view_demo)}
@@ -192,7 +192,7 @@ export function ProjectDetailPage({
                       rel="noopener noreferrer"
                       className={cn(
                         buttonVariants({ variant: "outline", size: "lg" }),
-                        "h-12 px-7 text-base",
+                        "h-12 px-7 text-title-sm",
                       )}
                     >
                       {t(($) => $.marketplace.view_portfolio)}

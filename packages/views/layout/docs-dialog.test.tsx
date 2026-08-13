@@ -86,17 +86,19 @@ describe("DocsDialog", () => {
     // Section label uses the app-locale translation when present and falls
     // back to the English label from the generated content otherwise.
     expect(screen.getByText("Agent (vi)")).toBeInTheDocument();
-    expect(screen.getByText("Workspace & team")).toBeInTheDocument();
+    expect(screen.getByText("Everyday collaboration")).toBeInTheDocument();
   });
 
   it("switches pages in place when an internal doc link is clicked", async () => {
     const user = userEvent.setup();
     render(<DocsDialog open onOpenChange={() => {}} />);
 
-    // The Welcome page links to /agents.
-    const links = screen.getAllByRole("link", { name: "agents" });
+    // The Welcome page links to /concepts ("Core concepts").
+    const links = screen.getAllByRole("link", { name: "Core concepts" });
     await user.click(links[0]!);
-    expect(screen.getByRole("heading", { level: 1, name: "Agents" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Core concepts" }),
+    ).toBeInTheDocument();
   });
 
   it("opens external links in a new tab", () => {

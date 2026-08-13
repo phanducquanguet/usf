@@ -4,7 +4,11 @@
     "remove": "Gỡ",
     "select_image": "Vui lòng chọn một tệp ảnh.",
     "updated": "Đã cập nhật ảnh đại diện",
-    "failed": "Không thể tải ảnh đại diện lên"
+    "failed": "Không thể tải ảnh đại diện lên",
+    "upload_image": "Tải ảnh lên",
+    "emoji_label": "Emoji",
+    "more_emojis": "Thêm emoji…",
+    "emoji_loading": "Đang tải…"
   },
   "avatar_crop": {
     "title": "Chỉnh sửa ảnh đại diện",
@@ -21,6 +25,14 @@
   },
   "install_os": {
     "aria_label": "Hệ điều hành"
+  },
+  "color_picker": {
+    "saturation": "Độ bão hòa và độ sáng",
+    "hue": "Sắc độ",
+    "hex": "Mã màu hex",
+    "eyedropper": "Chọn màu từ màn hình",
+    "presets": "Màu có sẵn",
+    "random": "Ngẫu nhiên"
   },
   "save": "Lưu",
   "cancel": "Hủy",
@@ -62,5 +74,42 @@
     "error_already_bound": "Tài khoản Slack này đã được liên kết với một người dùng UniAI khác. Muốn chuyển tài khoản, bạn cần hủy liên kết cũ trước.",
     "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải thành viên của không gian làm việc này.",
     "error_unknown": "Đã có lỗi xảy ra. Hãy thử lại; nếu vẫn không được, liên hệ quản trị viên không gian làm việc."
+  },
+  "dingtalk_bind": {
+    "page_title": "Liên kết tài khoản DingTalk của bạn",
+    "redeeming": "Đang liên kết tài khoản…",
+    "needs_auth_description": "Đăng nhập vào UniAI để hoàn tất liên kết. Mã trong đường dẫn sẽ gắn tài khoản DingTalk với người dùng UniAI này, nên bạn cần đăng nhập trước.",
+    "sign_in": "Đăng nhập",
+    "done_title": "Đã liên kết xong.",
+    "done_description": "Tin nhắn tiếp theo bạn gửi cho bot trong DingTalk sẽ đến thẳng agent. Bạn có thể đóng thẻ này.",
+    "error_title": "Không thể hoàn tất liên kết",
+    "error_admin_hint": "Nếu lỗi lặp lại, hãy nhắn bot trong DingTalk một lần nữa để nhận đường dẫn mới.",
+    "error_missing_token": "Đường dẫn thiếu mã liên kết. Hãy nhắn bot trong DingTalk để nhận đường dẫn mới.",
+    "error_expired": "Đường dẫn không hợp lệ hoặc đã hết hạn (hiệu lực 15 phút). Hãy nhắn bot một lần nữa để nhận đường dẫn mới.",
+    "error_already_bound": "Tài khoản DingTalk này đã được liên kết với một người dùng UniAI khác. Muốn chuyển tài khoản, bạn cần hủy liên kết cũ trước.",
+    "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải thành viên của không gian làm việc này.",
+    "error_unknown": "Đã có lỗi xảy ra. Hãy thử lại; nếu vẫn không được, liên hệ quản trị viên không gian làm việc."
+  },
+  "expandable_description": {
+    "expand": "Hiện thêm",
+    "collapse": "Thu gọn"
+  },
+  "wecom_bind": {
+    "page_title": "Liên kết tài khoản UniAI của bạn",
+    "redeeming": "Đang liên kết tài khoản…",
+    "needs_auth_description": "Đăng nhập vào UniAI để hoàn tất liên kết. Mã trong đường dẫn sẽ gắn danh tính WeCom với người dùng UniAI này, nên bạn cần đăng nhập trước.",
+    "sign_in": "Đăng nhập",
+    "done_title": "Đã liên kết xong.",
+    "done_description": "Tin nhắn tiếp theo bạn gửi cho bot thông minh trong WeCom sẽ đến thẳng agent. Bạn có thể đóng thẻ này.",
+    "error_title": "Không thể hoàn tất liên kết",
+    "error_admin_hint": "Nếu lỗi lặp lại, hãy nhắn bot trong WeCom một lần nữa để nhận đường dẫn mới.",
+    "error_missing_token": "Đường dẫn thiếu mã liên kết. Hãy nhắn bot trong WeCom để nhận đường dẫn mới.",
+    "error_expired": "Đường dẫn không hợp lệ hoặc đã hết hạn (hiệu lực 15 phút). Hãy nhắn bot một lần nữa để nhận đường dẫn mới.",
+    "error_already_bound": "Danh tính WeCom này đã được liên kết với một người dùng UniAI khác. Muốn chuyển tài khoản, bạn cần hủy liên kết cũ trước.",
+    "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải thành viên của không gian làm việc này.",
+    "error_unknown": "Đã có lỗi xảy ra. Hãy thử lại; nếu vẫn không được, liên hệ quản trị viên không gian làm việc."
+  },
+  "navigation": {
+    "open_in_new_tab": "Mở trong thẻ mới"
   }
 }

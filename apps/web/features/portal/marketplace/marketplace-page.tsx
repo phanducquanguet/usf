@@ -63,7 +63,7 @@ export function MarketplacePage() {
         <div className="relative mx-auto max-w-6xl px-6 pt-14 md:pt-20">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-2 text-body text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="size-4" />
             UNICOM
@@ -72,7 +72,7 @@ export function MarketplacePage() {
             <h1 className="text-balance text-4xl font-bold md:text-5xl">
               {t(($) => $.marketplace.title)}
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-title text-muted-foreground">
               {t(($) => $.marketplace.subtitle)}
             </p>
           </div>
@@ -94,7 +94,7 @@ export function MarketplacePage() {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={t(($) => $.marketplace.search_placeholder)}
                   aria-label={t(($) => $.marketplace.search_placeholder)}
-                  className="h-12 rounded-full bg-card pl-12 pr-5 text-base shadow-[0_0_24px_-12px_color-mix(in_oklab,var(--brand-start)_40%,transparent)]"
+                  className="h-12 rounded-full bg-card pl-12 pr-5 text-title-sm shadow-[0_0_24px_-12px_color-mix(in_oklab,var(--brand-start)_40%,transparent)]"
                 />
               </div>
               <div className="flex flex-wrap justify-center gap-2">
@@ -148,7 +148,7 @@ export function MarketplacePage() {
             ) : (
               <>
                 <h2
-                  className="mt-12 text-sm font-normal text-muted-foreground"
+                  className="mt-12 text-body font-normal text-muted-foreground"
                   aria-live="polite"
                 >
                   {t(($) => $.marketplace.results_count, { count: visible.length })}

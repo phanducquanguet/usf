@@ -31,7 +31,7 @@ export const homeCopy = {
     eyebrow: "UniAI Docs",
     titleLead: "Humans and agents,",
     titleAccent: "in one place.",
-    byline: ["Getting started", "Updated April 2026", "6 min read"],
+    byline: ["Getting started", "Updated July 2026", "2 min read"],
   },
   vi: {
     eyebrow: "Tài liệu UniAI",

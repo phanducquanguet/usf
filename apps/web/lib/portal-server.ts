@@ -7,8 +7,13 @@ import { resolveRemoteApiUrl } from "@/config/runtime-urls";
 // the Next rewrite (`/portal/*` → API); on the server we talk to the API
 // origin directly. Reuses ApiClient so schema parsing + normalization match
 // the client exactly.
+// `resolveRemoteApiUrl` is strict (undefined when no upstream is configured):
+// throwing here routes both callers into their existing degraded paths —
+// `undefined` (client-side fetch) for the project page, `[]` for the sitemap.
 function portalApi(): ApiClient {
-  return new ApiClient(resolveRemoteApiUrl(process.env), { logger: noopLogger });
+  const apiUrl = resolveRemoteApiUrl(process.env);
+  if (!apiUrl) throw new Error("remote API URL is not configured");
+  return new ApiClient(apiUrl, { logger: noopLogger });
 }
 
 /**

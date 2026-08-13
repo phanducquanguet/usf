@@ -1,5 +1,59 @@
 {
+  "quick_actions": {
+    "title": "Thao tác nhanh",
+    "description": "Thiết lập sẵn một agent và một prompt một lần, rồi kích hoạt từ thanh bên của bất kỳ issue nào chỉ với một cú nhấp.",
+    "add": "Thao tác nhanh mới",
+    "search_placeholder": "Tìm thao tác nhanh",
+    "loading": "Đang tải thao tác nhanh…",
+    "no_results": "Không có thao tác nhanh nào khớp với tìm kiếm của bạn",
+    "actions_open": "Mở thao tác cho {{name}}",
+    "columns": {
+      "name": "Tên",
+      "target": "Chạy với tư cách",
+      "visibility": "Ai dùng",
+      "usage": "Lượt dùng",
+      "updated": "Cập nhật"
+    },
+    "empty_title": "Chưa có thao tác nhanh nào",
+    "empty_hint": "Tạo một thao tác cho những việc bạn thường xuyên giao cho agent — review code, viết test, kiểm tra bảo mật.",
+    "archived": "Đã lưu trữ",
+    "visibility_public": "Nhóm",
+    "visibility_private": "Chỉ mình tôi",
+    "visibility_public_hint": "Mọi người trong không gian làm việc",
+    "visibility_private_hint": "Chỉ riêng bạn",
+    "field_visibility": "Ai có thể dùng",
+    "public_target_hint": "Phải là agent mà mọi người đều có thể kích hoạt.",
+    "target_private": "riêng tư",
+    "target_missing": "Agent đích không khả dụng",
+    "archive": "Lưu trữ",
+    "unarchive": "Khôi phục",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "never_used": "Chưa dùng lần nào",
+    "used_count": "Đã dùng {{count}}×",
+    "create_title": "Thao tác nhanh mới",
+    "edit_title": "Sửa thao tác nhanh",
+    "dialog_description": "Chạy dưới dạng một bình luận trên issue, giống như @nhắc đến.",
+    "field_name": "Tên",
+    "field_name_placeholder": "Code Review",
+    "field_target": "Chạy với tư cách",
+    "field_prompt": "Prompt",
+    "field_prompt_placeholder": "Review code liên quan đến issue này. Tập trung vào tính đúng đắn và các trường hợp biên.",
+    "prompt_hint": "Được gửi nguyên văn. Agent đã thấy sẵn issue.",
+    "template_not_supported": "Biến chưa được hỗ trợ — hãy xóa {{token}}. Agent đã tự đọc issue này.",
+    "delete_title": "Xóa thao tác nhanh này?",
+    "delete_description": "Nó sẽ biến mất khỏi thanh bên của mọi issue. Các lần chạy trước vẫn nằm trong nhật ký thực thi. Hãy lưu trữ thay vì xóa nếu bạn có thể cần lại."
+  },
+  "auto_save": {
+    "saving": "Đang lưu…",
+    "saved": "Đã lưu",
+    "failed": "Không thể lưu",
+    "toast_saved": "Đã lưu thay đổi"
+  },
   "preferences": {
+    "general_title": "Chung",
     "theme": {
       "title": "Giao diện",
       "light": "Sáng",
@@ -17,12 +71,149 @@
       "browser_suffix": " (trình duyệt)",
       "hint": "Dùng cho dashboard, biểu đồ và mọi nhãn 'hôm nay' hiển thị với bạn. Đây là tùy chọn cá nhân áp dụng cho tất cả các không gian làm việc của bạn.",
       "sync_failed": "Không thể lưu tùy chọn múi giờ của bạn."
+    },
+    "sticky_comment_bar": {
+      "title": "Thanh bình luận cố định",
+      "hint": "Giữ thanh bình luận ghim ở cạnh dưới khi cuộn trang issue."
+    }
+  },
+  "shortcuts": {
+    "title": "Phím tắt",
+    "description": "Tùy chỉnh các thao tác của sản phẩm trên thiết bị này. Nhấn vào một phím tắt, rồi nhấn tổ hợp phím mới.",
+    "search_placeholder": "Tìm thao tác...",
+    "reset_all": "Khôi phục mặc định",
+    "reset_confirm": {
+      "title": "Khôi phục toàn bộ phím tắt mặc định?",
+      "description": "Thao tác này sẽ xóa mọi phím tắt tùy chỉnh và khôi phục mặc định trên thiết bị này.",
+      "cancel": "Hủy",
+      "confirm": "Khôi phục toàn bộ mặc định"
+    },
+    "reset": "Đặt lại",
+    "disable": "Tắt",
+    "reset_action": "Đặt lại {{action}}",
+    "disable_action": "Tắt phím tắt {{action}}",
+    "record_aria": "Đổi phím tắt cho {{action}}",
+    "recording": "Nhấn phím",
+    "record_hint": "Esc để hủy · Delete để xóa",
+    "unassigned": "Chưa gán",
+    "no_results": "Không có thao tác phím tắt nào khớp.",
+    "conflict_error": "Đã được dùng bởi {{action}}.",
+    "reserved_error": "Được trình duyệt hoặc cửa sổ desktop dành riêng.",
+    "send_error": "Gửi chỉ có thể dùng Enter hoặc Mod+Enter.",
+    "unsafe_error": "Phím này sẽ cản trở việc gõ chữ hoặc điều hướng bàn phím cơ bản.",
+    "send_enter_hint": "Shift+Enter chèn đoạn mới, tiếp tục danh sách, hoặc xuống dòng trong khối code.",
+    "categories": {
+      "general": "Chung",
+      "navigation": "Điều hướng"
+    },
+    "actions": {
+      "openSearch": {
+        "label": "Mở tìm kiếm",
+        "description": "Tìm kiếm và chạy lệnh từ bất cứ đâu."
+      },
+      "createIssue": {
+        "label": "Tạo issue",
+        "description": "Mở luồng tạo issue ưa thích của bạn."
+      },
+      "toggleSidebar": {
+        "label": "Bật/tắt thanh bên",
+        "description": "Hiện hoặc ẩn thanh bên chính."
+      },
+      "toggleChat": {
+        "label": "Bật/tắt cửa sổ trò chuyện",
+        "description": "Mở hoặc đóng cửa sổ trò chuyện nổi. Khi mở sẽ focus vào ô nhập tin nhắn."
+      },
+      "findInIssue": {
+        "label": "Tìm trong issue",
+        "description": "Tìm kiếm trong trang chi tiết issue đang mở."
+      },
+      "openThreadNav": {
+        "label": "Mở bộ điều hướng luồng",
+        "description": "Liệt kê, tìm kiếm và nhảy giữa các luồng bình luận của issue đang mở."
+      },
+      "send": {
+        "label": "Gửi",
+        "description": "Gửi tin nhắn trò chuyện, bình luận, trả lời, phản hồi và prompt, và tạo issue trong hộp thoại tạo."
+      },
+      "goInbox": {
+        "label": "Đến Hộp thư đến",
+        "description": "Mở hộp thư đến của không gian làm việc."
+      },
+      "goChat": {
+        "label": "Đến Trò chuyện",
+        "description": "Mở trò chuyện của không gian làm việc."
+      },
+      "goMyIssues": {
+        "label": "Đến Issue của tôi",
+        "description": "Mở các issue được giao cho bạn."
+      },
+      "goIssues": {
+        "label": "Đến Issues",
+        "description": "Mở danh sách issue."
+      },
+      "goProjects": {
+        "label": "Đến Dự án",
+        "description": "Mở danh sách dự án."
+      },
+      "goAutopilots": {
+        "label": "Đến Tự động hóa",
+        "description": "Mở các tự động hóa của không gian làm việc."
+      },
+      "goAgents": {
+        "label": "Đến Agent",
+        "description": "Mở danh sách agent."
+      },
+      "goSquads": {
+        "label": "Đến Đội",
+        "description": "Mở danh sách đội."
+      },
+      "goUsage": {
+        "label": "Đến Mức sử dụng",
+        "description": "Mở phân tích mức sử dụng."
+      },
+      "goRuntimes": {
+        "label": "Đến Runtime",
+        "description": "Mở cấu hình runtime."
+      },
+      "goSkills": {
+        "label": "Đến Skills",
+        "description": "Mở thư viện skill."
+      },
+      "goSettings": {
+        "label": "Đến Cài đặt",
+        "description": "Mở cài đặt không gian làm việc."
+      }
+    },
+    "fixed": {
+      "title": "Phím tắt hệ thống cố định",
+      "description": "Các phím tắt cửa sổ và trợ năng được giữ cố định để luôn đáng tin cậy. Điều khiển thu phóng và tab áp dụng cho ứng dụng desktop.",
+      "close_tab": "Đóng tab đang mở",
+      "zoom_in": "Phóng to",
+      "zoom_out": "Thu nhỏ",
+      "reset_zoom": "Đặt lại thu phóng",
+      "close_dialog": "Đóng hộp thoại hoặc menu"
     }
   },
   "chat": {
     "floating_title": "Cửa sổ nổi",
     "floating_label": "Cửa sổ trò chuyện nổi",
     "floating_hint": "Hiện nút trò chuyện nổi ở góc mọi trang. Mặc định tắt — bật lên để mở trò chuyện ở bất cứ đâu; khi tắt, Trò chuyện chỉ nằm trong tab này."
+  },
+  "issue": {
+    "description": "Chọn những trường mà mỗi hộp thoại tạo issue giữ trên thanh công cụ. Trường bị ẩn vẫn khả dụng từ menu ⋯ và xuất hiện lại khi đang có giá trị.",
+    "quick_create_title": "Tạo với agent",
+    "quick_create_description": "Các trường hiển thị trên thanh công cụ tạo nhanh.",
+    "manual_create_title": "Tạo thủ công",
+    "manual_create_description": "Các trường hiển thị trên thanh công cụ tạo thủ công.",
+    "fields": {
+      "status": "Trạng thái",
+      "priority": "Độ ưu tiên",
+      "assignee": "Người được giao",
+      "labels": "Nhãn",
+      "project": "Dự án",
+      "due_date": "Hạn hoàn thành",
+      "start_date": "Ngày bắt đầu"
+    }
   },
   "page": {
     "title": "Cài đặt",
@@ -31,6 +222,8 @@
     "tabs": {
       "profile": "Hồ sơ",
       "preferences": "Tùy chọn",
+      "shortcuts": "Phím tắt",
+      "issue": "Issue",
       "chat": "Trò chuyện",
       "notifications": "Thông báo",
       "tokens": "API Token",
@@ -40,11 +233,126 @@
       "integrations": "Tích hợp",
       "labs": "Thử nghiệm",
       "members": "Thành viên",
-      "portal": "Portal khách hàng"
+      "portal": "Portal khách hàng",
+      "labels": "Nhãn",
+      "properties": "Thuộc tính",
+      "quick_actions": "Thao tác nhanh"
+    }
+  },
+  "properties": {
+    "title": "Thuộc tính",
+    "description": "Định nghĩa các thuộc tính tùy chỉnh có kiểu cho issue trong không gian làm việc này. Giá trị được đặt trên từng issue và agent có thể đọc, ghi chúng.",
+    "search_placeholder": "Lọc theo tên...",
+    "new_property": "Thuộc tính mới",
+    "show_archived": "Hiện đã lưu trữ",
+    "columns": {
+      "name": "Tên",
+      "type": "Kiểu",
+      "options": "Lựa chọn",
+      "usage": "Dùng bởi",
+      "updated": "Cập nhật"
+    },
+    "usage_count_other": "{{count}} issue",
+    "loading": "Đang tải thuộc tính...",
+    "empty": "Chưa có thuộc tính nào",
+    "empty_hint": "Tạo các trường có kiểu như Mức nghiêm trọng hoặc Môi trường — agent có thể đọc và ghi chúng với kiểm tra hợp lệ.",
+    "no_results": "Không có thuộc tính nào khớp",
+    "save_failed": "Không thể lưu thuộc tính",
+    "limit_hint": "{{count}}/{{max}} thuộc tính đang hoạt động",
+    "archived_badge": "Đã lưu trữ",
+    "types": {
+      "text": "Văn bản",
+      "number": "Số",
+      "select": "Chọn một",
+      "multi_select": "Chọn nhiều",
+      "date": "Ngày",
+      "checkbox": "Hộp kiểm",
+      "url": "URL"
+    },
+    "actions": {
+      "open": "Thao tác cho {{name}}",
+      "edit": "Sửa",
+      "archive": "Lưu trữ",
+      "unarchive": "Khôi phục"
+    },
+    "editor": {
+      "create_title": "Thuộc tính mới",
+      "edit_title": "Sửa thuộc tính",
+      "admin_hint": "Chỉ chủ sở hữu và quản trị viên của không gian làm việc mới có thể quản lý định nghĩa thuộc tính.",
+      "icon": "Biểu tượng",
+      "choose_icon": "Chọn biểu tượng",
+      "remove_icon": "Gỡ biểu tượng",
+      "name": "Tên",
+      "name_placeholder": "vd. Mức nghiêm trọng",
+      "type": "Kiểu",
+      "type_locked_hint": "Không thể đổi kiểu sau khi tạo.",
+      "description": "Mô tả",
+      "description_placeholder": "Thuộc tính này nghĩa là gì và khi nào nên đặt",
+      "options": "Lựa chọn",
+      "option_name_placeholder": "Tên lựa chọn",
+      "add_option": "Thêm lựa chọn",
+      "remove_option": "Xóa lựa chọn",
+      "cancel": "Hủy",
+      "save": "Lưu thuộc tính",
+      "saving": "Đang lưu..."
+    },
+    "archive_dialog": {
+      "title": "Lưu trữ thuộc tính?",
+      "description": "\"{{name}}\" sẽ bị ẩn khỏi các bộ chọn và bộ lọc. Giá trị hiện có trên issue vẫn được giữ. Bạn có thể khôi phục sau.",
+      "cancel": "Hủy",
+      "confirm": "Lưu trữ thuộc tính",
+      "failed": "Không thể lưu trữ thuộc tính"
+    }
+  },
+  "labels": {
+    "title": "Nhãn",
+    "description": "Quản lý các danh mục nhãn riêng biệt dùng để tổ chức issue và skill trong không gian làm việc này.",
+    "scopes": {
+      "issue": "Issue",
+      "skill": "Skill"
+    },
+    "search_placeholder": "Lọc theo tên hoặc mô tả...",
+    "new_label": "Nhãn mới",
+    "columns": {
+      "name": "Tên",
+      "description": "Mô tả",
+      "usage": "Dùng bởi",
+      "updated": "Cập nhật"
+    },
+    "usage_count": "{{count}} lượt dùng",
+    "loading": "Đang tải nhãn...",
+    "empty": "Chưa có nhãn {{scope}} nào",
+    "no_results": "Không có nhãn nào khớp",
+    "save_failed": "Không thể lưu nhãn",
+    "actions": {
+      "open": "Thao tác cho {{name}}",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "editor": {
+      "create_title": "Nhãn mới",
+      "edit_title": "Sửa nhãn",
+      "scope_hint": "Nhãn này chỉ thuộc danh mục {{scope}}.",
+      "name": "Tên",
+      "name_placeholder": "vd. Bug",
+      "description": "Mô tả",
+      "description_placeholder": "Mô tả khi nào nên dùng nhãn này",
+      "color": "Màu",
+      "cancel": "Hủy",
+      "save": "Lưu nhãn",
+      "saving": "Đang lưu..."
+    },
+    "delete_dialog": {
+      "title": "Xóa nhãn?",
+      "description": "Xóa \"{{name}}\"? Nhãn sẽ bị gỡ khỏi {{count}} tài nguyên. Không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xóa nhãn",
+      "failed": "Không thể xóa nhãn"
     }
   },
   "account": {
     "section_profile": "Hồ sơ",
+    "avatar_label": "Ảnh đại diện",
     "click_avatar_hint": "Nhấn để tải ảnh đại diện lên",
     "name_label": "Tên",
     "profile_description_label": "Về bạn",
@@ -75,6 +383,10 @@
         "label": "Bình luận & Nhắc đến",
         "description": "Bình luận mới trên issue bạn theo dõi, hoặc khi ai đó @nhắc đến bạn"
       },
+      "mentions": {
+        "label": "Nhắc đến",
+        "description": "Khi ai đó @nhắc đến bạn, bao gồm @all và @squad"
+      },
       "updates": {
         "label": "Độ ưu tiên & Hạn hoàn thành",
         "description": "Khi độ ưu tiên hoặc hạn hoàn thành thay đổi trên issue bạn theo dõi"
@@ -102,6 +414,9 @@
   "tokens": {
     "title": "API Token",
     "description": "Personal access token cho phép CLI và các tích hợp bên ngoài xác thực với tài khoản của bạn.",
+    "security_note": "Token cấp toàn quyền truy cập tài khoản của bạn — hãy giữ nó như mật khẩu.",
+    "empty": "Chưa có API token nào. Hãy tạo một token ở trên để bắt đầu.",
+    "load_failed": "Không thể tải API token của bạn. Hãy tải lại trang để thử lại.",
     "name_placeholder": "Tên token (vd. CLI của tôi)",
     "expiry": {
       "30": "30 ngày",
@@ -129,13 +444,19 @@
     },
     "created_dialog": {
       "title": "Đã tạo token",
-      "description": "Hãy sao chép personal access token của bạn ngay. Bạn sẽ không thể xem lại nó.",
+      "warning_prefix": "Personal access token mới của bạn đã được tạo. Vì lý do bảo mật, token ",
+      "warning_emphasis": "chỉ hiển thị một lần duy nhất",
+      "warning_suffix": " — hãy lưu trữ an toàn và không bao giờ chia sẻ. Token bị mất không thể khôi phục; hãy thu hồi và tạo token mới thay thế.",
+      "confirm_stored": "Tôi đã lưu trữ token này an toàn.",
       "copy_tooltip": "Sao chép token",
+      "cli_hint": "Đăng nhập CLI bằng:",
+      "copy_command_tooltip": "Sao chép lệnh",
       "done": "Xong"
     }
   },
   "workspace": {
     "section_general": "Chung",
+    "logo_label": "Logo không gian làm việc",
     "change_logo_aria": "Đổi logo không gian làm việc",
     "click_logo_hint": "Nhấn vào logo để tải ảnh mới lên",
     "toast_logo_updated": "Đã cập nhật logo không gian làm việc",
@@ -229,6 +550,47 @@
     "repositories_shortcut_label": "URL repository nằm trong thẻ Repository",
     "repositories_shortcut_link": "Quản lý repository →",
     "toast_failed": "Không thể cập nhật cài đặt GitHub"
+  },
+  "vcs": {
+    "section_title": "Nhà cung cấp Git (tự host)",
+    "page_description": "Kết nối một máy chủ Forgejo, Gitea hoặc GitLab tự host để phản chiếu pull request lên issue. Mỗi kết nối dùng một access token; agent đẩy nhánh và mở PR bằng thông tin đăng nhập Git riêng của runtime.",
+    "connect_title": "Kết nối một máy chủ nhà cung cấp",
+    "connected_as": "Đã kết nối với tư cách {{login}}",
+    "form_provider_label": "Nhà cung cấp",
+    "form_instance_url_label": "URL máy chủ",
+    "form_token_label": "Access token",
+    "form_token_placeholder": "Access token",
+    "form_token_hint": "Tạo một access token có quyền đọc repository. Forgejo/Gitea: Settings, Applications. GitLab: personal access token với scope read_api.",
+    "connect": "Kết nối",
+    "connecting": "Đang kết nối...",
+    "disconnect": "Ngắt kết nối",
+    "disconnecting": "Đang ngắt kết nối...",
+    "not_configured": "Tích hợp nhà cung cấp Git chưa được cấu hình trên server này. Hãy đề nghị quản trị viên đặt",
+    "contact_admin": "Hãy nhờ quản trị viên không gian làm việc kết nối một máy chủ nhà cung cấp Git.",
+    "webhook_setup_title": "Hoàn tất thiết lập trong nhà cung cấp của bạn",
+    "webhook_setup_description": "Thêm một webhook trên repository hoặc tổ chức của bạn với URL và secret bên dưới. Forgejo/Gitea: chọn định dạng Gitea và các sự kiện Pull Request (và Commit Status). GitLab: dán secret vào ô token và bật các sự kiện Merge request và Pipeline.",
+    "webhook_url_label": "URL webhook",
+    "webhook_secret_label": "Webhook secret",
+    "webhook_secret_warning": "Hãy sao chép secret ngay. Nó chỉ hiển thị một lần và không thể lấy lại sau này.",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép vào clipboard",
+    "copy_failed": "Không thể sao chép",
+    "disconnect_confirm_title": "Ngắt kết nối nhà cung cấp này?",
+    "disconnect_confirm_description": "Các pull request được phản chiếu và liên kết issue của kết nối này sẽ bị xóa. Không thể hoàn tác.",
+    "disconnect_confirm_cancel": "Hủy",
+    "disconnect_confirm_action": "Ngắt kết nối",
+    "toast_connected": "Đã kết nối nhà cung cấp",
+    "toast_connect_failed": "Không thể kết nối với nhà cung cấp",
+    "toast_disconnected": "Đã ngắt kết nối nhà cung cấp",
+    "toast_disconnect_failed": "Không thể ngắt kết nối",
+    "regenerate_webhook": "Tạo lại webhook",
+    "rotate_confirm_title": "Tạo lại webhook secret?",
+    "rotate_confirm_description": "Webhook secret hiện tại sẽ ngừng hoạt động ngay lập tức. Các lần gửi từ nhà cung cấp Git của bạn sẽ thất bại cho đến khi bạn cập nhật webhook secret trong cài đặt của nhà cung cấp.",
+    "rotate_confirm_cancel": "Hủy",
+    "rotate_confirm_action": "Tạo lại",
+    "rotating": "Đang tạo lại...",
+    "toast_rotated": "Đã tạo lại webhook secret",
+    "toast_rotate_failed": "Không thể tạo lại webhook secret"
   },
   "lark": {
     "section_title": "Lark",
@@ -378,6 +740,92 @@
     "byo_success_toast": "Đã kết nối Slack bot",
     "byo_failed_toast": "Không thể kết nối Slack bot"
   },
+  "dingtalk": {
+    "section_title": "DingTalk",
+    "page_description": "Kết nối mỗi Agent UniAI với một robot DingTalk riêng. Thành viên có thể nhắn riêng cho bot, @nhắc đến nó trong nhóm, và gõ /issue để tạo issue UniAI mới.",
+    "not_enabled_title": "Tích hợp DingTalk chưa được bật",
+    "not_enabled_description_prefix": "Đặt",
+    "not_enabled_description_suffix": "trên server để bật cài đặt robot DingTalk.",
+    "not_enabled_self_host_hint": "Tự host: xem README của dự án để biết chi tiết.",
+    "connected_bots": "Bot đã kết nối",
+    "loading": "Đang tải…",
+    "empty_title": "Chưa có bot nào được kết nối",
+    "empty_description_prefix": "Mở một Agent trong không gian làm việc này và nhấn",
+    "empty_description_cta": "Kết nối DingTalk",
+    "empty_description_suffix": "để cài robot cho nó.",
+    "revoked_badge": "đã thu hồi",
+    "installed_at_label": "Cài đặt {{when}}",
+    "disconnect": "Ngắt kết nối",
+    "disconnecting": "Đang ngắt kết nối…",
+    "disconnect_confirm_title": "Ngắt kết nối DingTalk bot này?",
+    "disconnect_confirm_description": "Bot sẽ ngừng nhận tin nhắn DingTalk cho không gian làm việc này. Bản ghi cài đặt vẫn được giữ để kiểm tra; bạn có thể kết nối lại bot sau.",
+    "disconnect_confirm_cancel": "Hủy",
+    "toast_disconnected": "Đã ngắt kết nối DingTalk bot",
+    "toast_disconnect_failed": "Ngắt kết nối thất bại",
+    "bind_button": "Kết nối DingTalk",
+    "bind_button_title": "Kết nối {{agent}} với một DingTalk bot",
+    "agent_bot_connected_label": "Đã kết nối với DingTalk",
+    "agent_bot_disconnect_tooltip": "Gỡ DingTalk bot này khỏi Agent. Bot sẽ ngừng nhận tin nhắn DingTalk.",
+    "byo_dialog_title": "Kết nối một DingTalk bot",
+    "byo_docs_link": "Từng bước: kết nối agent UniAI của bạn với DingTalk",
+    "byo_appkey_label": "AppKey (client id)",
+    "byo_appsecret_label": "AppSecret (client secret)",
+    "byo_submit": "Kết nối",
+    "byo_submitting": "Đang kết nối…",
+    "byo_cancel": "Hủy",
+    "byo_success_toast": "Đã kết nối DingTalk bot",
+    "byo_failed_toast": "Không thể kết nối DingTalk bot"
+  },
+  "wecom": {
+    "section_title": "WeCom",
+    "page_description": "Kết nối mỗi Agent UniAI với một smart bot WeCom (企业微信) riêng. Thành viên có thể nhắn riêng cho bot, @ nó trong nhóm, và gõ /issue để tạo issue UniAI mới. Agent trả lời qua kết nối WebSocket dài, nên không cần URL callback công khai.",
+    "not_enabled_title": "Tích hợp WeCom chưa được bật",
+    "not_enabled_description_prefix": "Đặt",
+    "not_enabled_description_suffix": "trên server để bật cài đặt smart bot WeCom.",
+    "not_enabled_self_host_hint": "Tự host: xem README của dự án để biết chi tiết.",
+    "preview_title": "Cài đặt WeCom sắp ra mắt",
+    "preview_description": "Khóa mã hóa đã được đặt, nhưng bản triển khai này chưa bật đầy đủ cài đặt WeCom.",
+    "connected_bots": "Bot đã kết nối",
+    "loading": "Đang tải…",
+    "empty_title": "Chưa có bot nào được kết nối",
+    "empty_description_prefix": "Mở một Agent trong không gian làm việc này và nhấn",
+    "empty_description_cta": "Kết nối WeCom",
+    "empty_description_suffix": "để cài smart bot cho nó.",
+    "revoked_badge": "đã thu hồi",
+    "bot_id_label": "Bot ID: {{botId}}",
+    "disconnect": "Ngắt kết nối",
+    "disconnecting": "Đang ngắt kết nối…",
+    "disconnect_confirm_title": "Ngắt kết nối WeCom bot này?",
+    "disconnect_confirm_description": "Bot sẽ ngừng nhận tin nhắn WeCom cho không gian làm việc này. Bản ghi cài đặt vẫn được giữ để kiểm tra; bạn có thể cài lại sau từ chính Agent đó.",
+    "disconnect_confirm_cancel": "Hủy",
+    "toast_disconnected": "Đã ngắt kết nối WeCom bot",
+    "toast_disconnect_failed": "Ngắt kết nối thất bại",
+    "bind_button": "Kết nối WeCom",
+    "bind_button_title": "Kết nối {{agent}} với một smart bot WeCom",
+    "agent_bot_connected_label": "Đã kết nối với WeCom",
+    "agent_bot_connected_label_with_id": "Đã kết nối với WeCom — {{botId}}",
+    "agent_bot_disconnect_tooltip": "Gỡ smart bot này khỏi Agent. Bot sẽ ngừng nhận tin nhắn WeCom.",
+    "byo_dialog_title": "Kết nối một smart bot WeCom",
+    "byo_bot_id_label": "Bot ID",
+    "byo_bot_id_placeholder": "vd. aibot_xxxxxxxxxxxxxxxx",
+    "byo_secret_label": "Secret kết nối dài (long connection)",
+    "byo_secret_placeholder": "Dán secret chỉ hiển thị một lần trong console",
+    "byo_bot_name_label": "Tên bot trong chat (không bắt buộc)",
+    "byo_bot_name_placeholder": "vd. UniAI Bot",
+    "byo_bot_name_hint": "Chỉ cần khi tên có khoảng trắng, để bot phân biệt được @-mention của chính nó với lệnh gõ phía sau. Muốn đổi sau này — kể cả sau khi đổi tên bot trong console WeCom — hãy ngắt kết nối bot này rồi kết nối lại.",
+    "byo_submit": "Kết nối",
+    "byo_submitting": "Đang kết nối…",
+    "byo_cancel": "Hủy",
+    "byo_success_toast": "Đã kết nối WeCom bot",
+    "byo_conflict_same_workspace": "Bot này đã được kết nối với một Agent khác trong không gian làm việc này. Hãy ngắt kết nối ở đó trước, rồi kết nối tại đây.",
+    "byo_conflict_archived_agent": "Bot này đang kết nối với một Agent đã lưu trữ trong không gian làm việc này. Hãy khôi phục Agent đó, hoặc ngắt kết nối bot của nó, trước khi kết nối tại đây.",
+    "byo_conflict_other_workspace": "Bot này đã được kết nối với một không gian làm việc UniAI khác. Hãy ngắt kết nối ở đó trước khi kết nối tại đây.",
+    "byo_rejected": "Không thể kết nối bot. Hãy kiểm tra Bot ID và secret từ console quản trị WeCom, và đảm bảo đó là smart bot đã bật long connection.",
+    "byo_credentials_rejected": "WeCom từ chối Bot ID và secret này. Hãy kiểm tra cả hai trên console quản trị WeCom, và đảm bảo đó là smart bot đã bật long connection.",
+    "byo_credentials_unverifiable": "Không thể kết nối tới WeCom để xác minh bot này. Thông tin đăng nhập của bạn chưa bị thay đổi — hãy thử lại sau giây lát.",
+    "byo_install_failed": "Không thể lưu bot này — đã có lỗi từ phía chúng tôi. Thông tin đăng nhập của bạn chưa bị thay đổi; hãy thử lại, và liên hệ hỗ trợ nếu vẫn thất bại.",
+    "byo_failed_toast": "Không thể kết nối WeCom bot"
+  },
   "repositories": {
     "section_title": "Repository",
     "description": "Các git repository gắn với không gian làm việc này. Agent dùng chúng để clone và làm việc trên code.",
@@ -385,12 +833,37 @@
     "url_empty": "(URL trống)",
     "description_placeholder": "Mô tả (vd. backend Go + frontend Next.js)",
     "add": "Thêm repository",
+    "connect_github": "Kết nối GitHub",
+    "choose_from_github": "Chọn từ GitHub",
+    "github_not_configured": "Kết nối GitHub chưa được cấu hình cho bản triển khai này.",
+    "github_browse_not_configured": "Duyệt repository cần GITHUB_APP_ID và GITHUB_APP_PRIVATE_KEY.",
+    "github_connect_failed": "Không thể kết nối GitHub. Hãy thử lại.",
+    "github_picker_title": "Chọn repository GitHub",
+    "github_picker_description": "Chọn các repository để thêm vào không gian làm việc này. Các mục nhập thủ công hiện có không bị thay đổi.",
+    "github_account": "Tài khoản GitHub",
+    "github_search_placeholder": "Tìm trong các repository đã tải",
+    "github_loading": "Đang tải repository…",
+    "github_load_failed": "Không thể tải repository từ GitHub. Hãy kiểm tra quyền truy cập của bản cài đặt và thử lại.",
+    "github_empty": "Bản cài đặt này không có repository nào truy cập được.",
+    "github_no_search_results": "Không có repository đã tải nào khớp với tìm kiếm này.",
+    "github_private": "Riêng tư",
+    "github_archived": "Đã lưu trữ",
+    "github_added": "Đã thêm",
+    "github_load_more": "Tải thêm",
+    "github_selected_count": "Đã chọn {{count}}",
+    "github_cancel": "Hủy",
+    "github_import": "Thêm repository",
+    "complete_manual_entry_first": "Hãy hoàn tất hoặc xóa repository thủ công đang trống trước khi nhập.",
     "save": "Lưu",
     "saving": "Đang lưu...",
     "empty": "Chưa có repository nào.",
     "edit_aria": "Sửa repository",
     "cancel_aria": "Hủy chỉnh sửa",
     "delete_aria": "Xóa repository",
+    "delete_confirm_title": "Xóa repository?",
+    "delete_confirm_description": "Repository này sẽ bị gỡ khỏi không gian làm việc ngay lập tức.",
+    "delete_confirm_cancel": "Hủy",
+    "delete_confirm_action": "Xóa repository",
     "manage_hint": "Chỉ quản trị viên và chủ sở hữu mới có thể quản lý repository.",
     "toast_saved": "Đã lưu repository",
     "toast_save_failed": "Không thể lưu repository"
@@ -403,6 +876,9 @@
       "title": "Cập nhật",
       "description": "Ứng dụng desktop tự động kiểm tra phiên bản mới mỗi giờ một lần và ngay sau khi khởi động, tải chúng ở chế độ nền. Bạn sẽ được nhắc khởi động lại khi bản cập nhật sẵn sàng.",
       "current_version": "Phiên bản hiện tại",
+      "automatic_updates_title": "Tự động cập nhật nền",
+      "automatic_updates_description": "Kiểm tra ngay sau khi khởi động và mỗi giờ một lần, rồi tải các bản cập nhật có sẵn ở chế độ nền.",
+      "automatic_updates_save_failed": "Không thể lưu cài đặt tự động cập nhật",
       "check_section_title": "Kiểm tra cập nhật",
       "check_section_description": "Kiểm tra ngay thay vì chờ lần kiểm tra tự động tiếp theo. Bản cập nhật có sẵn sẽ tải ở chế độ nền và hiện lời nhắc khởi động lại khi sẵn sàng.",
       "up_to_date": "Bạn đang dùng phiên bản mới nhất.",

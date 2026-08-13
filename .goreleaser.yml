@@ -52,6 +52,10 @@ archives:
   - id: legacy
     ids:
       - multica-compat
+    files:
+      - LICENSE*
+      - README*
+      - NOTICE
     formats:
       - tar.gz
     format_overrides:
@@ -62,6 +66,10 @@ archives:
   - id: legacy-versioned
     ids:
       - multica-compat
+    files:
+      - LICENSE*
+      - README*
+      - NOTICE
     formats:
       - tar.gz
     format_overrides:
@@ -74,6 +82,10 @@ archives:
   - id: versioned
     ids:
       - uniai
+    files:
+      - LICENSE*
+      - README*
+      - NOTICE
     formats:
       - tar.gz
     format_overrides:

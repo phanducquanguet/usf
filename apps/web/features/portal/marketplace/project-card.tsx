@@ -43,17 +43,17 @@ export function ProjectCard({ project }: { project: PortalProject }) {
       </div>
       <div className="flex flex-1 flex-col p-5">
         {project.industry ? (
-          <span className="mb-2 self-start rounded-full border border-brand/30 bg-brand/10 px-2.5 py-0.5 text-xs font-medium text-brand">
+          <span className="mb-2 self-start rounded-full border border-brand/30 bg-brand/10 px-2.5 py-0.5 text-caption font-medium text-brand">
             {project.industry}
           </span>
         ) : null}
-        <h3 className="text-lg font-semibold transition-colors group-hover:text-brand">
+        <h3 className="text-title font-semibold transition-colors group-hover:text-brand">
           {project.name}
         </h3>
-        <p className="mt-1.5 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 line-clamp-3 flex-1 text-body leading-relaxed text-muted-foreground">
           {project.description}
         </p>
-        <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand">
+        <span className="mt-4 inline-flex items-center gap-1.5 text-body font-medium text-brand">
           {t(($) => $.marketplace.view_details)}
           <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
         </span>

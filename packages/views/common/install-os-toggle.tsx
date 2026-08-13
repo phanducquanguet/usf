@@ -39,7 +39,7 @@ export function InstallOsToggle({
     <Tabs value={os} onValueChange={(v) => onChange(v as InstallOS)}>
       <TabsList aria-label={t(($) => $.install_os.aria_label)}>
         {OS_OPTIONS.map((option) => (
-          <TabsTrigger key={option} value={option} className="px-2 text-xs">
+          <TabsTrigger key={option} value={option} className="px-2 text-caption">
             {INSTALL_OS_LABELS[option]}
           </TabsTrigger>
         ))}

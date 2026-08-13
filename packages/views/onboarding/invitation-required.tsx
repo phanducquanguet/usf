@@ -25,13 +25,13 @@ export function InvitationRequiredScreen() {
       <div className="flex flex-1 items-center justify-center px-6 pb-16 sm:px-10">
         <div className="w-full max-w-[560px]">
           <UnicomLogo className="mb-10 h-7" hideTagline />
-          <div className="mb-2 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          <div className="mb-2 text-caption font-medium uppercase tracking-[0.08em] text-muted-foreground">
             {t(($) => $.step_workspace.creation_disabled_eyebrow)}
           </div>
-          <h1 className="text-balance font-serif text-[36px] font-medium leading-[1.1] tracking-tight text-foreground">
+          <h1 className="text-balance font-serif text-display font-medium leading-[1.1] tracking-tight text-foreground">
             {t(($) => $.step_workspace.creation_disabled_headline)}
           </h1>
-          <p className="mt-4 text-[15.5px] leading-[1.55] text-foreground/80">
+          <p className="mt-4 text-body-lg leading-[1.55] text-muted-foreground">
             {t(($) => $.step_workspace.creation_disabled_lede)}
           </p>
           <div className="mt-8">

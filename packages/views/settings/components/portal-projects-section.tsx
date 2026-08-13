@@ -187,7 +187,7 @@ export function PortalProjectsSection() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold">
+            <h2 className="text-body font-semibold">
               {t(($) => $.portal_projects.title)}
             </h2>
             {projects.length > 0 ? (
@@ -196,7 +196,7 @@ export function PortalProjectsSection() {
               </Badge>
             ) : null}
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-body text-muted-foreground mt-1">
             {t(($) => $.portal_projects.description)}
           </p>
         </div>
@@ -258,7 +258,7 @@ export function PortalProjectsSection() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium">{p.name}</p>
+                    <p className="truncate text-body font-medium">{p.name}</p>
                     {p.published ? (
                       <Badge variant="secondary" className="shrink-0 gap-1.5">
                         <span
@@ -277,7 +277,7 @@ export function PortalProjectsSection() {
                     )}
                   </div>
                   {p.industry ? (
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    <p className="mt-0.5 truncate text-caption text-muted-foreground">
                       {p.industry}
                     </p>
                   ) : null}
@@ -395,7 +395,7 @@ export function PortalProjectsSection() {
               </TabsContent>
               <TabsContent value="en">
                 <fieldset lang="en" className="space-y-5 pt-3">
-                  <p id="pp-i18n-hint" className="text-xs text-muted-foreground">
+                  <p id="pp-i18n-hint" className="text-caption text-muted-foreground">
                     {t(($) => $.portal_projects.i18n_hint)}
                   </p>
                   <div className="space-y-2">
@@ -536,7 +536,7 @@ export function PortalProjectsSection() {
                 value={form.source_url}
                 onChange={(e) => setField("source_url", e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-caption text-muted-foreground">
                 {t(($) => $.portal_projects.source_url_hint)}
               </p>
             </div>
@@ -555,7 +555,7 @@ export function PortalProjectsSection() {
             <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
               <div className="space-y-0.5">
                 <Label htmlFor="pp-published">{t(($) => $.portal_projects.published)}</Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-caption text-muted-foreground">
                   {t(($) => $.portal_projects.published_hint)}
                 </p>
               </div>

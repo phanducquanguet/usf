@@ -19,6 +19,7 @@ data:
   DISABLE_WORKSPACE_CREATION: {{ .Values.backend.config.disableWorkspaceCreation | quote }}
   WORKSPACE_CREATION_ALLOWED_EMAILS: {{ .Values.backend.config.workspaceCreationAllowedEmails | quote }}
   PORTAL_WORKSPACE_SLUG: {{ .Values.backend.config.portalWorkspaceSlug | quote }}
+  MULTICA_VCS_INTEGRATION_ENABLED: {{ .Values.backend.config.vcsIntegrationEnabled | quote }}
   GOOGLE_CLIENT_ID: {{ .Values.backend.config.googleClientId | quote }}
   GOOGLE_REDIRECT_URI: {{ .Values.backend.config.googleRedirectUri | quote }}
   S3_BUCKET: {{ .Values.backend.config.s3Bucket | quote }}

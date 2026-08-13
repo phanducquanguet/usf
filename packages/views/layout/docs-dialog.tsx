@@ -109,7 +109,7 @@ export default function DocsDialog({
         {/* Brand header */}
         <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3 pr-12">
           <UnicomLogo className="h-6" hideTagline />
-          <DialogTitle className="text-sm font-semibold">
+          <DialogTitle className="text-body font-semibold">
             {t(($) => $.help.docs)}
           </DialogTitle>
         </div>
@@ -120,7 +120,7 @@ export default function DocsDialog({
             {sections.map((section, i) => (
               <div key={section.label ?? i}>
                 {section.label && (
-                  <div className="px-2 pb-1 pt-4 text-xs font-medium text-muted-foreground">
+                  <div className="px-2 pb-1 pt-4 text-caption font-medium text-muted-foreground">
                     {sectionLabel(section)}
                   </div>
                 )}
@@ -130,7 +130,7 @@ export default function DocsDialog({
                     type="button"
                     onClick={() => setActiveSlug(page.slug)}
                     className={cn(
-                      "block w-full truncate rounded-md px-2 py-1.5 text-left text-sm transition-colors cursor-pointer",
+                      "block w-full truncate rounded-md px-2 py-1.5 text-left text-body transition-colors cursor-pointer",
                       page.slug === activeSlug
                         ? "bg-accent text-foreground font-medium"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -146,8 +146,8 @@ export default function DocsDialog({
           {/* Page content; key resets scroll on page switch */}
           <div key={activeSlug} className="flex-1 min-w-0 overflow-y-auto">
             <div className="mx-auto max-w-3xl p-6">
-              <h1 className="mb-4 text-xl font-semibold">{active?.title}</h1>
-              <div className="rich-text-editor readonly text-sm">
+              <h1 className="mb-4 text-title-lg font-semibold">{active?.title}</h1>
+              <div className="rich-text-editor readonly text-body">
                 <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
                   {active?.content ?? ""}
                 </ReactMarkdown>

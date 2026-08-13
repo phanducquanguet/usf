@@ -153,7 +153,7 @@ export function PortalTab() {
   if (!isOwner) {
     return (
       <Card>
-        <CardContent className="py-6 text-sm text-muted-foreground">
+        <CardContent className="py-6 text-body text-muted-foreground">
           {t(($) => $.portal.owner_only)}
         </CardContent>
       </Card>
@@ -193,8 +193,8 @@ export function PortalTab() {
       <section className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div>
-            <h2 className="text-sm font-semibold">{t(($) => $.portal.title)}</h2>
-            <p className="text-sm text-muted-foreground mt-1">
+            <h2 className="text-body font-semibold">{t(($) => $.portal.title)}</h2>
+            <p className="text-body text-muted-foreground mt-1">
               {t(($) => $.portal.description)}
             </p>
           </div>
@@ -213,15 +213,15 @@ export function PortalTab() {
           <CardContent className="divide-y">
             <div className="flex items-center justify-between gap-4 pb-4">
               <div className="space-y-0.5 pr-4">
-                <Label htmlFor="portal-enabled" className="text-sm font-medium">
+                <Label htmlFor="portal-enabled" className="text-body font-medium">
                   {t(($) => $.portal.enable)}
                 </Label>
-                <p id="portal-enabled-hint" className="text-xs text-muted-foreground">
+                <p id="portal-enabled-hint" className="text-caption text-muted-foreground">
                   {t(($) => $.portal.enable_hint)}
                 </p>
               </div>
               <div className="flex items-center gap-2.5 shrink-0">
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5 text-caption text-muted-foreground">
                   <span
                     className={
                       enabled && !archivedAgent && !missingAgent
@@ -247,15 +247,15 @@ export function PortalTab() {
 
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-4">
               <div className="space-y-0.5 pr-4">
-                <Label htmlFor="portal-agent" className="text-sm font-medium">
+                <Label htmlFor="portal-agent" className="text-body font-medium">
                   {t(($) => $.portal.agent)}
                 </Label>
-                <p id="portal-agent-hint" className="text-xs text-muted-foreground">
+                <p id="portal-agent-hint" className="text-caption text-muted-foreground">
                   {t(($) => $.portal.agent_hint)}
                 </p>
               </div>
               {activeAgents.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-body text-muted-foreground">
                   {t(($) => $.portal.agents_empty)}{" "}
                   {slug ? (
                     <AppLink
@@ -268,6 +268,7 @@ export function PortalTab() {
                 </p>
               ) : (
                 <Select
+                  items={activeAgents.map((a) => ({ value: a.id, label: a.name }))}
                   value={agentId}
                   onValueChange={(value) => setAgentId(value ?? "")}
                 >
@@ -300,7 +301,7 @@ export function PortalTab() {
                 <p
                   id="portal-agent-error"
                   role="alert"
-                  className="w-full text-xs text-destructive"
+                  className="w-full text-caption text-destructive"
                 >
                   {t(($) =>
                     missingAgent ? $.portal.agent_required : $.portal.agent_archived,
@@ -314,10 +315,10 @@ export function PortalTab() {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-sm font-semibold">
+          <h2 className="text-body font-semibold">
             {t(($) => $.portal.content_title)}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-body text-muted-foreground mt-1">
             {t(($) => $.portal.content_description)}
           </p>
         </div>

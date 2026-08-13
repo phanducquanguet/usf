@@ -67,6 +67,10 @@
     "section_properties": "Thuộc tính",
     "section_progress": "Tiến độ",
     "section_description": "Mô tả",
+    "prop_start_date": "Ngày bắt đầu",
+    "prop_due_date": "Hạn hoàn thành",
+    "no_start_date": "Không có ngày bắt đầu",
+    "no_due_date": "Không có hạn hoàn thành",
     "description_placeholder": "Thêm mô tả...",
     "description_hint": "Được chia sẻ với agent làm ngữ cảnh cho mọi task trong dự án này.",
     "empty_issues_title": "Chưa có issue nào được liên kết",
@@ -122,8 +126,9 @@
   },
   "picker": {
     "no_project": "Không thuộc dự án",
-    "remove": "Gỡ khỏi dự án",
-    "empty": "Chưa có dự án nào"
+    "empty": "Chưa có dự án nào",
+    "search_placeholder": "Tìm dự án...",
+    "clear_aria": "Bỏ chọn dự án"
   },
   "chip": {
     "fallback_label": "Dự án"

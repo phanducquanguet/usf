@@ -152,7 +152,7 @@ export function PortalChat({
               <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10">
                 <AlertCircle className="size-6 text-destructive" />
               </div>
-              <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
+              <p className="max-w-xs text-body leading-relaxed text-muted-foreground">
                 {t(($) => $.chat.start_failed)}
               </p>
               <Button variant="outline" onClick={() => startSession(projectSlug)}>
@@ -162,7 +162,7 @@ export function PortalChat({
           ) : (
             <>
               <AgentAvatar src={agentAvatarUrl} className="size-12" iconClassName="size-6" />
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2 text-body text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
                 {t(($) => $.chat.connecting)}
               </p>
@@ -184,8 +184,8 @@ export function PortalChat({
           <div className="flex size-14 items-center justify-center rounded-full bg-success/15">
             <CheckCircle2 className="size-7 text-success" />
           </div>
-          <p className="text-lg font-semibold">{t(($) => $.thankyou.title)}</p>
-          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+          <p className="text-title font-semibold">{t(($) => $.thankyou.title)}</p>
+          <p className="max-w-md text-body leading-relaxed text-muted-foreground">
             {t(($) => $.thankyou.body)}
           </p>
         </div>
@@ -231,7 +231,7 @@ export function PortalChat({
               <UserBubble content={chat.failed} pending />
               <div
                 role="alert"
-                className="flex items-center gap-2 self-end text-xs text-destructive"
+                className="flex items-center gap-2 self-end text-caption text-destructive"
               >
                 {t(($) => $.chat.send_failed)}
                 <button
@@ -249,7 +249,7 @@ export function PortalChat({
           {chat.pending ? <TypingIndicator label={t(($) => $.chat.thinking)} /> : null}
           {chat.summaryReady ? (
             <div className="portal-gradient-border rounded-xl bg-card p-4 duration-300 animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none sm:p-5">
-              <p className="mb-4 text-sm font-semibold">{t(($) => $.confirm.title)}</p>
+              <p className="mb-4 text-body font-semibold">{t(($) => $.confirm.title)}</p>
               <div className="space-y-3">
                 <ContactField
                   id="portal-contact-name"
@@ -291,7 +291,7 @@ export function PortalChat({
                   {t(($) => $.confirm.submit)}
                 </Button>
                 {chat.confirmFailed && !chat.confirming ? (
-                  <p role="alert" className="text-xs text-destructive">
+                  <p role="alert" className="text-caption text-destructive">
                     {t(($) => $.confirm.failed)}
                   </p>
                 ) : null}
@@ -305,7 +305,7 @@ export function PortalChat({
           {chat.agentUnavailable ? (
             <div
               role="alert"
-              className="mb-2 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm"
+              className="mb-2 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-body"
             >
               <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
               {t(($) => $.chat.agent_unavailable)}
@@ -344,7 +344,7 @@ export function PortalChat({
             </Button>
           </div>
           {chat.pending ? (
-            <p className="mt-1.5 text-xs text-muted-foreground">
+            <p className="mt-1.5 text-caption text-muted-foreground">
               {t(($) => $.chat.wait_note)}
             </p>
           ) : null}
@@ -469,8 +469,8 @@ function PortalShell({
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{title}</p>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="truncate text-body font-semibold">{title}</p>
+            <p className="truncate text-caption text-muted-foreground">
               {t(($) => $.chat.status)}
             </p>
           </div>
@@ -522,7 +522,7 @@ function ContactField({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-xs font-medium text-muted-foreground">
+      <label htmlFor={id} className="text-caption font-medium text-muted-foreground">
         {label}
         {required ? (
           <span aria-hidden className="ml-0.5 text-destructive">
@@ -541,7 +541,7 @@ function ContactField({
         onBlur={onBlur}
       />
       {error ? (
-        <p id={`${id}-error`} role="alert" className="text-xs text-destructive">
+        <p id={`${id}-error`} role="alert" className="text-caption text-destructive">
           {error}
         </p>
       ) : null}
@@ -555,8 +555,8 @@ function UserBubble({ content, pending }: { content: string; pending?: boolean }
   return (
     <div
       className={cn(
-        "max-w-[85%] self-end whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-brand/15 px-4 py-2.5 text-sm leading-relaxed text-foreground duration-200 animate-in fade-in slide-in-from-bottom-1 motion-reduce:animate-none",
-        pending && "opacity-60",
+        "max-w-[85%] self-end whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-brand/15 px-4 py-2.5 text-body leading-relaxed text-foreground duration-200 animate-in fade-in slide-in-from-bottom-1 motion-reduce:animate-none",
+        pending && "bg-brand/10 text-muted-foreground",
       )}
     >
       {content}
@@ -567,7 +567,7 @@ function UserBubble({ content, pending }: { content: string; pending?: boolean }
 function AgentBubble({ content }: { content: string }) {
   return (
     <div className="max-w-[85%] self-start break-words rounded-2xl rounded-bl-sm bg-secondary px-4 py-2.5 text-secondary-foreground duration-200 animate-in fade-in slide-in-from-bottom-1 motion-reduce:animate-none">
-      <div className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_pre]:max-w-full [&_pre]:overflow-x-auto">
+      <div className="prose prose-sm dark:prose-invert max-w-none text-body leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_pre]:max-w-full [&_pre]:overflow-x-auto">
         <Markdown>{content}</Markdown>
       </div>
     </div>

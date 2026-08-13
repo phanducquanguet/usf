@@ -1,0 +1,17 @@
+-- Adds an optional user-facing custom name for a runtime (MUL-4217).
+-- custom_name overrides the daemon-proposed `name` for display only; NULL
+-- falls back to `name`. Deliberately NOT written by the registration /
+-- heartbeat upserts (which do name = EXCLUDED.name on every beat), so a
+-- user's custom name is never clobbered by the daemon.
+--
+-- No index: the column is only ever read as part of a full-row runtime fetch
+-- and never appears in a WHERE / ORDER BY, so it needs none. Adding a
+-- nullable column with no default is a fast catalog-only change.
+--
+-- IF NOT EXISTS: this migration originally shipped as 145_agent_runtime_custom_name
+-- (upstream numbering), was renumbered to 161 after colliding with this
+-- fork's 145_portal, then renumbered again to 272 after upstream v0.4.22
+-- introduced its own 161_agent_skill_enabled. Deployments that migrated in
+-- between hold the column under an old version string, so the re-run must be
+-- a no-op.
+ALTER TABLE agent_runtime ADD COLUMN IF NOT EXISTS custom_name TEXT;

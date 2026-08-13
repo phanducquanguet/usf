@@ -29,7 +29,7 @@ export function UnsavedChangesBar({
       role="status"
       className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg border bg-background/95 px-4 py-3 shadow-md backdrop-blur motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
     >
-      <span className="flex items-center gap-2 text-sm text-muted-foreground">
+      <span className="flex items-center gap-2 text-body text-muted-foreground">
         <span className="size-1.5 rounded-full bg-warning" aria-hidden />
         {t(($) => $.save_bar.unsaved)}
       </span>

@@ -198,7 +198,7 @@ function LoginPageContent() {
         <AuthShell logo={<UnicomLogo />}>
           <Card className="w-full">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-display-sm">
                 {t(($) => $.web.desktop_handoff.failed_title)}
               </CardTitle>
               <CardDescription>{desktopError}</CardDescription>
@@ -211,7 +211,7 @@ function LoginPageContent() {
       <AuthShell logo={<UnicomLogo />}>
         <Card className="w-full">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">
+            <CardTitle className="text-display-sm">
               {t(($) => $.web.desktop_handoff.opening_title)}
             </CardTitle>
             <CardDescription>

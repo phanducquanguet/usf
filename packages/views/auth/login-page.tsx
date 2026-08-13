@@ -151,7 +151,7 @@ const brandButtonClass =
 
 /** Email input: soft brand-tinted focus ring instead of the default gray. */
 const authInputClass =
-  "h-11 rounded-lg text-[15px] focus-visible:border-brand-start/50 focus-visible:ring-[3px] focus-visible:ring-brand-start/20";
+  "h-11 rounded-lg text-body-lg focus-visible:border-brand-start/50 focus-visible:ring-[3px] focus-visible:ring-brand-start/20";
 
 // ---------------------------------------------------------------------------
 // Component
@@ -355,7 +355,7 @@ export function LoginPage({
       <AuthShell logo={logo}>
         <Card className={authCardClass}>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-semibold tracking-tight">
+            <CardTitle className="text-display-sm">
               {t(($) => $.cli.title)}
             </CardTitle>
             <CardDescription>
@@ -398,7 +398,7 @@ export function LoginPage({
       <AuthShell logo={logo}>
         <Card className={authCardClass}>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-semibold tracking-tight">
+            <CardTitle className="text-display-sm">
               {t(($) => $.verify.title)}
             </CardTitle>
             <CardDescription>
@@ -417,18 +417,18 @@ export function LoginPage({
               disabled={loading}
             >
               <InputOTPGroup>
-                <InputOTPSlot className="h-12 w-11 text-lg" index={0} />
-                <InputOTPSlot className="h-12 w-11 text-lg" index={1} />
-                <InputOTPSlot className="h-12 w-11 text-lg" index={2} />
-                <InputOTPSlot className="h-12 w-11 text-lg" index={3} />
-                <InputOTPSlot className="h-12 w-11 text-lg" index={4} />
-                <InputOTPSlot className="h-12 w-11 text-lg" index={5} />
+                <InputOTPSlot className="h-12 w-11 text-title" index={0} />
+                <InputOTPSlot className="h-12 w-11 text-title" index={1} />
+                <InputOTPSlot className="h-12 w-11 text-title" index={2} />
+                <InputOTPSlot className="h-12 w-11 text-title" index={3} />
+                <InputOTPSlot className="h-12 w-11 text-title" index={4} />
+                <InputOTPSlot className="h-12 w-11 text-title" index={5} />
               </InputOTPGroup>
             </InputOTP>
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-body text-destructive">{error}</p>
             )}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-body text-muted-foreground">
               <button
                 type="button"
                 onClick={handleResend}
@@ -468,7 +468,7 @@ export function LoginPage({
     <AuthShell logo={logo}>
       <Card className={authCardClass}>
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-semibold tracking-tight">
+          <CardTitle className="text-display-sm">
             {t(($) => $.signin.title)}
           </CardTitle>
           <CardDescription>
@@ -491,7 +491,7 @@ export function LoginPage({
               />
             </div>
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-body text-destructive">{error}</p>
             )}
           </form>
         </CardContent>
@@ -509,7 +509,7 @@ export function LoginPage({
           </Button>
           {(google || onGoogleLogin) && (
             <>
-              <div className="flex w-full items-center gap-3 text-xs uppercase text-muted-foreground">
+              <div className="flex w-full items-center gap-3 text-caption uppercase text-muted-foreground">
                 <span className="h-px flex-1 bg-border" />
                 {t(($) => $.signin.divider)}
                 <span className="h-px flex-1 bg-border" />
