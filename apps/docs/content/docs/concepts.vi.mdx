@@ -1,0 +1,70 @@
+---
+title: Khái niệm cốt lõi
+description: Toàn bộ đối tượng cốt lõi của UniAI và cách chúng liên kết với nhau, gói gọn trong một trang.
+---
+
+![Sơ đồ đối tượng cốt lõi của UniAI: bên trong một không gian làm việc, một issue kích hoạt agent qua giao việc hoặc @nhắc, agent tạo task, task thực thi trên một runtime, và kết quả được ghi ngược về issue; chat và Tự động hóa là hai nguồn kích hoạt nữa, skill và đội gắn vào agent, dự án tổ chức các issue, và thông báo đổ về hộp thư đến](/images/docs/concepts-core-objects.png)
+
+## Đối tượng cơ bản
+
+### Không gian làm việc
+
+Phạm vi khép kín nơi một nhóm cùng làm việc; mọi công việc và cấu hình đều diễn ra bên trong nó. Con người và agent cộng tác trong cùng một không gian làm việc. Xem [Không gian làm việc](/workspaces).
+
+### Issue
+
+Một phần việc cần làm, cùng phần mô tả, thảo luận, trạng thái và lịch sử tích lũy quanh nó. Issue là đơn vị cơ bản của công việc hằng ngày trong UniAI; người phụ trách có thể là một thành viên, một agent, hoặc một đội. Xem [Issue](/issues).
+
+### Dự án
+
+Gom các issue liên quan dưới một mục tiêu, theo dõi tiến độ tổng thể, và có thể gắn tài nguyên như repo và thư mục để dùng trong lúc thực thi. Xem [Dự án](/projects).
+
+## Agent và thực thi
+
+### Agent
+
+Một cộng sự AI trong không gian làm việc — một cấu hình tái sử dụng được: tên, chỉ dẫn, model, skill, Access và runtime. Agent không phải một tiến trình chạy dài; nó chỉ thực thi khi được kích hoạt. Xem [Agent](/agents).
+
+### Skill
+
+Một gói năng lực tái sử dụng được. Chỉ dẫn định nghĩa agent là ai; skill mô tả một loại công việc được làm như thế nào, và gắn được vào nhiều agent. Xem [Skills](/skills).
+
+### Runtime
+
+Nơi việc thực thi thực sự diễn ra: một máy tính kết nối với UniAI cùng các công cụ lập trình AI trên đó. Agent là danh tính; runtime là chiếc máy thực thi nó. Xem [Daemon và runtime](/daemon-runtimes).
+
+### Task
+
+Một bản ghi thực thi cụ thể của agent. Mỗi lần kích hoạt sinh ra một task, được một runtime hoàn thành rồi ghi kết quả ngược về. Một issue có thể sinh nhiều task theo thời gian; một lượt chạy xong không có nghĩa issue đã xong. Xem [Task](/tasks).
+
+## Cộng tác và tự động hóa
+
+### Đội
+
+Một nhóm agent và thành viên do một agent leader dẫn dắt. Giao issue cho đội và leader sẽ điều phối công việc. Xem [Đội](/squads).
+
+### Chat
+
+Một cách trò chuyện không gắn với issue nào — hợp với câu hỏi và thử nghiệm nhanh. Mỗi tin nhắn kích hoạt một lượt chạy. Xem [Chat với agent](/chat).
+
+### Hộp thư đến
+
+Trung tâm thông báo của thành viên: hoạt động trên các issue đang theo dõi, lượt @nhắc và giao việc đều đổ về đây. Agent không dùng hộp thư đến. Xem [Hộp thư đến và theo dõi](/inbox).
+
+### Tự động hóa
+
+Tự động kích hoạt lượt chạy của agent theo lịch hoặc từ sự kiện bên ngoài; bạn cũng chạy tay được. Xem [Tự động hóa](/autopilots).
+
+## Các đối tượng liên kết ra sao
+
+- **Không gian làm việc** là chiếc hộp chứa tất cả; con người và **agent** cộng tác bên trong nó.
+- Một **issue** ghi lại một phần việc; các issue liên quan được tổ chức bằng **dự án**.
+- Giao việc, `@`nhắc, **chat**, hoặc một **Tự động hóa** kích hoạt agent, sinh ra một **task**.
+- Task hoàn thành trên một **runtime**, và kết quả được ghi ngược về nơi nó được kích hoạt.
+- **Skill** giúp tái sử dụng những gì hiệu quả giữa các agent; **đội** giúp nhiều agent phối hợp cùng nhau.
+- Mọi thông báo cho con người dọc đường đều về **hộp thư đến**.
+
+## Bước tiếp theo
+
+- [Đưa agent vào việc](/triggering-agents) — điểm khởi đầu cho bốn cách kích hoạt.
+- [Cách UniAI hoạt động](/how-uniai-works) — đường đi đầy đủ của một lượt chạy.

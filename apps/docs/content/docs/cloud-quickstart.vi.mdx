@@ -1,107 +1,83 @@
 ---
-title: Bắt đầu nhanh với Cloud
-description: Từ đăng ký tới giao task đầu tiên cho agent trong 5 phút.
+title: Bắt đầu nhanh
+description: Kết nối một máy tính, tạo agent đầu tiên và để nó hoàn thành task đầu tiên.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Trang này dẫn bạn đi hết quy trình UniAI Cloud từ đầu đến cuối — **đăng ký → cài CLI → khởi động [daemon](/daemon-runtimes) → tạo [agent](/agents) → giao [task](/tasks) đầu tiên**. Mất khoảng 5 phút.
+<Callout type="info">
+Trước khi agent có thể thực thi, máy tính chạy nó cần cài và đăng nhập sẵn ít nhất một [công cụ lập trình AI được hỗ trợ](/providers) — ví dụ Claude Code, Codex hoặc Cursor. UniAI không kèm sẵn các công cụ này.
+</Callout>
 
-Một điều kiện tiên quyết: bạn đã cài sẵn ít nhất một [công cụ lập trình AI](/providers) trên máy ([Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder) hoặc [Trae CLI](/providers#trae)). Daemon tự phát hiện chúng khi khởi động và từ chối chạy nếu không tìm thấy công cụ nào.
+## 1. Đăng nhập và mở không gian làm việc
 
-## 1. Tạo tài khoản
+Đăng nhập trên web ([uniai.unicomhub.com](https://uniai.unicomhub.com)). Hỗ trợ cả mã xác thực qua email lẫn Google. Bạn sẽ kết nối máy tính của mình từ dòng lệnh ở bước kế tiếp.
 
-Đăng ký tại [uniai.unicomhub.com](https://uniai.unicomhub.com). Bạn có thể đăng nhập bằng email (mã xác thực 6 chữ số) hoặc Google.
+## 2. Kết nối một máy tính
 
-Sau khi đăng ký, bạn được đưa vào một không gian làm việc mặc định (tạo từ tên tài khoản). Bạn có thể đổi tên sau, hoặc tạo không gian làm việc mới.
+Agent thực thi công việc trên những máy tính bạn kết nối. Mở **Cấu hình → Runtime** ở cuối thanh bên, bấm **Add a computer** ở góc trên bên phải, rồi chạy hai lệnh trong hộp thoại trên terminal của máy đích:
 
-## 2. Cài UniAI CLI
+  **macOS / Linux**
 
-**macOS / Linux**:
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.sh | bash
+  uniai setup
+  ```
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.sh | bash
-```
+  **Windows PowerShell**
 
-**Windows (PowerShell)**:
+  ```powershell
+  irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex
+  uniai setup
+  ```
 
-```powershell
-irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex
-```
+  `uniai setup` mở trình duyệt để hoàn tất đăng nhập, rồi để daemon chạy nền. Khi daemon đã online, hộp thoại thường phát hiện ra máy tính trong vòng một phút.
 
-Kiểm tra lại bản cài:
+**Dấu hiệu thành công**: một máy tính online xuất hiện trong danh sách runtime.
 
-```bash
-uniai version
-```
+![Hộp thoại Add a computer: hai lệnh và thông báo đang chờ phát hiện](/images/docs/quickstart-add-computer.png)
 
-## 3. Đăng nhập + khởi động daemon
+## 3. Tạo agent
 
-Một lệnh duy nhất lo cả đăng nhập lẫn khởi động daemon:
+Mở **Không gian làm việc → Agent** trong thanh bên, bấm **New agent** và chọn một hướng:
 
-```bash
-uniai setup
-```
+- **Start blank**: tự điền các trường. Chỉ tên là bắt buộc — xác nhận runtime và công cụ lập trình AI, rồi tạo.
+- **Build with AI**: mô tả điều bạn muốn, Agent Builder sẽ đặt câu hỏi và sinh cấu hình. Hướng này cần một runtime đang online.
 
-`uniai setup` sẽ:
+Mọi thứ còn lại đều tinh chỉnh được về sau — xem [Tạo và cấu hình agent](/agents-create).
 
-1. Cấu hình CLI kết nối tới UniAI Cloud
-2. Mở trình duyệt để đăng nhập (cùng mã xác thực email / Google OAuth như trên web)
-3. Lưu PAT được tạo vào `~/.multica/config.json`
-4. **Tự động khởi động daemon** — daemon bắt đầu poll task mỗi 3 giây và gửi heartbeat mỗi 15 giây
+**Dấu hiệu thành công**: agent của bạn xuất hiện trong danh sách agent và hiển thị là online.
 
-Kiểm tra daemon đang chạy:
+![Màn hình chọn điểm khởi đầu khi tạo agent: Start blank và Build with AI](/images/docs/quickstart-new-agent.png)
 
-```bash
-uniai daemon status
-```
+## 4. Giao cho nó issue đầu tiên
 
-`online` nghĩa là nó đã đăng ký với server.
+Bấm **New Issue** ở đầu thanh bên (hoặc nhấn `C`). Ở chế độ agent mặc định:
 
-## 4. Kiểm tra runtime đã online
+1. Ở mục **Created by**, chọn agent bạn vừa tạo.
+2. Mô tả công việc trong một hai câu, ví dụ "Giải thích không gian làm việc này có thể dùng vào việc gì."
+3. Gửi. UniAI tạo issue, đặt agent làm người phụ trách và bắt đầu thực thi ngay.
 
-Trên giao diện web, vào **Cài đặt → Runtime**. Daemon bạn vừa khởi động sẽ hiện thành một hoặc nhiều runtime hoạt động — mỗi runtime ứng với một công cụ lập trình AI cài trên máy.
+![Hộp thoại tạo issue ở chế độ agent: Created by đặt là UniAI Assistant](/images/docs/quickstart-new-issue.png)
 
-Nếu nó hiện offline, đừng hoảng — xem Khắc phục sự cố → Daemon không kết nối được server.
+## 5. Theo dõi tiến độ và kết quả
 
-## 5. Tạo agent
+Sau khi gửi, mở issue: nhật ký thực thi hiển thị trạng thái lượt chạy, còn tiến độ và phản hồi của agent xuất hiện trong dòng thời gian.
 
-Trên giao diện web, vào **Cài đặt → Agent** và bấm **New Agent**:
+**Dấu hiệu thành công**: trạng thái trong nhật ký thực thi chuyển thành Completed và phản hồi của agent xuất hiện trong dòng thời gian. Để xem toàn bộ bản ghi lượt chạy, bấm **View transcript**.
 
-- **Tên** — tên hiển thị của agent trên bảng và trong bình luận. Chọn tên bạn thích
-- **Provider** — chọn một công cụ lập trình AI bạn đã cài trên máy (danh sách chỉ hiện các công cụ mà runtime phát hiện được)
-- **Model** (tùy chọn) — lựa chọn model bên trong công cụ đó (danh sách cố định hoặc dò tự động, tùy provider)
-- **Chỉ dẫn** (tùy chọn) — system prompt cho agent này
+![Phản hồi của agent trong issue và một nhật ký thực thi đã hoàn thành](/images/docs/quickstart-run-result.png)
 
-Sau khi tạo, agent xuất hiện trong danh sách thành viên của không gian làm việc và có thể được giao việc như một thành viên bình thường.
+## Sự cố thường gặp
 
-## 6. Giao task đầu tiên
-
-Tạo issue trên giao diện web, hoặc từ CLI:
-
-```bash
-uniai issue create --title "Add an ASCII architecture diagram to the README"
-```
-
-Giao issue cho agent bạn vừa tạo — bấm vào avatar của nó trên web, hoặc dùng CLI:
-
-```bash
-uniai issue assign UNI-1 --to my-agent-name
-```
-
-`--to` nhận **tên** của agent hoặc thành viên. Khớp theo chuỗi con cũng được — nếu agent tên `my-code-reviewer`, gõ `reviewer` là đủ. Nếu không gian làm việc có tên trùng nhau, dùng `--to-id <uuid>` thay thế (không dùng chung được với `--to`); tra UUID bằng `uniai agent list --output json` hoặc `uniai workspace member list --output json`.
-
-**Điều gì diễn ra tiếp theo phía daemon**:
-
-1. Nó nhận task trong vòng 3 giây (trạng thái chuyển từ `queued` sang `dispatched`)
-2. Nó gọi công cụ lập trình AI tương ứng để bắt đầu làm việc (trạng thái thành `running`)
-3. AI làm việc trên máy bạn — có thể đọc thư mục mã nguồn, chạy lệnh, sửa file
-4. Khi xong, nó báo kết quả về UniAI (trạng thái thành `completed` hoặc `failed`, tùy việc tự động thử lại có kích hoạt hay không)
-
-Giao diện web cập nhật **thời gian thực** (qua WebSocket) — không cần tải lại trang.
+| Triệu chứng | Kiểm tra trước tiên |
+|---|---|
+| Không tìm thấy runtime | Xác nhận công cụ lập trình AI đã cài và chạy được trong terminal, rồi chạy lại `uniai setup`. |
+| Runtime hiển thị offline | Chạy `uniai daemon status`, và `uniai daemon start` nếu daemon chưa chạy. |
+| Issue kẹt ở trạng thái xếp hàng | Xác nhận runtime mà agent dùng đang online. Khi runtime chạm giới hạn chạy đồng thời, task mới sẽ tiếp tục xếp hàng. |
 
 ## Bước tiếp theo
 
-- [Daemon và runtime](/daemon-runtimes) — daemon vận hành ra sao và runtime nghĩa là gì
-- [Task](/tasks) — vòng đời task và quy tắc thử lại
-- [So sánh các công cụ lập trình AI](/providers) — khác biệt năng lực giữa 14 công cụ
+- [Khái niệm cốt lõi](/concepts) — gặp toàn bộ các đối tượng cốt lõi của UniAI trong ba phút.
+- [Cách UniAI hoạt động](/how-uniai-works) — issue, agent, runtime và mỗi lượt chạy liên hệ với nhau ra sao.
+- [Đưa agent vào việc](/triggering-agents) — không chỉ giao việc: @nhắc, chat và Tự động hóa.

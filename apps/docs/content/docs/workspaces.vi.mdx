@@ -1,56 +1,56 @@
 ---
 title: Không gian làm việc
-description: Không gian làm việc là nơi khép kín để một nhóm cộng tác — mọi issue, thành viên, bình luận và agent đều thuộc về một không gian làm việc.
+description: Không gian làm việc là ranh giới giữ cho nhóm, công việc và cấu hình agent cách ly hoàn toàn với nhau.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Không gian làm việc là **nơi khép kín để một nhóm cộng tác trong UniAI** — mọi [issue](/issues), [thành viên](/members-roles), [bình luận](/comments) và [agent](/agents) đều thuộc về một không gian làm việc. Danh sách issue, danh sách thành viên và cấu hình agent bạn thấy sau khi đăng nhập đều thuộc phạm vi không gian làm việc hiện tại; **chuyển không gian làm việc là thay toàn bộ những gì bạn đang thấy**.
+Không gian làm việc là ranh giới cấp cao nhất của UniAI. Thành viên, issue, dự án, agent, skill và lịch sử task đều thuộc về một không gian làm việc và cách ly hoàn toàn với mọi không gian làm việc khác.
+
+## Một không gian làm việc chứa những gì
+
+| Nhóm | Nội dung |
+|---|---|
+| **Công việc** | Issue, dự án, bình luận, tệp đính kèm, lịch sử task |
+| **Nhóm** | Thành viên, vai trò, lời mời |
+| **Agent** | Cấu hình agent, skill, runtime, Tự động hóa |
+| **Cài đặt chung** | Ngữ cảnh, nhãn, thuộc tính tùy chỉnh, tích hợp |
+
+**Ngữ cảnh** được cung cấp cho mọi agent trong không gian làm việc — chỗ cho bối cảnh của nhóm, quy ước sản phẩm và các yêu cầu lâu dài. Yêu cầu chỉ dùng một lần cho một task thì thuộc về issue tương ứng.
 
 ## Tạo không gian làm việc
 
-Ba thứ được quyết định khi bạn tạo một không gian làm việc:
+Tạo không gian làm việc chỉ hỏi hai thứ:
 
-- **Tên** — tên hiển thị mà thành viên nhìn thấy. Cho phép dấu cách và ký tự ngoài ASCII. Có thể đổi sau.
-- **Slug** — chuỗi dùng trong URL của không gian làm việc. Chỉ chữ thường và chữ số (nối bằng `-`). **Không đổi được sau khi tạo**, nên hãy chọn kỹ. Nếu slug đã bị lấy hoặc trùng từ khóa hệ thống dành riêng, màn hình tạo sẽ yêu cầu chọn slug khác.
-- **Tiền tố issue** — tiền tố cho mọi số issue trong không gian làm việc (phần `UNI` trong `UNI-123`). Chữ hoa và chữ số, tối đa 10 ký tự.
+- **Tên**: hiển thị cho thành viên; có thể đổi sau.
+- **URL không gian làm việc**: slug trong địa chỉ — phần `my-team` trong `uniai.unicomhub.com/my-team`. Chỉ chữ thường, chữ số và dấu gạch nối; không được trùng với không gian làm việc đã có hay một địa chỉ dành riêng, và không đổi được sau khi tạo.
+
+Người tạo tự động trở thành `owner`. Tiền tố issue được sinh từ tên không gian làm việc — với tiền tố `UNI`, số issue hiển thị là `UNI-1`, `UNI-2`, đếm tăng độc lập trong từng không gian làm việc.
+
+## Đổi cài đặt
+
+`owner` và `admin` đổi được tên, biểu tượng, mô tả, ngữ cảnh và tiền tố issue; `member` chỉ xem được.
+
+![Cài đặt không gian làm việc: tên, ngữ cảnh, slug, tiền tố issue và vùng nguy hiểm](/images/docs/workspace-settings.png)
 
 <Callout type="warning">
-**Tránh đổi tiền tố issue.** Số issue được hiển thị theo tiền tố hiện tại — đổi nó thì `UNI-5` lập tức thành `NEW-5`. Mọi liên kết bên ngoài, lượt nhắc trên Slack và tham chiếu cũ trong bình luận đều hỏng vì vẫn trỏ tới số cũ. Hãy coi tiền tố issue là "đặt lúc tạo, không bao giờ đụng vào."
+Sau khi đổi tiền tố issue, mọi issue lập tức chuyển sang số mới (`UNI-5` thành `NEW-5`), nhưng số cũ trong PR, tên nhánh và lịch sử chat không được cập nhật theo.
 </Callout>
 
-Bạn có thể tạo không gian làm việc từ giao diện web hoặc dòng lệnh:
+## Chuyển và rời
 
-```bash
-uniai workspace create
-```
+Một tài khoản có thể tham gia nhiều không gian làm việc. Chuyển qua lại chỉ thay đổi thứ bạn đang xem; không dữ liệu nào bị di chuyển.
 
-## Số issue
+Sau khi rời một không gian làm việc, bạn cần lời mời mới để quay lại. Rời đi cũng vô hiệu hóa các runtime bạn sở hữu, lưu trữ các agent gắn với chúng và hủy những task chưa hoàn thành của chúng.
 
-Mỗi issue tạo trong không gian làm việc được tự gán số theo dạng `<tiền tố>-<số>` — `UNI-1`, `UNI-2`, `UNI-3`. Vài tính chất:
-
-- **Tuần tự và duy nhất trong một không gian làm việc** — mỗi không gian làm việc có bộ đếm riêng; không ảnh hưởng lẫn nhau.
-- **Không đặt số thủ công được** — khi tạo issue bạn chỉ nhập tiêu đề; số do hệ thống cấp.
-- **Không tái sử dụng khi xóa** — xóa `UNI-5` thì issue mới kế tiếp là `UNI-6`, không phải `UNI-5`.
+`owner` cuối cùng không rời được; hãy nâng một thành viên khác lên `owner` trước.
 
 ## Xóa không gian làm việc
 
-Chỉ owner mới xóa được cả không gian làm việc. Xóa là **không thể hoàn tác**.
+Chỉ một `owner` mới xóa được không gian làm việc. Xóa sẽ gỡ bỏ vĩnh viễn toàn bộ công việc, thành viên, cấu hình agent và lịch sử task của nó, và không thể hoàn tác. Nếu chỉ muốn tạm rời đi một thời gian, hãy rời thay vì xóa.
 
-<Callout type="warning">
-Xóa không gian làm việc sẽ quét sạch cùng lúc:
+## Bước tiếp theo
 
-- Mọi issue, dự án, bình luận và lượt thả cảm xúc
-- Mọi tệp đính kèm
-- Mọi tư cách thành viên và lời mời đang chờ
-- Mọi cấu hình agent cùng lịch sử task của nó
-
-**Dữ liệu không thể khôi phục.** Xuất những gì cần giữ trước khi xóa.
-</Callout>
-
-Nếu bạn là owner cuối cùng của không gian làm việc và muốn rời đi, hãy chuyển vai trò owner cho thành viên khác trước, rồi để owner mới (hoặc bạn) quyết định có xóa hay không. Xem [Thành viên và vai trò](/members-roles).
-
-## Tiếp theo
-
-- [Thành viên và vai trò](/members-roles) — cách thêm người vào không gian làm việc, và mỗi vai trò làm được những gì
-- [Issue và dự án](/issues) — các đối tượng công việc cốt lõi trong không gian làm việc
+- [Thành viên và vai trò](/members-roles) — mời thành viên và quản lý vai trò.
+- [Issue](/issues) — đơn vị công việc cơ bản trong không gian làm việc.
+- [Agent](/agents) — danh tính và cấu hình của agent.

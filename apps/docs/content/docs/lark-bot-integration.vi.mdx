@@ -1,72 +1,76 @@
 ---
-title: Tích hợp Lark Bot
-description: Gắn một agent UniAI vào một Bot Lark (飞书), rồi trò chuyện với nó từ DM hoặc nhóm Lark — @nhắc nó, chat tự nhiên, hoặc gõ /issue để tạo issue UniAI mà không rời Lark.
+title: Feishu Bot
+description: Kết nối một agent với Feishu và giao việc cho nó ngay từ DM hoặc chat nhóm.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Gắn bất kỳ [agent](/agents) nào vào một Bot Lark (飞书) và nhóm của bạn làm việc được với nó ngay trong Lark — DM cho Bot, @nhắc nó trong nhóm, hoặc gõ `/issue` để tạo một [issue UniAI](/issues) mà không phải mở app. Câu trả lời của agent stream thẳng về cuộc chat dưới dạng thẻ động, cập nhật liên tục trong lúc agent làm việc.
+Kết nối một agent UniAI làm Bot Feishu (飞书) và thành viên trong nhóm có thể DM cho nó trong Feishu, @nhắc nó trong nhóm, hoặc dùng `/issue` để tạo issue. Các cuộc trò chuyện và bản ghi chạy vẫn được lưu về không gian làm việc UniAI.
 
-Mỗi Bot gắn **một-một** với một agent UniAI. Gắn agent thứ hai sẽ tạo Bot thứ hai; một agent không bao giờ có hai Bot.
+Mỗi Bot ánh xạ tới đúng một agent. Muốn dùng nhiều agent trong Feishu, kết nối một Bot cho từng agent.
 
-## Tích hợp làm gì
+## Kết nối một Bot
 
-| Vị trí | Hành vi |
-|---|---|
-| **Agent → Integrations** | Trang chi tiết agent có tab **Integrations** (và mục tương ứng ở thanh bên trái). Owner và admin thấy **Bind to Lark** ở đó; gắn xong, nút chuyển thành huy hiệu **Connected to Lark** kèm liên kết **Manage in Lark**. |
-| **DM cho Bot** | Một thành viên nhắn thẳng cho Bot trong Lark. Mỗi cuộc trò chuyện thành một phiên [chat](/chat) UniAI với agent; agent trả lời trong luồng. |
-| **@nhắc trong nhóm** | Thêm Bot vào nhóm Lark và @nhắc nó. Chỉ tin nhắn có nhắc mới được đọc — Bot không nghe cả nhóm. |
-| **Lệnh `/issue`** | Gõ `/issue <tiêu đề>` (tùy chọn kèm phần thân) tạo một issue UniAI mới trong không gian làm việc, đứng tên bạn. |
-| **Thẻ trả lời động** | Bot đăng một thẻ tương tác và liên tục cập nhật nó trong lúc agent chạy — tiến độ, câu trả lời cuối, hoặc lỗi. |
+Owner của agent cùng owner và admin của không gian làm việc có thể bắt đầu kết nối:
 
-## Gắn một agent (owner / admin)
+1. Mở **Agents** và chọn agent cần nối với Feishu.
+2. Vào **Integrations** và bấm **Bind to Feishu**.
+3. Quét mã QR bằng Feishu và xác nhận cấp quyền.
+4. Quay lại UniAI. Khi trang hiện **Connected to Feishu**, Bot đã sẵn sàng.
 
-Việc gắn dùng luồng quét mã để cài — không phải chép app secret, không cần thao tác trên developer console.
 
-1. Mở agent trong **Agent → _agent của bạn_**.
-2. Vào tab **Integrations** (hoặc mục **Integrations** ở thanh bên trái) và bấm **Bind to Lark**.
-3. Một mã QR hiện ra. Trên điện thoại, mở **Lark → Scan**, rồi cấp quyền cho Bot PersonalAgent mới.
-4. Quét xong, hộp thoại đóng và agent hiện **Connected to Lark**. Danh tính Lark của chính bạn được tự động liên kết với tài khoản UniAI, nên bạn chat được với Bot ngay.
+Mã QR là thông tin xác thực dùng một lần; nếu hết hạn, tạo mã mới. Agent đã kết nối không còn hiện chỗ quét mã nữa; muốn đổi tên Bot hoặc chỉnh quyền của nó, bấm **Manage in Feishu**.
 
 <Callout type="info">
-Mã QR dùng một lần và hết hạn sau một khoảng thời gian ngắn. Nếu mã hết hạn trước khi bạn cấp quyền, bấm **Scan again** để lấy mã mới.
+Hiện chỉ mở kết nối mới cho Feishu Trung Quốc đại lục. Các kết nối Lark quốc tế hiện có vẫn hoạt động và vẫn quản lý được.
 </Callout>
 
-Khi agent đã kết nối, nút **Bind to Lark** được thay bằng liên kết **Manage in Lark**. Dùng nó để mở trang app của Bot trong Lark khi cần chỉnh scope, đổi tên, hoặc xin thêm quyền — tính năng quét lại được chủ đích tắt để Bot hiện có không bị bỏ lửng.
+## Lần dùng đầu tiên
 
-## Dùng Bot (thành viên)
+Lần đầu một thành viên nhắn Bot, họ nhận một đường dẫn liên kết tài khoản:
 
-### Tin nhắn đầu tiên: liên kết danh tính Lark
+1. Mở đường dẫn và đăng nhập UniAI.
+2. Xác nhận tài khoản không gian làm việc cần liên kết.
+3. Quay lại Feishu và gửi lại tin nhắn.
 
-Lần đầu bạn nhắn Bot, nó trả lời bằng một thẻ đề nghị **liên kết danh tính Lark của bạn**. Bấm liên kết, đăng nhập UniAI, và tài khoản Lark của bạn được nối với tài khoản thành viên UniAI. Nhờ đó agent có thể hành động thay bạn — ví dụ, `/issue` tạo issue đứng tên bạn.
+Chỉ sau khi liên kết, UniAI mới xác nhận được tin nhắn đến từ thành viên nào của không gian làm việc. Người ngoài không dùng được Bot.
 
-<Callout type="warning">
-Chỉ **thành viên của không gian làm việc** dùng được Bot. Nếu bạn không phải thành viên, hoặc bỏ qua bước liên kết danh tính, Bot sẽ không trả lời — tin nhắn của bạn bị bỏ qua (và được ghi lại để kiểm toán, không kèm nội dung).
-</Callout>
+## Giao việc cho agent trong Feishu
 
-### Chat và `/issue`
+### Tin nhắn trực tiếp
 
-- **Hỏi agent bất cứ gì** — DM cho Bot hoặc @nhắc nó trong nhóm. Cuộc trò chuyện là một phiên chat agent bình thường; agent trả lời trong thẻ.
-- **Tạo issue** — gửi `/issue Fix the login redirect` và UniAI tạo issue đó trong không gian làm việc, được giao như mọi issue mới. Thêm dòng sau tiêu đề để làm mô tả.
-- **Xem agent làm việc** — thẻ trả lời tự cập nhật trong lúc agent chạy, nên bạn thấy tiến độ và kết quả ngay tại chỗ.
+Nhắn thẳng cho Bot. Các tin nhắn liên tiếp nằm trong cùng một cuộc trò chuyện UniAI, và câu trả lời của agent quay về đúng cuộc trò chuyện đó.
 
-Nếu agent **offline** (runtime của nó không kết nối) hoặc **đã lưu trữ**, Bot trả lời một thông báo trạng thái ngắn thay vì lặng lẽ bỏ tin nhắn của bạn.
+### Chat nhóm
 
-## Quản lý và ngắt kết nối
+Thêm Bot vào nhóm trước, rồi `@Bot` và mô tả điều bạn cần. Bot chỉ trả lời các tin nhắn có @nhắc nó rõ ràng; khi chạy, nó dựa trên ngữ cảnh gần đây mà nó đọc được trong phiên hiện tại.
 
-Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integrations**:
+### Tạo issue
 
-- **Connected bots** liệt kê mọi Bot trong không gian làm việc và agent mà từng Bot gắn vào. Danh sách này mọi thành viên đều thấy.
-- **Disconnect** chỉ dành cho **owner / admin**. Ngắt kết nối làm Bot ngừng nhận tin nhắn Lark và gỡ kết nối của nó; bản ghi installation được giữ để kiểm toán, và bạn có thể gắn lại chính agent đó về sau.
+Gửi:
 
-## Quyền
+```text
+/issue Fix the redirect after login
+Safari stays on the login page after a successful sign-in.
+```
 
-- **Gắn / ngắt kết nối** cần **owner** hoặc **admin** của không gian làm việc. Member thấy danh sách bot đã kết nối nhưng không có nút gắn hay ngắt.
-- **Nói chuyện với Bot** yêu cầu là thành viên của không gian làm việc và đã liên kết danh tính Lark. Tin nhắn của những người khác đều bị bỏ qua.
-- Tích hợp không bao giờ lưu nội dung của tin nhắn bị bỏ qua — chỉ lưu lý do, để kiểm toán.
+Dòng đầu thành tiêu đề, phần còn lại thành mô tả. Gửi mỗi `/issue` không thôi sẽ không tạo gì; thay vào đó, Bot trả lời kèm định dạng cần dùng.
 
-## Tiếp theo
+## Quản lý kết nối
 
-- [Agent](/agents) — mỗi Bot gắn với đúng một agent
-- [Chat](/chat) — cuộc trò chuyện với Bot ánh xạ thành gì trong UniAI
-- [Issue](/issues) — `/issue` tạo ra gì
+Mở **Cài đặt → Integrations** để xem các Bot đã kết nối trong không gian làm việc. Owner và admin của không gian làm việc có thể ngắt kết nối tại đây; owner của agent cũng quản lý được Bot của mình từ trang **Integrations** của agent đó.
+
+Sau khi ngắt kết nối, Bot ngừng nhận tin nhắn mới. Các cuộc trò chuyện và bản ghi kiểm toán hiện có không bị xóa.
+
+## Khắc phục sự cố
+
+- **Không thấy nút gắn**: xác nhận tài khoản hiện tại là owner của agent, hoặc là owner hay admin của không gian làm việc.
+- **Mã QR hết hạn**: đóng hộp thoại và bắt đầu lại kết nối.
+- **Bot yêu cầu liên kết tài khoản**: mở đường dẫn liên kết và đăng nhập bằng tài khoản UniAI của không gian làm việc đó.
+- **Bot không chạy**: kiểm tra agent có bị lưu trữ không và [runtime](/daemon-runtimes) nó dùng có trực tuyến không.
+
+## Bước tiếp theo
+
+- [Tích hợp chat](/channels) — so sánh nền tảng, cách ly phiên và cơ chế liên kết tài khoản.
+- [Chat](/chat) — mô hình trò chuyện và thực thi đứng sau Bot.
+- [Issue](/issues) — đơn vị công việc mà `/issue` tạo ra.

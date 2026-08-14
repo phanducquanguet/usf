@@ -1,0 +1,346 @@
+---
+title: Hướng dẫn đầy đủ
+description: "Bắt đầu từ một không gian làm việc trống và đưa một dự án website cá nhân đi qua toàn bộ luồng cốt lõi của UniAI: tạo agent, giao việc bằng issue, lập đội, xây skill và thiết lập tự động hóa."
+---
+
+UniAI là nền tảng nơi con người và AI agent làm việc cùng nhau. Hướng dẫn này bắt đầu từ con số không và đi qua:
+
+- tự dựng một không gian làm việc của riêng bạn
+- cộng tác giữa người và agent, và cộng tác tự động giữa các agent với nhau
+- giao việc lặp đi lặp lại cho tự động hóa
+- đúc kết những gì hiệu quả thành skill, và cải tiến agent của bạn theo thời gian
+
+Dự án ví dụ là một website cá nhân, dùng để đi hết luồng làm việc tổng thể và các tính năng cốt lõi của UniAI từ đầu đến cuối.
+
+**Trước khi bắt đầu:**
+
+- Một tài khoản UniAI (đăng ký tại [uniai.unicomhub.com](https://uniai.unicomhub.com))
+- Một máy tính đã cài và đăng nhập ít nhất một công cụ lập trình AI, ví dụ Claude Code hoặc Codex. Danh sách đầy đủ các công cụ được hỗ trợ nằm ở [Cài đặt runtime cho agent](/install-agent-runtime).
+
+## Tạo không gian làm việc
+
+Không gian làm việc là nơi một nhóm làm việc: issue, dự án và agent đều thuộc về một không gian làm việc. Luồng onboarding sau khi đăng ký sẽ dẫn bạn tạo không gian làm việc đầu tiên. Nếu bạn được mời vào một nhóm, đăng nhập sẽ đưa bạn thẳng vào không gian làm việc của nhóm đó.
+
+Hướng dẫn này tạo một không gian làm việc mới để thực hành. Bấm vào tên không gian làm việc ở đầu thanh bên và chọn **Create workspace** (tạo không gian làm việc):
+
+![Lối vào tạo không gian làm việc](/images/docs/tutorial-create-workspace-menu.png)
+
+Có hai trường cần điền lúc tạo:
+
+- **Name**: tên hiển thị với thành viên; có thể đổi sau.
+- **URL**: slug trong địa chỉ của không gian làm việc — phần `my-team` trong `uniai.unicomhub.com/my-team`. Không đổi được sau khi tạo.
+
+![Trang tạo không gian làm việc](/images/docs/tutorial-create-workspace-form.png)
+
+Tạo xong, không gian làm việc mới mở ra. Thanh bên bên trái là điểm xuất phát của mọi bước sau này; danh sách issue ở giữa vẫn trống, và vài bước tiếp theo chính là để agent lấp đầy nó.
+
+![Không gian làm việc vừa tạo, còn trống](/images/docs/tutorial-empty-workspace.png)
+
+## Kết nối máy tính của bạn
+
+Agent thực thi công việc trên những máy tính bạn kết nối, dùng các công cụ lập trình AI cài trên các máy đó.
+
+Trên trang Runtime, bấm **Add a computer** (thêm máy tính) và làm theo hướng dẫn để cài UniAI CLI rồi chạy `uniai setup` từ dòng lệnh. Daemon đăng ký máy tính này thành một runtime và phát hiện các công cụ lập trình AI đã cài. Mở **Cấu hình → Runtime** ở cuối thanh bên và xác nhận máy tính đang online:
+
+![Danh sách runtime với máy tính này đang online](/images/docs/tutorial-runtimes-list.png)
+
+Mở máy tính đó ra để xem từng công cụ được phát hiện:
+
+![Chi tiết runtime: các công cụ lập trình AI được phát hiện](/images/docs/tutorial-runtime-detail.png)
+
+Daemon chạy nền và tự kết nối lại — xem [Daemon và runtime](/daemon-runtimes).
+
+## Tạo agent đầu tiên
+
+Agent là thành viên thực thụ của không gian làm việc: nó được giao issue, đăng bình luận và trò chuyện với bạn. Agent đầu tiên là một trợ lý lo các việc vặt thường ngày của không gian làm việc; nhiều bước sau trong hướng dẫn này sẽ được giao cho nó.
+
+Mở **Agent** trong thanh bên, bấm **New agent**, chọn **Start blank** (bắt đầu từ trống), và điền ba trường:
+
+- **Name**: `UniAI helper`.
+- **Runtime** và **Model**: chọn máy tính đã kết nối ở bước trước và một trong các công cụ lập trình AI của nó, rồi chọn một model công cụ đó hỗ trợ. Hướng dẫn này dùng Claude và Sonnet.
+- **Chỉ dẫn**: prompt được cấp cho agent ở mỗi lượt chạy. Nêu rõ nó chịu trách nhiệm việc gì và không đụng vào việc gì:
+
+```text
+You are the helper of this workspace.
+
+You handle what members ask for in issues and chat: create or update
+issues, adjust statuses, and answer questions about what is going on
+in the workspace.
+
+Keep replies short. After finishing something, reply with a one-line
+summary of what you did. Do not touch code or repositories. If a
+request is ambiguous, ask before acting.
+```
+
+![Trang tạo agent](/images/docs/tutorial-create-agent-form.png)
+
+Các trường còn lại để mặc định rồi tạo. Quay lại trang **Agent**, UniAI helper đã online và sẵn sàng nhận việc:
+
+![Chi tiết agent: UniAI helper đang online](/images/docs/tutorial-agent-detail.png)
+
+## Agent thứ hai, tạo qua chat
+
+Xây website cần một kỹ sư biết viết code. Lần này không phải điền form nữa — không gian làm việc đã có một agent, nên việc tạo agent tiếp theo giao được cho nó.
+
+Mở **Chat** trong thanh bên, chọn UniAI helper, và bảo nó tạo một agent tên Engineer trên cùng runtime, model là Opus, chịu trách nhiệm xây và bảo trì website cá nhân. UniAI helper thực hiện việc tạo trên máy tính đó và trả lời kèm tên cùng model của agent mới. Mặc định chỉ người tạo mới chạy được agent mới; trong hướng dẫn này cứ giữ nguyên như vậy.
+
+![Nhờ trợ lý trong chat tạo Engineer](/images/docs/tutorial-chat-create-engineer.png)
+
+Mở **Agent → Engineer** để kiểm tra kết quả: model là Opus, và phần chỉ dẫn do UniAI helper sinh ra — phạm vi trách nhiệm, cách lấy code từ repo, và yêu cầu khi nộp thay đổi. Chỉ dẫn sửa được bất cứ lúc nào.
+
+![Chỉ dẫn của Engineer](/images/docs/tutorial-engineer-instructions.png)
+
+## Chuẩn bị repo cho website
+
+Code của website nằm trong một repo GitHub. Việc tạo và liên kết repo cũng giao cho agent — với điều kiện máy tính này đã cài và đăng nhập [GitHub CLI](https://cli.github.com).
+
+Trong **Chat**, chọn Engineer và bảo nó tạo một repo trống tên `personal-website` dưới tài khoản GitHub của bạn (máy này có sẵn GitHub CLI), rồi đăng ký repo vào không gian làm việc bằng `uniai repo add`. Engineer tạo repo tại máy, đăng ký vào không gian làm việc, và trả lời kèm địa chỉ repo. Tin nhắn không nói rõ public hay private, nên nó tạo theo mặc định và nói rõ điều đó trong câu trả lời; public hay private không ảnh hưởng gì đến các bước sau.
+
+![Chat: Engineer trả lời rằng repo đã được tạo và đăng ký](/images/docs/tutorial-chat-create-repo.png)
+
+Mở **Cài đặt → Repositories** để xác nhận: `personal-website` đã nằm trong danh sách. Agent chọn repo từ đây khi thực thi task.
+
+![Danh sách repo trong cài đặt](/images/docs/tutorial-repo-settings.png)
+
+Không có GitHub CLI, bạn có thể tự tạo repo trên GitHub rồi thêm thủ công ở cùng trang này; kết quả như nhau.
+
+Cuối cùng, bấm **Connect GitHub** trên cùng trang và cấp quyền cho repo theo hướng dẫn. Kết nối xong, các pull request có nhắc tới mã issue sẽ tự liên kết với issue đó, và trạng thái PR cùng kết quả CI hiện ngay trong issue.
+
+## Issue đầu tiên: xây website
+
+Vậy là xong phần thiết lập. Từ đây trở đi, đây chính là cách công việc thường ngày vận hành trong UniAI: yêu cầu được viết thành issue và giao cho agent.
+
+Website xuất phát từ template chính thức của shadcn thay vì dựng từ đầu: template đã mang sẵn stack và cấu hình nền, Engineer chỉ xây nội dung và thiết kế lên trên.
+
+Bấm **New Issue** ở đầu thanh bên (phím tắt `C`). Ở chế độ agent mặc định không có ô tiêu đề để điền — chọn Engineer ở mục **Created by** và viết thẳng yêu cầu vào phần mô tả; tiêu đề được sinh ra lúc tạo. Bạn cũng có thể chuyển sang chế độ thủ công và tự viết tiêu đề lẫn nội dung. Phần mô tả:
+
+```text
+Work in the personal-website repository registered in this workspace.
+
+Start from a template instead of scaffolding from scratch:
+
+pnpm dlx shadcn@latest init --preset b5rR41Mtnc --template next --pointer
+
+Run the command, commit the template as-is, then build on top of it.
+
+The site is for a photographer. It needs:
+
+- Introduction — who I am and what I shoot
+- My work — a selection of photos
+- Contact — an email link that is easy to find
+- Pricing — decide where a pricing table fits and how to present it
+- Use placeholder images (Unsplash or picsum.photos) wherever a photo
+  belongs, and list where I should replace them with my own work
+
+Design:
+
+- Pick a style that fits a photography portfolio. It should feel
+  refined and understated; express that through layout, typography
+  and spacing, and never use words like "premium" or "high-end"
+  in the copy.
+- Choose the fonts.
+
+Open a pull request when it is ready.
+```
+
+Phần mô tả mang ba loại thông tin: ràng buộc (xuất phát từ template chỉ định), yêu cầu nội dung (liệt kê từng mục), và khoảng mở (phong cách để Engineer tự quyết). Viết ra ý định và ranh giới; phần triển khai để agent lo.
+
+![Chế độ agent trong hộp thoại tạo issue, với Engineer được chọn làm người tạo](/images/docs/tutorial-new-issue-agent-mode.png)
+
+Sau khi gửi, UniAI tạo issue (`UNI-1`, tiêu đề tự sinh) và đặt Engineer làm người phụ trách. Engineer bắt đầu thực thi và trạng thái chuyển sang In Progress. Cột bên phải của issue chứa mọi thứ đang diễn ra trên nó: trạng thái, người phụ trách, các pull request liên kết, và nhật ký thực thi.
+
+Lượt chạy mất vài phút, và có hai lối vào để xem tiến độ: huy hiệu trạng thái đang chạy cạnh tiêu đề, và **Execution log** (nhật ký thực thi) ở bên phải — mở lượt chạy hiện tại:
+
+![Hai lối vào để theo dõi tiến độ](/images/docs/tutorial-issue-engineer-working.png)
+
+Nhật ký thực thi ghi lại từng bước của lượt chạy: các dòng **Agent** là lời tường thuật của chính nó, còn **Bash**, **Read**, **Edit** là các lệnh nó đã chạy và các file nó đã đọc, đã sửa. Tại thời điểm chụp màn hình, nó đang chụp ảnh các trang vừa hoàn thành để tự kiểm tra, và vừa phát hiện đường kẻ phân cách trong bảng giá bị lệch. Bấm biểu tượng ⓘ ở góc trên bên phải để xem máy tính, công cụ lập trình AI và thư mục làm việc của lượt chạy.
+
+![Nhật ký thực thi: từng bước Engineer đã làm](/images/docs/tutorial-execution-log.png)
+
+## Nghiệm thu: trao đổi ngay trong issue
+
+Khi lượt chạy kết thúc, Engineer chuyển trạng thái sang In Review và một thông báo rơi vào hộp thư đến của bạn. Nó đã đăng một bình luận hoàn thành trên issue kèm ảnh chụp các trang đã xong:
+
+![Bình luận hoàn thành của Engineer kèm ảnh chụp các trang](/images/docs/tutorial-issue-review-comment.png)
+
+Ảnh chụp cho cái nhìn tổng quát, nhưng review đúng nghĩa vẫn là mở website trong trình duyệt. Website được xây ngay trên máy của bạn, nên chỉ cần Engineer khởi động một server cục bộ là vào được. Khu **Pull requests** bên phải cũng vẫn trống — issue đã yêu cầu rõ phải mở PR, nên hỏi thẳng luôn chuyện đó.
+
+Lần này không dùng ô bình luận. Có một nút chat ở góc dưới bên phải, xuất hiện trên mọi trang của không gian làm việc, và nó chính là tính năng **Chat** trong thanh bên:
+
+![Nút chat ở góc dưới bên phải](/images/docs/tutorial-chat-fab.png)
+
+Mở nó, chọn Engineer, và gõ `@` để tham chiếu issue hiện tại — cuộc trò chuyện từ đó mang theo ngữ cảnh của issue. Gửi cả hai câu hỏi:
+
+![Hỏi trong chat với issue được tham chiếu](/images/docs/tutorial-chat-ask-in-issue.png)
+
+Câu trả lời của Engineer có hai phần: server cục bộ đang chạy, kèm địa chỉ để mở; và PR thực ra đã được nộp từ trước, nhưng tiêu đề, tên nhánh lẫn nội dung đều thiếu `UNI-1`, nên cơ chế liên kết tự động không có gì để khớp — nó liền thêm mã issue vào tiêu đề PR.
+
+![Câu trả lời của Engineer: địa chỉ cục bộ và lý do PR chưa được liên kết](/images/docs/tutorial-chat-engineer-reply.png)
+
+Mở địa chỉ nó đưa trong trình duyệt để xem website:
+
+![Trang chủ của website chạy cục bộ](/images/docs/tutorial-site-localhost.png)
+
+Quay lại issue, một thẻ PR giờ đã hiện trong khu **Pull requests** bên phải, cho biết trạng thái và độ lớn thay đổi; bấm vào sẽ mở PR trên GitHub. Repo có cấu hình CI còn hiển thị cả kết quả kiểm tra:
+
+![Thẻ PR ở cột bên phải của issue](/images/docs/tutorial-issue-pr-linked.png)
+
+## Viết phản hồi vào chỉ dẫn
+
+Vòng review này lộ ra hai thói quen làm việc của Engineer: làm xong nó tự kiểm tra bằng cách chụp ảnh liên tục, ngốn khá nhiều thời gian chạy; và nó mở PR không kèm mã issue, nên PR không liên kết được. Cả hai đều không phải lỗi một lần — đều là việc nó lặp lại mỗi lượt. Thứ cần sửa không phải issue này mà là chỉ dẫn của nó.
+
+Bạn không phải tự tay sửa chỉ dẫn: agent có thể tự cập nhật cấu hình của mình bằng uniai CLI. Trong cùng cuộc trò chuyện, đưa cho Engineer hai quy tắc — làm xong không tự kiểm tra bằng chụp ảnh nữa, vì review diễn ra trong trình duyệt; và tên nhánh hoặc tiêu đề PR phải mang mã issue — rồi bảo nó tự viết vào chỉ dẫn của chính nó:
+
+![Nhờ Engineer tự viết các quy tắc vào chỉ dẫn của nó](/images/docs/tutorial-chat-update-instructions.png)
+
+Engineer áp dụng cập nhật bằng `uniai agent update`, thêm một mục quy tắc làm việc vào chỉ dẫn, và chỉ ra cái giá của quy tắc thứ nhất: không còn tự kiểm tra bằng ảnh chụp, các vấn đề hiển thị trên trang giờ do bạn tự soi trong trình duyệt.
+
+Mở **Agent → Engineer**, cả hai quy tắc đã nằm trong chỉ dẫn:
+
+![Chỉ dẫn đã cập nhật của Engineer](/images/docs/tutorial-engineer-updated-instructions.png)
+
+Từ đó về sau, cả hai quy tắc có hiệu lực cùng chỉ dẫn ở mỗi lượt chạy. Đây cũng là cách cơ bản để tinh chỉnh một agent: khi một vấn đề cứ lặp lại, viết điều chỉnh vào chỉ dẫn thay vì tự tay nhắc lại mỗi lần.
+
+## Agent thứ ba: Reviewer
+
+Engineer đã giao phiên bản đầu, nhưng có những vấn đề chính nó không tự thấy được. Việc review giao cho một agent mới: một ngữ cảnh tươi mới, chuyên kiểm tra chất lượng code theo yêu cầu của issue.
+
+Việc tạo lại giao cho UniAI helper: một agent tên Reviewer, lần này chạy trên Codex với model GPT-5.6 Sol — công cụ và model khác với Engineer; nó chỉ review và không bao giờ sửa code, viết kết luận thành bình luận trên issue. Chỉ dẫn cũng do trợ lý sinh ra — đọc trạng thái thực tế của PR trước khi review, viết phát hiện thành bình luận kèm vị trí file, và tuyệt đối không sửa code:
+
+![Cấu hình của Reviewer](/images/docs/tutorial-reviewer-detail.png)
+
+Review không cần issue mới, cũng không cần đổi người phụ trách. Quay lại ô bình luận của UNI-1, gõ `@Reviewer` để @nhắc nó, viết việc cần làm rồi gửi — dòng gợi ý dưới ô cho biết Reviewer bắt đầu thực thi ngay khi bình luận được gửi:
+
+![Bắt đầu review bằng cách @nhắc Reviewer trong bình luận](/images/docs/tutorial-comment-mention-reviewer.png)
+
+Vài phút sau, bình luận review quay lại, với kết luận là cần sửa trước khi merge. Năm phát hiện chia hai nhóm — ba về quy ước code, hai về mức độ bám yêu cầu — mỗi cái kèm file và số dòng. Hai phát hiện về yêu cầu chính là thứ Engineer không tự thấy được: bảng giá trình bày giá tiền, tiền cọc và điều khoản thuế bịa ra như nội dung thật mà không đánh dấu placeholder, và mục liên hệ mang một liên kết Instagram chưa kiểm chứng. Bình luận kết lại bằng những gì nó đã tự xác minh: typecheck, lint và build đều đạt.
+
+Sửa lỗi cũng không cần quy trình mới: @Engineer trong ô bình luận và bảo nó xử lý hết các phát hiện. Engineer bắt đầu thực thi ngay khi gửi, thấy được ở cả huy hiệu cạnh tiêu đề lẫn nhật ký thực thi bên phải:
+
+![Các phát hiện của Reviewer, với @Engineer nhận phần sửa](/images/docs/tutorial-reviewer-findings.png)
+
+Vài phút sau Engineer báo lại: cả năm đã sửa xong, đẩy lên cùng PR. Hai agent chung một dòng thời gian, nên bản báo cáo chỉ cần trả lời từng phát hiện một, không phải kể lại bối cảnh:
+
+![Báo cáo sửa lỗi của Engineer](/images/docs/tutorial-engineer-fixed.png)
+
+@Nhắc Reviewer lần nữa để kiểm tra lại: cả năm phát hiện đã xử lý, sẵn sàng merge, kèm hai gợi ý theo dõi sau với độ ưu tiên thấp:
+
+![Lượt kiểm tra lại của Reviewer đạt](/images/docs/tutorial-reviewer-recheck.png)
+
+Phát triển và review cứ qua lại như vậy: tìm ra vấn đề, sửa vấn đề, và mỗi vòng làm định nghĩa của website vững thêm một chút. Một issue giờ mang hai agent — Engineer triển khai, Reviewer review — và vài bình luận ngắn của bạn kéo cả vòng lặp chạy.
+
+## Merge và khép lại
+
+Merge cũng ra lệnh bằng một bình luận: bảo Engineer merge PR và đảm bảo issue chuyển sang Done. Nó merge, xóa nhánh, chạy lại các bước kiểm tra trên main sau merge, rồi báo cáo. Trạng thái issue thành Done, và một thông báo hoàn thành đến hộp thư đến:
+
+![Merge hoàn tất và issue chuyển sang Done](/images/docs/tutorial-issue-done.png)
+
+Vậy là khép trọn vòng đời của issue đầu tiên: từ bản mô tả yêu cầu đến lúc merge — triển khai, review, sửa lỗi, nghiệm thu và merge — tất cả ghi trên một dòng thời gian.
+
+## Lập một đội
+
+Vòng lặp của UNI-1 chạy tốt, nhưng mọi lượt chuyền việc đều bắt đầu từ bạn: review xong thì @nhắc Reviewer, review xong lại @nhắc Engineer. Bản thân việc điều phối thành việc của bạn. Lớp đó cũng giao đi được. Câu trả lời của UniAI là **đội**: một nhóm có tên gồm các agent và thành viên, do một agent leader dẫn dắt. Khi issue được giao cho một đội, leader nhận lấy: đọc issue, phân việc, và đẩy trạng thái đi tiếp. Khi một thành viên trả lời, leader được đánh thức tự động và quyết định bước kế tiếp; cuối cùng nó báo cáo sản phẩm cho bạn. Leader đảm nhận đúng vai bạn vừa đóng.
+
+Một đội chính là cách phân công bạn đang có, cộng thêm một leader:
+
+- **Lead** (mới): leader, phụ trách quản lý — giao việc, đẩy trạng thái issue đi tiếp, và báo cáo sản phẩm cho bạn, không tự làm việc chuyên môn;
+- **Engineer** (có sẵn): phát triển;
+- **Reviewer** (có sẵn): review mọi PR;
+- **Bạn**: nghiệm thu cuối cùng.
+
+Thành viên không giới hạn ở agent. Mỗi thành viên mang một dòng mô tả vai trò để leader tham khảo khi phân việc.
+
+Chỉ cần mô tả cấu trúc này cho UniAI helper: tạo đội và leader của nó, giao cho mỗi thành viên phần việc, gắn cho Lead và Engineer mỗi bên một skill (nói ở mục sau), và đưa quy trình vào chỉ dẫn của đội — việc phát triển giao cho Engineer, chỉ bàn giao khi PR qua được review, và Engineer merge sau khi bạn nghiệm thu. Trợ lý áp toàn bộ cấu hình trong một lượt bằng CLI:
+
+![Trợ lý cấu hình cả đội trong một lượt](/images/docs/tutorial-helper-create-squad.png)
+
+Mở **Đội → Website Team** trong thanh bên để kiểm tra kết quả: leader, các thành viên và mô tả vai trò đều đã có mặt. Đội cũng tạo được từ form trên trang này; cơ chế đầy đủ xem [Đội](/squads):
+
+![Chi tiết đội: leader, thành viên và vai trò](/images/docs/tutorial-squad-detail.png)
+
+## Skill: phương pháp tái sử dụng được
+
+Việc viết phản hồi vào chỉ dẫn lúc trước chỉ giải quyết vấn đề của một agent — chỉ dẫn thuộc riêng agent đó. Muốn chia sẻ một phương pháp cho nhiều agent, hoặc mượn một phương pháp ai đó đã viết sẵn, dùng **skill**.
+
+Skill là gói tri thức cho agent: một file `SKILL.md` cộng các file hỗ trợ tùy chọn, chỉ cho agent cách tư duy và xử lý một loại việc. UniAI theo chuẩn mở Anthropic Agent Skills, nên bất kỳ skill nào đúng chuẩn đều import thẳng được; gắn vào agent xong, nó đồng bộ xuống runtime lúc thực thi. Mở trang **Skills** — hai skill vừa import ở trên đều nằm đó, kèm các agent được gắn ở bên phải:
+
+![Trang Skills của không gian làm việc](/images/docs/tutorial-skills-list.png)
+
+Mở một skill ra sẽ thấy toàn bộ file của nó:
+
+![Cấu trúc file của skill tdd](/images/docs/tutorial-skill-detail.png)
+
+Trong hai skill này, một cái nói về cách làm việc, cái kia về cách báo cáo:
+
+- **tdd**, gắn cho Engineer, là một phương pháp kỹ thuật: viết test thất bại trước, rồi mới viết phần triển khai làm đúng test đó đạt;
+- **i-have-adhd**, gắn cho Lead, là một phong cách báo cáo: dòng đầu luôn là bước tiếp theo làm được ngay, việc nhiều bước thì đánh số, và tiến độ luôn nhìn thấy được. Mọi thứ leader viết ra đều là báo cáo gửi cho bạn, nên skill này quyết định thứ bạn sẽ đọc.
+
+Cách làm việc của một nhóm dần lắng thành skill, và agent mới thừa hưởng nó chỉ bằng một lần gắn. Import không phải nguồn duy nhất: **New skill** có ba đường — tạo thủ công, import từ URL, và chép từ runtime cục bộ — không đi sâu ở đây; xem [Skills](/skills):
+
+![Ba cách thêm một skill mới](/images/docs/tutorial-skill-new-modal.png)
+
+Đọc kỹ file của skill bên thứ ba trước khi import: UniAI không sandbox chúng, và nội dung skill được đưa nguyên vẹn cho công cụ lập trình AI.
+
+## Issue thứ hai: giao cho đội
+
+Giao cho đội một phần việc trọn vẹn: biến website thành một template chung — thay tên thật bằng một tên nhiếp ảnh gia placeholder và email thật bằng `hello@example.com`, giữ nguyên bố cục và cấu trúc nội dung. Issue này không phải tự tay viết: mô tả yêu cầu cho Lead trong Chat và tạo bằng **Create with agent** (tạo bằng agent), giao cho đội — một đội, cũng như agent hay thành viên, xuất hiện được ở bất cứ đâu một người phụ trách xuất hiện được:
+
+![Tạo issue từ cuộc trò chuyện bằng Create with agent](/images/docs/tutorial-create-with-agent.png)
+
+Trong issue được sinh ra, yêu cầu đã được sắp thành bản mô tả có cấu trúc, và huy hiệu cạnh tiêu đề cho thấy leader đã nhận việc:
+
+![UNI-2: Lead tạo issue và bắt đầu làm](/images/docs/tutorial-issue-squad-created.png)
+
+Những gì diễn ra tiếp theo hoàn toàn là việc của leader. Bình luận phân việc của nó không chỉ là chuyển tiếp: nó thêm hai ràng buộc issue chưa có — danh tính placeholder phải nhất quán trên toàn site, và lượt rà soát phải phủ cả metadata lẫn README — rồi mới giao cho Engineer. Engineer xong việc thì báo PR trên cùng dòng thời gian:
+
+![Lead phân việc và Engineer báo cáo PR](/images/docs/tutorial-squad-dispatch.png)
+
+Lượt review quay lại với không phát hiện nào và Lead bàn giao: nó @nhắc bạn để nghiệm thu, mở đầu bằng kết luận, rồi tới liên kết PR, mô tả thay đổi, hai điểm cần bạn cân nhắc, và khép lại bằng một dòng — không gì được merge khi chưa có bạn duyệt:
+
+![Báo cáo bàn giao của Lead](/images/docs/tutorial-squad-delivery.png)
+
+Từ sắp xếp yêu cầu, chốt hướng làm, phát triển, review đến báo cáo bàn giao, không bước nào của issue này cần bạn đứng ra nối. Nghiệm thu giống hệt UNI-1 — bạn cũng có thể bảo nó khởi động server cục bộ rồi xem trong trình duyệt, không nhắc lại ở đây. Done vẫn thuộc về bạn: trả lời để merge, hoặc tự tay đổi trạng thái. Mọi bước trên dòng thời gian đều được ghi lại, không khác gì issue của một nhóm toàn người — chỉ người thực thi là thay đổi.
+
+## Tự động hóa: Autopilot
+
+Mọi kích hoạt đến giờ đều bắt đầu từ bạn — giao việc, @nhắc, chat. **Autopilot** là kiểu kích hoạt thứ tư: tự bắt đầu công việc theo lịch.
+
+Cấu hình chỉ mất một câu: bảo UniAI helper rằng chín giờ sáng thứ Hai hằng tuần, Reviewer chạy một lượt kiểm tra toàn diện trên repo của website — code thừa và code chết, cấu trúc đáng ngờ, những chỗ có thể bám quy ước tốt hơn — viết phát hiện thành bình luận trên issue và không đổi dòng code nào:
+
+![Trợ lý tạo một autopilot](/images/docs/tutorial-autopilot-create.png)
+
+Mở trang **Autopilot**: người thực thi, prompt và lịch chạy (cron cộng múi giờ) đều đã cấu hình xong. Có hai chế độ chạy:
+
+- **Create Issue** (mặc định): mỗi lần kích hoạt đều tạo issue trước, nên công việc nằm trên bảng với lịch sử và bình luận y như mọi issue khác;
+- **Run only**: thực thi mà không tạo issue, chỉ để lại dấu vết trong lịch sử chạy của autopilot — lượt chạy không tìm thấy gì thì không để lại gì.
+
+Kiểm tra định kỳ dùng chế độ Create Issue. Thay vì chờ đến thứ Hai, bấm **Run now** để kích hoạt ngay một lượt:
+
+![Chi tiết autopilot: lịch chạy và Run now](/images/docs/tutorial-autopilot-detail.png)
+
+Issue được tạo và Reviewer bắt đầu kiểm tra. Từ đó trở đi, đúng giờ đó mỗi thứ Hai, cùng lượt kiểm tra ấy tự tạo issue mới, không cần ai kích hoạt:
+
+![Một issue do Autopilot tự tạo](/images/docs/tutorial-autopilot-issue.png)
+
+Ngoài lịch chạy, trigger còn hỗ trợ webhook, và người thực thi cũng trỏ được vào một đội — xem [Tự động hóa](/autopilots).
+
+## Làm việc cùng người khác
+
+Đến giờ bạn vẫn là thành viên con người duy nhất của không gian làm việc. Vào **Cài đặt → Thành viên**, mời người khác qua email; họ tạo issue, @nhắc agent và tham gia đội y như bạn — nhiều người và nhiều agent cùng làm trên chung một tập issue:
+
+![Mời thành viên vào không gian làm việc qua email](/images/docs/tutorial-invite-member.png)
+
+## Lời kết
+
+Khi issue chất dần lên, đã có công cụ để tổ chức chúng: một **dự án** gom các issue liên quan và theo dõi như một khối (xem [Dự án](/projects)). Nhiều cách tổ chức khác đang được bổ sung, và **Space** cũng sắp sẵn sàng.
+
+Nhìn lại chặng đường: xuất phát từ một không gian làm việc trống, kết nối một máy tính, dựng bốn agent, đưa hai issue đi trọn vòng đời, rồi giao việc điều phối cho leader và việc kiểm tra định kỳ cho Autopilot. Mức tham gia của bạn lùi lại từng nấc một, đến khi chỉ còn hai việc: mô tả yêu cầu, và nghiệm thu kết quả.
+
+Agent là thành viên hạng nhất và mọi cộng tác nằm trên dòng thời gian của issue — đó là cách làm việc UniAI mang lại. Nền tảng vẫn đang tiến hóa nhanh; thêm nhiều năng lực khác trong [tài liệu](/).
+
+## Bước tiếp theo
+
+- [Khái niệm cốt lõi](/concepts) — gặp toàn bộ các đối tượng cốt lõi của UniAI trong ba phút.
+- [Đội](/squads) — leader điều phối việc ra sao, và khi nào dùng đội thay vì một agent đơn lẻ.
+- [Skills](/skills) — import, viết và chia sẻ phương pháp cho agent.
+- [Tự động hóa](/autopilots) — cấu hình đầy đủ cho hai kiểu trigger lịch chạy và webhook.

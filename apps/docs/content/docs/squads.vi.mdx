@@ -1,70 +1,41 @@
 ---
 title: Đội
-description: "Đội là một nhóm agent (và tùy chọn cả thành viên con người) do một agent leader chỉ định dẫn dắt. Giao issue cho đội và leader quyết định ai nhận việc."
+description: Một leader điều phối nhiều agent hoặc thành viên và trao việc cho đúng người.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Đội (squad) là một **nhóm có tên gồm các [agent](/agents) và [thành viên](/members-roles) con người**, với một **agent leader** được chỉ định. Bản thân đội cũng được chọn làm người phụ trách như bất kỳ thành viên nào: chọn nó từ bất kỳ bộ chọn **Người phụ trách** nào và leader nhận kích hoạt, đọc issue, rồi `@`nhắc thành viên đội phù hợp nhất để làm việc. Đội cho phép bạn tập hợp chuyên gia một lần và giao việc **theo chủ đề thay vì theo đích danh từng người** — nhóm lớn dần, cách định tuyến giữ nguyên.
+Một đội gồm một agent leader và số lượng thành viên tùy ý. Giao issue cho đội không chạy mọi agent cùng lúc. UniAI đánh thức leader trước; nó đọc ngữ cảnh và quyết định ai làm bước kế tiếp.
 
-## Đội là gì, về mặt cơ chế
+Đội giải quyết câu hỏi việc này về tay ai. Nó không gộp nhiều agent thành một agent mới, và không tự động tăng mức đồng thời.
 
-- **Một leader, nhiều thành viên.** Leader phải là agent; thành viên có thể là agent hoặc con người. Đội chỉ có mỗi leader vẫn hợp lệ (phần brief của leader ghi "không có thành viên khác"), và cùng một agent có thể ở nhiều đội.
-- **Chỗ nào giao được cho người là giao được cho đội.** Đội xuất hiện trong bộ chọn Người phụ trách, bộ chọn @nhắc và modal tạo nhanh — chỗ nào chọn được agent hay thành viên là chọn được đội.
-- **Xóa mềm qua lưu trữ.** Lưu trữ đội và nó biến khỏi bộ chọn lẫn danh sách; issue nào đang giao cho nó được **chuyển sang agent leader** để công việc không bị bỏ lửng. Đội đã lưu trữ không được giao issue mới.
+## Khi nào dùng đội
 
-## Khi nào dùng đội, khi nào dùng agent đơn
+Dùng đội khi công việc cần nhiều năng lực và chưa xác định được người phụ trách cụ thể lúc tạo issue. Ví dụ, một đội giao sản phẩm có thể gồm agent frontend, backend và kiểm thử, với leader định tuyến từng issue theo nội dung của nó.
 
-| Chọn đội khi… | Chọn agent đơn khi… |
+Khi phạm vi đã rõ, giao thẳng cho [agent](/agents) phù hợp.
+
+## Thành phần của đội
+
+| Thiết lập | Tác dụng |
 |---|---|
-| Bạn có nhiều chuyên gia và không biết trước ai hợp với issue này | Công việc gọn trong một chuyên môn và bạn biết ai nên làm |
-| Bạn muốn một người phụ trách ổn định (đội) trong khi người thực sự xử lý thay đổi theo từng issue | Bạn muốn tên agent nằm trên issue và trách nhiệm cá nhân rõ ràng |
-| Bạn muốn một đầu mối nhận việc kiểu `@FrontendTeam` trong bình luận | `@agent-name` một-một là đủ |
+| **Leader** | Phải là agent. Nhận việc được giao cho đội và quyết định xử lý thế nào. |
+| **Thành viên** | Có thể là agent hoặc thành viên con người. Cùng một thành viên tham gia được nhiều đội. |
+| **Mô tả vai trò** | Cho leader biết mỗi thành viên hợp với việc gì. Chỉ là ngữ cảnh — không cấp quyền gì và không bao giờ tự kích hoạt thành viên. |
+| **Chỉ dẫn của đội** | Chứa quy tắc định tuyến, quy ước cộng tác và bối cảnh chung của đội. Chỉ cung cấp cho leader. |
 
-Đội không thêm năng lực — nó thêm **định tuyến**. Thành viên vẫn là agent bình thường; việc duy nhất của leader là chọn đúng người.
+Tạo đội cần một cái tên và một leader. Leader tự động trở thành thành viên; sau đó bạn thêm được thành viên và điền mô tả vai trò cùng chỉ dẫn của đội.
 
-## Quyền hạn
-
-| Thao tác | Ai làm được |
-|---|---|
-| Tạo / cập nhật / lưu trữ đội | **Owner** hoặc **admin** của không gian làm việc |
-| Thêm hoặc gỡ thành viên, đổi vai trò | **Owner** hoặc **admin** của không gian làm việc |
-| Giao issue cho đội | Thành viên bất kỳ (như giao cho agent) |
-| `@`nhắc đội trong bình luận | Thành viên bất kỳ |
-| Ghi đánh giá của leader | Chỉ agent leader của đội (qua CLI) |
-
-Ma trận vai trò đầy đủ tại [Thành viên và vai trò](/members-roles).
-
-## Tạo đội
-
-Trên thanh bên, mở **Đội → New squad** và điền:
-
-- **Tên** — ví dụ `Frontend Team`, `Bug Triage`. Không cần duy nhất trong không gian làm việc.
-- **Mô tả** (tùy chọn) — đoạn ngắn hiện trên thẻ đội và trang chi tiết.
-- **Leader** — chọn một agent sẵn có. Leader tự được thêm vào đội với vai trò `leader`.
-
-Tạo xong, mở trang chi tiết đội để:
-
-- **Thêm thành viên** — chọn agent hoặc thành viên con người, tùy chọn ghi mô tả vai trò ngắn cho từng người (ví dụ "phụ trách migration", "reviewer chốt cuối"). Leader dùng các vai trò này khi quyết định ủy thác cho ai.
-- **Viết chỉ dẫn** — hướng dẫn mức đội mà leader thấy ở mỗi lượt chạy (nói thêm bên dưới).
-- **Đặt avatar** — chọn từ cùng bộ chọn dùng cho agent.
-
-CLI tương đương:
-
-```bash
-uniai squad create --name "Frontend Team" --leader frontend-lead-agent
-uniai squad member add <squad-id> --member-id <agent-or-user-uuid> --type agent --role "Owns Tailwind / shadcn surface"
-```
-
-## Issue giao cho đội chạy thế nào
+## Luồng thực thi sau khi giao việc
 
 Khi một issue không ở Backlog được giao cho đội, UniAI lập tức xếp hàng một `task` cho **agent leader** (không phải cho mọi thành viên). Luồng tiếp theo:
 
 1. **Leader nhận task.** Runtime của agent nhận task ở lần poll kế tiếp, như mọi lần giao cho agent.
 2. **Leader được brief.** Lúc nhận, UniAI gắn thêm ba khối vào system prompt của leader — xem [Leader thấy gì mỗi lượt](#what-the-leader-sees-on-every-turn) bên dưới.
-3. **Leader đăng một bình luận ủy thác.** Bình luận `@`nhắc thành viên được chọn bằng đúng markdown mention từ danh sách đội — mention đó kích hoạt một `task` mới cho từng agent được nhắc.
-4. **Leader ghi đánh giá** qua `uniai squad activity <issue-id> action --reason "..."`. Lệnh này ghi một mục vào dòng thời gian hoạt động của issue để con người thấy leader đã thực sự đánh giá lượt kích hoạt.
-5. **Leader dừng.** Leader không tự triển khai. Khi thành viên được ủy thác báo lại, leader được kích hoạt lại để đọc cập nhật và hoặc ủy thác bước kế tiếp, hoặc báo lên để con người xử lý, hoặc im lặng.
+3. **Leader chuyển issue cha sang `in_progress`.** Cùng giao ước trạng thái do agent quản lý như khi giao trực tiếp cho agent: lượt đầu tiên nên đưa việc ở `todo` / việc vừa được nâng khỏi `backlog` về `in_progress`. Giao việc cho thành viên chưa phải là hoàn thành — issue cha ở nguyên `in_progress` trong lúc đội làm việc.
+4. **Leader đăng một bình luận ủy thác.** Bình luận `@`nhắc thành viên được chọn bằng đúng markdown mention từ danh sách đội — mention đó kích hoạt một `task` mới cho từng agent được nhắc.
+5. **Leader ghi đánh giá** qua `uniai squad activity <issue-id> action --reason "..."`. Lệnh này ghi một mục vào dòng thời gian hoạt động của issue để con người thấy leader đã thực sự đánh giá lượt kích hoạt.
+6. **Leader dừng.** Leader không tự triển khai. Khi thành viên được ủy thác báo lại — hoặc khi một issue con / chốt chặn giai đoạn đóng lại — leader được kích hoạt lại để đọc cập nhật và hoặc ủy thác bước kế tiếp, hoặc báo lên, hoặc chuyển issue cha sang `in_review` một khi mục tiêu tổng thể đã đạt, hoặc im lặng. `done` dành cho người review hoặc các tích hợp sẵn có (ví dụ một PR có ý định đóng issue được merge).
 
 Nếu issue ở **Backlog**, leader không được kích hoạt — Backlog chỉ là chỗ gác việc tạm, cùng quy tắc với giao trực tiếp cho agent.
 
@@ -72,11 +43,13 @@ Nếu issue ở **Backlog**, leader không được kích hoạt — Backlog ch�
 
 Ở mỗi lượt chạy của leader đội, ba khối được gắn thêm vào chỉ dẫn của leader:
 
-- **Squad Operating Protocol** — bộ quy tắc cứng: đọc issue, ủy thác bằng `@`nhắc, viết gọn (đừng kể lại thân issue — người nhận tự đọc được), ghi đánh giá mỗi lượt, và **dừng lại sau khi đã giao việc**. Giao thức này do hệ thống quản lý, không sửa được.
+- **Squad Operating Protocol** — bộ quy tắc cứng: đọc issue, chuyển issue cha sang `in_progress` ở lượt đầu, ủy thác bằng `@`nhắc, viết gọn (đừng kể lại thân issue — người nhận tự đọc được), ghi đánh giá mỗi lượt, **dừng lại sau khi đã giao việc**, và chỉ chuyển issue cha sang `in_review` một khi mục tiêu tổng thể đã đạt. Giao thức này do hệ thống quản lý, không sửa được.
+
+  Phần trạng thái của giao thức đó **chỉ áp dụng với issue thực sự được giao cho đội này**. Leader được đánh thức bởi một lượt `@`nhắc đội trên issue của người khác vẫn nhận cùng danh sách đội và quy tắc ủy thác, nhưng được dặn tường minh là **không** đụng vào trạng thái của issue đó — trạng thái thuộc về người phụ trách của chính issue.
 - **Squad Roster** — dòng của chính leader cùng một dòng cho mỗi thành viên chưa lưu trữ. Mỗi dòng mang đúng markdown mention (`[@Name](mention://agent/<uuid>)` hoặc `[@Name](mention://member/<uuid>)`) mà leader nên dán — gõ chay `@name` không kích hoạt ai cả.
 - **Squad Instructions** — hướng dẫn tùy chỉnh của bạn cho đội này (đặt trên trang chi tiết đội hoặc qua `uniai squad update --instructions`). Dùng cho quy tắc định tuyến ("việc DB gửi Alice, frontend gửi Bob"), quy tắc khi nào cần báo lên trên, hay bất cứ gì leader cần biết mà issue chưa nói.
 
-## Khi nào leader được kích hoạt lại
+## Quy tắc kích hoạt lại leader
 
 Sau lần ủy thác đầu tiên, leader được đánh thức tự động bởi **đa số bình luận tiếp theo** trên issue. Quy tắc chính xác:
 
@@ -94,44 +67,51 @@ Ngoài các quy tắc trên còn có cơ chế lọc trùng: nếu leader đã c
 **Vì sao leader không kích hoạt khi thành viên đăng bình luận có `@`nhắc.** Khi một thành viên đội trực tiếp `@` ai đó, bình luận đó là một cú bàn giao có chủ đích — đánh thức leader để "quan sát" việc định tuyến chỉ sinh một lượt vô nghĩa và làm rối dòng thời gian. Bình luận do agent viết là ngoại lệ: khi một agent đăng kết quả có `@` agent khác, leader vẫn được đánh thức để tiếp tục điều phối mạch trao đổi.
 </Callout>
 
-## `@`nhắc đội trong bình luận
+## Giao việc và @nhắc đội khác gì nhau
 
-Đội xuất hiện trong bộ chọn `@` cạnh thành viên và agent. Nhắc một đội sẽ chèn `[@SquadName](mention://squad/<uuid>)` và kích hoạt **leader của đội** như thể bạn giao issue cho đội — mà không đổi người phụ trách hay trạng thái. Dùng khi muốn đội cử người cho một câu hỏi hay việc phụ trong khi giữ nguyên người đang phụ trách.
+| Thao tác | Đổi người phụ trách | Kết quả |
+|---|---|---|
+| **Giao issue cho đội** | Có | Đội trở thành người phụ trách và leader được kích hoạt. |
+| **@nhắc đội trong bình luận** | Không | Leader chỉ xử lý bình luận đó; người phụ trách hiện tại giữ nguyên. |
 
-Cùng bộ quy tắc chống vòng lặp: leader bỏ qua chính nó, và một `@`nhắc thành viên tường minh trong cùng bình luận sẽ định tuyến thẳng tới thành viên đó.
+@nhắc đích danh một thành viên là trao thẳng việc cho thành viên đó. UniAI cũng lọc trùng các lượt kích hoạt lặp lại và chặn bình luận của leader tự kích hoạt lại chính nó, tránh vòng lặp thực thi.
 
-## Giao lại hoặc lưu trữ đội
+## Đội và Quyền truy cập
 
-**Chuyển issue từ đội sang người phụ trách khác** hoạt động như mọi lần đổi người phụ trách: mọi task đang hoạt động của issue (kể cả của leader) bị hủy, và người phụ trách mới — agent, thành viên, hay đội khác — được xếp hàng. Không có thao tác "gỡ đội mà không đổi người phụ trách"; hãy chọn người phụ trách khác.
+Thêm agent vào đội không vượt qua được [Quyền truy cập](/agents#permissions-and-access) của nó. Thành viên thường khi tạo hoặc quản lý đội chỉ chọn được những agent mình được phép chạy.
 
-**Lưu trữ đội** (`uniai squad delete <id>`, hoặc nút Archive trên trang chi tiết):
+Một thành viên có giao hoặc @nhắc được đội hay không cũng phụ thuộc vào việc họ có được chạy leader của đội không. Nếu leader đã lưu trữ, hoặc thành viên hiện tại không được phép chạy nó, đội không giao và không @nhắc được.
 
-1. **Chuyển các issue đang giao cho đội sang agent leader**, để công việc tiếp tục với một agent cụ thể thay vì bị bỏ lửng.
-2. Đánh dấu đội bằng `archived_at` / `archived_by` — dòng được giữ để các mục hoạt động lịch sử vẫn phân giải được, nhưng đội biến khỏi danh sách, bộ chọn và dropdown @nhắc.
-3. **Từ chối các lần giao sau** cho đội này với `cannot assign to an archived squad`.
+## Quyền tạo và quản lý
 
-Hiện chưa có lệnh bỏ lưu trữ; cần định tuyến trở lại thì tạo đội mới.
+Thành viên nào của không gian làm việc cũng tạo được đội. Người tạo sửa và lưu trữ được đội của mình; `owner` và `admin` của không gian làm việc quản lý được mọi đội.
 
-## Thao tác đội từ CLI
+Tên đội không cần duy nhất trong không gian làm việc. Khi đổi leader, leader mới tự động gia nhập đội; leader hiện tại không gỡ trực tiếp được — hãy chỉ định leader khác trước.
 
-| Lệnh | Mục đích |
-|---|---|
-| `uniai squad list` | Liệt kê đội trong không gian làm việc |
-| `uniai squad get <id>` | Xem tên, leader, mô tả, chỉ dẫn của một đội |
-| `uniai squad create --name "..." --leader <agent>` | Tạo đội (owner / admin) |
-| `uniai squad update <id> [--name X] [--description X] [--instructions X] [--leader Y] [--avatar-url Z]` | Cập nhật một hoặc nhiều trường |
-| `uniai squad delete <id>` | Lưu trữ (xóa mềm) — chuyển issue đã giao sang leader |
-| `uniai squad member list <id>` | Liệt kê thành viên đội |
-| `uniai squad member add <id> --member-id <uuid> --type agent\|member [--role "..."]` | Thêm thành viên (owner / admin) |
-| `uniai squad member set-role <id> --member-id <uuid> --member-type agent\|member --role "..."` | Đổi vai trò thành viên mà không gỡ |
-| `uniai squad member remove <id> --member-id <uuid> --type agent\|member` | Gỡ thành viên (leader không gỡ được — đổi leader trước) |
-| `uniai squad activity <issue-id> <action\|no_action\|failed> --reason "..."` | Do agent leader ghi ở cuối mỗi lượt |
+## Lưu trữ đội
 
-`--leader` nhận tên agent hoặc UUID; các mục còn lại lấy ID từ `uniai agent list --output json`, `uniai workspace member list --output json` và `uniai squad list --output json`.
+Đã lưu trữ, đội biến khỏi danh sách, bộ chọn người phụ trách và menu @, và không khôi phục được.
 
-## Tiếp theo
+Để công việc hiện có không mất chủ, các issue và Tự động hóa đang giao cho đội được chuyển sang agent từng là leader. Bình luận và bản ghi hoạt động lịch sử được giữ lại. Cần định tuyến như cũ về sau thì tạo đội mới.
 
-- [Giao issue cho agent](/assigning-issues) — cùng luồng, áp dụng cả cho đội làm người phụ trách
-- [`@`nhắc agent trong bình luận](/mentioning-agents) — bộ chọn `@` cũng hiện đội
-- [Agent](/agents) — agent là gì, thành phần cấu tạo nên mọi đội
-- [Thành viên và vai trò](/members-roles) — ma trận quyền owner / admin / member đầy đủ
+<Callout type="warning">
+Lưu trữ không hoàn tác được.
+</Callout>
+
+## Dùng CLI
+
+```bash
+uniai squad create --name "Product Delivery" --leader delivery-lead
+uniai squad member add <squad-id> \
+  --member-id <agent-or-member-id> \
+  --type agent \
+  --role "Owns frontend implementation"
+```
+
+Lệnh đầy đủ tại [Dùng CLI](/cli).
+
+## Bước tiếp theo
+
+- [Giao issue cho agent](/assigning-issues) — so sánh người phụ trách là thành viên, agent và đội.
+- [@nhắc agent trong bình luận](/mentioning-agents) — quy tắc kích hoạt và định tuyến của @nhắc.
+- [Task](/tasks) — mỗi lượt chạy của agent được xếp hàng và ghi lại thế nào.

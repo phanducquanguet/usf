@@ -1,176 +1,302 @@
 ---
-title: Tham chiếu lệnh CLI
-description: Tổng quan trên một trang về mọi lệnh chính của UniAI CLI. Để xem cách dùng đầy đủ, chạy `uniai <command> --help`.
+title: Sử dụng CLI
+description: Cài đặt và đăng nhập UniAI CLI, quản lý không gian làm việc, issue, agent và runtime từ terminal.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-UniAI CLI làm được gần như mọi thứ Web UI làm được (tạo [issue](/issues), giao việc cho [agent](/agents), khởi động [daemon](/daemon-runtimes) và nhiều thao tác khác). Trang này liệt kê mọi lệnh chính kèm mô tả một dòng. Để xem đầy đủ cờ và ví dụ, chạy `uniai <command> --help`.
+UniAI CLI vừa kết nối các runtime cục bộ, vừa quản lý không gian làm việc, issue, agent và Tự động hóa từ terminal. Trang này đi qua các luồng thường dùng; tập cờ mà phiên bản bạn cài hỗ trợ luôn do chính `--help` của từng lệnh quy định.
 
-## Xác thực lần đầu
+## Cài đặt
 
-Chạy lệnh này ở lần đầu dùng CLI để lấy **personal access token (PAT)**:
+**macOS / Linux**
 
 ```bash
-uniai login
+curl -fsSL https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.sh | bash
 ```
 
-Trình duyệt của bạn tự mở. Sau khi bạn phê duyệt trong web app, CLI lưu PAT (tiền tố `mul_`) vào `~/.multica/config.json`. Mọi lệnh sau đó xác thực bằng PAT này.
+**Windows PowerShell**
 
-<Callout type="tip">
-Với CI hoặc môi trường headless, bỏ qua bước mở trình duyệt: tạo PAT trong web app ở **Cài đặt → Personal Access Tokens**, rồi chạy `uniai login --token <mul_...>` để cung cấp token trực tiếp.
-</Callout>
+```powershell
+irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex
+```
 
-Khác biệt giữa các loại token, xem [Xác thực và token](/auth-tokens).
+Kiểm tra kết quả cài đặt:
 
-## Xác thực và thiết lập
+```bash
+uniai version
+```
 
-| Lệnh | Mục đích |
-|---|---|
-| `uniai login` | Đăng nhập và lưu PAT |
-| `uniai auth status` | Xem trạng thái đăng nhập, người dùng và không gian làm việc hiện tại |
-| `uniai auth logout` | Xóa PAT cục bộ |
-| `uniai setup cloud` | Thiết lập UniAI Cloud trong một bước (đăng nhập + cài daemon) |
+## Kết nối lần đầu
 
-## Không gian làm việc và thành viên
+Kết nối UniAI Cloud:
 
-| Lệnh | Mục đích |
-|---|---|
-| `uniai workspace list` | Liệt kê mọi không gian làm việc bạn truy cập được |
-| `uniai workspace get <slug>` | Xem chi tiết một không gian làm việc |
-| `uniai workspace member list` | Liệt kê thành viên của không gian làm việc hiện tại |
-| `uniai workspace update <id> --name "..." [--description "..."] [--context "..."] [--issue-prefix "..."]` | Cập nhật metadata không gian làm việc (admin/owner). Trường dài nhận `--description-stdin` / `--context-stdin`. |
+```bash
+uniai setup
+```
 
-## Issue và dự án
+Kết nối một instance tự lưu trữ:
 
-<Callout type="info">
-Các lệnh `list` (`uniai issue list`, `autopilot list`, `project list`, v.v.) mặc định in ID ngắn sẵn sàng chép-dán — mã issue kiểu `UNI-123` cho issue, tiền tố UUID ngắn cho phần còn lại. Đối số `<id>` ở các lệnh tiếp theo nhận cả ID ngắn lẫn UUID đầy đủ, nên luồng điển hình là `uniai issue list` → chép mã → `uniai issue get UNI-123`. Truyền `--full-id` cho lệnh list khi cần UUID chính tắc.
-</Callout>
+```bash
+uniai setup self-host \
+  --server-url https://api.example.com \
+  --app-url https://app.example.com
+```
 
-| Lệnh | Mục đích |
-|---|---|
-| `uniai issue list` | Liệt kê issue (in mã issue chép-dán được) |
-| `uniai issue get <id>` | Xem một issue (nhận mã issue hoặc UUID) |
-| `uniai issue create --title "..."` | Tạo issue mới |
-| `uniai issue update <id> ...` | Cập nhật issue (trạng thái, độ ưu tiên, người phụ trách, v.v.) |
-| `uniai issue assign <id> --to <name>` | Giao cho thành viên, agent hoặc đội (giao cho agent kích hoạt một lượt chạy) |
-| `uniai issue status <id> <status>` | Lối tắt đổi trạng thái |
-| `uniai issue search <query>` | Tìm theo từ khóa |
-| `uniai issue children <id>` | Liệt kê issue con nhóm theo giai đoạn |
-| `uniai issue pull-requests <id>` | Liệt kê pull request liên kết và trạng thái |
-| `uniai issue runs <id>` | Xem các lượt chạy agent trên một issue |
-| `uniai issue run-messages <task-id>` | Xem tin nhắn của một lần thực thi |
-| `uniai issue usage <id>` | Xem usage token tổng hợp của một issue |
-| `uniai issue rerun <id>` | Đưa một task mới vào hàng đợi cho agent đang phụ trách issue |
-| `uniai issue cancel-task <task-id>` | Hủy task đang xếp hàng hoặc đang chạy |
-| `uniai issue comment <id> ...` | Nhóm lệnh con: xem / đăng bình luận |
-| `uniai issue comment resolve/unresolve <comment-id>` | Đánh dấu luồng bình luận đã/chưa xử lý |
-| `uniai issue subscriber <id> ...` | Nhóm lệnh con: theo dõi / bỏ theo dõi |
-| `uniai issue metadata <id> ...` | Nhóm lệnh con: đọc / ghi metadata của issue |
-| `uniai issue label <id> ...` | Nhóm lệnh con: quản lý nhãn trên issue |
-| `uniai project list/get/create/update/delete/status` | CRUD dự án |
-| `uniai label list/create/update/delete` | CRUD nhãn của không gian làm việc |
+`setup` lưu địa chỉ máy chủ, mở trình duyệt để hoàn tất đăng nhập và khởi động daemon. Khi xong, kiểm tra:
+
+```bash
+uniai auth status
+uniai daemon status
+```
+
+Nếu bạn chỉ cần đăng nhập lại mà không ghi đè các cấu hình khác, chạy `uniai login`. Trên máy không có trình duyệt, hãy tạo personal access token trong phần cài đặt trên web trước, rồi nhập token bằng:
+
+```bash
+uniai login --token
+```
+
+Lệnh này nhắc bạn dán token ngay trong terminal, để giá trị đầy đủ không lọt vào lịch sử shell.
+
+## Chọn không gian làm việc
+
+Liệt kê các không gian làm việc và đổi không gian mặc định:
+
+```bash
+uniai workspace list
+uniai workspace switch <slug>
+```
+
+Các lệnh sau đó dùng không gian làm việc này. Một lệnh đơn lẻ có thể ghi đè bằng `--workspace-id`, hoặc bạn đặt biến `MULTICA_WORKSPACE_ID`.
+
+Mời thành viên:
+
+```bash
+uniai workspace member invite teammate@example.com
+uniai workspace member invite admin@example.com --role admin
+```
+
+## Thao tác issue thường dùng
+
+```bash
+# View and search
+uniai issue list
+uniai issue get UNI-123
+uniai issue search "login failure"
+
+# Create and update
+uniai issue create --title "Fix login failure"
+uniai issue status UNI-123 in_progress
+uniai issue assign UNI-123 --to "Backend Agent"
+
+# Comments and runs
+uniai issue comment list UNI-123
+uniai issue comment add UNI-123 --content "Check the regression tests first"
+uniai issue runs UNI-123
+```
+
+Đọc mô tả hoặc bình luận dài từ stdin để khỏi phải xử lý xuống dòng và dấu nháy:
+
+```bash
+uniai issue create --title "Upgrade notes" --description-stdin < notes.md
+uniai issue comment add UNI-123 --content-stdin < review.md
+```
+
+Xem tin nhắn của một lượt chạy, hoặc dừng một task:
+
+```bash
+uniai issue run-messages <task-id> --issue UNI-123
+uniai issue cancel-task <task-id> --issue UNI-123
+```
 
 ## Agent và skill
 
-| Lệnh | Mục đích |
-|---|---|
-| `uniai agent list` | Liệt kê agent của không gian làm việc |
-| `uniai agent get <slug>` | Xem cấu hình một agent |
-| `uniai agent create ...` | Tạo agent |
-| `uniai agent update <slug> ...` | Cập nhật agent |
-| `uniai agent archive <slug>` | Lưu trữ |
-| `uniai agent restore <slug>` | Khôi phục agent đã lưu trữ |
-| `uniai agent tasks <slug>` | Xem lịch sử task của agent |
-| `uniai agent avatar <slug>` | Tải lên avatar cho agent |
-| `uniai agent env <slug> ...` | Đọc hoặc thay biến môi trường tùy chỉnh của agent |
-| `uniai agent skills ...` | Nhóm lệnh con: gắn / gỡ skill |
-| `uniai skill list/get/create/update/delete` | CRUD skill |
-| `uniai skill import ...` | Nhập skill từ GitHub, ClawHub hoặc máy cục bộ |
-| `uniai skill files ...` | Nhóm lệnh con: quản lý file của skill |
-
-### Xung đột khi nhập skill
-
-`uniai skill import --url <url>` mặc định `--on-conflict fail`. Nếu skill trùng tên đã tồn tại, lệnh thoát với kết quả `conflict` có cấu trúc và không đổi gì trong không gian làm việc.
-
-Dùng `--on-conflict overwrite` khi bạn đã tạo skill sẵn có và muốn thay nội dung nhưng giữ ID cùng các gắn kết agent. Dùng `--on-conflict rename` để nhập một bản sao với hậu tố tự động như `-2`. Dùng `--on-conflict skip` để giữ nguyên skill sẵn có và báo `skipped`.
-
 ```bash
-uniai skill import --url https://skills.sh/acme/repo/review-helper
-uniai skill import --url https://skills.sh/acme/repo/review-helper --on-conflict overwrite
-uniai skill import --url https://skills.sh/acme/repo/review-helper --on-conflict rename
-uniai skill import --url https://skills.sh/acme/repo/review-helper --on-conflict skip
+uniai agent list
+uniai agent get <agent-id>
+uniai agent create --help
+uniai agent update <agent-id> --help
+
+uniai skill list
+uniai skill get <skill-id>
+uniai skill import --url <skill-url>
+uniai agent skills add <agent-id> --skill-ids <skill-id>
 ```
 
-## Đội
+Khi lệnh nhập gặp skill trùng tên, hành vi mặc định là dừng lại và không sửa nội dung sẵn có. Chọn theo ý định của bạn:
 
-| Lệnh | Mục đích |
-|---|---|
-| `uniai squad list` | Liệt kê đội trong không gian làm việc |
-| `uniai squad get <id>` | Xem một đội |
-| `uniai squad create --name "..." --leader <agent>` | Tạo đội (owner / admin) |
-| `uniai squad update <id> ...` | Cập nhật tên, mô tả, chỉ dẫn, leader hoặc avatar |
-| `uniai squad delete <id>` | Lưu trữ (xóa mềm) — chuyển issue đã giao sang leader |
-| `uniai squad member list/add/remove/set-role <squad-id>` | Quản lý thành viên đội và đổi vai trò trực tiếp |
-| `uniai squad activity <issue-id> <action\|no_action\|failed> --reason "..."` | Agent leader dùng để ghi đánh giá mỗi lượt |
+```bash
+uniai skill import --url <skill-url> --on-conflict overwrite
+uniai skill import --url <skill-url> --on-conflict rename
+uniai skill import --url <skill-url> --on-conflict skip
+```
 
-Mô hình đầy đủ xem [Đội](/squads).
-
-## Tự động hóa
-
-| Lệnh | Mục đích |
-|---|---|
-| `uniai autopilot list` | Liệt kê mọi autopilot trong không gian làm việc |
-| `uniai autopilot get <id>` | Xem một autopilot |
-| `uniai autopilot create ...` | Tạo autopilot |
-| `uniai autopilot update <id> ...` | Cập nhật |
-| `uniai autopilot delete <id>` | Xóa |
-| `uniai autopilot runs <id>` | Xem lịch sử chạy |
-| `uniai autopilot trigger <id>` | Kích hoạt một lượt chạy thủ công |
-| `uniai autopilot trigger-add/update/delete <id>` | Quản lý trigger theo lịch hoặc webhook |
-| `uniai autopilot trigger-rotate-url <id> <trigger-id>` | Cấp lại URL cho trigger webhook |
-
-`uniai autopilot create/update` cũng nhận `--subscriber` để đặt người theo dõi mặc định cho issue do autopilot `create_issue` tạo; update nhận `--clear-subscribers` để gỡ.
+`overwrite` chỉ được phép với người tạo skill và giữ nguyên ID gốc cùng các gắn kết agent.
 
 ## Daemon và runtime
 
-| Lệnh | Mục đích |
-|---|---|
-| `uniai daemon start` | Khởi động daemon (mặc định chạy nền; thêm `--foreground` để chạy ở chế độ foreground) |
-| `uniai daemon stop` | Dừng daemon |
-| `uniai daemon restart` | Khởi động lại daemon |
-| `uniai daemon status` | Kiểm tra daemon online chưa và mức đồng thời |
-| `uniai daemon logs` | Xem log daemon |
-| `uniai runtime list` | Liệt kê runtime trong không gian làm việc hiện tại |
-| `uniai runtime usage` | Xem mức dùng tài nguyên |
-| `uniai runtime activity` | Nhật ký hoạt động gần đây |
-| `uniai runtime update <id> ...` | Kích hoạt cập nhật CLI trên một runtime |
-| `uniai runtime delete <id> [--cascade]` | Xóa runtime, tùy chọn lưu trữ các agent gắn kèm |
-| `uniai runtime profile ...` | Quản lý runtime profile tùy chỉnh và ghi đè đường dẫn cục bộ |
-
-## Khác
-
-| Lệnh | Mục đích |
-|---|---|
-| `uniai repo checkout <url>` | Clone repo về máy cho agent dùng |
-| `uniai config` | Xem hoặc sửa cấu hình CLI cục bộ |
-| `uniai version` | In phiên bản CLI |
-| `uniai update` | Nâng CLI lên bản mới nhất |
-| `uniai attachment download <id>` | Tải tệp đính kèm từ issue hoặc bình luận |
-
-## Xem đủ cờ
-
-Mọi lệnh đều hỗ trợ `--help`:
-
 ```bash
-uniai issue create --help
-uniai agent update --help
+uniai daemon start
+uniai daemon stop
+uniai daemon restart
+uniai daemon status --output json
+uniai daemon logs --follow
+
+uniai runtime list
+uniai runtime rename <runtime-id> "Office Mac"
+uniai runtime usage <runtime-id>
+uniai runtime activity <runtime-id>
 ```
 
-v2 sẽ có trang tham chiếu chi tiết riêng cho từng lệnh.
+Xóa một runtime vẫn còn agent hoạt động gắn kèm mặc định sẽ bị từ chối. `uniai runtime delete <id> --cascade` gỡ gắn kết các agent đó, giữ nguyên cấu hình và lịch sử của chúng, đồng thời hủy các task đang hoạt động.
+
+Xem [Daemon và runtime](/daemon-runtimes) để hiểu cơ chế vận hành và runtime profile tùy chỉnh.
+
+## Tổng quan lệnh
+
+| Lệnh | Mục đích |
+| --- | --- |
+| `issue` | Tạo, cập nhật, giao và tìm issue; quản lý bình luận, người theo dõi, nhãn, thuộc tính và lượt chạy |
+| `project` | Quản lý dự án và tài nguyên của dự án |
+| `label`, `property` | Quản lý nhãn và thuộc tính tùy chỉnh của không gian làm việc |
+| `agent`, `skill`, `squad` | Quản lý agent, skill và đội |
+| `autopilot` | Quản lý Tự động hóa, trigger và lịch sử chạy |
+| `workspace` | Tạo, xem và chuyển không gian làm việc, mời thành viên |
+| `repo` | Quản lý repo của không gian làm việc và checkout về máy |
+| `daemon`, `runtime` | Khởi động và dừng daemon cục bộ; xem và quản lý runtime |
+| `attachment` | Tải lên hoặc tải xuống tệp đính kèm |
+| `user profile` | Xem hoặc cập nhật hồ sơ người dùng hiện tại |
+| `auth`, `login`, `setup` | Đăng nhập, kiểm tra trạng thái xác thực và khởi tạo kết nối |
+| `config` | Xem hoặc sửa cấu hình cục bộ của profile CLI hiện tại |
+| `update`, `version` | Cập nhật CLI hoặc in phiên bản |
+
+`uniai chat` đọc **phiên chat bên ngoài mà một agent đang xử lý**; lệnh này chủ yếu dành cho agent trong các tích hợp chat, không phải lệnh chung để duyệt hội thoại bất kỳ trong không gian làm việc.
+
+## ID và định dạng đầu ra
+
+Issue dùng mã kiểu `UNI-123` hoặc UUID đầy đủ; tiền tố UUID ngắn không được chấp nhận.
+
+Lệnh `list` của các tài nguyên khác thường in ID ngắn chép-dán được và hỗ trợ `--full-id` để lấy UUID đầy đủ. Khi ID ngắn không đủ để xác định duy nhất, CLI sẽ yêu cầu thêm ký tự hoặc UUID đầy đủ. ID task ngắn còn cần `--issue` để xác định issue chứa nó.
+
+Nhiều lệnh hỗ trợ đầu ra có cấu trúc:
+
+```bash
+uniai issue list --output json
+uniai agent list --output json
+```
+
+Script nên dùng đầu ra JSON thay vì phân tích các bảng vốn dành cho terminal. Định dạng đầu ra và cờ phân trang mà mỗi lệnh hỗ trợ do `uniai <command> --help` quy định.
+
+## Profile và cấu hình
+
+Cấu hình mặc định nằm ở `~/.multica/config.json`. Dùng `--profile <name>` để tách riêng một bộ địa chỉ máy chủ, token, không gian làm việc mặc định và trạng thái daemon:
+
+```bash
+uniai setup self-host --profile staging \
+  --server-url https://api.staging.example.com \
+  --app-url https://app.staging.example.com
+
+uniai issue list --profile staging
+```
+
+Các profile có tên nằm ở `~/.multica/profiles/<name>/config.json`. Xem giá trị hiện tại:
+
+```bash
+uniai config show
+uniai config show --profile staging
+```
+
+Khi CLI chạy bên trong một task agent do daemon quản lý, nó không đọc hay sửa các file profile thuộc về con người này. Các lệnh gọi UniAI API xác thực bằng thông tin xác thực phạm vi task do daemon tiêm vào. `config show` và `config set` dùng trạng thái riêng cục bộ theo task; các lệnh dành cho con người/cục bộ như `login`, `logout`, `setup`, `workspace switch`, thay đổi đường dẫn runtime profile cục bộ, `daemon start` / `stop` / `restart`, `daemon logs` và `daemon probe-runtimes` không khả dụng. `auth status` không in nội dung token trong ngữ cảnh này.
+
+`daemon status` và `daemon disk-usage` vẫn khả dụng để agent kiểm tra runtime đang chứa nó, giới hạn trong runtime đó: `status` thăm dò cổng health do daemon tiêm vào, còn `disk-usage` quét thư mục gốc workspaces do daemon tiêm vào. Cả hai đều không nhận `--profile`, `disk-usage` còn từ chối `--all-profiles` và `--workspaces-root`, và cột STATUS của nó để trống vì việc phân giải trạng thái sẽ cần token đã lưu của con người. Dùng `du` và `df` cho mọi thứ ngoài phạm vi đó.
+
+Cơ chế này bảo vệ việc phân giải profile ngầm của UniAI CLI trong khi vẫn giữ nguyên các biến `HOME` và XDG thông thường mà công cụ của các provider (công cụ lập trình AI) khác sử dụng. Đây không phải ranh giới hệ thống tệp ở cấp hệ điều hành: tiến trình chạy dưới cùng một người dùng hệ thống vẫn có thể mở một đường dẫn đã biết rõ. Hãy dùng người dùng riêng, container, VM hoặc mức cách ly tương đương khi cần bảo đảm mạnh hơn.
+
+<Callout type="warning">
+File cấu hình CLI chứa token có thể truy cập UniAI với danh nghĩa của bạn. Đừng commit chúng vào repo, đưa chúng lên log hay chia sẻ cho người khác.
+</Callout>
+
+## Tham chiếu lệnh
+
+Các bảng dưới đây bao phủ mọi lệnh chính hiện có, nhóm theo đúng cách CLI tự nhóm. Mọi lệnh đều nhận các cờ toàn cục `--server-url`, `--workspace-id`, `--profile` và `--debug`. `--output` được đăng ký theo từng lệnh và định dạng mặc định khác nhau: lệnh `list` mặc định in bảng, còn lệnh `get` và `create` phần lớn mặc định JSON. Cờ đầy đủ do `uniai <command> --help` quy định.
+
+### Lõi
+
+| Lệnh | Lệnh con | Mục đích | Cờ chính |
+| --- | --- | --- | --- |
+| `issue` | `list` | Liệt kê issue | `--status`, `--priority`, `--assignee`, `--project`, `--metadata` (lặp lại được), `--limit`, `--offset`, `--sort`, `--full-id` |
+| | `get <id>` | Xem một issue | |
+| | `create` | Tạo issue | `--title` (bắt buộc), `--description` / `--description-stdin` / `--description-file`, `--status`, `--priority`, `--assignee`, `--parent`, `--stage`, `--project`, `--start-date`, `--due-date`, `--attachment` (lặp lại được) |
+| | `update <id>` | Cập nhật các trường của issue | Cùng các trường như `create`, thêm `--position` |
+| | `assign <id>` | Giao hoặc bỏ giao | `--to` (khớp tên gần đúng với thành viên, agent và đội), `--to-id`, `--unassign` |
+| | `status <id> <status>` | Đổi trạng thái | |
+| | `reorder <id>` | Di chuyển vị trí trong một cột | |
+| | `search <query>` | Tìm issue | `--limit`, `--include-closed` |
+| | `children <id>` | Liệt kê issue con nhóm theo giai đoạn | |
+| | `pull-requests <id>` | Liệt kê PR liên kết | |
+| | `comment list/add/delete/resolve/unresolve` | Quản lý bình luận | `add`: `--content` / `--content-stdin` / `--content-file`, `--parent`, `--attachment`; `list`: `--since`, `--thread`, `--tail` |
+| | `subscriber list/add/remove <issue-id>` | Quản lý người theo dõi | `--user`, `--user-id` (mặc định là người dùng hiện tại) |
+| | `label list/add/remove <issue-id>` | Quản lý nhãn trên một issue | |
+| | `metadata list/get/set/delete <issue-id>` | Quản lý metadata dạng khóa-giá trị ở cấp issue | |
+| | `property list/set/unset <issue-id>` | Đặt giá trị thuộc tính tùy chỉnh | `set`: `--name`, `--value` |
+| | `runs <issue-id>` | Xem lịch sử chạy | `--full-id` |
+| | `run-messages <task-id>` | Xem tin nhắn của một lượt chạy | `--since`, `--issue` |
+| | `usage <issue-id>` | Xem usage token tổng hợp | |
+| | `rerun <id>` | Đưa một lượt chạy mới vào hàng đợi cho bên đang phụ trách | |
+| | `cancel-task <task-id>` | Hủy task đang chạy hoặc đang xếp hàng | `--issue` |
+| `project` | `list/get/create/update/delete` | Quản lý dự án | |
+| | `status <id> <status>` | Đổi trạng thái dự án | |
+| | `resource list/add/update/remove` | Quản lý tài nguyên dự án | `--type`, `--url` |
+| `label` | `list/get/create/update/delete` | Quản lý nhãn của không gian làm việc | |
+| `property` | `list/get/create/update/archive/unarchive` | Quản lý thuộc tính tùy chỉnh của không gian làm việc | `create`: `--name`, `--type`, `--option` (lặp lại được); `list`: `--include-archived`; không thể đổi kiểu sau khi tạo |
+| `agent` | `list/get/create/update/archive/restore` | Quản lý agent | `--name`, `--runtime-id` (bắt buộc với `create`), `--instructions`, `--model`, `--thinking-level`, `--mcp-config`, `--permission-mode`, `--max-concurrent-tasks` |
+| | `copy <agent-id>` | Sao chép thành agent mới; agent gốc không đổi | `--name` (mặc định là tên gốc kèm ` (copy)`), `--runtime-id` (sao chép sang runtime khác còn cần `--model`), `--no-skills`; cấu hình bí mật như `custom_env`, `mcp_config` và `runtime_config` không được sao chép — cung cấp lại bằng cùng các cờ như `create` |
+| | `tasks <id>` | Xem task của một agent | |
+| | `avatar <id>` | Tải lên avatar | |
+| | `env get/set <agent-id>` | Đọc và ghi biến môi trường tùy chỉnh (chỉ owner và admin) | |
+| | `skills list/set/add <agent-id>` | Quản lý skill được gắn | `--skill-ids` (`set` thay toàn bộ danh sách, `add` nối thêm) |
+| `autopilot` | `list/get/create/update/delete` | Quản lý Tự động hóa | `create`: `--title`, `--agent`, `--mode` (đều bắt buộc), `--priority`, `--project`, `--subscriber` (lặp lại được) |
+| | `trigger <id>` | Kích hoạt một lượt chạy thủ công | |
+| | `runs <id>` | Xem lịch sử chạy | |
+| | `trigger-add/trigger-update/trigger-delete/trigger-rotate-url` | Quản lý trigger theo lịch và webhook | |
+| `workspace` | `list/get/create/update/switch` | Quản lý không gian làm việc; `switch` đặt không gian làm việc mặc định cho profile hiện tại | |
+| | `member list/invite <email>` | Xem thành viên, gửi lời mời | `invite`: `--role` (member hoặc admin, mặc định member) |
+| `repo` | `list/add/remove/checkout` | Quản lý repo của không gian làm việc và checkout về máy | `--url` (lặp lại được); `checkout`: `--ref` |
+| `skill` | `list/get/create/update/delete` | Quản lý skill | |
+| | `import` | Nhập skill từ URL hoặc file cục bộ | `--url` / `--file`, `--on-conflict` (`fail`, `overwrite`, `rename`, `skip`; mặc định `fail`) |
+| | `search <query>` | Tìm skill | |
+| | `files list/upsert/delete <skill-id>` | Quản lý các file bên trong một skill | |
+| `squad` | `list/get/create/update/delete` | Quản lý đội (`delete` là lưu trữ) | |
+| | `member list/add/set-role/remove` | Quản lý thành viên đội | |
+| | `activity <issue-id> <outcome>` | Ghi một đánh giá của leader | |
+| `chat` | `history`, `thread [id]` | Đọc phiên chat bên ngoài mà một agent đang xử lý | `--limit`, `--before` |
+
+### Runtime
+
+| Lệnh | Lệnh con | Mục đích | Cờ chính |
+| --- | --- | --- | --- |
+| `daemon` | `start` | Khởi động daemon cục bộ | `--foreground`, `--device-name`, `--runtime-name`, `--poll-interval`, `--heartbeat-interval`, `--agent-timeout` (`0` nghĩa là không giới hạn), `--max-concurrent-tasks`, `--no-auto-update`; mỗi cờ có biến môi trường `MULTICA_*` tương ứng |
+| | `stop` / `status` / `restart` | Dừng, kiểm tra trạng thái, khởi động lại (`restart` nhận cùng cờ với `start`) | |
+| | `logs` | Xem log daemon | `--follow`, `--lines` |
+| | `disk-usage` | Xem mức dùng đĩa cục bộ | `--by-workspace`, `--by-task`, `--top` |
+| `runtime` | `list/usage/activity/update/rename/delete` | Xem và quản lý runtime | `delete`: `--cascade` (gỡ gắn kết các agent, giữ dữ liệu của chúng và hủy task của chúng) |
+| | `profile list/create/update/delete` | Quản lý runtime profile tùy chỉnh | |
+| | `profile set-path/unset-path <profile-id>` | Ghim đường dẫn thực thi cục bộ (chỉ cục bộ, không bao giờ tải lên máy chủ) | |
+
+### Khác
+
+| Lệnh | Lệnh con | Mục đích | Cờ chính |
+| --- | --- | --- | --- |
+| `auth` | `status` / `logout` | Kiểm tra trạng thái xác thực; `logout` chỉ xóa token lưu cục bộ, không thu hồi token trên máy chủ | |
+| `user` | `profile get/update` | Xem hoặc cập nhật hồ sơ người dùng hiện tại | |
+| `login` | — | Đăng nhập qua trình duyệt và tự động cấu hình mọi không gian làm việc | `--token` (nhắc nhập tương tác trong terminal khi truyền không kèm giá trị) |
+| `setup` | `cloud` (mặc định), `self-host` | Lưu địa chỉ máy chủ, hoàn tất đăng nhập và khởi động daemon | `self-host`: `--server-url`, `--app-url`, `--port`, `--frontend-port` |
+| `attachment` | `download <attachment-id>`, `upload <path>` | Tải xuống hoặc tải lên tệp đính kèm | `download`: `--output-dir`; `upload`: `--task` |
+| `config` | `show`, `set <key> <value>` | Xem hoặc sửa cấu hình cục bộ của profile hiện tại | Thứ tự ưu tiên: cờ dòng lệnh > biến môi trường > `config.json` > mặc định tích hợp sẵn; đặt chuỗi rỗng để xóa một giá trị |
+| `update` | — | Nâng CLI lên phiên bản mới nhất | |
+| `version` | — | In thông tin phiên bản | `--output` (`text` hoặc `json`) |
 
 ## Bước tiếp theo
 
-- [Xác thực và token](/auth-tokens) — PAT vs. JWT vs. daemon token
-- [Daemon và runtime](/daemon-runtimes) — cơ chế vận hành bên dưới của các lệnh `daemon`
-- [Tạo và cấu hình agent](/agents-create) — mọi tùy chọn của `uniai agent create`
+- [Xác thực và token](/auth-tokens) — tạo, gia hạn và thu hồi PAT.
+- [Tạo và cấu hình agent](/agents-create) — ngữ nghĩa đầy đủ của mọi trường trong `agent create`.

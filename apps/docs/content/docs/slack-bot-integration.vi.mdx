@@ -1,27 +1,24 @@
 ---
-title: Tích hợp Slack Bot
-description: Nối một agent UniAI với app Slack của riêng bạn — tạo app từ manifest, cài đặt, dán bot token + app-level token, rồi @nhắc nó, DM nó, hoặc gõ /issue ngay trong Slack.
+title: Slack Bot
+description: Tạo một Slack Bot cho agent và dùng nó trong DM, kênh và lệnh /issue.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Nối bất kỳ [agent](/agents) nào với một bot Slack và nhóm của bạn làm việc với nó ngay trong Slack — DM cho bot, @nhắc nó trong kênh, hoặc gõ `/issue` để tạo một [issue UniAI](/issues) mà không phải mở app.
+UniAI dùng app Slack của riêng bạn. Sau khi kết nối, thành viên trong nhóm có thể DM cho Bot, @nhắc nó trong kênh, hoặc dùng `/issue` để tạo issue.
 
-Slack dùng mô hình **bring-your-own-app (BYO)**: admin của không gian làm việc tự tạo một app Slack, cài vào Slack workspace của mình và dán token của app vào UniAI. Mỗi agent có **app Slack riêng** — nên nhiều agent có thể có bot riêng, @nhắc được riêng từng bot, trong cùng một Slack workspace. (Khác với [Lark](/lark-bot-integration), nơi việc gắn dùng luồng quét mã để cài.)
+Một app Slack ánh xạ tới một agent UniAI. Muốn kết nối nhiều agent, tạo một app riêng cho từng agent.
 
-Toàn bộ thiết lập ở bên dưới, mất khoảng năm phút. Kết quả là hai token để dán vào UniAI:
+## Trước khi bắt đầu
 
-- một **Bot token** — bắt đầu bằng `xoxb-`
-- một **App-level token** — bắt đầu bằng `xapp-`
+Việc kết nối phải do owner hoặc admin của không gian làm việc thực hiện, và kết thúc bằng hai thông tin xác thực dán vào UniAI:
 
-## Thiết lập app Slack của bạn
+- một Bot User OAuth Token, bắt đầu bằng `xoxb-`;
+- một App-level Token, bắt đầu bằng `xapp-`.
 
-### 1. Tạo app từ manifest
+## 1. Tạo app Slack từ manifest
 
-1. Vào [https://api.slack.com/apps](https://api.slack.com/apps) và bấm **Create New App**.
-2. Chọn **From a manifest**.
-3. Chọn Slack workspace để cài app vào.
-4. Chuyển sang tab **YAML**, dán manifest bên dưới, xem lại và tạo app.
+Mở [Slack API Apps](https://api.slack.com/apps), bấm **Create New App → From a manifest**, chọn Slack workspace, rồi dán đoạn sau vào tab **YAML**:
 
 ```yaml
 display_information:
@@ -37,7 +34,7 @@ features:
   slash_commands:
     - command: /issue
       description: Create a UniAI issue
-      usage_hint: "[title]"
+      usage_hint: "[description]"
 oauth_config:
   scopes:
     bot:
@@ -65,101 +62,87 @@ settings:
   token_rotation_enabled: false
 ```
 
-Manifest này cấu hình đủ mọi thứ UniAI cần, nên bạn không phải chỉnh tay gì:
+Trước khi tạo, bạn có thể thay cả hai chỗ `UniAI` bằng tên agent. Đừng xóa scope hay sự kiện nào khỏi manifest, nếu không DM, @nhắc trong kênh, trả lời, hoặc `/issue` có thể ngừng hoạt động.
 
-| Mục | Vì sao cần |
-|---|---|
-| `app_home.messages_tab_enabled: true` | Cho thành viên mở bot và **DM** nó. Thiếu mục này, không thể nhắn trực tiếp cho bot. |
-| `bot_user` | Tạo danh tính bot được @nhắc và đăng trả lời. |
-| `chat:write` | Đăng câu trả lời của agent trở lại Slack. |
-| `reactions:write` | Thêm cảm xúc 👀 vào tin nhắn của bạn khi agent đang làm việc, gỡ khi agent trả lời. Thiếu scope này, chỉ báo âm thầm bị bỏ qua — mọi thứ khác vẫn chạy. |
-| `app_mentions:read` + sự kiện `app_mention` | Nhận @nhắc trong kênh. |
-| `im:history` + `message.im` | Nhận **DM** gửi bot (mọi tin DM đều được đọc). |
-| `channels:history` / `groups:history` / `mpim:history` + các sự kiện `message.*` tương ứng | Nhận tin trong kênh công khai, kênh riêng và DM nhóm. Ở đó, bot chỉ hành động với tin **@nhắc** nó. |
-| `users:read` | Cần để UniAI xác minh (qua `bots.info`) rằng hai token thuộc cùng một app. |
-| `commands` | Scope bot bật slash command `/issue` (đi cặp với `features.slash_commands`). Thiếu nó, cập nhật manifest và cài lại cũng không được cấp lệnh. |
-| `socket_mode_enabled: true` | Bot kết nối ra ngoài qua Socket Mode — **không cần URL công khai / request URL**. |
-| `interactivity.is_enabled: false` | Lời nhắc của UniAI là liên kết thuần, không phải nút, nên không cần interactivity. |
-| `slash_commands` (`/issue`) | Đăng ký lệnh `/issue` để ai cũng tạo được issue UniAI từ ô nhắn tin. Truyền qua Socket Mode — không cần request URL. |
+Bot kết nối ra Slack qua Socket Mode, nên không cần Request URL công khai hay OAuth Redirect URL.
 
-**Không có OAuth redirect URL**, vì BYO không dùng OAuth.
+## 2. Lấy hai token
 
-<Callout type="info">
-Muốn tên riêng trong Slack? Đổi `display_information.name` và `features.bot_user.display_name` (ví dụ thành tên agent của bạn) trước khi tạo, hoặc sửa sau ở **App Home**. Slack hiển thị bot theo **tên hiển thị của bot**, có thể khác tên app.
-</Callout>
+### Bot token
 
-### 2. Cài app và chép Bot token
+1. Trong app Slack, mở **Install App**.
+2. Bấm **Install to Workspace** và phê duyệt các quyền.
+3. Chép **Bot User OAuth Token** — bắt đầu bằng `xoxb-`.
 
-1. Ở nav trái của app, mở **Install App** (hoặc **OAuth & Permissions**).
-2. Bấm **Install to Workspace** và phê duyệt.
-3. Chép **Bot User OAuth Token** — bắt đầu bằng `xoxb-`. Đây là **Bot token** của bạn.
 
-### 3. Tạo App-level token
+### App-level token
 
-App-level token ủy quyền cho kết nối Socket Mode. Chỉ tạo được trong console (nó không thuộc OAuth).
+1. Mở **Basic Information → App-Level Tokens**.
+2. Bấm **Generate Token and Scopes**.
+3. Thêm scope `connections:write`.
+4. Generate rồi chép token bắt đầu bằng `xapp-`.
 
-1. Mở **Basic Information → App-Level Tokens** và bấm **Generate Token and Scopes**.
-2. Đặt tên tùy ý.
-3. Bấm **Add Scope** và chọn **`connections:write`** từ danh sách có sẵn (chọn, không gõ tay).
-4. Bấm **Generate**, rồi chép token — bắt đầu bằng `xapp-`. Đây là **App-level token** của bạn.
 
-### 4. Kết nối trong UniAI
+## 3. Kết nối với một agent
 
-1. Mở agent trong **Agent → _agent của bạn_** → tab **Integrations** (hoặc mục **Integrations** ở thanh bên trái).
-2. Bấm **Connect Slack**.
-3. Dán **Bot token** (`xoxb-`) và **App-level token** (`xapp-`), rồi bấm **Connect**.
-4. Agent hiện **Connected to Slack**. Bot giờ đang nghe qua kết nối Socket Mode của riêng nó.
+1. Trong UniAI, mở **Agents** và chọn agent cần nối với Slack.
+2. Vào **Integrations** và bấm **Connect Slack**.
+3. Dán Bot token và App-level token.
+4. Bấm **Connect**.
+
+UniAI xác minh hai token đến từ cùng một app. Kết nối xong, trang hiện **Connected to Slack**.
 
 <Callout type="warning">
-Hai token phải từ **cùng một** app Slack, và app đó ánh xạ tới đúng **một** agent. Kết nối một app đã nối với agent hoặc không gian làm việc khác sẽ bị từ chối. Muốn chuyển app sang agent khác, ngắt kết nối trước; kết nối lại một agent với một app **mới** sẽ cập nhật thẳng bot của agent đó.
+Cả hai token được lưu mã hóa trên server UniAI. Token là thông tin xác thực — đừng đưa chúng vào issue, bình luận hay kho mã. App đã nối với agent hoặc không gian làm việc khác không dùng lại trực tiếp được; hãy ngắt kết nối cũ trước.
 </Callout>
 
-<Callout type="info">
-Thiết lập cho **nhiều agent**? Lặp lại toàn bộ luồng cho từng agent — mỗi agent có app Slack riêng và cặp token riêng, chúng hiện thành các bot tách biệt trong Slack workspace của bạn.
-</Callout>
+## Lần dùng đầu tiên
 
-## Tích hợp làm gì
+Lần đầu một thành viên DM hoặc @nhắc Bot, họ nhận một đường dẫn liên kết tài khoản. Đăng nhập bằng tài khoản UniAI của không gian làm việc đó, rồi quay lại Slack và gửi lại tin nhắn.
 
-| Vị trí | Hành vi |
-|---|---|
-| **Agent → Integrations** | Owner và admin thấy **Connect Slack**; nối xong nó chuyển thành huy hiệu **Connected to Slack** kèm nút **Disconnect**. |
-| **DM cho bot** | Một thành viên nhắn thẳng cho bot. Cuộc trò chuyện thành một phiên [chat](/chat) UniAI với agent; mọi tin DM đều được đọc. |
-| **@nhắc trong kênh** | Mời bot (`/invite @your-bot`) và @nhắc nó. Chỉ tin có nhắc mới được đọc — bot không nghe cả kênh. Mỗi **thread** @bot là một phiên riêng. |
-| **Slash command `/issue`** | Gõ `/issue <mô tả>` (trong kênh hoặc DM) và agent biến mô tả bằng lời thường của bạn thành một issue UniAI chỉn chu, đứng tên bạn. Bot trả lời riêng (chỉ bạn thấy) để xác nhận — bạn nhận thông báo UniAI khi issue sẵn sàng. Không cần @nhắc. |
-| **Trả lời** | Câu trả lời của agent được đăng lại vào đúng DM hoặc thread. |
+Đường dẫn dùng một lần và hết hạn sau 15 phút. Khi hết hạn, nhắn Bot lần nữa để lấy đường dẫn mới. Nhiều Bot trong cùng một không gian làm việc UniAI thường dùng lại được liên kết sẵn có nếu chúng đến từ cùng một Slack workspace.
 
-## Dùng bot (thành viên)
+Chỉ thành viên của không gian làm việc UniAI hiện tại dùng được Bot.
 
-### Tin nhắn đầu tiên: liên kết tài khoản
+## Giao việc cho agent trong Slack
 
-Lần đầu bạn @nhắc hoặc DM bot, nó trả lời với lời nhắc **liên kết tài khoản**. Bấm liên kết, đăng nhập UniAI, và danh tính Slack của bạn được liên kết với tài khoản thành viên UniAI — nhờ đó agent có thể hành động thay bạn (ví dụ `/issue` tạo issue đứng tên bạn). Liên kết dùng một lần và hết hạn sau khoảng 15 phút; nhắn bot lần nữa để lấy liên kết mới.
+### Tin nhắn trực tiếp
 
-Bạn chỉ liên kết **một lần cho mỗi Slack workspace**. Nếu cùng một không gian làm việc UniAI chạy nhiều bot trong một Slack workspace (mỗi agent một app), liên kết với bot đầu tiên sẽ dùng chung cho các bot còn lại: nhắn bot thứ hai tự dùng lại liên kết đó, không hỏi lại. (Chỉ cần liên kết lại với bot ở Slack workspace *khác*, hoặc bot nối với không gian làm việc UniAI *khác*.)
+Mở Bot từ mục **Apps** ở thanh bên Slack và nhắn trực tiếp — không cần @nhắc.
 
-<Callout type="warning">
-Chỉ **thành viên của không gian làm việc** dùng được bot. Nếu bạn không phải thành viên, hoặc bỏ qua bước liên kết danh tính, bot sẽ không chạy — tin nhắn của bạn bị bỏ qua (được ghi lại để kiểm toán, không kèm nội dung).
-</Callout>
+### Kênh và chat nhóm
 
-### Chat và `/issue`
+Chạy `/invite @your-bot` để thêm Bot vào kênh trước, rồi gửi `@your-bot yêu cầu của bạn`. Mỗi thread là một phiên riêng; muốn hỏi tiếp, cứ @nhắc Bot trong đúng thread ban đầu.
 
-- **Trong kênh** — bot không tự động vào kênh. Chạy `/invite @your-bot` một lần, rồi `@your-bot <tin nhắn>`. Mỗi câu tiếp theo phải @nhắc lại (bot chỉ đọc tin có nhắc nó).
-- **Trong DM** — mở bot từ mục **Apps** ở thanh bên Slack và nhắn trực tiếp; không cần nhắc.
-- **Tạo issue** — dùng lệnh `/issue`, ví dụ `/issue the login redirect is broken on Safari`. Mô tả bằng lời thường; agent viết tiêu đề chuẩn và mô tả có cấu trúc rồi tạo issue. Dùng được trong kênh hoặc DM (không cần @nhắc) và trả lời riêng tư để xác nhận — bạn nhận thông báo UniAI khi issue được tạo. Người dùng lần đầu nhận liên kết một lần để nối tài khoản.
+Bot chỉ trả lời các tin nhắn trong kênh có @nhắc nó rõ ràng. Khi chạy, nó đọc ngữ cảnh gần đây của thread trong phạm vi các scope mà quyền của nó cho phép.
 
-## Quản lý và ngắt kết nối
+### Tạo issue bằng `/issue`
 
-Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integrations**:
+Trong kênh hoặc DM, gõ:
 
-- **Connected bots** liệt kê mọi bot trong không gian làm việc và agent mà từng bot gắn vào (mọi thành viên thấy được).
-- **Disconnect** chỉ dành cho **owner / admin**. Nó làm bot ngừng nhận tin Slack và gỡ kết nối; bản ghi installation giữ lại để kiểm toán, và bạn nối lại được về sau.
+```text
+/issue Safari stays on the login page after a successful sign-in
+```
 
-## Quyền
+Lệnh này không cần @nhắc. UniAI chuyển mô tả cho agent đứng sau Bot hiện tại; agent viết tiêu đề và nội dung rồi tạo issue. Slack trước tiên hiện một xác nhận chỉ mình bạn thấy; khi issue được tạo, bạn nhận thông báo trong hộp thư đến UniAI.
 
-- **Kết nối / ngắt** cần **owner** hoặc **admin** của không gian làm việc.
-- **Nói chuyện với bot** yêu cầu là thành viên của không gian làm việc và đã liên kết danh tính Slack. Tin nhắn của những người khác đều bị bỏ qua.
-- Nội dung của tin nhắn bị bỏ qua không bao giờ được lưu — chỉ lưu lý do, để kiểm toán.
+## Quản lý kết nối
 
-## Tiếp theo
+Mở **Cài đặt → Integrations** để xem mọi Slack Bot đã kết nối. Owner và admin của không gian làm việc có thể ngắt kết nối chúng.
 
-- [Tích hợp chat](/channels) — bộ máy kênh, phiên và ủy quyền hoạt động ra sao
-- [Agent](/agents) · [Chat](/chat) · [Issue](/issues)
+Sau khi ngắt kết nối, kết nối Socket Mode dừng và Bot không nhận tin nhắn mới nữa. Các cuộc trò chuyện và bản ghi kiểm toán hiện có không bị xóa.
+
+## Khắc phục sự cố
+
+- **Token không hợp lệ khi kết nối**: kiểm tra tiền tố và xác nhận cả hai token đến từ cùng một app.
+- **Không xác minh được app**: xác nhận manifest có `users:read`, rồi cài lại app sau khi cập nhật quyền.
+- **Không có chỗ để DM**: xác nhận `app_home.messages_tab_enabled` là `true`.
+- **Không trả lời trong kênh**: xác nhận Bot đã được mời vào kênh và tin nhắn có @nhắc nó.
+- **`/issue` không tồn tại**: xác nhận manifest có slash command và scope `commands`, rồi cài lại app.
+- **Bot không chạy**: kiểm tra agent có bị lưu trữ không và [runtime](/daemon-runtimes) nó dùng có trực tuyến không.
+
+## Bước tiếp theo
+
+- [Tích hợp chat](/channels) — so sánh nền tảng, cách ly phiên và cơ chế liên kết tài khoản.
+- [Chat](/chat) — mô hình trò chuyện và thực thi đứng sau Bot.
+- [Issue](/issues) — đơn vị công việc mà `/issue` tạo ra.

@@ -1,63 +1,79 @@
 ---
 title: "@nhắc agent trong bình luận"
-description: Nhắc agent bằng @ để nó vào xem từ một bình luận — không đổi người phụ trách, không đổi trạng thái, nhẹ hơn giao việc.
+description: "@nhắc một agent trong bình luận của issue, hoặc cứ trả lời tiếp, để nó xử lý thông tin mới mà không đổi người phụ trách."
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-`@`nhắc một [agent](/agents) trong [bình luận](/comments) là cách kích hoạt nhẹ hơn — **không đổi người phụ trách, không đổi trạng thái**, chỉ là cái huých để agent vào xem [issue](/issues) hiện tại. So với [**giao việc**](/assigning-issues) (biến agent thành chủ sở hữu và trao issue), @nhắc hợp với "xem giúp đoạn này", "cho mình góc nhìn khác", hay "kéo vào bàn nhanh một chút".
+@nhắc một agent trong bình luận khi bạn muốn nó xem một thông tin mới, trả lời một câu hỏi, hoặc hỗ trợ người phụ trách hiện tại. Bình luận đó trở thành điểm xuất phát của lượt chạy; người phụ trách và trạng thái của issue giữ nguyên.
 
-## Nhắc agent trong bình luận
+## Giao việc so với @nhắc
 
-Giống nhắc thành viên — gõ `@` để mở bộ chọn và chọn agent. Bình luận đăng xong, UniAI lập tức xếp hàng một `task` cho từng agent được nhắc với **bình luận đó** làm ngữ cảnh kích hoạt. Khi nhận task, agent đọc được:
+| | Giao cho agent | @nhắc trong bình luận |
+|---|---|---|
+| Hợp nhất với | Để agent sở hữu toàn bộ issue | Để agent xử lý bình luận hiện tại |
+| Đổi người phụ trách | Có | Không |
+| Đổi trạng thái | Không | Không |
+| Số đích mỗi thao tác | Một agent hoặc đội | Nhiều agent hoặc đội |
+| Trọng tâm của lượt chạy | Toàn bộ issue | Bình luận kích hoạt, cộng các bình luận được gộp cùng đợt |
 
-- Toàn bộ issue (mô tả + mọi bình luận lịch sử)
-- Chính bình luận kích hoạt — làm điểm xuất phát cho lượt chạy này
+Dùng [giao việc](/assigning-issues) khi issue cần một chủ sở hữu rõ ràng; dùng @nhắc để kéo agent vào thảo luận tạm thời.
 
-Cú pháp Markdown của `@mention`, bộ chọn và ngữ nghĩa `@all` xem tại [**Bình luận**](/comments).
+## Xem trước kích hoạt
+
+Sau khi bạn chọn một agent hoặc đội trong trình soạn bình luận, phần xem trước kích hoạt hiện dưới ô nhập:
+
+- những agent nào sẽ bắt tay vào việc khi bạn gửi;
+- mỗi đích đến từ đâu — @nhắc trực tiếp, người phụ trách issue, hay leader của đội;
+- một đích có đang không khả dụng, hay bạn thiếu quyền chạy nó không.
+
+Bỏ tick một agent chỉ bỏ qua đúng lần kích hoạt này — bạn không cần xóa tên nó khỏi bình luận, và Quyền truy cập của agent không thay đổi.
+
+![Xem trước kích hoạt trước khi gửi: liệt kê các agent sẽ bắt tay vào việc khi bình luận được gửi](/images/docs/mention-trigger-preview.png)
+
+Khi bình luận được đăng, một runtime đang online thường nhận task ngay; nếu runtime offline, task chờ trong hàng đợi.
+
+## Tự động định tuyến câu trả lời
+
+Một bình luận trơn (hoàn toàn không có @) được định tuyến theo bối cảnh thảo luận:
+
+1. Trả lời bình luận của một agent thì chuyển cho agent đó.
+2. Trả lời trong một thảo luận đã có agent tham gia thì giữ agent của thảo luận đó.
+3. Còn lại thì chuyển cho agent đang phụ trách issue; khi người phụ trách là đội, leader xử lý.
+
+Khi bình luận @nhắc rõ các đích khác (kể cả thành viên), cơ chế mặc định rơi về người phụ trách không còn áp dụng.
+
+Khi một câu trả lời kích hoạt một agent khác với người phụ trách, UniAI lên lịch một lượt chạy dự phòng trễ cho người phụ trách: nếu agent đích trả lời trong khoảng 5 phút, lượt dự phòng tự hủy; nếu không, người phụ trách cũng khởi động một lượt chạy.
+
+## Gộp các bình luận liên tiếp
+
+Khi cùng một agent đã có task đang chờ trên issue, các bình luận liên tiếp mới sẽ gộp vào task đang chờ đó; nếu agent đang chạy, các bình luận về sau đợi lượt hiện tại kết thúc và gộp thành một lượt chạy tiếp theo duy nhất. Bạn cứ bổ sung thông tin mà không phải chờ agent trả lời.
+
+Khi một bình luận @nhắc nhiều agent khác nhau, mỗi agent nhận task riêng; nhiều mention trỏ về cùng một agent chỉ giữ lại một.
+
+## Bình luận không kích hoạt agent
+
+Hai cách:
+
+- Bắt đầu bình luận bằng `/note`: nó được đăng như một ghi chú giữa các thành viên và không kích hoạt agent nào.
+- Dùng `@all`: nó thông báo mọi thành viên của không gian làm việc và tắt cơ chế tự kích hoạt người phụ trách của bình luận này.
+
+Nếu phần xem trước kích hoạt vẫn liệt kê một agent, hãy bỏ tick nó trước khi gửi.
 
 <Callout type="info">
-**Bạn cũng `@`nhắc được một [đội](/squads) trong bình luận.** Cùng bộ chọn hiện đội cạnh thành viên và agent; chọn một đội sẽ chèn `[@SquadName](mention://squad/<uuid>)` và kích hoạt **agent leader** của đội để điều phối phản hồi — người phụ trách và trạng thái giữ nguyên.
+`@all` không bao gồm agent. Agent không có hộp thư đến; muốn đưa một agent vào việc, hãy @nhắc đích danh nó, trả lời trong thảo luận của nó, hoặc giao issue cho nó.
 </Callout>
 
-## Khác giao việc thế nào
+## Giới hạn Quyền truy cập
 
-Cả hai đều đưa agent vào việc, nhưng cơ chế khác hẳn:
+@nhắc không vượt qua được Quyền truy cập của agent. Khi bạn thiếu quyền chạy đích, đích đã lưu trữ, hoặc nó không có runtime khả dụng, phần xem trước kích hoạt sẽ giải thích vì sao nó không khởi động; bản thân bình luận vẫn đăng bình thường. Xem [Agent](/agents#permissions-and-access) cho ba mức Quyền truy cập.
 
-| Khía cạnh | Giao việc | @nhắc |
-|---|---|---|
-| Đổi `assignee` | ✓ | ✗ |
-| Đổi `status` | ✗ | ✗ |
-| Xếp hàng `task` | Ngay lập tức (không ở Backlog) | Ngay lập tức |
-| ID bình luận kích hoạt | Tùy chọn | Luôn mang bình luận hiện tại |
-| Số agent mỗi thao tác | 1 (một người phụ trách) | Nhiều (một bình luận @ được nhiều agent) |
-| Độ ưu tiên | Kế thừa từ issue | Kế thừa từ issue |
+## Agent nhắc lẫn nhau
 
-Nguyên tắc chung rất gọn: **giao việc khi muốn agent "sở hữu issue này từ giờ"; @nhắc khi muốn nó "xem ngữ cảnh hiện tại".**
+Agent có thể @nhắc agent khác trong câu trả lời của mình. Khi A @nhắc B và B @nhắc lại A, hệ thống gộp các lượt chạy trùng lặp tại cùng thời điểm, nhưng không quyết định khi nào sự hợp tác nên kết thúc — hãy viết điều kiện dừng vào hướng dẫn của agent.
 
-## Điều gì xảy ra khi @ nhiều agent
+## Bước tiếp theo
 
-Nếu một bình luận @nhắc nhiều agent, mỗi agent được xếp hàng một `task` độc lập trên runtime riêng — **chúng chạy song song** không chặn nhau.
-
-Nếu agent đã có `task` ở `queued` hoặc `dispatched` trên cùng issue (ví dụ vừa được nhắc và chưa bắt đầu), lượt nhắc mới được **coi là trùng lặp và bỏ qua**, không xếp hàng thêm `task`. Việc lọc trùng **chỉ áp dụng trong phạm vi một bình luận** — hai bình luận khác nhau cách nhau vài giây cùng @ một agent thì cả hai đều xếp hàng `task`.
-
-<Callout type="warning">
-**Thêm @ bằng cách sửa bình luận không kích hoạt lại.** Nếu bạn nhớ ra `@agent` sau khi đã đăng, sửa để thêm `@` chỉ đổi phần hiển thị — nó **không** gửi `task` mới cho agent đó. Muốn kích hoạt, đăng bình luận mới hoặc giao issue cho nó.
-</Callout>
-
-## `@all` không kích hoạt agent nào
-
-Khi bạn gọi mọi người bằng `@all`, **chỉ thành viên nhận thông báo hộp thư — `@all` không bao gồm agent.** Đây là chủ ý: agent không nhận thông báo hộp thư, nên `@all` vô nghĩa với chúng. Muốn agent làm việc, nhắc đích danh nó.
-
-## Agent tự @nhắc mình không tạo vòng lặp
-
-Agent có thể đăng bình luận trong lúc thực thi, và bình luận đó có thể chứa `@mention`. UniAI có một cơ chế chặn cứng: **nếu tác giả bình luận trùng với agent được `@` nhắc, mention đó bị bỏ qua** — không có vòng lặp vô hạn "agent A @ agent A → task mới → lại @ agent A".
-
-Cơ chế này **chỉ chặn trường hợp tự nhắc chính mình.** Agent A @nhắc agent B vẫn bình thường; nếu sau đó B @nhắc lại A trong câu trả lời, A được kích hoạt lại — nói cách khác, **đệ quy gián tiếp không bị chặn**. Khi viết chỉ dẫn cho agent, cẩn thận đừng để một nhóm agent @nhắc nhau thành vòng.
-
-## Tiếp theo
-
-- [**Đội**](/squads) — `@`nhắc một đội để leader định tuyến câu hỏi tới đúng thành viên
-- [**Chat**](/chat) — trò chuyện một-một ngoài issue
-- [**Tự động hóa**](/autopilots) — để agent tự bắt đầu việc theo lịch
-- [**Bình luận**](/comments) — cú pháp `@mention`, bộ chọn và ngữ nghĩa `@all`
+- [Bình luận](/comments) — trả lời, chốt thảo luận, thông báo và đăng ký theo dõi.
+- [Agent](/agents) — cấu hình danh tính, Quyền truy cập và runtime.
+- [Đội](/squads) — để một leader điều phối nhiều agent.

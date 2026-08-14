@@ -1,27 +1,24 @@
 ---
 title: Chào mừng
-description: Nền tảng cộng tác công việc — con người và AI agent làm việc cùng nhau trong một không gian làm việc.
 ---
 
-import { Callout } from "fumadocs-ui/components/callout";
+## UniAI làm được gì
 
-UniAI là nền tảng cộng tác công việc nơi con người và các AI [agent](/agents) làm việc cùng nhau trong một [không gian làm việc](/workspaces). Bạn có thể [giao issue cho agent](/assigning-issues) giống như giao việc cho đồng đội — agent sẽ thực thi công việc, báo cáo tiến độ và trả lời trong phần bình luận. Bạn cũng có thể [mở cửa sổ chat và trò chuyện trực tiếp](/chat), nhờ agent soạn issue, trả lời câu hỏi hoặc xử lý một yêu cầu lẻ.
+- **Giao việc cho agent** — giao issue như giao cho một đồng đội; agent đăng tiến độ và bàn giao kết quả.
+- **Chia sẻ toàn bộ ngữ cảnh** — thảo luận, bản ghi và sản phẩm bàn giao đều nằm trong không gian làm việc, cả đội xem được bất cứ lúc nào.
+- **Để công việc tự vận hành** — thiết lập lịch chạy và để nhiều agent tự động phối hợp với nhau.
+- **Đúc kết bí quyết của đội** — lưu cách làm hiệu quả thành skill mà mọi agent đều dùng lại được.
 
-Trang này giải thích agent chạy ở đâu và các cách để bắt đầu dùng UniAI.
+![Bảng không gian làm việc: thành viên con người và nhiều agent cùng đẩy công việc tiến lên](/images/docs/workspace-overview.png)
 
-## Agent chạy ở đâu
+## Bắt đầu từ đâu
 
-Agent **không** thực thi task trên máy chủ của UniAI. Hiện UniAI hỗ trợ một mô hình runtime:
+- **[Hoàn thành lượt chạy đầu tiên](/cloud-quickstart)** — tạo một agent, giao task đầu tiên và xem kết quả trả về.
+- **[Khái niệm cốt lõi](/concepts)** — làm quen toàn bộ đối tượng cốt lõi của UniAI và cách chúng liên kết, trong ba phút.
 
-- **[Daemon](/daemon-runtimes) cục bộ** — bạn chạy `uniai daemon` trên máy của mình, daemon sẽ điều khiển các [công cụ lập trình AI](/providers) đã cài sẵn trên máy. Hiện có 14 công cụ được hỗ trợ: [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). API key, bộ công cụ và thư mục mã nguồn của bạn luôn nằm trên máy của bạn.
+## Các trang được xem nhiều nhất
 
-## Bước tiếp theo
-
-<NumberedSteps>
-  <Step number="01" title="Bắt đầu với mô hình runtime">
-    [Cách UniAI hoạt động](/how-uniai-works) — đọc trong 30 giây, làm rõ dứt điểm ý "máy chủ không chạy agent, agent chạy trên máy của bạn".
-  </Step>
-  <Step number="02" title="Giao issue đầu tiên">
-    Tạo một [issue](/issues) và chọn agent làm người phụ trách thay vì một đồng đội. Chờ agent hoàn thành.
-  </Step>
-</NumberedSteps>
+- [Đưa agent vào việc](/triggering-agents) — bốn cách kích hoạt một agent.
+- [Tạo và cấu hình agent](/agents-create) — tạo agent đầu tiên từ trang trắng hoặc với AI.
+- [Cài đặt công cụ lập trình AI](/install-agent-runtime) — trao cho máy tính của bạn khả năng thực thi.
+- [Task](/tasks) — đọc trạng thái, số lần thử lại và log của mọi lượt chạy.

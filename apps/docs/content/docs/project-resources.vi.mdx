@@ -1,258 +1,103 @@
 ---
 title: Tài nguyên dự án
-description: Đính các con trỏ có kiểu (repo Git, thư mục cục bộ, sau này còn nữa) vào dự án để agent nhận chúng làm ngữ cảnh trong phạm vi dự án.
+description: Gắn repository GitHub hoặc thư mục cục bộ vào dự án để các lần chạy sau có ngữ cảnh làm việc ổn định.
 ---
 
-**Tài nguyên dự án** là một con trỏ có kiểu — URL repo Git, đường dẫn trên máy bạn, mai này là trang Notion — đính vào một [dự án](/workspaces). Khi một [agent](/agents) chạy trên issue thuộc dự án đó, daemon tự ghi danh sách tài nguyên của dự án vào thư mục làm việc của agent và vào prompt [meta-skill](/skills) của nó.
+import { Callout } from "fumadocs-ui/components/callout";
 
-Kết quả: agent biết cần checkout repo nào (hoặc làm việc trong thư mục cục bộ nào), và tài liệu nào là "tham chiếu chính" của dự án, mà không ai phải copy-dán ngữ cảnh vào phần mô tả issue.
+Tài nguyên của [dự án](/projects) cho agent biết phần việc này dùng mã nguồn nào và chạy ở đâu. Tài nguyên gắn liền với dự án, nên không cần dán lại URL repository hay đường dẫn cục bộ vào từng issue.
 
-## Mô hình tư duy
+Hiện hỗ trợ hai kiểu tài nguyên:
 
-Dự án không còn chỉ là cái nhãn. Nó là một **nơi chứa tài nguyên** nhỏ gọn:
+| Tài nguyên | Phù hợp khi | Chạy ở đâu |
+|---|---|---|
+| **Repository GitHub** | Mã nguồn cả nhóm dùng chung, checkout do runtime quản lý | Thư mục làm việc do runtime quản lý |
+| **Thư mục cục bộ** | Một bản checkout sẵn có, repository rất lớn, hoặc khi bạn muốn xem trực tiếp các thay đổi trên máy | Chính thư mục gốc trên một máy cụ thể |
 
-- Một dự án có 0..N **tài nguyên**.
-- Một tài nguyên có `resource_type` (ví dụ `github_repo`, `local_directory`) và `resource_ref` (payload JSON định kiểu theo `resource_type`).
-- Kiểu tài nguyên mới chỉ cần thêm một chuỗi + một handler. **Không migration schema. Không viết lại frontend.**
+## Tài nguyên đi vào lần chạy như thế nào
 
-Cấu trúc này là chủ ý — đúng mẫu UniAI đã dùng cho provider của agent: một discriminator `type` và một payload có kiểu. Nó giữ schema ổn định, nên bổ sung "trang Notion", "Google Doc", "file tải lên" hay "URL ngoài" sau này chỉ là một thay đổi nhỏ, thuần bổ sung.
+Khi agent xử lý issue trong dự án, UniAI thêm tên dự án, mô tả dự án và danh sách tài nguyên vào ngữ cảnh của lần chạy, đồng thời ghi `.multica/project/resources.json` vào thư mục làm việc.
 
-Hiện có hai kiểu tài nguyên: [`github_repo`](#resource-type-github_repo) (clone theo từng task vào worktree cách ly) và [`local_directory`](#resource-type-local_directory) (chạy trực tiếp trong một thư mục trên máy của một daemon cụ thể).
+Danh sách repository gắn với không gian làm việc luôn có mặt trong ngữ cảnh của lần chạy. Repository gắn với dự án thì chỉ rõ thêm mã nguồn và ref mặc định mà phần việc này dùng.
 
-## Kiểu tài nguyên: `github_repo`
+Thư mục cục bộ chỉ áp dụng cho daemon nó được gắn. Khi daemon chạy task có thư mục cục bộ khớp, agent làm việc trực tiếp trong thư mục đó; các máy khác vẫn dùng repository GitHub của dự án hoặc repository của không gian làm việc.
 
-Kiểu mặc định — checkout theo từng task vào worktree cách ly:
+## Thêm repository GitHub
 
-```json
-{
-  "resource_type": "github_repo",
-  "resource_ref": {
-    "url": "https://github.com/owner/repo",
-    "ref": "release/v2",
-    "default_branch_hint": "main"
-  }
-}
-```
+Mở dự án và chọn "Add resource" dưới mục **Resources**. Chọn một repository đã gắn với không gian làm việc, hoặc dán một URL Git. Repository của không gian làm việc được quản lý ở **Settings → Repositories**; sau khi kết nối GitHub, trang này có thêm **Pick from GitHub** để nhập các repository mà App được cấp quyền.
 
-`ref` là tùy chọn — nếu có, `uniai repo checkout <url>` dùng nó làm nhánh, tag hoặc commit mặc định cho task trong dự án này. Một lệnh `uniai repo checkout <url> --ref <other-ref>` tường minh vẫn được ưu tiên cho lần checkout đó.
+Repository không giới hạn ở GitHub: mọi URL Git mà runtime truy cập được đều dùng được làm tài nguyên repository. Bản UniAI self-hosted còn kết nối được Forgejo, Gitea hoặc GitLab tự vận hành ở **Settings → Integrations → Git hosting**; xem [Git provider tự vận hành](/vcs-integration).
 
-`default_branch_hint` là ngữ cảnh tùy chọn cho prompt. Nó không được dùng khi checkout; hãy dùng `ref` khi dự án cần ghim nhánh, tag hoặc SHA.
+Khi tạo dự án, bạn cũng chọn được repository ngay dưới mục **Repos**. Một dự án gắn được nhiều repository GitHub.
 
-## Kiểu tài nguyên: `local_directory`
+`ref` của tài nguyên đặt nhánh, tag hoặc commit mà các lần checkout sau dùng làm mặc định. `default_branch_hint` chỉ gợi ý nhánh mặc định cho agent và không ép chuyển nhánh.
 
-Cho các repo không thể clone lại theo từng task một cách hợp lý — checkout game nhiều gigabyte, monorepo lớn, hay bất kỳ dự án nào mà mô hình worktree-mỗi-task gây khổ sở — dự án có thể trỏ vào **một thư mục sẵn có trên máy của một [daemon](/daemon-runtimes) cụ thể**. Agent chạy **ngay trong thư mục đó**, không clone, không copy, không worktree.
+## Thêm thư mục cục bộ
 
-```json
-{
-  "resource_type": "local_directory",
-  "resource_ref": {
-    "local_path": "/Users/me/code/big-game",
-    "daemon_id": "0001234e-…",
-    "label": "main checkout"
-  }
-}
-```
+Thêm thư mục cục bộ cần một daemon đang chạy trên máy đó, vì trình duyệt không thể chọn thư mục trên máy của bạn.
 
-Đánh đổi so với `github_repo` là chủ ý: chỉ daemon được gắn mới nhận được task trên thư mục đó, và các task trên cùng thư mục chạy **tuần tự** thay vì song song. Đổi lại bạn giữ nguyên checkout, nhánh và trạng thái dở dang hiện có — UniAI không bao giờ clone lại.
+<Callout type="warning">
+**Đây là lối thoát hiểm, không phải một mặc định tiện hơn.** `local_directory` tồn tại cho những ai không còn lựa chọn khác — trường hợp điển hình là dự án game với bản checkout hàng chục gigabyte, nơi clone lại theo từng task đơn giản là bất khả thi.
 
-### Khi nào chọn `local_directory` thay vì `github_repo`
+Nếu thư mục của bạn là một repo git bình thường clone được, **hãy dùng `github_repo`**: nó mặc định chạy ở chế độ worktree, nên các task trên cùng repo chạy song song không giới hạn. Chọn `local_directory` nghĩa là mọi task trên thư mục đó chạy **tuyệt đối tuần tự, mỗi lúc một task, mãi mãi**. Đọc kỹ phần "khi nào chọn" bên dưới trước khi quyết định.
+</Callout>
 
-| Mối quan tâm | `github_repo` (worktree) | `local_directory` |
-| --- | --- | --- |
-| Chi phí checkout mỗi task | Clone mới + worktree | Không — agent chạy tại chỗ |
-| Đồng thời trên cùng repo | Nhiều task song song | Mỗi thư mục một task một lúc |
-| Nhánh / trạng thái dở dang | Mỗi task một nhánh mới tách từ nhánh mặc định | Nguyên trạng thư mục hiện tại |
-| Chạy ở đâu được | Daemon bất kỳ | Đúng một daemon (cái được gắn) |
-| Dung lượng đĩa | Một worktree mỗi task | Không tốn thêm — thư mục sẵn có |
 
-Chọn `local_directory` khi **một trong hai** điều này đúng:
+1. Đảm bảo daemon cục bộ trên máy này đang online.
+2. Mở mục **Resources** của dự án.
+3. Chọn "Add local directory", rồi chọn thư mục muốn dùng.
 
-1. **Clone lại đắt tới mức không chấp nhận được** — checkout game nhiều gigabyte, monorepo nặng LFS, hay bất kỳ trường hợp nào `git clone` mỗi task lấn át chính công việc. Bạn đổi tính song song lấy lần chạy không cần clone.
-2. **Thay đổi của bạn nhỏ lẻ và bạn muốn review ngay trên máy khi chúng diễn ra** — bạn đang chỉnh đi chỉnh lại một component, muốn nhảy qua lại giữa chỉnh sửa của agent và editor mỗi vài phút, và muốn bản checkout hiện có là nguồn chuẩn, thay vì phải lục tìm worktree của từng task trong `~/multica_workspaces/`.
+Thư mục phải là đường dẫn tuyệt đối, phải tồn tại sẵn, và daemon hiện tại phải đọc và ghi được. Các đường dẫn sau bị từ chối: gốc hệ thống và gốc ổ đĩa (`/`, `C:\`), chính thư mục home và thư mục cha của các thư mục home (như `/Users`, `/home`, `/root`), cùng các thư mục hệ thống như `/etc`, `/var`, `/tmp`, `/usr` và `/opt`. Nếu đường dẫn được chọn là symlink, nó được phân giải về đường dẫn thật trước rồi kiểm tra lại theo cùng bộ quy tắc; khóa tuần tự cũng áp dụng trên đường dẫn thật.
 
-Ở cả hai trường hợp, bạn chấp nhận cùng một đánh đổi: **phiên bản này không có khóa ghi ở mức file.** Cơ chế tuần tự theo thư mục (mỗi thư mục một task một lúc) là lớp bảo vệ duy nhất ngăn agent của hai issue sửa cùng file cùng lúc. Trỏ agent của hai issue vào cùng một `local_directory` thì task của chúng xếp hàng thay vì chạy song song — đó là chủ ý. Cần song song thật trên cùng codebase thì hãy dùng `github_repo`.
+Mỗi dự án gắn được tối đa một thư mục cục bộ cho mỗi daemon. Các máy khác nhau trong nhóm đều gắn được thư mục riêng của mình cho cùng một dự án.
 
-### Đính thư mục cục bộ
+<Callout type="warning">
+Thư mục cục bộ không phải môi trường cách ly. Agent nhìn thấy và sửa trực tiếp nhánh hiện tại cùng các file chưa commit của bạn; UniAI không tự chuyển nhánh, stash, commit, push hay mở PR.
+</Callout>
 
-Web không có cách đọc đường dẫn hệ điều hành nên giao diện không có bộ chọn thư mục. Hãy đính thư mục từ **CLI**, trên đúng máy có daemon sở hữu đường dẫn đó:
+## Thư mục cục bộ chạy tuần tự
+
+Khi hai task dùng cùng một thư mục thật, task đến sau vào trạng thái `waiting_local_directory` và tiếp tục sau khi task trước nhả thư mục. Hai đường dẫn dẫn tới cùng một thư mục qua các symlink khác nhau cũng tuần tự hóa như vậy.
+
+Việc chờ không đụng vào thư mục. Task đang chờ có thể bị hủy; nếu không, nó chờ tới khi thư mục sẵn sàng.
+
+Muốn làm nhiều thay đổi cùng lúc, hãy dùng tài nguyên repository GitHub để runtime chuẩn bị thư mục làm việc riêng cho từng phần việc.
+
+## Những gì được ghi trong lần chạy
+
+Ngoài các thay đổi mã do agent thực hiện, runtime còn có thể ghi vào thư mục các file hướng dẫn mà công cụ lập trình AI hiện tại cần, cùng `.multica/project/resources.json`. Thêm chúng vào `.gitignore` nếu bạn không muốn đưa vào quản lý phiên bản.
+
+UniAI không bao giờ xóa một thư mục cục bộ đã gắn khi dọn dẹp môi trường chạy. Thay đổi của agent trong thư mục cũng giống hệt thay đổi khi bạn tự chạy một công cụ lập trình AI trong terminal, và cần được review y như vậy.
+
+## Quản lý tài nguyên bằng CLI
 
 ```bash
-uniai project resource add <project-id> \
-  --type local_directory \
-  --local-path /Users/me/code/big-game \
-  --daemon-id <daemon-uuid> \
-  --ref-label "main checkout"        # tùy chọn
-
-uniai project resource update <project-id> <resource-id> \
-  --local-path /Users/me/code/big-game-new
-```
-
-`--daemon-id` lấy từ `uniai daemon list`. CLI cũng chấp nhận tùy chọn vạn năng `--ref '<json>'` nếu bạn muốn truyền thẳng payload.
-
-### Quy tắc đường dẫn
-
-Đường dẫn bạn đính phải vượt qua kiểm tra lúc đính và kiểm tra theo từng task. Cả hai đều do daemon sở hữu tài nguyên thực thi — server chỉ lưu JSON. Đường dẫn phạm bất kỳ quy tắc nào sẽ làm task thất bại với một lỗi được phân loại rõ, và thư mục của bạn không bị đụng tới:
-
-- Phải là đường dẫn **tuyệt đối**.
-- Phải **tồn tại** và là **thư mục** (không phải file, symlink tới file, hay device node).
-- Phải **đọc và ghi được** bởi tiến trình daemon.
-- Không được là gốc hệ thống hay toàn bộ thư mục người dùng — `/`, `/Users`, `/home`, `/root`, `/etc`, `/tmp`, `/var`, `/usr`, `/opt`, `/Users/Shared`, chính `$HOME` của bạn, gốc ổ đĩa Windows bất kỳ (`C:\`, `D:\`, …), hay `C:\Users` / `C:\ProgramData` / `C:\Program Files` / `C:\Program Files (x86)` / `C:\Windows`.
-- Symlink phân giải về bất kỳ mục nào ở trên đều bị từ chối, dạng chính tắc của đường dẫn bí danh hệ điều hành cũng vậy (ví dụ trên macOS, gõ `/private/tmp` bị từ chối y như `/tmp`).
-
-Danh sách chặn cố tình gắt — chọn thư mục home sẽ đặt file runtime của UniAI ngay gốc tài khoản của bạn, điều không ai muốn cả. Hãy chọn một thư mục con (thường là bản checkout dự án thật của bạn).
-
-### Mỗi cặp (dự án, daemon) chỉ một thư mục
-
-Một dự án giữ **tối đa một `local_directory` cho mỗi daemon**. Thêm cái thứ hai trên cùng daemon sẽ nhận `409` từ API.
-
-Các daemon khác nhau độc lập với nhau — một dự án dùng chung có thể có một `local_directory` cho máy của từng đồng đội, mỗi cái gắn cùng dự án với một thư mục khác trên một máy khác. Khi daemon nhận task, nó chọn dòng khớp ID của chính nó và bỏ qua phần còn lại.
-
-### Trộn kiểu tài nguyên, và nhiều `local_directory`
-
-Hai kiểu kết hợp tài nguyên hay gặp trong thực tế:
-
-- **`github_repo` + `local_directory` trên cùng dự án.** Trên daemon có gắn `local_directory` khớp, thư mục cục bộ **được ưu tiên**: agent chạy trong thư mục của bạn, daemon không tạo hay dùng worktree `github_repo` cho task đó. (Cache repo theo không gian làm việc vẫn có thể đồng bộ như thường — đó là hành vi nền không liên quan cây làm việc của task này.) URL `github_repo` vẫn xuất hiện trong `.multica/project/resources.json` và mục `## Repositories` của agent để tham chiếu — nhưng cây làm việc agent sửa là thư mục cục bộ của bạn, không phải worktree. Trên daemon **không** có dòng `local_directory` cho dự án này (máy khác, hoặc trước khi đồng đội đó đính), task quay về luồng worktree `github_repo` như thường. Về bản chất, thư mục cục bộ là lớp ghi đè đường dẫn worktree, tính theo từng daemon.
-- **Hai `local_directory` trên cùng dự án.** Vì mỗi `local_directory` gắn với đúng một daemon, chuyện này chỉ xảy ra trên hai máy khác nhau (API từ chối hai cái trên cùng daemon lúc đính, xem trên). Task được định tuyến theo phân công runtime của agent, không theo daemon nào có thư mục cục bộ: task rơi vào daemon sở hữu runtime của agent nhận việc, daemon đó chọn dòng `local_directory` khớp ID mình và bỏ qua phần còn lại. Không có cân bằng tải — muốn một máy cụ thể chạy task thì giao cho agent gắn với runtime của máy đó.
-
-Daemon không có dòng `local_directory` cho một dự án đã gắn ở nơi khác thì **không** bị chặn — task của nó cứ đi tiếp qua các tài nguyên khác của dự án (thường là fallback `github_repo`). `local_directory` chỉ có ý nghĩa với daemon nó được gắn.
-
-### Chạy task trên thư mục cục bộ
-
-Khi task được phát trên issue mà dự án của nó có `local_directory` gắn với daemon nhận, daemon sẽ:
-
-1. Kiểm tra lại đường dẫn (quy tắc ở trên).
-2. Lấy khóa theo thư mục dựa trên đường dẫn thật đã phân giải symlink — nên hai lối vào cùng thư mục (một qua symlink, một trực tiếp) vẫn tuần tự hóa.
-3. Ghi `CLAUDE.md` / `AGENTS.md` của agent (và `.multica/project/resources.json`) **vào thư mục của bạn**. Agent làm việc tại đó, y như bạn tự mở thư mục.
-4. Giữ các artefact runtime của UniAI (`output/`, `logs/`, `.gc_meta.json`) trong một envRoot riêng **bên ngoài** thư mục của bạn.
-
-Nếu task thứ hai cho cùng thư mục tới khi task đầu đang chạy, nó tạm dừng chờ với trạng thái **Waiting for local directory**. Trạng thái này hiện ở mọi nơi có task — pill task trong chat, banner agent, nhật ký thực thi và chỉ báo hoạt động — và task đang chờ được tính vào diện "đang xếp hàng" của agent. Hủy task đang chờ sẽ giải phóng chỗ ngay; hủy task đang chạy thì task kế tiếp được vào chạy.
-
-Việc chờ không có timeout — task cứ chờ tới khi khóa được nhả hoặc người dùng / agent hủy nó.
-
-### UniAI đụng vào gì — và không đụng vào gì — trong thư mục của bạn
-
-- **Sẽ ghi** `CLAUDE.md` / `AGENTS.md` (hoặc tương đương theo provider của agent) và `.multica/project/resources.json` ở gốc thư mục, để agent có meta-skill và danh sách tài nguyên. Thêm chúng vào `.gitignore` nếu không muốn commit.
-- **Sẽ ghi** những sửa đổi mã mà agent quyết định làm — y hệt như bạn tự chạy agent trên máy.
-- **Không bao giờ xóa thật sự** thư mục hay bất cứ thứ gì bên trong. Cơ chế dọn rác phân biệt rõ đường dẫn: với envRoot của `local_directory`, nó chỉ dọn `output/` và `logs/` của chính nó dưới `workspacesRoot`, và coi thư mục của bạn là vùng cấm.
-
-### Giới hạn v1 (sẽ siết dần)
-
-Bản phát hành đầu chủ ý còn nhiều hạn chế hơn `github_repo`. Danh sách này sẽ ngắn dần theo thời gian — những gì ghi ở đây là hiện trạng hôm nay:
-
-- **Không tự chuyển nhánh.** Agent chạy trên nhánh bạn đang checkout. Nếu điều đó quan trọng, hãy chuyển nhánh trước khi giao việc.
-- **Không bảo vệ thay đổi chưa commit, không auto-commit.** Agent nhìn thấy các thay đổi chưa commit, có thể sửa chúng tại chỗ và không stash lại. Hãy coi thư mục là cây làm việc thật và commit trước những lần chạy rủi ro.
-- **Không tự mở PR.** Task kết thúc thì thay đổi nằm trên nhánh nơi chúng được tạo — không push, không mở PR. Tự push và mở PR khi bạn sẵn sàng.
-- **`waiting_local_directory` chỉ hiện trạng thái, không hiện ai đang giữ.** Huy hiệu cho biết task đang chờ; nó không chỉ ra task nào hay đường dẫn nào đang giữ thư mục.
-
-Những hạn chế này được theo dõi trong hạng mục tiếp nối agent-task-lifecycle của tính năng thư mục cục bộ; trước khi phần đó ra mắt, hãy coi `local_directory` là "agent chạy trong thư mục của bạn, y như cách bạn tự chạy."
-
-## Đính repo lúc tạo dự án
-
-Trong app web, mở *New project* có pill **Repos** cạnh Trạng thái / Độ ưu tiên / Lead. Chọn các repo đã gắn với không gian làm việc (hoặc dán một URL bất kỳ) sẽ đính chúng làm tài nguyên `github_repo` ngay khi dự án được tạo.
-
-Từ **CLI**:
-
-```bash
-# Tạo + đính trong một lệnh. Server đính tài nguyên trong cùng transaction
-# với việc tạo dự án — tài nguyên không hợp lệ sẽ rollback toàn bộ,
-# nên không bao giờ có dự án chỉ đính được một nửa.
+# Gắn repository khi tạo dự án
 uniai project create \
-  --title "Agent UX 2026" \
+  --title "Agent UX" \
   --repo https://github.com/phanducquanguet/usf
 
-# Quản lý tài nguyên về sau
+# Liệt kê và thêm tài nguyên
 uniai project resource list <project-id>
-uniai project resource add  <project-id> --type github_repo --url <url>
-uniai project resource add  <project-id> --type github_repo --url <url> --ref <branch-or-sha>
-uniai project resource remove <project-id> <resource-id>
-
-# Tùy chọn vạn năng cho mọi resource_type server hiểu —
-# không cần đổi CLI khi có kiểu mới:
 uniai project resource add <project-id> \
-  --type notion_page \
-  --ref '{"page_id":"…","title":"…"}'
+  --type github_repo \
+  --url https://github.com/phanducquanguet/usf \
+  --ref main
+
+# Gắn thư mục cục bộ trên một daemon cụ thể
+uniai project resource add <project-id> \
+  --type local_directory \
+  --local-path /absolute/path/to/repo \
+  --daemon-id <daemon-id>
+
+# Gỡ một tài nguyên
+uniai project resource remove <project-id> <resource-id>
 ```
 
-`--repo` có thể lặp lại nhiều lần; mỗi giá trị được đính thành một tài nguyên `github_repo` riêng.
+Thay đổi tài nguyên chỉ ảnh hưởng các task tạo sau đó; nó không viết lại hồ sơ của những lần chạy đã kết thúc.
 
-## Agent thấy gì lúc chạy
+## Bước tiếp theo
 
-Khi daemon khởi tạo agent cho issue trong một dự án, hai điều xảy ra:
-
-### 1. `.multica/project/resources.json`
-
-Bản sao có cấu trúc của phản hồi API, được ghi vào thư mục làm việc của agent:
-
-```json
-{
-  "project_id": "…",
-  "project_title": "Agent UX 2026",
-  "resources": [
-    {
-      "id": "…",
-      "resource_type": "github_repo",
-      "resource_ref": {
-        "url": "https://github.com/phanducquanguet/usf",
-        "default_branch_hint": "main"
-      }
-    }
-  ]
-}
-```
-
-Skill, script phụ trợ, hoặc chính agent có thể parse file này khi cần tập tài nguyên *chính xác* của lần chạy.
-
-### 2. Mục "Project Context" trong prompt meta-skill
-
-`CLAUDE.md` / `AGENTS.md` của agent (tùy provider) giờ có phần tóm tắt dễ đọc:
-
-```
-## Project Context
-
-This issue belongs to **Agent UX 2026**.
-
-Project resources (also written to `.multica/project/resources.json`):
-
-- **GitHub repo**: https://github.com/phanducquanguet/usf (default branch: `main`)
-
-Resources are pointers — open them only when relevant to the task. For
-`github_repo` resources, use `uniai repo checkout <url>` to fetch the code.
-```
-
-Đoạn văn bản này cố tình tối giản. Payload đầy đủ nằm trên đĩa; prompt chỉ định hướng để agent biết dự án tồn tại và có gì đính kèm.
-
-### Khi lỗi
-
-Lấy tài nguyên là **best-effort**. Nếu gọi API thất bại, phần dự án bị bỏ khỏi prompt và file không được ghi, nhưng task vẫn chạy. Agent không bao giờ bị chặn vì thiếu ngữ cảnh dự án.
-
-## Thêm kiểu tài nguyên mới
-
-Mục đích chính của lớp trừu tượng này là để việc thêm kiểu mới thật rẻ. Các bước đầy đủ:
-
-1. **Validator phía server** (`server/internal/handler/project_resource.go`) — thêm một case trong `validateAndNormalizeResourceRef` để parse và chuẩn hóa payload mới.
-2. **Formatter meta-skill của daemon** (`server/internal/daemon/execenv/runtime_config.go`) — thêm case trong `formatProjectResource` để prompt của agent hiển thị kiểu mới thành gạch đầu dòng dễ đọc.
-3. **Kiểu TypeScript** (`packages/core/types/project.ts`) — mở rộng `ProjectResourceType` và thêm interface payload.
-4. **Renderer UI** (`packages/views/projects/components/project-resources-section.tsx`) — thêm case trong `ResourceRow` cho kiểu mới.
-
-**Không** migration schema, không truy vấn sqlc mới, không endpoint mới, **và không đổi CLI** — cờ chung `--ref '<json>'` của CLI nhận mọi payload mà validator hiểu, nên kiểu mới được hỗ trợ ngay từ đầu chỉ với bốn bước trên. (Về sau bạn *có thể* thêm lệnh tắt CLI riêng cho kiểu đó; không bắt buộc.)
-
-Cùng bảng `project_resource` và cùng ba lệnh CRUD phục vụ mọi kiểu.
-
-## Repo của không gian làm việc vs. repo của dự án
-
-Danh sách repo hiển thị cho agent (khối `## Repositories` trong `CLAUDE.md` / `AGENTS.md`) do trình xử lý nhận task của daemon chọn theo thứ tự ưu tiên:
-
-- **Dự án có ít nhất một tài nguyên `github_repo`** → chỉ các repo đó được đưa cho agent. Repo gắn với không gian làm việc được chủ ý ẩn đi để agent không phải đoán repo nào thuộc issue này.
-- **Dự án không có tài nguyên `github_repo` (hoặc issue không thuộc dự án nào)** → quay về danh sách repo của không gian làm việc như trước.
-
-Điều này giữ tập làm việc của agent gọn: khi dự án đã nói rõ repo của mình, danh sách đó là chuẩn. Danh sách tài nguyên có cấu trúc tại `.multica/project/resources.json` luôn mang tập đầy đủ, nên skill nào cần xem toàn bộ vẫn xem được.
-
-Daemon áp dụng cùng logic ở phía checkout: khi task tới với các URL `github_repo` thuộc phạm vi dự án, các URL đó được gộp vào allowlist theo không gian làm việc *và* đồng bộ vào cache repo cục bộ trước khi agent khởi chạy. Vì vậy một URL repo dự án chưa gắn ở tầng không gian làm việc vẫn là đối số hợp lệ cho `uniai repo checkout` — daemon sẽ không từ chối với lý do "chưa cấu hình". Nếu tài nguyên dự án có `ref`, ref đó thành mặc định cho `uniai repo checkout <url>` trong task đó; truyền `--ref` cho lệnh checkout sẽ ghi đè. Việc tách allowlist là nội bộ: URL gắn không gian làm việc và URL theo task được theo dõi riêng, nên một lần refresh repo không gian làm việc không vô tình thu hồi URL dự án giữa chừng.
-
-## Những gì chủ ý **không** nằm trong phạm vi
-
-- **Chia sẻ chéo giữa các dự án.** Hiện mỗi tài nguyên thuộc đúng một dự án.
-- **Giới hạn tài nguyên theo skill.** Mọi tài nguyên hiện ra với mọi skill trong lần chạy của agent; lọc theo kiểu sẽ làm trong bước tiếp theo.
-- **Cache / đồng bộ.** `github_repo` chỉ là metadata — checkout vẫn qua `uniai repo checkout` khi cần. Việc cache nội dung tài liệu cho Notion / Google Docs sẽ ra mắt cùng các kiểu đó.
-
-Đây là những thiếu sót có chủ đích — mục tiêu của bản đầu là kiểm chứng lớp trừu tượng với ít thành phần nhất có thể.
+- [Dự án](/projects) — tìm hiểu ngữ cảnh dự án, tiến độ và lead.
+- [Daemon và runtime](/daemon-runtimes) — tìm hiểu máy nào nhận task.
+- [Task](/tasks) — xem các trạng thái chạy như `waiting_local_directory`.

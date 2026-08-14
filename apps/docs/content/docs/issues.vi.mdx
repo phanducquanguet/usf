@@ -1,79 +1,93 @@
 ---
-title: Issue và dự án
-description: Đơn vị công việc cốt lõi của UniAI — giao được cho con người hoặc cho agent.
+title: Issue
+description: Một issue lưu trọn bối cảnh, người phụ trách, trạng thái và lịch sử thực thi của một phần việc.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Issue là một đơn vị công việc khép kín trong UniAI — một bug, một tính năng mới, một việc cần làm. Mỗi issue có **tiêu đề**, **mô tả** (hỗ trợ Markdown), **trạng thái**, **độ ưu tiên**, **người phụ trách**, và có thể thuộc về một **dự án**. Nếu bạn từng dùng Linear hay Jira thì sẽ thấy cấu trúc này quen thuộc.
+Issue là đơn vị cơ bản để tổ chức công việc trong UniAI: một tính năng, một bug, một cuộc điều tra — bất cứ việc gì mà một thành viên hay một agent nên nhận và theo đến cùng. Thảo luận xung quanh nó, các lần đổi trạng thái và mọi lượt chạy đều nằm ở một chỗ, nên không phải chắp nối lại bối cảnh từ log chat hay đầu ra terminal.
 
-**Nét đặc trưng của UniAI là người phụ trách issue có thể là con người hoặc một [agent](/agents)** — và ta bắt đầu từ đó.
+## Các thành phần của issue
 
-## Giao issue cho agent
+| Thành phần | Vai trò |
+|---|---|
+| **Tiêu đề và mô tả** | Mục tiêu, bối cảnh, yêu cầu và tiêu chí nghiệm thu. |
+| **Trạng thái và độ ưu tiên** | Công việc đang ở đâu và nên xử lý gì trước. |
+| **Người phụ trách** | Một thành viên không gian làm việc, một agent, hoặc một đội. |
+| **Ngày, nhãn và thuộc tính tùy chỉnh** | Lập kế hoạch, phân loại và các trường riêng của nhóm bạn. |
+| **Dự án và quan hệ cha-con** | Nằm trong một khối công việc lớn hơn, hoặc tách thành các issue con. |
+| **Hoạt động và nhật ký thực thi** | Bình luận, thay đổi trạng thái, task và kết quả agent trả về. |
 
-[Giao](/assigning-issues) issue cho agent là trao việc đó cho nó. Agent **tự khởi động** — bắt tay vào việc chỉ sau vài giây, báo tiến độ trong bình luận, và chuyển trạng thái sang done khi xong. Khác biệt duy nhất so với giao việc cho đồng đội là agent không offline, không cần nhắc và sẵn sàng 24/7.
+![Trang chi tiết issue: mô tả, thảo luận, thuộc tính bên phải và nhật ký thực thi](/images/docs/quickstart-run-result.png)
 
-<Callout type="info">
-Về danh tính, cấu hình và nơi agent chạy, xem [Agent](/agents).
-</Callout>
+## Tạo issue
 
-Chỉ owner và admin của không gian làm việc mới giao được issue cho agent private. Về quyền theo vai trò, xem [Thành viên và vai trò](/members-roles).
+Tạo từ trang **Issues** hoặc ngay trong một dự án — chỉ cần tiêu đề là đủ, mọi thuộc tính khác có thể điền sau.
+
+Mỗi issue có một mã số, ví dụ `UNI-123`. Phần số tăng dần trong không gian làm việc; sau khi admin đổi tiền tố issue của không gian làm việc, mã số sẽ hiển thị theo tiền tố mới. Xem [Không gian làm việc](/workspaces#create-a-workspace).
+
+## Chọn người phụ trách
+
+| Người phụ trách | Hiệu ứng |
+|---|---|
+| **Thành viên** | Thành viên đó chịu trách nhiệm theo dõi tiếp; không tạo task nào. |
+| **Agent** | Một task được tạo cho agent đó. |
+| **Đội** | Leader của đội nhận việc và quyết định ai xử lý. |
+
+Khi giao cho agent hoặc đội, issue được đưa vào hàng đợi ngay lập tức trừ khi nó đang ở `backlog`; nếu runtime offline, task chờ trong hàng đợi. Agent và đội đã lưu trữ thì không giao được.
+
+Việc giao issue không vượt qua được Quyền truy cập của agent; khi giao cho đội, Quyền truy cập của leader mới là thứ được kiểm tra. Xem [Giao issue cho agent](/assigning-issues).
 
 ## Trạng thái
 
-UniAI có bảy trạng thái. **Trạng thái nào cũng chuyển thẳng sang trạng thái khác được** — UniAI không áp đặt quy trình, và sẽ không cản bạn nhảy từ `backlog` thẳng tới `done`.
-
 | Trạng thái | Ý nghĩa |
 |---|---|
-| `backlog` | Chưa lên lịch |
-| `todo` | Đã lên lịch, sẵn sàng bắt đầu |
-| `in_progress` | Đang làm |
-| `in_review` | Chờ review |
-| `done` | Hoàn thành |
-| `blocked` | Kẹt vì yếu tố bên ngoài |
-| `cancelled` | Đã hủy |
+| `backlog` | Chưa bắt đầu. Issue đã giao cho agent chỉ tạo task sau khi rời `backlog`. |
+| `todo` | Đã chốt phạm vi, chờ bắt đầu. |
+| `in_progress` | Đang làm. |
+| `in_review` | Có kết quả đang chờ review. |
+| `done` | Đã xong. |
+| `blocked` | Tạm thời không thể tiếp tục. |
+| `cancelled` | Không theo đuổi nữa; hồ sơ vẫn còn. |
 
-Khi issue được giao cho agent, agent tự chuyển trạng thái từ `backlog` / `todo` sang `in_progress`, rồi sang `done` khi hoàn tất. Bạn cũng có thể tự đổi trạng thái bất cứ lúc nào.
+Không có luồng cố định giữa các trạng thái — thành viên và agent đều đổi trực tiếp được.
 
-## Độ ưu tiên
+Khi issue được giao cho agent, agent được kỳ vọng chuyển trạng thái từ `backlog` / `todo` sang `in_progress` lúc bắt đầu, rồi sang `in_review` khi đã bàn giao kết quả. Các cập nhật này do agent chủ động ghi qua UniAI CLI trong lượt chạy — máy chủ không tự đổi trạng thái issue khi task bắt đầu hay hoàn tất (ngoài hai ngoại lệ hệ thống bên dưới). `done` thường là xác nhận của con người, hoặc một tích hợp như PR có ý định đóng issue được merge.
 
-Độ ưu tiên có năm mức, dùng để sắp thứ tự danh sách issue mặc định:
+<Callout type="info">
+Hai thay đổi do hệ thống thực hiện:
 
-| Độ ưu tiên | Dùng khi |
-|---|---|
-| `No priority` | Chưa quyết (mặc định) |
-| `Urgent` | Khẩn cấp |
-| `High` | Cao |
-| `Medium` | Trung bình |
-| `Low` | Thấp |
+- Khi một lượt chạy thất bại, issue không còn lượt chạy nào khác và không có retry nào được kích hoạt, `in_progress` lùi về `todo`.
+- Khi một GitHub PR được liên kết merge với ý định đóng issue và không còn PR liên kết nào khác đang mở hoặc ở dạng draft, issue chuyển thành `done`.
+</Callout>
 
-## Số issue
+## Issue và task
 
-Mỗi issue có một số duy nhất trong không gian làm việc theo dạng `<tiền tố>-<số>` — ví dụ `UNI-123`. Số do hệ thống cấp lúc tạo và **không bao giờ đổi**. Xem [Không gian làm việc → Số issue](/workspaces#issue-numbers).
+Issue là hồ sơ lâu dài của một phần việc; [task](/tasks) là một lượt chạy cụ thể của agent. Một issue có thể sinh nhiều task theo thời gian — lần triển khai đầu, các chỉnh sửa tiếp theo, một lần kiểm tra lại. Task hoàn tất chỉ có nghĩa lượt chạy đó đã kết thúc; issue xong hay chưa do trạng thái của issue quyết định.
 
-## Bình luận
+## Dự án và issue con
 
-Luồng bình luận dưới issue là nơi cộng tác diễn ra — trả lời bình luận, `@` một người hoặc agent, thả cảm xúc.
+Một issue thuộc tối đa một [dự án](/projects); dự án cung cấp hướng dẫn và tài nguyên dùng chung cho các lượt chạy bên trong nó. Chuyển issue sang dự án khác không tạo bản sao.
 
-`@` một agent trong bình luận và **nó tự kích hoạt** — đây là cách thứ hai để khởi động agent, bên cạnh "giao việc". Xem [Bình luận và nhắc tên](/comments) và [Nhắc agent trong bình luận](/mentioning-agents).
+Việc lớn có thể tách thành các issue con: issue cha giữ mục tiêu tổng thể trong khi các issue con tiến triển độc lập. Trạng thái của cha và con không ảnh hưởng lẫn nhau.
+
+Issue con có thể được gán **giai đoạn** để tiến hành theo từng đợt — 1, 2, 3. Khi mọi issue con trong giai đoạn chưa xong sớm nhất đạt `done` hoặc `cancelled`, issue cha nhận thông báo "issue con đã hoàn tất"; khi người phụ trách issue cha là agent, nó được đánh thức và tự quyết định có bắt đầu giai đoạn tiếp theo hay không. Issue con không có giai đoạn được tính là một đợt và chỉ thông báo một lần khi tất cả hoàn tất.
+
+## Chuyển đổi chế độ xem
+
+Trang Issues có năm chế độ xem — danh sách, bảng kanban, bảng dữ liệu, Gantt và swimlane — lọc và sắp xếp được theo trạng thái, người phụ trách, dự án cùng các thuộc tính khác. Tất cả đều hiển thị cùng một tập issue.
 
 ## Xóa issue
 
-<Callout type="warning">
-Xóa issue sẽ **ngay lập tức** dọn sạch mọi bình luận, cảm xúc và tệp đính kèm bên dưới, cùng mọi task agent đang chờ trong hàng đợi (task đang chạy bị hủy). **Không thể hoàn tác.**
+Bất kỳ thành viên nào của không gian làm việc cũng xóa được issue.
 
-Nếu chỉ muốn issue khuất mắt, **đổi trạng thái sang `cancelled` an toàn hơn xóa** — dữ liệu còn nguyên và bạn có thể lấy lại sau.
+<Callout type="warning">
+Xóa là không thể hoàn tác: issue cùng bình luận, tệp đính kèm và các bản ghi liên kết bị xóa vĩnh viễn, các task chưa xong bị hủy. Khi công việc đơn giản là không theo đuổi nữa, hãy đặt trạng thái `cancelled` thay vì xóa — thảo luận và kết quả vẫn còn đó.
 </Callout>
 
-## Dự án
+## Bước tiếp theo
 
-Dự án là nơi gom nhiều issue lại với nhau. Một issue thuộc tối đa một dự án, hoặc không thuộc dự án nào.
-
-Dự án có **lead** riêng — **giống người phụ trách issue, lead có thể là con người hoặc agent**.
-
-Xóa dự án **không xóa các issue bên trong**: các issue đó chỉ tách khỏi dự án và vẫn ở trong không gian làm việc.
-
-## Tiếp theo
-
-- [Bình luận và nhắc tên](/comments) — cộng tác bên dưới một issue
-- [Agent](/agents) — hiểu "giao cho agent" thực sự hoạt động ra sao
+- [Dự án](/projects) — tổ chức công việc cần nhiều issue mới hoàn thành.
+- [Bình luận](/comments) — thảo luận, trả lời và @nhắc quanh một issue.
+- [Giao issue cho agent](/assigning-issues) — trao việc cho agent và bắt đầu lượt chạy đầu tiên.
+- [Task](/tasks) — tìm hiểu hàng đợi, thực thi, retry và hủy.

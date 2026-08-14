@@ -1,73 +1,94 @@
 ---
 title: Skills
-description: Gắn "gói tri thức" cho agent — tương thích chuẩn mở Anthropic Agent Skills.
+description: Đóng gói chỉ dẫn, các bước và tài liệu tham chiếu hay lặp lại thành skill để nhiều agent dùng lại.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Skill là một **gói tri thức** cho [agent](/agents) — một `SKILL.md` cùng các file hỗ trợ tùy chọn (script, cấu hình, mẫu tham chiếu) nói với agent "gặp loại task này thì tư duy và hành động thế này." UniAI theo chuẩn mở [Anthropic Agent Skills](https://agentskills.io), nên bất kỳ Skill nào tuân chuẩn — từ kho chính thức của Anthropic, ClawHub, hay skills.sh — đều nhập thẳng được.
+Skill là một bộ phương pháp làm việc dùng lại được trong không gian làm việc. File chính của nó là `SKILL.md`, tùy chọn kèm theo script, mẫu và tài liệu tham chiếu.
 
-## Skill của không gian làm việc vs. skill cục bộ
+Thêm skill vào một [agent](/agents) và agent dùng hướng dẫn trong đó khi thực thi các task liên quan. Cùng một phương pháp không còn phải chép vào chỉ dẫn của từng agent, và cập nhật được bảo trì ở một chỗ.
 
-UniAI hỗ trợ hai nguồn skill:
+## Skill và chỉ dẫn của agent
 
-- **Skill của không gian làm việc** — lưu trên máy chủ UniAI. Sau khi gắn vào agent, nó được đồng bộ xuống daemon của bạn lúc thực thi task. Đây là **cách chuẩn để chia sẻ skill trong nhóm**.
-- **Skill cục bộ** — nằm trong một thư mục trên máy bạn. Theo yêu cầu của bạn, [daemon](/daemon-runtimes) quét máy và bạn tự chọn cái nào đưa vào không gian làm việc. Daemon kiểm tra **hai thư mục gốc, theo thứ tự ưu tiên**: trước là thư mục skill riêng của runtime (mỗi công cụ lập trình AI có đường dẫn mặc định quy ước, ví dụ `~/.claude/skills/` của Claude Code), sau là thư mục dùng chung cho mọi công cụ `~/.agents/skills/` — vị trí chung mà các hệ sinh thái như Codex và Gemini CLI dùng. Khi cùng tên skill có ở cả hai, **thư mục riêng của provider được ưu tiên**, nên thư mục dùng chung chỉ bổ sung *thêm* skill chứ không thay đổi kết quả của một skill sẵn có.
+| | Chỉ dẫn của agent | Skill |
+|---|---|---|
+| **Hợp nhất với** | Trách nhiệm lâu dài, ranh giới và yêu cầu bàn giao của riêng agent này | Các bước, tài liệu và công cụ dùng lại cho một loại việc |
+| **Phạm vi** | Thuộc về một agent và được cung cấp ở mỗi lượt chạy | Thêm được vào nhiều agent, bật hoặc tắt riêng từng nơi |
+| **Ví dụ** | "Chỉ review code frontend, không bao giờ tự sửa" | Checklist accessibility kèm mẫu báo cáo |
 
-Đa phần bạn sẽ muốn **skill của không gian làm việc**: nhập một lần, agent của mọi đồng đội dùng được. Skill cục bộ hợp khi bạn muốn thử trên máy trước, hoặc nội dung liên quan tài liệu cục bộ nhạy cảm.
+## Tạo hoặc nhập skill
 
-## Skill theo phạm vi repository
+Trên trang **Skills** của không gian làm việc, chọn "New skill". Có ba lựa chọn:
 
-Skill nằm trong repo hoạt động đúng như thiết kế. Một số công cụ lập trình AI tự nhận diện **skill mức dự án được commit ngay trong repository**, như `.claude/skills/`, `.cursor/skills/`, `.opencode/skills/` hay `.agents/skills/`. Khi một task của UniAI checkout repository đó, các file này vẫn nằm trong workdir và công cụ bên dưới nạp được chúng theo cơ chế nhận diện sẵn có của mình. Bạn **không** cần nhập các skill repo đó vào UniAI chỉ để dùng trong repo đó; UniAI **không** tự nhập chúng vào danh mục skill của không gian làm việc.
+| Lựa chọn | Hợp khi |
+|---|---|
+| **Tạo thủ công** | Bắt đầu viết từ một `SKILL.md` trắng. |
+| **Nhập từ URL** | Nhập một skill đã công bố từ GitHub, ClawHub hoặc Skills.sh. |
+| **Sao chép từ runtime** | Quét skill trên một máy đang kết nối và sao chép những cái được chọn vào không gian làm việc. |
 
-Skill của không gian làm việc vẫn đồng bộ vào đúng vị trí native của provider với các công cụ hỗ trợ khám phá mức dự án. Nếu một skill của không gian làm việc trùng tên với thư mục skill sẵn có của repo, UniAI ghi bản của không gian làm việc dưới một tên khác bên cạnh, ví dụ `review-helper-multica`, thay vì ghi đè file của repo. Công cụ khi đó có thể thấy cả hai skill, bản của không gian làm việc mang tên đã điều chỉnh.
+Sao chép từ runtime lấy ảnh chụp của file tại thời điểm đó. Thay đổi sau này trên file cục bộ không tự cập nhật bản trong không gian làm việc; hãy nhập lại hoặc sửa trong UniAI.
 
-## Nhập skill
+Với CLI, bạn còn nhập được từ file `.skill` hoặc `.zip`:
 
-Skill của không gian làm việc tới từ bốn nguồn:
+```bash
+uniai skill import --file ./review-helper.skill
+```
 
-- **Tạo mới** — viết `SKILL.md` và các file liên quan ngay trong UI
-- **Từ GitHub** — dán URL repo (ví dụ `https://github.com/owner/repo/tree/main/skills/my-skill`) và UniAI kéo `SKILL.md` cùng mọi file trong thư mục đó
-- **Từ ClawHub** — tìm và nhập từ chợ công khai [ClawHub](https://clawhub.io), có chọn phiên bản
-- **Từ máy** — daemon quét các thư mục skill trên máy bạn, và bạn chọn cái nào đưa vào không gian làm việc
+Nếu không gian làm việc đã có skill trùng tên, lần nhập có thể dừng lại, ghi đè nội dung hiện có, lưu dưới tên mới, hoặc bỏ qua. Ghi đè qua đường nhập chỉ dành cho người tạo skill; một `admin` của không gian làm việc dù sửa được skill trong ứng dụng vẫn không ghi đè được nó qua đường nhập.
 
-Cả file lẻ lẫn nguyên gói skill đều có trần dung lượng (trần một file khoảng 1 MB khi nhập từ GitHub). Quy tắc chính xác hiện trong hộp thoại nhập — vượt trần sẽ báo lỗi.
+## Nội dung skill
+
+Skill nào cũng có file chính `SKILL.md`. Hãy nói rõ:
+
+- khi nào skill áp dụng;
+- kiểm tra gì trước khi bắt đầu;
+- các bước thực hiện;
+- kết quả cần có hình hài thế nào;
+- khi nào dừng lại và hỏi một thành viên.
+
+Bạn cũng thêm được các file hỗ trợ, ví dụ:
+
+```text
+SKILL.md
+references/api-conventions.md
+templates/review-report.md
+scripts/check.sh
+```
+
+`SKILL.md` là đường dẫn dành riêng; file hỗ trợ không được dùng tên đó. File hỗ trợ được chuyển tới agent cùng với file chính.
 
 ## Gắn vào agent
 
-Nhập xong, skill phải được **gắn vào một agent cụ thể** mới có hiệu lực. Một agent gắn được nhiều skill, và một skill gắn được nhiều agent.
+Tạo hoặc nhập xong, skill vẫn cần được thêm vào từng agent cụ thể. Chọn agent ngay trên trang của skill, hoặc quản lý liên kết từ tab **Skills** của agent.
 
-Sau khi gắn, agent nhận skill ở lần bắt đầu task kế tiếp — mỗi công cụ lập trình AI tìm skill ở một đường dẫn riêng (Claude Code dùng `.claude/skills/`, Cursor dùng `.cursor/skills/`, Antigravity dùng `.agents/skills/`, v.v.), và UniAI tự đặt file vào đúng chỗ. **Tuy nhiên, ba công cụ (Gemini, Hermes, OpenClaw) hiện dùng đường dẫn dự phòng chung `.agent_context/skills/` — các công cụ này có thật sự đọc skill từ đó không là tùy công cụ.** Bảng đường dẫn đầy đủ cùng phân biệt nhận diện native với đường dự phòng nằm ở [So sánh công cụ lập trình AI → File skill đi đâu](/providers#where-skill-files-go).
+- Một agent dùng được nhiều skill;
+- một skill phục vụ được nhiều agent;
+- khi tạm thời chưa cần một skill, hãy tắt liên kết thay vì xóa skill;
+- chỉnh sửa có hiệu lực từ các lượt chạy sau và không thay đổi task đang chạy.
 
-Sau khi bạn sửa nội dung skill, **chỉ task tạo mới nhận bản mới** — task đang chạy tiếp tục với skill cũ.
+Chỉ những thành viên sửa được agent mới thêm, gỡ hoặc tắt được skill của nó.
 
-## An toàn với skill bên thứ ba
+## Skill của không gian làm việc và skill trong repository
 
-Skill nhập từ GitHub hay ClawHub có thể chứa script và nội dung thực thi được. Bản thân UniAI **không ký, không kiểm toán, không sandbox chúng** — nội dung skill được trao nguyên vẹn cho công cụ lập trình AI tương ứng, còn công cụ có coi chúng là thực thi được hay không là chuyện của công cụ.
+Skill của không gian làm việc lưu trong UniAI — hợp với những skill cả nhóm cùng bảo trì và thêm vào các agent khác nhau.
+
+Một số công cụ lập trình AI còn đọc thẳng skill mức dự án từ code repository, như `.claude/skills/` hay `.agents/skills/`. Các file đó vẫn do repository quản lý; UniAI không tự đăng ký chúng thành skill của không gian làm việc. Mức hỗ trợ tùy công cụ đang dùng — xem [So sánh công cụ lập trình AI](/providers).
+
+Skill cục bộ của runtime đã cài sẵn trên máy đang kết nối (Claude Code và Codex) hiện lên trong tab **Skills** của agent và tắt được theo từng agent. Việc tắt cũng đòi hỏi quyền sửa agent.
+
+## Quyền chỉnh sửa
+
+Thành viên nào của không gian làm việc cũng tạo hoặc nhập được skill. Người tạo cùng `owner` và `admin` của không gian làm việc sửa hoặc xóa được nó; các thành viên khác xem và dùng được, nhưng không ghi đè được nội dung.
+
+Xóa là vĩnh viễn và đồng thời gỡ skill khỏi mọi agent.
 
 <Callout type="warning">
-**Trước khi nhập skill bên thứ ba, hãy review `SKILL.md` và từng file đi kèm.**
-
-Tháng 2/2026 xảy ra sự cố "ClawHavoc": chỉ dẫn độc hại được cài vào một gói skill phổ biến đã đánh cắp API key của những người dùng bị ảnh hưởng. ClawHub từ đó đã thêm quét VirusTotal, nhưng **quét tự động không thay được việc bạn tự review**.
-
-**Chỉ nhập từ nguồn bạn tin.** Với dự án có dữ liệu nhạy cảm, cân nhắc chỉ dùng skill cục bộ do chính bạn viết.
+Skill nhập từ nguồn ngoài có thể chứa script, lệnh hoặc chỉ dẫn không an toàn. UniAI không review, không ký, không sandbox chúng thay bạn. Nội dung nhập vào được trao nguyên vẹn cho agent, nên nguồn phải là nguồn đáng tin.
 </Callout>
-
-## Skill vs. MCP
-
-Cả hai đều mở rộng khả năng của agent, nhưng theo hai hướng khác nhau:
-
-- **Skill** = một **gói tri thức** có cấu trúc (nội dung tĩnh + chỉ dẫn). Agent đọc skill để học "gặp vấn đề X thì tư duy thế nào, làm gì."
-- **MCP** (Model Context Protocol) = một **kênh công cụ**. Agent dùng MCP để kết nối dịch vụ ngoài (cơ sở dữ liệu, hệ thống file, API bên thứ ba) và **gọi** chúng.
-
-Hai thứ bổ trợ nhau. Trong UniAI hiện tại, hỗ trợ MCP là **theo từng provider**: Claude Code, Codex, Cursor, Hermes, Kimi, Kiro CLI, OpenCode và OpenClaw dùng `mcp_config`; các công cụ khác nhận trường này nhưng không thực sự dùng đến. Mục MCP chuyên biệt sẽ tới trong bản phát hành sau.
-
----
-
-Tới đây bạn đã biết agent là gì, tạo ra sao, gắn skill thế nào. Câu hỏi kế tiếp: **nó thực sự chạy ở đâu, và vì sao agent của tôi thỉnh thoảng bị kẹt?** Chương tiếp theo nói về kiến trúc thực thi — daemon, runtime và cách task vận hành cùng nhau.
 
 ## Bước tiếp theo
 
-- [Daemon và runtime](/daemon-runtimes) — agent thực chạy ở đâu, và phân biệt online với offline
-- [Thực thi task](/tasks) — vòng đời đầy đủ của một "phiên làm việc agent"
-- [So sánh công cụ lập trình AI](/providers) — so sánh đầy đủ 14 công cụ (kèm vị trí chèn skill của từng công cụ)
+- [Đội](/squads) — để một leader chọn đúng thành viên cho việc.
+- [Daemon và runtime](/daemon-runtimes) — skill tới môi trường thực thi thật bằng cách nào.
+- [So sánh công cụ lập trình AI](/providers) — các công cụ hỗ trợ skill ra sao.

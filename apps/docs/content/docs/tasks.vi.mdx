@@ -1,116 +1,168 @@
 ---
 title: Task
-description: Đơn vị công việc của mỗi lượt agent chạy, với máy trạng thái rõ ràng, timeout và quy tắc thử lại.
+description: Cách một lượt agent chạy được xếp hàng, thực thi, dừng và thử lại.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
-import { Mermaid } from "@/components/mermaid";
 
-Một **task** là đơn vị của mỗi lượt [agent](/agents) chạy — [giao issue cho agent](/assigning-issues), [@nhắc agent trong bình luận](/mentioning-agents), gửi tin nhắn trong [chat](/chat), hay một [Autopilot](/autopilots) kích hoạt theo lịch đều sinh ra một task. UniAI đưa nó vào hàng đợi; một [daemon](/daemon-runtimes) nhận và chuyển cho [công cụ lập trình AI](/providers) tương ứng, rồi ghi kết quả về server khi xong.
+Mỗi khi một agent bắt đầu làm việc, UniAI tạo một **task**. Nó ghi lại điều gì kích hoạt lượt chạy, lượt chạy được giao cho agent nào, đã tiến đến đâu và cuối cùng có thành công hay không.
 
-Task và [issue](/issues) là hai đối tượng khác nhau. Một issue có thể được giao, @nhắc và chạy lại thủ công nhiều lần — mỗi lần sinh một task **mới**.
+## Issue và task
 
-## Các trạng thái một task đi qua
+Issue giữ mục tiêu, phần thảo luận, người phụ trách và trạng thái cuối cùng của một phần công việc; task ghi lại một lượt agent chạy trên phần công việc đó.
 
-<Mermaid chart={`
-graph LR
-    Q["Xếp hàng<br/>queued"] -->|daemon nhận| D["Đã phát<br/>dispatched"]
-    D -->|agent bắt đầu| R["Đang chạy<br/>running"]
-    R -->|thành công| C["Hoàn thành<br/>completed"]
-    R -->|lỗi hoặc timeout| F["Thất bại<br/>failed"]
-    Q -->|người dùng hủy| X["Đã hủy<br/>cancelled"]
-    D -->|người dùng hủy| X
-    R -->|người dùng hủy| X
-    F -.lý do cho phép thử lại.-> Q
-`} />
+| | Issue | Task |
+| --- | --- | --- |
+| Ghi lại điều gì | Một phần công việc đang tiến triển | Một lượt agent chạy |
+| Tồn tại bao lâu | Có thể được thảo luận, bổ sung và giao lại nhiều lần | Từ lúc kích hoạt đến khi hoàn thành, thất bại hoặc bị hủy |
+| Quan hệ số lượng | Một issue có thể trải qua nhiều lượt chạy | Mỗi lượt chạy có bản ghi riêng |
 
-- **Queued** — task vừa được tạo, chờ daemon nhận
-- **Dispatched** — một daemon đã nhận và đang khởi chạy công cụ lập trình AI
-- **Running** — công cụ lập trình AI đang thực sự làm việc
-- **Completed** — hoàn thành; kết quả (bình luận, commit mã, thay đổi trạng thái) được ghi về server
-- **Failed** — bị dừng vì lỗi hoặc timeout; nếu lý do lỗi cho phép thử lại, task tự quay về `queued` để chạy thêm lần nữa
-- **Cancelled** — người dùng đã hủy
+Vì thế cùng một issue có thể được lần lượt giao cho các agent khác nhau, hoặc chạy lại sau khi thất bại. Mỗi lượt chạy sinh một task mới; các bản ghi trước không bao giờ bị ghi đè.
 
-## Điều gì xảy ra khi task timeout
+## Nguồn kích hoạt
 
-UniAI server quét mỗi 30 giây. Hai loại timeout gây thất bại:
+Bất kỳ hành động nào sau đây đều có thể kích hoạt một lượt chạy:
 
-| Tình huống | Timeout |
-|---|---|
-| Đã dispatched nhưng không khởi chạy (daemon nhận nhưng chưa bật công cụ AI) | **5 phút** |
-| Chạy quá lâu | **2,5 giờ** |
+- Giao issue cho một agent hoặc một đội.
+- @nhắc agent trong bình luận.
+- Gửi tin nhắn cho agent trong chat.
+- Một Autopilot kích hoạt theo lịch hoặc từ sự kiện bên ngoài.
 
-Cả hai đều dùng lý do lỗi `timeout` và **tự thử lại** (mục kế tiếp). Về cơ chế kiểm tra runtime mất kết nối liên quan, xem [Daemon và runtime → Khi runtime bị đánh dấu offline](/daemon-runtimes#when-a-runtime-is-marked-offline).
+Mỗi điểm vào cung cấp ngữ cảnh khác nhau, nhưng cách thực thi giống hệt nhau: UniAI tạo task, một runtime nhận nó, rồi runtime gọi công cụ lập trình AI mà agent được cấu hình dùng.
 
-## Lỗi nào tự thử lại, lỗi nào không
+## Vòng đời thực thi
 
-Lỗi chia hai loại: **cho phép thử lại** và **không cho phép thử lại**.
+Một task thường đi qua các trạng thái sau:
 
-**Cho phép thử lại** (UniAI tự xếp hàng lại):
+| Trạng thái | Ý nghĩa |
+| --- | --- |
+| `deferred` | Được hẹn kích hoạt sau; vào hàng đợi đúng thời điểm hẹn |
+| `queued` | Chờ một runtime nhận |
+| `dispatched` | Một runtime đã nhận và đang khởi chạy công cụ lập trình AI |
+| `waiting_local_directory` | Thư mục cục bộ đích đang bị một lượt chạy khác giữ; chờ khóa thư mục được nhả |
+| `running` | Công cụ lập trình AI đang thực thi |
+| `completed` | Lượt chạy kết thúc bình thường |
+| `failed` | Lượt chạy gặp lỗi hoặc bị gián đoạn |
+| `cancelled` | Lượt chạy bị dừng thủ công |
 
-- `runtime_offline` — daemon mất tích sau khi task đã dispatched
-- `runtime_recovery` — daemon sập rồi khởi động lại, thu hồi các task chưa xong
-- `timeout` — timeout khi chạy hoặc khi dispatch
+Khi runtime online, task mới thường bắt đầu nhanh; nếu runtime offline sau khi task đã vào hàng đợi, task nằm chờ ở hàng đợi cho tới khi runtime hồi phục. Task không được nhận trong hơn 2 giờ sẽ kết thúc ở trạng thái failed.
 
-**Không cho phép thử lại** (task nằm nguyên ở failed):
-
-- `agent_error` — bản thân công cụ lập trình AI báo lỗi (lỗi API, hết quota, bug nội bộ). Loại lỗi này không được thử lại — thử lại cũng chỉ lỗi mãi, lặp vô hạn.
-
-Tự thử lại còn hai điều kiện phụ:
-
-1. **Tối đa 2 lần chạy** — 1 lần gốc + 1 lần thử lại. Nếu lần thử lại vẫn lỗi thì dừng hẳn, không thử thêm, kể cả khi lý do cho phép thử lại.
-2. **Chỉ với task kích hoạt từ issue và chat** — task do Autopilot kích hoạt **không** tự thử lại.
-
-<Callout type="warning">
-**Task của Autopilot không tự thử lại** là chủ ý thiết kế. Autopilot có nhịp chạy riêng (ví dụ hằng ngày); tự thử lại khi lỗi sẽ chồng lên lần chạy kế theo lịch. Cần chạy lại ngay sau lỗi thì dùng chạy lại thủ công (mục kế tiếp).
-
-**Làm sao biết task của Autopilot lỗi**: một thông báo sẽ được gửi về [Hộp thư đến](/inbox) của bạn, và trạng thái issue liên quan lùi từ `in_progress` về `todo`. Trang [Tự động hóa](/autopilots) cũng hiện kết quả lần chạy mới nhất của từng autopilot.
+<Callout type="info">
+Nếu hệ thống đã biết runtime đích offline trước khi kích hoạt, một số hành động tức thời sẽ báo rằng hiện không thể bắt đầu lượt chạy, thay vì tạo một task không ai nhận được.
 </Callout>
 
-## Chạy lại thủ công vs. tự thử lại
+Runtime có heartbeat khỏe mạnh có thể thực thi các task dài; server không bao giờ ép kết thúc một lượt chạy chỉ vì nó đã chạy lâu. Runtime tự quyết định tiến trình có bị treo hay không dựa trên hoạt động thực tế.
 
-**Chạy lại thủ công** là do bạn kích hoạt từ CLI hoặc API (`POST /api/issues/{id}/rerun`):
+## Xem lịch sử chạy
+
+Mở một issue và vào **Nhật ký thực thi** để xem mọi task nó đã sinh ra. Mỗi dòng hiển thị nguồn kích hoạt, agent thực thi, trạng thái và thời gian.
+
+Từ đây bạn có thể:
+
+- Mở bản ghi lượt chạy để xem các tin nhắn của agent, các lần gọi công cụ và thông báo lỗi.
+- Dừng các task đang hẹn giờ, đang xếp hàng, đang khởi chạy, đang chờ thư mục cục bộ hoặc đang chạy.
+- Thử lại một task đã thất bại hoặc bị hủy.
+
+![Bản ghi lượt chạy: dòng thời gian trạng thái, tóm tắt của agent và từng lần gọi công cụ](/images/docs/task-transcript.png)
+
+<Callout type="warning">
+Đổi người phụ trách hoặc trạng thái của issue không dừng lượt chạy đã bắt đầu. Muốn ngắt, hãy dừng task tương ứng trong nhật ký thực thi. Task đang hoạt động chỉ bị hủy kèm theo issue khi issue bị xóa.
+</Callout>
+
+## Lỗi và tự thử lại
+
+Các sự cố nhất thời — runtime offline chốc lát, daemon khởi động lại, timeout thực thi, hay công cụ lập trình AI bị gián đoạn mạng — có thể kích hoạt tự thử lại. Task thường chạy tối đa hai lần theo mặc định; gián đoạn mạng của công cụ được tối đa ba lần.
+
+Lỗi do chính agent trả về thường không được tự thử lại. Thông tin đăng nhập hết hạn, cạn quota, cấu hình sai, hay mô hình không hoàn thành được yêu cầu đều cần sửa nguyên nhân trước, rồi thử lại thủ công.
+
+Chế độ **chỉ chạy** của Autopilot không tự thử lại, để tránh chồng lên lần chạy kế theo lịch. Chế độ **tạo issue** sinh ra task issue thông thường, nên lỗi hạ tầng vẫn tự thử lại theo các quy tắc trên. Cả hai chế độ đều hiển thị kết quả cuối cùng trong lịch sử chạy của Autopilot.
+
+Khi issue không còn task nào khác đang hoạt động và không có lượt thử lại mới nào đang chờ chạy, một lần thất bại sẽ đưa issue đang `in_progress` lùi về `todo`.
+
+## Tra cứu lý do lỗi
+
+Các lý do lỗi hiển thị trong nhật ký thực thi và thống kê sử dụng chia làm hai nhóm: mã không có tiền tố do nền tảng ghi nhận; mã `agent_error.*` được phân loại từ lỗi của chính công cụ lập trình AI.
+
+**Phía nền tảng**
+
+| Lý do | Ý nghĩa | Cách xử lý |
+| --- | --- | --- |
+| `runtime_offline` | Runtime offline giữa lượt chạy | Khôi phục runtime rồi thử lại; xem [Daemon và runtime](/daemon-runtimes) |
+| `queued_expired` | Xếp hàng quá 2 giờ mà không runtime nào nhận | Xác nhận runtime online, rồi thử lại |
+| `runtime_recovery` | Daemon thu hồi lượt chạy bị gián đoạn sau khi khởi động lại | Thử lại trực tiếp |
+| `cancelled` | Bị dừng thủ công, hoặc bị hủy kèm khi lưu trữ hay xóa | Không cần làm gì |
+| `timeout` | Vượt giới hạn thời gian thực thi cấu hình trong daemon | Thu hẹp phạm vi issue, hoặc chỉnh `agent_timeout` của daemon |
+| `iteration_limit` | Chạm trần số vòng lặp của một lượt chạy | Thu hẹp phạm vi issue |
+| `agent_blocked` | Agent báo không thể tiếp tục | Cung cấp thứ mà bình luận của nó yêu cầu |
+| `api_invalid_request` | API nền tảng từ chối một yêu cầu không hợp lệ | Thử lại; báo lỗi nếu tái diễn |
+| `codex_semantic_inactivity` | Codex không tạo đầu ra có ý nghĩa quá lâu và bị coi là treo | Thử lại, hoặc chỉnh timeout không hoạt động của Codex |
+
+**Phía công cụ (`agent_error.*`, đã lược tiền tố)**
+
+| Lý do | Ý nghĩa | Cách xử lý |
+| --- | --- | --- |
+| `provider_auth_or_access` | Xác thực với nhà cung cấp mô hình thất bại hoặc bị từ chối truy cập (401/403) | Đăng nhập lại trong công cụ lập trình AI đó, hoặc kiểm tra API key |
+| `provider_quota_limit` | Cạn quota hoặc số dư (402) | Nạp thêm hoặc đổi tài khoản |
+| `provider_capacity_or_rate_limit` | Bị giới hạn tần suất hoặc hết dung lượng (429/529) | Thử lại sau |
+| `provider_server_error` | Lỗi máy chủ của nhà cung cấp mô hình (5xx) | Thử lại sau |
+| `provider_network` | Lỗi mạng khi kết nối tới nhà cung cấp mô hình | Tự thử lại; nếu kéo dài, kiểm tra mạng của máy thực thi |
+| `model_not_found_or_unavailable` | Mô hình không tồn tại hoặc hiện không khả dụng | Chọn mô hình khả dụng trong cài đặt agent |
+| `context_overflow` | Ngữ cảnh vượt cửa sổ của mô hình | Thu hẹp phạm vi issue hoặc giảm đầu vào |
+| `missing_config` | Thiếu cấu hình bắt buộc như API key | Điền biến môi trường của agent hoặc cấu hình công cụ |
+| `runtime_missing_executable` | Không tìm thấy file thực thi của công cụ lập trình AI | Cài lại công cụ; xem [Cài đặt công cụ lập trình AI](/install-agent-runtime) |
+| `runtime_version_unsupported` | Phiên bản công cụ lập trình AI quá cũ | Nâng cấp công cụ |
+| `process_failure` | Tiến trình của công cụ thoát bất thường | Xem bản ghi lượt chạy để tìm nguyên nhân, rồi thử lại |
+| `empty_or_unparseable_output` | Công cụ không tạo đầu ra, hoặc đầu ra không phân tích được | Thử lại; nếu tái diễn, kiểm tra cài đặt công cụ |
+| `agent_timeout` | Công cụ bị chấm dứt sau khi không phản hồi quá lâu | Thử lại hoặc thu hẹp phạm vi issue |
+| `unknown` | Lỗi chưa phân loại | Xem lỗi gốc trong bản ghi lượt chạy |
+
+## Thử lại thủ công
+
+Bấm nút thử lại trên một dòng trong nhật ký thực thi sẽ gọi **agent đã chạy task đó vào thời điểm ấy**. Kể cả khi issue đã được giao lại sau đó, lượt thử lại không chuyển sang người phụ trách mới.
+
+Lượt thử lại giữ lại các file mà lượt chạy trước đã ghi vào thư mục cục bộ khi có thể. Nếu phiên gốc vẫn an toàn và cùng runtime nhận lượt thử lại, nó cũng tiếp tục phiên trước. Những lỗi làm hỏng phiên, như tràn ngữ cảnh hoặc yêu cầu không hợp lệ, sẽ mở phiên mới trên chính thư mục làm việc gốc. Khi thư mục gốc không còn tồn tại, một thư mục làm việc mới được dùng.
+
+Bạn cũng có thể chạy lại issue hiện tại từ CLI:
 
 ```bash
 uniai issue rerun <issue-id>
 ```
 
-Hành vi:
+Dạng này không trỏ vào một task cụ thể trong quá khứ, nên nó dùng agent đang phụ trách issue và bắt đầu với phiên mới cùng thư mục làm việc mới.
 
-- Mặc định nhắm vào **agent đang phụ trách issue** — hữu ích khi bạn muốn lần chạy lại bám theo phân công hiện tại, bất kể ai chạy task trước.
-- Nút thử lại trên một dòng trong nhật ký thực thi gửi kèm ID task của dòng đó, nên lần chạy lại nhắm vào **agent đã chạy đúng task đó** — không phải người phụ trách hiện tại. Nhờ vậy, thử lại theo từng dòng vẫn đúng nghĩa với worker của đội, các agent được @nhắc song song, hoặc những dòng mà agent đã bị thay do phân công lại.
-- **Hủy** task đang xếp hàng hoặc đang chạy của agent mục tiêu trên issue này (nếu có). Task của agent khác trên cùng issue (ví dụ các lượt @nhắc song song) được để yên.
-- Tạo một task **hoàn toàn mới** — bộ đếm lần chạy về 1, kể cả khi task gốc đã chạm trần số lần thử.
-- Bắt đầu **phiên agent mới** — ID phiên trước **không** được kế thừa. Chạy lại thủ công nghĩa là bạn đã đánh giá kết quả trước là tệ, nên nối lại cuộc trò chuyện cũ chỉ lặp lại đúng trạng thái hỏng đó. (Ngược lại, tự thử lại kế thừa phiên — cơ chế đó dành cho lỗi hạ tầng, không phải cho kết quả tệ.)
+## Task hoàn thành và issue hoàn thành
 
-So sánh:
+`completed` chỉ có nghĩa lượt chạy cụ thể này kết thúc bình thường — không xác nhận mục tiêu của issue đã đạt. Bạn vẫn có thể xem lại kết quả, tiếp tục thảo luận, bổ sung yêu cầu hoặc kích hoạt agent lần nữa.
 
-| Khía cạnh | Tự thử lại | Chạy lại thủ công |
-|---|---|---|
-| Kích hoạt | Hệ thống, theo lý do lỗi | Bạn, thủ công |
-| Giới hạn số lần | 2 lần chạy | Không giới hạn |
-| Nguồn áp dụng | Issue, chat | Issue có agent phụ trách |
-| Agent được chọn | Cùng agent với task lỗi | Agent của task nguồn (thử lại theo dòng trên UI) hoặc người phụ trách hiện tại (CLI / không có task_id) |
-| Kế thừa phiên | Có (nối phiên trước) | Không (phiên mới) |
+Issue đã xong hay chưa được đánh giá theo tiến độ thực tế của công việc và trạng thái của issue.
 
-## Task lỗi ảnh hưởng trạng thái issue thế nào
+## Bảng tra nhanh trạng thái và timeout
 
-Nếu một task sinh ra do giao issue cho agent bị thất bại (và không lần tự thử lại nào thành công), **trạng thái issue tự lùi từ `in_progress` về `todo`** — mở bảng là bạn thấy ngay "cái này cần được xem lại". Xem [Issue và dự án](/issues).
+Các con số dưới đây theo cấu hình mặc định của server, để đối chiếu nhanh khi chẩn đoán sự cố.
 
-## Task có tiếp tục được từ ngữ cảnh trước không
+| Trạng thái | Ý nghĩa | Timeout và hệ quả |
+| --- | --- | --- |
+| `deferred` | Được hẹn kích hoạt sau | Vào `queued` đúng thời điểm hẹn, sau đó áp dụng các quy tắc bên dưới |
+| `queued` | Chờ một runtime nhận | Thất bại sau **2 giờ** không được nhận; không tự thử lại |
+| `dispatched` | Đã được nhận; công cụ đang khởi chạy | Bị coi là thất bại khi ở trạng thái này quá **5 phút** |
+| `waiting_local_directory` | Chờ khóa thư mục cục bộ được nhả | Không có timeout riêng; quay lại quy trình khởi chạy khi thư mục được nhả |
+| `running` | Công cụ lập trình AI đang thực thi | Không có trần thời lượng cố định; sự sống theo heartbeat của runtime — mỗi 15 giây một nhịp; runtime mất heartbeat bị đánh dấu offline muộn nhất khoảng 3 phút, và task của nó thất bại theo |
 
-Có — miễn công cụ lập trình AI hỗ trợ khôi phục phiên.
+Tự thử lại chỉ áp dụng cho các sự cố nhất thời dưới đây, và chỉ với task gắn với issue hoặc chat (không tính chế độ **chỉ chạy** của Autopilot):
 
-UniAI ghim ID phiên **hai lần** trong một task: một lần lúc bắt đầu (khi công cụ AI trả về system message đầu tiên), một lần lúc kết thúc (hoàn thành hoặc thất bại). Lần đầu giúp daemon phục hồi nếu sập giữa chừng; lần sau dành cho lượt **tự thử lại** kế tiếp: khi đó ID được truyền lại để agent nối tiếp cuộc trò chuyện và trạng thái file trước đó. **Chạy lại thủ công chủ ý bỏ qua bước này** và mở phiên mới — xem [Chạy lại thủ công vs. tự thử lại](#manual-rerun-vs-automatic-retry).
+| Lý do lỗi tự thử lại được | Trần số lần chạy |
+| --- | --- |
+| Runtime offline | Mặc định 2 (lần chạy đầu + 1 lần thử lại) |
+| Bị thu hồi sau khi daemon khởi động lại | Mặc định 2 |
+| Timeout thực thi do nền tảng phán định | Mặc định 2 |
+| Codex treo, không có đầu ra có ý nghĩa | Mặc định 2 |
+| Tải gói skill thất bại | Mặc định 2 (lúc này tiến trình agent chưa khởi động; gói đã tải sẵn dùng từ cache cục bộ) |
+| Công cụ bị gián đoạn mạng | Tối đa 3; lần cuối bắt đầu sau khoảng 5 giây trễ |
 
-Nhưng **công cụ nào thực sự hỗ trợ tính năng này** thì lại rất khác nhau:
+Mọi lý do lỗi khác (xác thực, quota, cấu hình, mô hình, v.v.) không bao giờ tự thử lại; hãy sửa nguyên nhân trước, rồi thử lại thủ công.
 
-- ✅ **Hỗ trợ thật** — Antigravity, Claude Code, Codex, Copilot, Cursor, Hermes, Kimi, Kiro CLI, OpenCode, OpenClaw, Pi
-- ❌ **Không hỗ trợ** — Gemini
+## Bước tiếp theo
 
-Xem [Ma trận provider → Khôi phục phiên](/providers#session-resumption-who-really-supports-it).
-
-## Tiếp theo
-
-- [Ma trận provider](/providers) — khác biệt năng lực giữa 14 công cụ lập trình AI (kèm hiện trạng hỗ trợ khôi phục phiên của từng công cụ)
-- [Giao issue cho agent](/assigning-issues) / [@nhắc agent trong bình luận](/mentioning-agents) / [Chat](/chat) / [Tự động hóa](/autopilots) — bốn cách kích hoạt một task
+- [Daemon và runtime](/daemon-runtimes) — task thực thi trên máy nào.
+- [Giao issue cho agent](/assigning-issues) — kích hoạt lượt chạy từ một issue.
+- [@nhắc agent](/mentioning-agents) — bổ sung yêu cầu trong bình luận hoặc mời thêm agent khác.

@@ -1,60 +1,55 @@
 ---
 title: Thành viên và vai trò
-description: Ba vai trò của không gian làm việc — owner, admin, member — làm được gì, và cách mời người vào.
+description: Mời thành viên và quản lý quyền hạn của không gian làm việc với ba vai trò owner, admin và member.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Ai trong [không gian làm việc](/workspaces) cũng có một vai trò, và vai trò quyết định họ làm được gì. UniAI có ba: **owner** (chủ không gian làm việc), **admin** và **member**. Hầu hết công việc hằng ngày — tạo [issue](/issues), viết [bình luận](/comments), dùng [agent](/agents) — cả ba vai trò đều làm được. **Khác biệt tập trung ở quản lý nhóm.**
+Ai tham gia một [không gian làm việc](/workspaces) cũng là thành viên, và mỗi thành viên có một vai trò: `owner`, `admin` hoặc `member`. Vai trò chỉ chi phối cài đặt không gian làm việc và quản lý nhóm; cộng tác hằng ngày — tạo issue, viết bình luận — mở cho mọi thành viên.
 
-## Tổng quan quyền hạn
-
-Bảng dưới liệt kê các khác biệt quan trọng nhất trong các thao tác quản lý nhóm:
+## Ba vai trò
 
 | Thao tác | owner | admin | member |
-|---|---|---|---|
-| Mời admin hoặc member mới | ✓ | ✓ | ✗ |
-| **Mời owner mới** | ✓ | ✗ | ✗ |
-| Hạ cấp / gỡ admin hoặc member | ✓ | ✓ | ✗ |
-| **Hạ cấp / gỡ một owner khác** | ✓ | ✗ | ✗ |
-| Xóa không gian làm việc | ✓ | ✗ | ✗ |
+|---|:---:|:---:|:---:|
+| Xem không gian làm việc và cộng tác hằng ngày | ✓ | ✓ | ✓ |
+| Đổi cài đặt không gian làm việc | ✓ | ✓ | — |
+| Mời một `admin` hoặc `member` | ✓ | ✓ | — |
+| Đổi hoặc gỡ một `admin` hoặc `member` | ✓ | ✓ | — |
+| Trao, thu hồi hoặc gỡ `owner` | ✓ | — | — |
+| Xóa không gian làm việc | ✓ | — | — |
 
-**Member không mời được ai** — mời người là quyền từ cấp admin trở lên. **Chỉ owner mới nâng được ai đó lên owner** — admin nâng và hạ được member hoặc admin khác, nhưng không tạo được owner mới. Tương tự, admin gỡ được member hoặc admin khác nhưng **không đụng được owner hiện có**. Mục đích là đảm bảo vai trò cao nhất chỉ do người đang giữ nó trao lại — không ai leo lên được cấp cao hơn quyền mình có.
+Không gian làm việc luôn phải giữ ít nhất một `owner`: `owner` cuối cùng không thể bị hạ cấp, bị gỡ, hay tự rời đi.
 
 <Callout type="info">
-Phạm vi hiển thị của agent có hai kiểu: "workspace" và "private". Với agent private, chỉ owner và admin mới giao được vào issue — điều này bảo vệ những cấu hình dành cho một nhóm người cụ thể. Xem [Agent](/agents).
+Vai trò không quyết định ai chạy được agent. Mỗi agent có phạm vi Access riêng, và `owner` lẫn `admin` không thể vượt qua nó để chạy những agent mình không được cấp. Xem [Agent](/agents#permissions-and-access).
 </Callout>
 
-## Mời thành viên mới
+## Mời thành viên
 
-UniAI mời thành viên mới qua email:
+`owner` và `admin` gửi lời mời từ Settings → Members bằng cách nhập email và chọn vai trò. Lời mời chỉ trao được `admin` hoặc `member`; một `owner` phải tham gia không gian làm việc trước, rồi được một `owner` hiện có nâng cấp.
 
-1. Trong trang cài đặt không gian làm việc, bấm **Invite member**, nhập email và chọn vai trò.
-2. UniAI gửi email mời chứa một liên kết duy nhất.
-3. Người nhận bấm liên kết, đăng nhập (hoặc đăng ký) và **chấp nhận lời mời** để tham gia không gian làm việc.
+![Quản lý thành viên: form mời và danh sách thành viên kèm vai trò](/images/docs/members-roster.png)
 
-Địa chỉ email được mời **không cần có tài khoản UniAI từ trước** — nếu chưa có, tài khoản sẽ được tạo khi lời mời được chấp nhận.
+Người được mời chấp nhận bằng cách đăng nhập với email đó — không cần đăng ký từ trước. Lời mời có hiệu lực 7 ngày; hết hạn thì gửi lại. Trên các bản self-hosted có hạn chế đăng ký, người được mời chưa có tài khoản vẫn phải tuân theo quy tắc đăng ký khi tạo tài khoản.
 
-Nếu email mời gửi không tới (sai địa chỉ, dịch vụ mail trục trặc), bản ghi lời mời vẫn được giữ; bạn có thể gửi lại email từ cài đặt không gian làm việc, hoặc chia sẻ liên kết mời qua kênh khác.
+Liên kết mời chỉ xuất hiện trong email; trong sản phẩm không có chỗ nào xem hay sao chép nó. Nếu email gửi thất bại, bản ghi lời mời vẫn tồn tại — hãy thu hồi và gửi một lời mời mới.
 
-Lời mời **có hiệu lực 7 ngày**. Sau đó, bấm liên kết sẽ hiện thông báo "hết hạn" và người mời cần gửi lời mời mới.
+## Đổi vai trò
 
-## Luôn có ít nhất một owner
+Một `admin` có thể chuyển vai trò qua lại giữa `admin` và `member`, và gỡ được các thành viên giữ hai vai trò đó. Mọi thay đổi liên quan đến `owner` — nâng cấp, thay đổi, hay gỡ bỏ — chỉ một `owner` mới thực hiện được.
 
-Mỗi không gian làm việc **luôn phải có ít nhất một owner**. Ràng buộc này tự chặn hai thao tác:
-
-- Owner cuối cùng không tự hạ cấp được.
-- Owner hoặc admin khác không gỡ được owner cuối cùng.
-
-<Callout type="warning">
-Nếu bạn là owner cuối cùng và sắp rời nhóm, **hãy chuyển vai trò owner cho thành viên khác trước**, rồi mới rời hoặc bàn giao không gian làm việc. Nếu không, thao tác sẽ bị từ chối.
-</Callout>
+Thay đổi vai trò có hiệu lực ngay lập tức.
 
 ## Gỡ thành viên
 
-Owner và admin gỡ được thành viên khác khỏi không gian làm việc. Thành viên bị gỡ mất quyền truy cập ngay lập tức; issue, bình luận và nội dung khác họ đã tạo vẫn được giữ trong không gian làm việc.
+Thành viên bị gỡ mất quyền truy cập không gian làm việc ngay lập tức. Issue, bình luận và các bản ghi cộng tác khác họ đã tạo vẫn ở lại trong không gian làm việc.
 
-## Tiếp theo
+<Callout type="warning">
+Gỡ một thành viên cũng vô hiệu hóa các runtime họ sở hữu, lưu trữ các agent gắn với chúng, và hủy những task chưa hoàn thành. Các quyền thành viên đó được cấp trong phạm vi Access của agent cũng bị xóa, và không tự khôi phục nếu họ tham gia lại.
+</Callout>
 
-- [Issue và dự án](/issues) — đối tượng công việc hằng ngày của thành viên
-- [Bình luận và nhắc tên](/comments) — cộng tác bên dưới một issue
+## Bước tiếp theo
+
+- [Issue](/issues) — phần việc mà thành viên và agent cùng xử lý.
+- [Agent](/agents) — vai trò trong không gian làm việc khác Access của agent thế nào.
+- [Daemon và runtime](/daemon-runtimes) — ai sở hữu runtime và chúng chạy ở đâu.

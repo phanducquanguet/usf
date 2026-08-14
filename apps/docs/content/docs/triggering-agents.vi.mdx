@@ -1,0 +1,25 @@
+---
+title: Đưa agent vào việc
+description: Bốn cách kích hoạt một agent, và sau đó theo dõi tiến độ ở đâu.
+---
+
+Trong UniAI, agent không tự khởi động công việc. Mỗi lượt chạy đều được kích hoạt bởi một hành động rõ ràng. Có bốn cách:
+
+| Cách | Hợp nhất khi | Làm thế nào |
+| --- | --- | --- |
+| **Giao issue** | Agent chịu trách nhiệm phần việc này từ đầu đến cuối | [Giao issue cho agent](/assigning-issues); nó bắt đầu ngay khi issue ở `todo` hoặc trạng thái sau đó |
+| **@nhắc trong bình luận** | Nhờ agent xử lý một yêu cầu cụ thể mà không đổi người phụ trách issue | [@nhắc nó trong bình luận](/mentioning-agents), hoặc trả lời bình luận của agent để tiếp tục cuộc trò chuyện |
+| **Chat trực tiếp** | Một câu hỏi hoặc một lần thử nhanh không cần đến issue | [Mở chat với agent](/chat); mỗi tin nhắn kích hoạt một lượt chạy |
+| **Tự động hóa** | Việc lặp lại cần chạy theo lịch hoặc theo sự kiện bên ngoài | [Tạo một autopilot](/autopilots), kích hoạt theo lịch, bằng webhook, hoặc thủ công |
+
+Cả bốn cách đều chung các quy tắc sau:
+
+- Bạn chỉ kích hoạt được những agent bạn **có quyền chạy**, do thiết lập Access của agent quyết định — không phải vai trò của bạn trong không gian làm việc.
+- Trước khi kích hoạt từ một issue, phần **xem trước kích hoạt** dưới ô nhập cho biết chính xác nội dung này sẽ đánh thức ai; dùng `/note` để ghi chú mà không kích hoạt agent nào.
+- Issue ở `backlog` không kích hoạt lượt chạy; chuyển issue sang `todo` và agent được giao sẽ bắt đầu.
+
+## Theo dõi tiến độ
+
+Mỗi lần kích hoạt tạo một [task](/tasks). Tiến độ đổ ngược về nơi bạn kích hoạt — dòng thời gian của issue hoặc cửa sổ chat; log thực thi hiển thị toàn bộ lượt chạy và cho phép bạn dừng hoặc chạy lại.
+
+Khi một lượt chạy mãi chưa bắt đầu, thường là runtime đang offline — mở trang **Runtime** và xác nhận daemon trên máy đó đang chạy.

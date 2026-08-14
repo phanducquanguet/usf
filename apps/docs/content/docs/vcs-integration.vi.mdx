@@ -1,0 +1,89 @@
+---
+title: Git provider tự vận hành
+description: Kết nối một instance Forgejo, Gitea, hoặc GitLab tự vận hành theo từng không gian làm việc để pull/merge request tham chiếu mã định danh issue tự động gắn vào issue đó, chuyển nó sang Done khi merge, và hiển thị trạng thái CI.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+<Callout type="warn">
+**Chỉ dành cho UniAI tự vận hành.** Tích hợp này chỉ có khi bạn tự chạy
+UniAI; nó không được cung cấp trên UniAI Cloud. "Tự vận hành" ở đây nghĩa là
+**UniAI** được tự vận hành — thường để nó với tới được một instance Git trong
+mạng nội bộ của bạn. Người vận hành máy chủ phải bật nó (`MULTICA_VCS_INTEGRATION_ENABLED=true`)
+và đặt `MULTICA_VCS_SECRET_KEY`; trước đó, mục này không xuất hiện trong
+Cài đặt → Integrations.
+</Callout>
+
+UniAI kết nối với một Git provider tự vận hành theo từng không gian làm việc: **Forgejo**, **Gitea**, hoặc **GitLab**. Kết nối xong, bất kỳ pull request nào (GitLab: merge request) có tên nhánh, tiêu đề, hoặc phần thân chứa một mã định danh issue (ví dụ `UNI-123`) sẽ được **tự động liên kết** với [issue](/issues) đó, xuất hiện dưới mục **Pull requests** ở thanh bên của issue, và — khi được merge kèm từ khóa đóng — chuyển issue sang **Done**. CI của commit đầu nhánh hiển thị thành thanh checks trên thẻ.
+
+Các provider này chạy song song với GitHub: một không gian làm việc dùng được bất kỳ tổ hợp nào.
+
+<Callout type="info">
+Khác với GitHub, các provider này không có mô hình "App". Mỗi không gian làm việc lưu URL instance của riêng mình cùng một access token, và đăng ký một webhook trên repo hoặc tổ chức của mình. Token và webhook secret được mã hóa khi lưu.
+</Callout>
+
+## Điều kiện tiên quyết (máy chủ)
+
+Bật tích hợp cho deployment này. Nó tắt mặc định, nên mục này ẩn cho đến khi bạn đặt:
+
+```sh
+MULTICA_VCS_INTEGRATION_ENABLED=true
+```
+
+Tệp `docker compose` tự vận hành chính thức (`docker-compose.selfhost.yml`) đã đặt sẵn biến này cho bạn.
+
+Sau đó đặt một khóa 32 byte mã hóa base64 để máy chủ mã hóa được thông tin xác thực đã lưu. Thiếu nó, form kết nối bị vô hiệu hóa.
+
+```sh
+openssl rand -base64 32
+```
+
+```sh
+MULTICA_VCS_SECRET_KEY=<base64 32-byte key>
+```
+
+Cả hai đều bắt buộc: công tắc quyết định tính năng có được cung cấp hay không, còn khóa mã hóa token và webhook secret đã lưu. Kết nối, webhook, và xoay vòng đều cần cả hai.
+
+Đặt `MULTICA_PUBLIC_URL` thành base URL công khai của máy chủ để UniAI hiển thị được một webhook URL dán ngay được. Thiếu nó, giao diện chỉ hiện đường dẫn webhook và bạn tự ghép origin của mình vào trước.
+
+## Kết nối một không gian làm việc
+
+1. Tạo một access token trong provider của bạn với quyền đọc các repo bạn muốn phản chiếu:
+   - **Forgejo / Gitea**: Settings → Applications.
+   - **GitLab**: một personal (hoặc group/project) access token với scope `read_api`.
+2. Trong UniAI, mở **Cài đặt → Integrations → Git providers**.
+3. Chọn **provider**, nhập URL instance (ví dụ `https://forgejo.example.com`) và access token, rồi bấm **Connect**. UniAI xác thực token với instance trước khi lưu.
+4. Chép **webhook URL** và **webhook secret** hiện ra sau khi kết nối.
+
+<Callout type="warn">
+Webhook secret chỉ hiện đúng một lần. Chép nó trước khi rời trang. Kết nối lại cùng một instance sẽ xoay vòng token và secret.
+</Callout>
+
+## Đăng ký webhook
+
+Trên repo (hoặc tổ chức/nhóm, để phủ mọi repo):
+
+**Forgejo / Gitea** — Settings → Webhooks → Add Webhook → Forgejo/Gitea:
+
+- **Target URL**: webhook URL từ bước trước.
+- **HTTP method** `POST`, **content type** `application/json`.
+- **Secret**: webhook secret (dùng để xác minh HMAC `X-Gitea-Signature`).
+- **Trigger events**: chọn **Pull Request**, và **Commit Status** để phản chiếu CI.
+
+**GitLab** — Settings → Webhooks:
+
+- **URL**: webhook URL.
+- **Secret token**: webhook secret (gửi dưới dạng `X-Gitlab-Token` và so sánh nguyên văn).
+- **Triggers**: bật **Merge request events**, và **Pipeline events** để phản chiếu CI.
+
+UniAI xác thực mọi lần gửi bằng secret đã lưu, nên webhook không có secret khớp sẽ bị từ chối.
+
+## Những gì được phản chiếu
+
+- **Pull / merge request** — trạng thái open, closed, merged, và draft, tác giả, nhánh, và (khi provider cung cấp) thống kê diff.
+- **Liên kết issue** — mã định danh trong tiêu đề, phần thân, hoặc nhánh liên kết PR với issue. Một từ khóa đóng (`Closes`/`Fixes`/`Resolves UNI-123`) trên PR đã merge chuyển issue sang **Done** khi không còn PR liên kết nào đang mở.
+- **CI** — commit status của Forgejo/Gitea và pipeline của GitLab được tổng hợp thành thanh checks passed/failed/pending cho commit đầu nhánh.
+
+## Agent mở pull request
+
+Việc tạo PR không cần cấu hình provider nào trong UniAI. Agent checkout repo trong runtime rồi đẩy nhánh và mở PR bằng chính thông tin xác thực Git của máy chạy runtime. Để agent làm việc được với một provider, hãy đảm bảo máy chạy daemon xác thực được với nó — ví dụ một SSH deploy key, hoặc một token trong Git credential helper của máy — và thêm URL repo như bình thường. Checkout repo hoạt động với mọi Git URL, nên không cần đấu nối gì riêng cho từng provider.

@@ -1,52 +1,48 @@
 ---
 title: Cách UniAI hoạt động
-description: Ba thành phần cốt lõi (server / daemon / công cụ lập trình AI) phối hợp ra sao để chạy công việc của một agent.
+description: UniAI ghi lại và điều phối công việc; các máy tính đã kết nối thực thi nó.
 ---
 
-import { ArchitectureDiagram } from "@/components/architecture-diagram";
+import { Callout } from "fumadocs-ui/components/callout";
 
-UniAI là một nền tảng **phân tán**. Giao diện web bạn nhìn thấy chỉ là mặt tiền — công việc thật sự do ba thành phần đảm nhận: **UniAI server** nắm dữ liệu ([không gian làm việc](/workspaces), [issue](/issues), [thành viên](/members-roles), hàng đợi [task](/tasks), v.v.); **[daemon](/daemon-runtimes)** chạy trên máy của bạn, nhận task và điều khiển công cụ lập trình AI; còn **[công cụ lập trình AI](/providers)** (Claude Code, Codex và các CLI cục bộ khác) là thành phần thực sự viết mã. Đây là khác biệt lớn nhất giữa UniAI với Linear hay Jira — **[agent](/agents) không chạy trên máy chủ của chúng tôi, chúng chạy trên máy của bạn**.
+Khi bạn giao một issue cho agent, UniAI tạo một task để một runtime trên máy tính đã kết nối nhận lấy. Runtime gọi một công cụ lập trình AI cục bộ và ghi tiến độ cùng kết quả ngược về issue ban đầu.
 
-## Ba thành phần cốt lõi
+## Trọn đường đi của một lượt chạy
 
-<ArchitectureDiagram />
+![Sơ đồ một lượt chạy: bên trái, vùng UniAI ghi nhận và lập lịch — một issue kích hoạt việc tạo task; bên phải, trong vùng "máy tính của bạn", daemon nhận task, khởi chạy công cụ lập trình AI và đọc ghi thư mục làm việc; các thông điệp tiến độ đổ về nhật ký thực thi theo thời gian thực, và daemon ghi kết quả cuối cùng ngược về issue](/images/docs/how-a-run-works.png)
 
-- **UniAI server** — không gian làm việc, danh sách issue và các luồng bình luận bạn thấy đều nằm trong cơ sở dữ liệu của server. Server cũng là hub WebSocket đẩy cập nhật thời gian thực giữa bạn và đồng đội, nhưng **không** thực thi bất kỳ task nào của agent.
-- **Daemon** — một phần của UniAI CLI, chạy trên máy của bạn. Khi khởi động, nó phát hiện các công cụ lập trình AI đã cài trên máy, đăng ký với server, rồi bắt đầu poll task mỗi 3 giây và gửi heartbeat mỗi 15 giây.
-- **Công cụ lập trình AI** — một trong 14 công cụ (hoặc nhiều công cụ chạy song song): [Antigravity](/providers#antigravity), [Claude Code](/providers#claude-code), [CodeBuddy](/providers#codebuddy), [Codex](/providers#codex), [Cursor](/providers#cursor), [Copilot](/providers#copilot), [Hermes](/providers#hermes), [Kimi](/providers#kimi), [Kiro CLI](/providers#kiro-cli), [OpenCode](/providers#opencode), [OpenClaw](/providers#openclaw), [Pi](/providers#pi), [Qoder](/providers#qoder), [Trae CLI](/providers#trae). Sau khi daemon nhận task, nó dùng các công cụ này để thực sự làm việc.
+1. **Issue cung cấp ngữ cảnh.** Issue chứa mô tả công việc, phần thảo luận và người phụ trách. Khi issue được giao cho một agent, hệ thống dùng chỉ dẫn, model, skill và cấu hình runtime của agent đó.
+2. **UniAI tạo một task.** Task vào hàng đợi; nếu không có runtime nào online, nó chờ ở đó.
+3. **Một runtime nhận task.** Một runtime đang online trên máy tính đã kết nối nhận task và gọi công cụ lập trình AI mà agent được cấu hình dùng.
+4. **Công cụ lập trình AI thực thi cục bộ.** Công cụ đọc thư mục làm việc, chạy lệnh và tạo ra kết quả.
+5. **Kết quả được ghi ngược về issue.** Tiến độ, bình luận và kết quả xuất hiện trong dòng thời gian và nhật ký thực thi của issue.
 
-Vì bộ công cụ nằm hoàn toàn trên máy bạn, **API key, thư mục mã nguồn và các công cụ đã cấp quyền** chỉ được dùng trên máy của bạn — UniAI server không bao giờ nhìn thấy chúng.
+Danh sách đầy đủ về issue, agent, task, runtime và cách chúng liên hệ với nhau, xem [Khái niệm cốt lõi](/concepts).
 
-## Vòng đời của một task
+## Ranh giới dữ liệu và thực thi
 
-Lấy kịch bản phổ biến nhất — bạn giao một issue cho agent:
+| UniAI | Máy tính đã kết nối |
+|---|---|
+| Không gian làm việc, issue, bình luận và trạng thái | Công cụ lập trình AI và thông tin xác thực của chúng |
+| Cấu hình agent và skill | Thư mục mã nguồn và file cục bộ |
+| Trạng thái task, bản ghi lượt chạy và kết quả | Thay đổi file và thực thi lệnh thực tế |
 
-1. Bạn bấm giao việc trên giao diện web. Trình duyệt gửi một request HTTP tới UniAI server.
-2. Server đặt người phụ trách issue đó là agent, đồng thời tạo một task thực thi trong hàng đợi với trạng thái `queued`.
-3. Daemon trên máy bạn nhận task ở lần poll kế tiếp (trong vòng 3 giây). Trạng thái task chuyển thành `dispatched`.
-4. Daemon tạo một thư mục làm việc tách biệt trên máy và gọi công cụ lập trình AI tương ứng. Trạng thái task chuyển thành `running`.
-5. AI viết mã trên máy, chạy test và gửi bình luận ngược về server.
-6. Kết thúc thực thi. Daemon báo kết quả (thành công / thất bại) về server, trạng thái task chuyển thành `completed` hoặc `failed`. Bạn thấy tiến độ cập nhật thời gian thực trên giao diện web (qua WebSocket).
+Ranh giới này giống nhau trên UniAI Cloud và trong các bản triển khai tự host.
 
-Chi tiết cơ chế xem tại [Daemon và runtime](/daemon-runtimes) và [Task](/tasks).
+<Callout type="warning">
+Một ngoại lệ: mọi thứ lưu vào `custom_env` của agent được cất trên UniAI server và truyền cho runtime lúc thực thi. Đừng đặt vào `custom_env` những bí mật tuyệt đối không được rời khỏi máy bạn.
+</Callout>
 
-## Bốn cách để agent bắt đầu làm việc
+## Agent được kích hoạt thế nào
 
-Không chỉ có "giao issue" — UniAI có 4 cách kích hoạt, mỗi cách ứng với một kiểu cộng tác:
+Agent không bao giờ tự bắt đầu làm việc — mỗi lượt chạy đều do một hành động tường minh kích hoạt: giao issue, @nhắc agent trong bình luận, chat trực tiếp với nó, hoặc một Tự động hóa. Cách chọn giữa bốn kiểu này và các quy tắc chung của chúng, xem [Đưa agent vào việc](/triggering-agents).
 
-| Cách | Tình huống điển hình | Tài liệu |
-|---|---|---|
-| **Giao issue** | Phổ biến nhất. Giao issue cho agent và nó tự bắt đầu | [Giao issue](/assigning-issues) |
-| **@nhắc agent trong bình luận** | "Xem giúp mình cái này" — không đổi người phụ trách hay trạng thái, chỉ gửi một bình luận | [Nhắc agent](/mentioning-agents) |
-| **Chat trực tiếp** | Cuộc trò chuyện độc lập, không gắn với issue — hỏi đáp, nhờ soạn issue | [Chat](/chat) |
-| **Tự động hóa (theo lịch)** | Chỉ dẫn cố định — kiểu "sáng thứ Hai hằng tuần làm bản tóm tắt standup" | [Tự động hóa](/autopilots) |
+## Lượt chạy hoàn tất và issue hoàn tất
 
-## Runtime: chạy ở đâu, bao nhiêu công cụ
-
-Một **runtime** là cặp "daemon × một công cụ lập trình AI". Nếu daemon trên một máy có cả Claude Code lẫn Codex và tham gia hai không gian làm việc, UniAI sẽ đăng ký 4 runtime độc lập (2 không gian làm việc × 2 công cụ).
-
-Hiện tại chỉ hỗ trợ mô hình **daemon cục bộ**.
+Khi nhật ký thực thi hiển thị Completed, điều đó chỉ có nghĩa một lượt chạy đã kết thúc. Issue vẫn có thể tiếp nhận thêm thảo luận, yêu cầu bổ sung, hoặc một lượt kích hoạt agent nữa. Issue xong hay chưa phụ thuộc vào tiến độ thực tế của công việc và trạng thái của nó.
 
 ## Bước tiếp theo
 
-- [Daemon và runtime](/daemon-runtimes) — đi sâu vào thành phần nền tảng của kiến trúc
+- [Daemon và runtime](/daemon-runtimes) — máy tính kết nối với UniAI ra sao, và điều gì xảy ra khi runtime online hay offline.
+- [Task](/tasks) — trạng thái task, quy tắc thử lại và hủy.
+- [Giao issue cho agent](/assigning-issues) — cách cộng tác phổ biến nhất.

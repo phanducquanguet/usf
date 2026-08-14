@@ -1,63 +1,69 @@
 ---
-title: Chat
-description: Trò chuyện một-một với agent ngoài mọi issue — sandbox hoàn toàn. Agent không thấy và không đổi được issue, và không ai khác thấy cuộc trò chuyện.
+title: Chat với agent
+description: Trò chuyện một-một, hoàn toàn riêng tư với một agent, bên ngoài mọi issue. Agent khởi đầu không có ngữ cảnh issue và không bao giờ tự tạo issue — nhưng hành động với quyền truy cập không gian làm việc của bạn khi bạn yêu cầu rõ ràng.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-**Chat là cuộc trò chuyện một-một giữa bạn và một [agent](/agents)** — bước ra ngoài bảng [issue](/issues). Agent không thấy issue nào và không đổi được issue nào, và toàn bộ cuộc trò chuyện **hoàn toàn riêng tư** (không ai khác trong [không gian làm việc](/workspaces), kể cả admin, thấy được). Chat hợp cho những lúc cần bàn hướng làm với agent, brainstorm, hay hỏi một câu không thuộc issue nào.
+Chat hợp với những việc chưa thành hình một issue rõ ràng: sắp xếp ý tưởng, kiểm tra tình hình không gian làm việc, bàn hướng làm, hay để agent làm xong một việc nhỏ trước đã.
 
-## Sao không @nhắc agent luôn?
+**Chat là cuộc trò chuyện một-một giữa bạn và một [agent](/agents)** — bước ra ngoài bảng [issue](/issues). Agent khởi đầu **không có ngữ cảnh issue** — nó không nhìn vào bảng của bạn và không tự biến cuộc trò chuyện thành issue — và toàn bộ cuộc trò chuyện **hoàn toàn riêng tư** (không ai khác trong [không gian làm việc](/workspaces), kể cả admin, thấy được). Chat hợp cho những lúc cần bàn hướng làm với agent, brainstorm, hay hỏi một câu không thuộc issue nào.
 
-[@nhắc](/mentioning-agents) **kéo agent vào** ngữ cảnh của một issue — nó đọc mô tả issue và mọi bình luận lịch sử, và có thể đổi issue. Chat thì ngược lại: **kéo bạn ra khỏi** issue — agent chỉ thấy đúng cuộc trò chuyện này, không biết gì về issue nào, và cũng không có cách nào để sửa issue.
+Cuộc trò chuyện **không gắn với issue nào**: agent không tự động nhận mô tả và bình luận của issue, nhưng vẫn có thể dùng CLI UniAI để truy vấn không gian làm việc, dự án, issue và skill trong phạm vi quyền của nó.
 
-Hai nguyên tắc chọn nhanh:
+Cuộc trò chuyện cũng có thể mang theo bối cảnh. Bấm **+** ở góc dưới trái ô nhập và chọn **Project context** để gắn một [dự án](/projects) vào cuộc trò chuyện; khi agent chạy, nó nhận mô tả, repository và các tài nguyên khác của dự án đó.
 
-- Muốn phản hồi bám ngữ cảnh của một issue cụ thể → [@nhắc](/mentioning-agents)
-- Muốn bàn một chủ đề không liên quan issue nào (hoặc không muốn ai khác thấy cuộc bàn luận) → Chat
+![Một cuộc chat với agent: câu hỏi được trả lời với kết quả sắp xếp thành bảng](/images/docs/chat-conversation.png)
 
 ## Bắt đầu cuộc trò chuyện
 
-Mở **Chat** từ thanh bên, chọn một agent và bắt đầu cuộc trò chuyện mới. Giao diện như mọi app nhắn tin: bạn gửi tin, agent trả lời. Mỗi tin nhắn kích hoạt một lượt chạy ở nền (một `task` được xếp hàng), nên câu trả lời có thể mất vài giây.
+1. Mở **Chat** trên thanh bên.
+2. Bấm tạo mới và chọn một agent bạn có quyền chạy.
+3. Nhập tin nhắn; bạn cũng có thể đính kèm hình ảnh hoặc tệp.
+4. Sau khi gửi, UniAI tạo một lượt chạy cho tin nhắn, và câu trả lời quay về đúng cuộc trò chuyện hiện tại.
 
-## Agent làm được và không làm được gì trong chat
+Nếu runtime đang offline, tin nhắn sẽ chờ đến khi nó trở lại. Một khi agent bị lưu trữ, hoặc bạn mất quyền chạy nó, bạn không gửi được tin nhắn mới nữa.
 
-Agent chạy ở chế độ **sandbox hoàn toàn** trong cuộc trò chuyện.
+## Chat hay issue?
 
-**Làm được:**
+| Nhu cầu | Lựa chọn hợp hơn |
+|---|---|
+| Hỏi nhanh, thăm dò hướng làm, hoặc bản nháp riêng tư | **Chat** |
+| Cần người phụ trách, trạng thái, độ ưu tiên và sản phẩm bàn giao rõ ràng | **Issue** |
+| Muốn đồng đội thấy bối cảnh và tiếp tục cuộc thảo luận | **Issue** |
+| Xem nhanh thông tin không gian làm việc, không cần ghi lại thành công việc | **Chat** |
 
-- Trả lời câu hỏi trong tin nhắn hiện tại của bạn
-- Dùng các [skill](/skills) và MCP đã cấu hình
-- Đọc ghi file trong thư mục làm việc của chính nó
-- Gọi các lệnh CLI `uniai` không cần ngữ cảnh issue (ví dụ truy vấn thông tin cơ bản của không gian làm việc)
+Chat trực tiếp tạo trong UniAI chỉ người tạo mới thấy; các thành viên khác và admin không đọc được. Kết luận mà cả nhóm cần cùng thấy nên được viết vào một issue, mô tả dự án, hoặc một skill.
 
-**Không làm được:**
+## Ngữ cảnh nhiều lượt
 
-- **Thấy issue** — prompt agent nhận không có ID issue nào, và lệnh như `uniai issue list` trả về rỗng
-- **Đổi issue** — không có ngữ cảnh issue, các lệnh gọi API bị chặn bởi kiểm tra quyền
-- **Thấy cuộc trò chuyện khác** — các cuộc trò chuyện cách ly hoàn toàn
-- **@nhắc bất kỳ ai hay agent nào** — chat là không gian riêng, không có cách nào để thông báo cho người khác
+Cuộc trò chuyện cố tiếp nối phiên gốc trong công cụ lập trình AI, nên các tin nhắn sau không phải nhắc lại nội dung trước. UniAI lưu ID phiên và điều các lượt chạy kế tiếp đến một runtime truy cập được phiên đó.
 
-## Ngữ cảnh nhiều lượt được giữ thế nào
+Nếu phiên cục bộ không còn, ngữ cảnh không tiếp nối được, hoặc lỗi trước đó không nên dùng lại, runtime sẽ bắt đầu từ một phiên mới. Dù thế nào, lịch sử tin nhắn của cuộc trò chuyện vẫn được giữ.
 
-Chat giữ ngữ cảnh nhiều lượt qua **khôi phục phiên của provider** — agent lập một phiên provider ở câu trả lời đầu (ví dụ một phiên Claude), và ID phiên được lưu. Ở tin nhắn kế tiếp, ID đó được truyền lại khi phát task, để agent **tiếp nối từ chỗ đang dừng** mà không phải đọc lại lịch sử mỗi lần.
+## Theo dõi và dừng lượt chạy
 
-Nếu **một lượt lỗi**, UniAI tra ngược task trước đó từng lập ID phiên (dù task đó thành công hay thất bại) và thử nối lại — một lần lỗi giữa chừng không làm mất trí nhớ của cả cuộc trò chuyện.
+Trong lúc agent chạy, giao diện hiển thị giai đoạn hiện tại và hoạt động công cụ. Mở rộng **View details** để xem toàn bộ lượt chạy.
 
-Lưu ý: không phải provider nào cũng thực sự có khôi phục phiên — xem hiện trạng hỗ trợ trong [**Ma trận provider**](/providers).
+Muốn ngắt, bấm nút dừng cạnh ô nhập. Nội dung đã trả về cuộc trò chuyện được giữ lại; phần nhập chưa được xử lý sẽ được khôi phục vào trình soạn khi có thể.
 
-## Lưu trữ cuộc trò chuyện
+## Sắp xếp danh sách cuộc trò chuyện
 
-Cuộc trò chuyện nào không muốn thấy nữa, bạn có thể lưu trữ — chuột phải trong danh sách hoặc dùng nút "Archive" trên trang chi tiết. Sau khi lưu trữ:
+Cuộc trò chuyện có thể được đổi tên, ghim, lưu trữ và xóa:
 
-- Cuộc trò chuyện biến mất khỏi danh sách đang hoạt động (vẫn tìm được trong mục "Archived")
-- Tin nhắn lịch sử, ID phiên và thư mục làm việc đều được giữ — không gì bị xóa
+- **Ghim** giữ các cuộc trò chuyện hay dùng ở đầu danh sách;
+- **Lưu trữ** chuyển cuộc trò chuyện vào mục Archived và biến nó thành chỉ đọc;
+- **Bỏ lưu trữ** cho phép gửi tin nhắn trở lại;
+- **Xóa** gỡ bỏ vĩnh viễn cuộc trò chuyện cùng các tin nhắn của nó.
+
+Nếu cuộc trò chuyện đang gắn với một kênh bên ngoài (như Slack), lưu trữ sẽ cắt liên kết đó; bỏ lưu trữ không khôi phục lại — hãy gắn lại từ đầu.
 
 <Callout type="warning">
-**Không có nút "khôi phục" sau khi lưu trữ.** Hiện chưa có cách đưa cuộc trò chuyện đã lưu trữ trở lại danh sách hoạt động. Muốn tiếp tục mạch chuyện, bạn phải mở cuộc trò chuyện mới. Muốn xem lại nội dung cũ, mở mục "Archived" và đọc lại lịch sử.
+Xóa cuộc trò chuyện là không thể hoàn tác và sẽ dừng mọi lượt chạy chưa xong trong đó. Nếu chỉ tạm thời không cần đến, hãy lưu trữ thay vì xóa.
 </Callout>
 
-## Tiếp theo
+## Bước tiếp theo
 
-- [**Tự động hóa**](/autopilots) — để agent tự bắt đầu việc theo lịch
-- [**Giao issue cho agent**](/assigning-issues) — đưa chủ đề trở lại bảng issue
+- [Giao issue cho agent](/assigning-issues) — biến cuộc thảo luận thành công việc theo dõi được.
+- [Hộp thư đến và theo dõi](/inbox) — bám sát hoạt động của nhóm cần đến bạn.
+- [Ma trận provider](/providers) — khả năng phiên và model của từng công cụ lập trình AI.

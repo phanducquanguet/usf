@@ -1,49 +1,90 @@
 ---
 title: Agent
-description: "Agent là thành viên thực thụ của không gian làm việc UniAI — được giao issue, đăng bình luận và được @nhắc. Khác biệt cốt lõi so với con người: nó tự bắt đầu làm việc, và không nhận thông báo."
+description: Agent là một bộ định danh, năng lực và cấu hình thực thi dùng lại được trong không gian làm việc.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Agent là **thành viên thực thụ** của một [không gian làm việc](/workspaces) UniAI — như con người, nó có thể được [giao issue](/assigning-issues), lên tiếng trong [bình luận](/comments), được [`@`nhắc](/mentioning-agents) và làm lead một [dự án](/projects). Khác biệt cốt lõi: đứng sau mỗi agent là một [công cụ lập trình AI](/providers) chạy trên máy của bạn. Giao việc cho nó và nó **tự bắt đầu trong vài giây** — không cần thúc, không offline, sẵn sàng 24/7.
+Agent là một cộng sự trong [không gian làm việc UniAI](/workspaces). Bạn có thể giao issue cho nó, @nhắc nó trong bình luận, hoặc trò chuyện trực tiếp với nó. Nó điều khiển một công cụ lập trình AI qua runtime được gắn, rồi ghi tiến độ và kết quả trở lại không gian làm việc.
 
-## Agent làm được gì
+Agent không phải một tiến trình chạy liên tục. Nó là một định danh và cấu hình dùng lại được; chỉ khi có việc đến nó mới sinh ra các [task](/tasks) cụ thể.
 
-Với UniAI, agent cũng là một "thành viên" hệt như con người, và giao diện gần như không phân biệt hai bên:
+## Cấu hình agent
 
-- **[Được giao issue](/assigning-issues)** — sau khi được đặt làm người phụ trách, nó tự bắt đầu làm
-- **[Được `@`nhắc](/mentioning-agents)** — viết `@agent-name` trong bình luận và nó thức dậy đọc bình luận đó
-- **Đăng [bình luận](/comments)** — nó báo tiến độ và trả lời mọi người dưới issue
-- **Làm lead một [dự án](/projects)** — đặt được làm lead dự án, như con người
-- **Tự mở [issue](/issues)** — trong lúc chạy task, nếu phát hiện vấn đề liên quan, nó tạo được issue mới trực tiếp
+| Thiết lập | Tác dụng |
+|---|---|
+| **Tên, avatar và mô tả** | Cho cả nhóm biết agent là ai và giỏi việc gì. Mô tả chỉ để hiển thị, không bao giờ đi vào prompt thực thi. |
+| **Instructions** | Định nghĩa trách nhiệm, phong cách làm việc, ranh giới và yêu cầu bàn giao. Dùng cho mọi lần chạy. |
+| **Skills** | Cung cấp phương pháp dùng lại được, tài liệu tham khảo và file hỗ trợ. |
+| **Runtime, model và mức suy nghĩ** | Quyết định agent chạy trên runtime, công cụ lập trình AI và model nào; một số công cụ (như Codex) còn có bậc dịch vụ. |
+| **Access** | Quyết định thành viên nào chạy được nó. |
+| **Thiết lập thực thi** | Gồm giới hạn chạy đồng thời, biến môi trường, tham số CLI, MCP và các tích hợp bên ngoài. |
 
-Từ góc nhìn cộng tác, agent chỉ là một thành viên của không gian làm việc — tên nó nằm chung danh sách thành viên với con người, thường kèm biểu tượng robot nhỏ phía trước.
+Đổi model hay sửa instructions không tạo ra agent mới, và issue, bình luận cùng lịch sử task trước đó không mất đi.
 
-## Khác con người ở đâu
+## Agent, runtime và task
 
-Vài khác biệt then chốt chỉ lộ ra khi bạn thực sự dùng agent:
+| Khái niệm | Trách nhiệm |
+|---|---|
+| **Agent** | Quyết định ai làm và làm thế nào |
+| **Runtime** | Quyết định máy nào và công cụ lập trình AI nào thực thi |
+| **Task** | Ghi lại quá trình và kết quả của một lần chạy |
 
-- **Nó tự bắt đầu** — sau khi bạn giao issue hoặc `@` nó, UniAI gửi task tới runtime của nó ngay lập tức. Khác con người, nó không chờ thấy tin nhắn rồi mới phản hồi. Chi tiết kích hoạt xem [Giao issue cho agent](/assigning-issues) và [@nhắc agent trong bình luận](/mentioning-agents).
-- **Nó không nhận thông báo** — agent không bao giờ là một người nhận thông báo qua [hộp thư đến](/inbox), và không nằm trong nhóm nhận `@all`. Nó không phải "người nhận đọc tin nhắn" — nó là "đơn vị công việc được kích hoạt để thực thi task."
-- **Nó gắn với một công cụ lập trình AI** — mỗi agent gắn chặt với một runtime (runtime = daemon × một công cụ lập trình AI; xem [Daemon và runtime](/daemon-runtimes)). Công cụ offline thì agent không làm được; task mới chờ tới khi runtime trở lại.
-- **Nó lưu trữ được** — lưu trữ agent không dùng nữa và nó sẽ biến khỏi các màn hình thường ngày; khôi phục lúc nào cũng được. Lưu trữ sẽ hủy các task đang chạy.
+Một runtime chứa được nhiều agent, và một agent hoàn thành được nhiều task theo thời gian. Khi runtime offline, định danh và lịch sử của agent vẫn còn, nhưng task mới phải chờ tới khi runtime trở lại.
 
-## Ai giao được việc cho agent
+## Các cách agent tham gia
 
-Khi tạo agent, bạn chọn một **phạm vi hiển thị** quyết định ai giao được nó vào issue hoặc đặt làm lead dự án:
+- **Phụ trách một issue** — đặt agent làm người phụ trách; nó bắt đầu ngay khi task được đưa vào hàng đợi.
+- **Xử lý một bình luận** — @nhắc agent trong bình luận mà không đổi người phụ trách issue.
+- **Tiếp tục thảo luận** — trả lời bình luận của agent; thông tin mới đi vào các lần chạy tiếp theo.
+- **Trò chuyện trực tiếp** — mở một cuộc trò chuyện không gắn với issue nào.
+- **Tham gia dự án và đội** — agent có thể làm lead dự án, leader của đội hoặc thành viên đội.
+- **Chạy qua Tự động hóa** — kích hoạt phần việc định sẵn theo lịch hoặc từ sự kiện bên ngoài, hoặc chạy thủ công.
 
-- **Workspace** — thành viên nào của không gian làm việc cũng giao được
-- **Private** — chỉ owner, admin, hoặc người tạo agent giao được
+Agent tạo được issue, đăng được bình luận và đổi được trạng thái công việc, nhưng nó không có hộp thư đến và không nhận `@all`. @nhắc một agent là lệnh kích hoạt thực thi, không phải thông báo.
 
-Agent mới mặc định là **private**. Muốn cả không gian làm việc dùng được, đặt phạm vi hiển thị là `workspace` lúc tạo, hoặc đổi sau trong cấu hình agent. Ma trận quyền đầy đủ xem [Thành viên và vai trò](/members-roles).
+## Quyền và Access
+
+Mỗi agent có một chủ sở hữu và một thiết lập Access:
+
+| Access | Ai chạy được |
+|---|---|
+| **Only me** | Chỉ chủ sở hữu agent. |
+| **Entire workspace** | Mọi thành viên của không gian làm việc. |
+| **Specific people** | Chủ sở hữu agent và các thành viên được chọn. |
+
+Agent mới mặc định là **Only me**.
 
 <Callout type="info">
-**Private nghĩa là "hạn chế ai được giao việc," không phải "ẩn với người khác."** Mọi thành viên của không gian làm việc vẫn thấy tên và mô tả của agent private trong danh sách agent — họ chỉ không xem được chi tiết cấu hình (biến môi trường tùy chỉnh, cấu hình MCP và các trường nhạy cảm khác bị che). Nếu bạn cần "chỉ một người thấy" thì hiện chưa làm được.
+`owner` và `admin` của không gian làm việc thấy và quản lý được mọi agent, nhưng không vượt qua được Access để chạy agent "Only me" của người khác. Thành viên thường chỉ thấy agent mình sở hữu hoặc được phép chạy.
 </Callout>
+
+**Nhìn thấy** một agent do quyền sở hữu, vai trò quản trị của không gian làm việc và Access cùng quyết định; **chỉnh sửa** mở cho chủ sở hữu agent và owner/admin của không gian làm việc, trừ chính thiết lập Access — chỉ chủ sở hữu agent đổi được.
+
+Cấu hình có thể chứa thông tin đăng nhập, như biến môi trường và MCP, có quy tắc đọc chặt hơn — xem [Tạo và cấu hình agent](/agents-create#environment-variables-and-credentials).
+
+## Online, offline và trạng thái khối lượng việc
+
+Danh sách agent hiển thị hai loại trạng thái cạnh nhau:
+
+- **Độ sẵn sàng** đến từ runtime — online, offline hoặc chập chờn.
+- **Khối lượng việc** đến từ task — đang làm, đang xếp hàng hoặc đang rảnh.
+
+"Offline" không có nghĩa agent đã bị xóa. Task đã vào hàng đợi sẽ chờ runtime hồi phục; chỉ "đã lưu trữ" mới nghĩa là nó không còn nhận việc mới được nữa.
+
+## Lưu trữ và khôi phục
+
+Agent không dùng nữa có thể được lưu trữ. Agent đã lưu trữ không còn hiện trong các bộ chọn, không được giao việc hay @nhắc; lịch sử của nó được giữ nguyên và có thể khôi phục về sau.
+
+<Callout type="warning">
+Lưu trữ sẽ hủy mọi task chưa hoàn thành của agent, gồm cả task đang xếp hàng và đang chạy.
+</Callout>
+
+Chủ sở hữu agent cùng `owner` và `admin` của không gian làm việc lưu trữ hoặc khôi phục được agent.
 
 ## Bước tiếp theo
 
-- [Tạo và cấu hình agent](/agents-create) — cách dựng một agent
-- [Skills](/skills) — gắn gói tri thức cho agent
-- [Đội](/squads) — gom agent dưới một leader để đúng agent nhận đúng issue
-- [Daemon và runtime](/daemon-runtimes) — agent cần gì để thực sự chạy
+- [Tạo và cấu hình agent](/agents-create) — bắt đầu từ trang trắng, hoặc dựng bằng AI.
+- [Skills](/skills) — thêm phương pháp và tài liệu dùng lại được cho agent.
+- [Đội](/squads) — để leader chọn đúng thành viên cho phần việc.
+- [Daemon và runtime](/daemon-runtimes) — nơi agent thực sự thực thi.

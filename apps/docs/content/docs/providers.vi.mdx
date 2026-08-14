@@ -1,151 +1,93 @@
 ---
-title: Ma trận công cụ lập trình AI
-description: UniAI hỗ trợ 14 công cụ lập trình AI; chúng triển khai cùng một giao diện, nhưng chi tiết năng lực khác nhau đáng kể.
+title: So sánh công cụ lập trình AI
+description: So sánh các công cụ lập trình AI mà UniAI hỗ trợ, và khác biệt về model, MCP, phiên và skill.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-UniAI hỗ trợ sẵn **14 công cụ lập trình AI**. Tất cả triển khai cùng một giao diện — xếp hàng, điều phối, thực thi, trả kết quả — nên công cụ nào bạn cũng điều khiển được từ cùng một bảng UniAI. **Nhưng chi tiết năng lực khác nhau đáng kể**: khôi phục phiên có thật sự chạy không, MCP có được hỗ trợ không, file skill nằm đâu, model được chọn thế nào. Trang này là ma trận đầy đủ.
+UniAI không thay thế công cụ lập trình AI bạn đang dùng. Runtime gọi công cụ đã cài và đã đăng nhập sẵn trên máy tính, rồi ghi tiến trình và kết quả ngược lại vào issue.
 
-Để chọn công cụ khi tạo agent, xem [Tạo và cấu hình agent](/agents-create).
+Nếu bạn đã dùng sẵn một trong các công cụ này, thường bạn cứ giữ nguyên. Bốn điều cần cân nhắc khi chọn:
 
-## Ma trận năng lực
+- công cụ đã được cài trên máy tính chưa;
+- tài khoản của bạn dùng được những model nào;
+- UniAI có cần cấu hình MCP cho nó không;
+- đội muốn tái sử dụng những skill nào.
 
-| Công cụ | Nhà cung cấp | Khôi phục phiên | MCP | Vị trí chèn skill | Chọn model |
-|---|---|---|---|---|---|
-| **Antigravity** | Google | ✅ (`--conversation <id>`) | ❌ | `.agents/skills/` | Khám phá động (`agy models`) |
-| **Claude Code** | Anthropic | ✅ | ✅ | `.claude/skills/` | Tĩnh + cờ |
-| **CodeBuddy** | Tencent | ✅ | ✅ | `.claude/skills/` | Khám phá động |
-| **Codex** | OpenAI | ✅ | ✅ | `$CODEX_HOME/skills/` | Tĩnh |
-| **Copilot** | GitHub | ✅ | ❌ | `.github/skills/` | Tĩnh (theo quyền lợi tài khoản) |
-| **Cursor** | Anysphere | ✅ | ✅ | `.cursor/skills/` | Khám phá động |
-| **Hermes** | Nous Research | ✅ | ✅ | `.agent_context/skills/` (dự phòng) | Khám phá động |
-| **Kimi** | Moonshot | ✅ | ✅ | `.kimi/skills/` | Khám phá động |
-| **Kiro CLI** | Amazon | ✅ | ✅ | `.kiro/skills/` | Khám phá động |
-| **OpenCode** | SST | ✅ | ✅ | `.opencode/skills/` | Khám phá động + biến thể |
-| **OpenClaw** | Mã nguồn mở | ✅ | ✅ | `.agent_context/skills/` (dự phòng) | Gắn ở tầng agent, không đổi theo task |
-| **Pi** | Inflection AI | ✅ (phiên là đường dẫn file) | ❌ | `.pi/skills/` | Khám phá động |
-| **Qoder** | Alibaba | ✅ | ✅ | `.qoder/skills/` | Khám phá động |
-| **Trae** | ByteDance | ✅ (ACP `session/load`) | ✅ | `.traecli/skills/` | Khám phá động |
+Các bước cài đặt nằm ở [Cài đặt công cụ lập trình AI](/install-agent-runtime).
 
-## Từng công cụ dùng cho việc gì
+## Công cụ được hỗ trợ
 
-### Antigravity
+| Công cụ | Lệnh được phát hiện | Khôi phục phiên | MCP do UniAI quản lý | Vị trí chèn skill |
+|---|---|---:|---:|---|
+| Antigravity | `agy` | ✓ | — | `.agents/skills/` |
+| Claude Code | `claude` | ✓ | ✓ | `.claude/skills/` |
+| CodeBuddy | `codebuddy` | ✓ | ✓ | `.codebuddy/skills/` |
+| Codex | `codex` | ✓ | ✓ | `$CODEX_HOME/skills/` |
+| GitHub Copilot CLI | `copilot` | ✓ | — | `.github/skills/` |
+| Cursor Agent | `cursor-agent` | ✓ | ✓ | `.cursor/skills/` |
+| DevEco Code | `deveco` | ✓ | — | `.deveco/skills/` |
+| Grok | `grok` | ✓ | ✓ | `.grok/skills/` |
+| Hermes | `hermes` | ✓ | ✓ | `HERMES_HOME/skills/` theo từng task |
+| Kimi CLI | `kimi` | ✓ | ✓ | `.kimi/skills/` |
+| Kiro CLI | `kiro-cli` | ✓ | ✓ | `.kiro/skills/` |
+| OpenClaw | `openclaw` | ✓ | ✓ | `skills/` |
+| OpenCode | `opencode` | ✓ | ✓ | `.opencode/skills/` |
+| Pi | `pi` | ✓ | — | `.pi/skills/` |
+| Oh-My-Pi | `omp` | ✓ | — | `.omp/skills/` |
+| Qoder CLI | `qodercli` | ✓ | ✓ | `.qoder/skills/` |
+| Qoder CN CLI | `qoderclicn` | ✓ | ✓ | `.qoder/skills/` |
+| Qwen Code | `qwen` | ✓ | ✓ | `.qwen/skills/` |
+| QwenPaw | `qwenpaw` | ✓ | ✓ | `skills/` trong workspace theo từng task |
+| Reasonix | `reasonix` | ✓ | ✓ | `.reasonix/skills/` |
+| Trae CLI | `traecli` | ✓ | ✓ | `.traecli/skills/` |
 
-Của Google. Tên binary CLI là `agy`. Ghép với dịch vụ Antigravity của Google, model mặc định chạy trên nền Gemini. UniAI khởi chạy Antigravity bằng `agy -p` vì đó là chế độ không tương tác tương thích với daemon; `agy -i` cần TTY nên không phù hợp để thực thi task chạy nền. Các bản Antigravity CLI hiện tại vẫn thực thi được công cụ từ chế độ này, nhưng stdout là văn bản trợ lý thuần chứ không phải luồng sự kiện có cấu trúc, nên UniAI chuyển tiếp bản ghi dưới dạng văn bản và hiện chưa hiển thị được telemetry theo công cụ cho Antigravity. **Khôi phục phiên hoạt động** qua `--conversation <id>`; daemon bắt UUID cuộc trò chuyện từ file log của CLI. **Chọn model hoạt động** qua cờ `--model` (thêm từ agy 1.0.6): daemon liệt kê danh mục bằng `agy models` và gửi nguyên giá trị đã chọn. Lưu ý đây là chuỗi hiển thị cho người đọc như `Claude Opus 4.6 (Thinking)`, không phải slug `provider/model` — và agy lặng lẽ bỏ qua giá trị nó không nhận ra, nên ưu tiên chọn từ danh sách khám phá được thay vì tự gõ. Skill nằm trong `.agents/skills/` (CLI kế thừa bố cục skill của Gemini CLI — xem [tài liệu migration của Antigravity](https://antigravity.google/docs/gcli-migration)).
+"MCP do UniAI quản lý" nghĩa là bạn có thể khai báo MCP server trong cấu hình agent và UniAI truyền chúng cho công cụ trước mỗi lần chạy. Không có nghĩa công cụ đó không còn cách nào khác để cấu hình MCP.
 
-### Claude Code
+## Nguồn model
 
-Của Anthropic. **Lựa chọn đầu tiên cho người mới** — bộ tính năng đầy đủ nhất: khôi phục phiên hoạt động thực sự, đọc cấu hình MCP, và hỗ trợ các cờ tinh chỉnh như `--max-turns` và `--append-system-prompt`. Cần API key của Anthropic.
+Khi bạn tạo agent, danh sách model lấy từ runtime tương ứng. Một số công cụ đưa ra một bộ tên model cố định; số khác trả về các model khả dụng dựa trên cấu hình cục bộ, tài khoản đã đăng nhập và quyền lợi gói đăng ký.
 
-### CodeBuddy
+Nếu bạn không chọn model, UniAI dùng mặc định của chính công cụ. Nếu danh sách trống, xác nhận runtime đang online và công cụ đã đăng nhập, rồi làm mới danh sách model.
 
-Của Tencent. CLI agent tương thích Claude Code — UniAI điều khiển nó bằng đúng giao thức stream-json như Claude Code, nên khôi phục phiên hoạt động (qua `--resume`), cấu hình MCP truyền qua `--mcp-config`, và skill dùng bố cục `.claude/skills/` của Claude Code. Model khám phá động.
+QwenPaw là ngoại lệ duy nhất: nó không nhận model chọn từ UniAI, nên bộ chọn bị vô hiệu và hiển thị "Managed by runtime". Hãy chọn model trong cấu hình riêng của QwenPaw. Danh sách model trống ở đây là bình thường, không phải dấu hiệu runtime offline.
 
-### Codex
-
-Của OpenAI. Dùng JSON-RPC 2.0, quản lý trạng thái tốt hơn, và cơ chế phê duyệt chi tiết hơn (phê duyệt tay cho `exec_command` và `patch_apply`). Cấu hình MCP được ghi vào file `$CODEX_HOME/config.toml` theo từng task. **Khôi phục phiên hoạt động** qua `thread/resume` của Codex app-server; nếu thread đã lưu bị mất hoặc quá cũ, UniAI quay về thread mới để task vẫn chạy được.
-
-### Copilot
-
-Của GitHub. Định tuyến model qua quyền lợi tài khoản GitHub — công cụ không tự chọn model; GitHub quyết định bạn được model nào. Đặt skill trong `.github/skills/` là cơ chế nhận diện native của GitHub CLI.
-
-### Cursor
-
-Của Anysphere, bản CLI của trình soạn thảo Cursor. **Khôi phục phiên hoạt động** với các bản Cursor Agent hiện tại: sự kiện stream-json chứa `session_id`, và UniAI truyền lại bằng `--resume <id>` ở lần chạy sau. Cấu hình MCP được ghi ra file `.cursor/mcp.json` trong workspace của task, kèm file phê duyệt dự án của Cursor ghi dưới `CURSOR_DATA_DIR` theo từng task để các MCP server được quản lý không phụ thuộc phê duyệt Cursor toàn cục của người dùng.
-
-### Hermes
-
-Của Nous Research. Dùng giao thức ACP (chung tầng transport với Kimi). Khôi phục phiên hoạt động, cấu hình MCP truyền qua ACP `mcpServers`. Nhưng **vị trí chèn skill là đường dẫn dự phòng chung** (`.agent_context/skills/`), không phải đường dẫn riêng — nếu bản thân Hermes CLI không đọc đường dẫn này, skill có thể không có hiệu lực. Kiểm chứng bằng cách thử.
-
-**Chọn profile Hermes.** Để khởi chạy Hermes dưới một profile cụ thể, đặt `custom_args` của agent thành cờ profile và tên profile như hai mục riêng — ví dụ với profile tên `research`:
-
-```json
-["-p", "research"]
-```
-
-Đừng gộp thành một chuỗi kiểu `"-p research"`; UniAI truyền mỗi phần tử mảng như một mục argv riêng. `custom_args` cấu hình theo từng agent — xem [Tạo và cấu hình agent](/agents-create).
-
-### Kimi
-
-Của Moonshot, nhắm thị trường Trung Quốc. Chung giao thức ACP với Hermes, gồm cấu hình MCP qua ACP `mcpServers`, nhưng đường dẫn skill `.kimi/skills/` là cơ chế nhận diện native của Kimi CLI — khác đường dẫn dự phòng của Hermes.
-
-### Kiro CLI
-
-Của Amazon. Dùng ACP qua stdio bằng `kiro-cli acp`. Khôi phục phiên qua ACP `session/load`, cấu hình MCP qua ACP `mcpServers`, chọn model qua `session/set_model`, và skill được chép vào `.kiro/skills/` để công cụ tự nhận diện ở mức dự án.
-
-### OpenCode
-
-Của SST, mã nguồn mở. Khám phá động các model và biến thể model khả dụng (quét file cấu hình của CLI). Khôi phục phiên hoạt động, và nó dùng trường `mcp_config` của agent — UniAI tiêm inline qua biến môi trường `OPENCODE_CONFIG_CONTENT`, nên MCP server của agent tới được OpenCode mà không ghi gì vào `opencode.json` trong workdir của task (agent hoặc người dùng giữ quyền sở hữu file đó). Khi một model có biến thể, UniAI hiện chúng làm bộ chọn thinking của agent và truyền giá trị đã chọn qua `opencode run --variant`. **Hợp với người thích vọc, muốn tùy biến danh mục model.**
-
-### OpenClaw
-
-Dự án mã nguồn mở, một bộ điều phối CLI agent. Cấu hình MCP được ghi ra qua lớp bọc cấu hình OpenClaw theo từng task của UniAI. **Model gắn ở tầng agent** (`openclaw agents add --model`) — không ghi đè được theo task. Cấu hình được kiểm soát chặt: người dùng không truyền được `--model` hay `--system-prompt`; cấu hình đăng ký agent quyết định.
-
-### Pi
-
-Của Inflection AI, tối giản. **Khôi phục phiên hơi khác thường** — ID phiên là đường dẫn file trên đĩa (`~/.pi/...`) thay vì chuỗi ID. Ở công cụ khác, resume id là chuỗi do CLI trả về; ở Pi, resume id là chính file phiên.
-
-### Qoder
-
-Của Alibaba. CLI lập trình agentic. Dùng giao thức ACP qua stdio (chung tầng transport với Hermes, Kimi và Kiro CLI). Khôi phục phiên qua ACP `session/resume`, cấu hình MCP qua ACP `mcpServers`, chọn model khám phá động, và skill được chép vào `.qoder/skills/` để công cụ tự nhận diện.
-
-### Trae
-
-Của ByteDance — **TRAE CLI** chính thức (`traecli`, tài liệu tại [docs.trae.cn/cli](https://docs.trae.cn/cli); đây là sản phẩm đi cặp với Trae IDE, **không phải** bản mã nguồn mở `bytedance/trae-agent`). traecli là ACP-native, nên UniAI điều khiển qua tầng transport ACP JSON-RPC chuẩn bằng `traecli acp serve --yolo`, y như Kiro và Qoder — `--yolo` đặt nó ở chế độ bỏ qua phê duyệt để các lần chạy headless không kẹt ở lời nhắc phê duyệt công cụ.
-
-- **Khôi phục phiên hoạt động** qua ACP `session/load` (traecli công bố `loadSession: true` từ `initialize`).
-- **Chọn model là động**: danh mục model khám phá từ `session/new` (`models.availableModels`) và đổi theo task qua `session/set_model`. Đặt mặc định toàn daemon bằng `MULTICA_TRAECLI_MODEL`.
-- **MCP được hỗ trợ** — cấu hình truyền qua ACP `mcpServers`; traecli công bố `mcpCapabilities: {http, sse}`, các transport không được hỗ trợ bị lọc bỏ trước `session/new`.
-- **Xác thực** là đăng nhập doanh nghiệp của chính traecli: chạy `traecli` một lần ở chế độ tương tác để hoàn tất đăng nhập qua trình duyệt (token lưu ở `~/.trae` + keyring hệ điều hành). Đăng nhập IDE là chuyện riêng — đăng nhập Trae IDE **không** đăng nhập CLI.
-- **Skill** được ghi vào `.traecli/skills/` (dự án) để công cụ tự nhận diện; skill toàn cục nằm ở `~/.traecli/skills`.
-- Phần chỉ dẫn runtime của UniAI cũng được nhúng thẳng vào prompt (traecli không có cờ `--system-prompt` và đọc quy tắc dự án từ `.trae/rules/`, không phải `AGENTS.md`), nên chỉ dẫn quy trình vẫn tới được agent.
-
-> Các năng lực trên được ghi nhận từ binary `traecli` v0.120.42 thật: `initialize` → `loadSession:true` + `mcpCapabilities{http,sse}`; `session/new` → `result.sessionId` + `models.availableModels`; `session/prompt` stream các thông báo `session/update` với `sessionUpdate: agent_message_chunk`.
-
-## Khôi phục phiên: ai hỗ trợ thật
-
-Cơ chế khôi phục phiên được nói ở [Task](/tasks#can-a-task-continue-from-the-previous-context). **Mọi công cụ được hỗ trợ đều khôi phục phiên** — truyền resume id và task tiếp tục từ ngữ cảnh trước. Điểm khác thường duy nhất là Pi, có resume id là đường dẫn file phiên trên đĩa thay vì chuỗi id (xem [Pi](#pi) ở trên).
-
-## Cấu hình MCP: hỗ trợ theo từng provider
-
-**Trong 14 công cụ, mười một công cụ dùng `mcp_config`: Claude Code, CodeBuddy, Codex, Cursor, Hermes, Kimi, Kiro CLI, OpenCode, OpenClaw, Qoder và Trae**. Ba công cụ còn lại (Antigravity, Copilot, Pi) nhận trường này nhưng **bỏ qua** — không lỗi, không cảnh báo, cấu hình đơn giản là không có tác dụng.
-
-Cách truyền cấu hình lúc chạy tùy theo từng provider: Claude Code và CodeBuddy nhận qua `--mcp-config` đi cặp `--strict-mcp-config`; Codex ghi khối `mcp_servers` do daemon quản lý vào `$CODEX_HOME/config.toml` theo từng task; Cursor ghi `.cursor/mcp.json` cùng phê duyệt dự án theo task dưới `CURSOR_DATA_DIR`; Hermes, Kimi, Kiro CLI, Qoder và Trae nhận ACP `mcpServers`; OpenCode nhận cấu hình inline qua `OPENCODE_CONFIG_CONTENT`; OpenClaw nhận `mcp.servers` qua lớp bọc cấu hình theo task của UniAI. Đường của OpenCode **không** viết lại `opencode.json` của dự án.
-
-<Callout type="warning">
-Nếu bạn đặt `mcp_config` trong cấu hình agent nhưng chọn công cụ không có ✅ ở cột MCP, các MCP server của bạn **không có tác dụng** với agent đó. Tích hợp MCP là theo từng provider.
+<Callout type="info">
+Các công cụ khác nhau có thể dùng tên model khác nhau. Sau khi đổi công cụ lập trình AI, giá trị model cũ không còn hợp lệ với công cụ mới và cần chọn lại.
 </Callout>
 
-## File skill đi đâu
+## Khôi phục phiên
 
-Mỗi công cụ tìm skill ở một đường dẫn **của riêng nó**. Trước khi task chạy, daemon UniAI chép file skill của không gian làm việc vào đường dẫn tương ứng:
+Tất cả các công cụ này đều hỗ trợ tiếp tục phiên hiện có ở lần chạy sau. Điều kiện là phiên gốc vẫn còn và task được thực thi bởi một runtime với tới được nó.
 
-| Công cụ | Đường dẫn | Nhận diện native? |
-|---|---|---|
-| Claude Code | `.claude/skills/` | ✅ Native |
-| CodeBuddy | `.claude/skills/` | ✅ Native |
-| Codex | `$CODEX_HOME/skills/` | ✅ Native |
-| Copilot | `.github/skills/` | ✅ Native |
-| Cursor | `.cursor/skills/` | ✅ Native |
-| Kimi | `.kimi/skills/` | ✅ Native |
-| Kiro CLI | `.kiro/skills/` | ✅ Native |
-| OpenCode | `.opencode/skills/` | ✅ Native |
-| Pi | `.pi/skills/` | ✅ Native |
-| Qoder | `.qoder/skills/` | ✅ Native |
-| Antigravity | `.agents/skills/` | ✅ Native (kế thừa bố cục workspace của Gemini CLI — xem [tài liệu Antigravity](https://antigravity.google/docs/gcli-migration)) |
-| Hermes | `.agent_context/skills/` | ⚠️ Dự phòng chung |
-| OpenClaw | `.agent_context/skills/` | ⚠️ Dự phòng chung |
+UniAI lưu định danh phiên mà công cụ trả về. Lần tiếp theo công việc tiếp tục trên cùng issue, runtime thử khôi phục phiên đó; khi không được, nó tạo phiên mới và chạy tiếp. Pi lưu đường dẫn file phiên cục bộ, nên phụ thuộc nhiều hơn vào máy tính và file gốc.
 
-Công cụ dùng đường dẫn dự phòng có thật sự đọc thư mục này không thì tùy tài liệu của chính công cụ — không có gì đảm bảo. Nếu skill không có hiệu lực với Hermes / OpenClaw, kiểm tra chỗ này trước.
+Quy tắc thử lại và khôi phục phiên nằm ở [Task](/tasks#manual-retry).
 
-Với các đường dẫn native mức dự án, việc công cụ tự nhận diện skill trong repo là hành vi mặc định: nếu repository đã checkout có sẵn thư mục khớp, công cụ bên dưới tự tìm thấy các skill đã commit đó. Bạn không cần nhập các skill repo đó vào UniAI chỉ để dùng trong repo đó. UniAI giữ nguyên file của repo. Nếu một skill của không gian làm việc trùng tên thư mục, daemon ghi bản của không gian làm việc dưới một tên khác không trùng, ví dụ `review-helper-multica`.
+## Cấu hình MCP
 
-Về tạo và dùng skill, xem [Skills](/skills).
+Antigravity, GitHub Copilot CLI, DevEco Code và Pi hiện chưa đọc cấu hình MCP trên agent, nên trường này không hiển thị khi tạo agent cho chúng.
 
-## Tiếp theo
+<Callout type="warning">
+Lệnh, tham số và biến môi trường của MCP server được lưu phía server cùng cấu hình agent. Đừng ghi vào cấu hình những thông tin xác thực cục bộ mà bạn không cần chia sẻ.
+</Callout>
 
-- [Tạo và cấu hình agent](/agents-create) — chọn công cụ cho agent của bạn
-- [Task](/tasks) — vòng đời task và cơ chế khôi phục phiên
-- [Daemon và runtime](/daemon-runtimes) — các công cụ chạy ở đâu và kết nối UniAI ra sao
-- [Cài đặt runtime cho agent](/install-agent-runtime) — cài đặt và xác thực cho từng công cụ trong 14 công cụ được hỗ trợ
+## Chèn skill
+
+Trước khi một lần chạy bắt đầu, UniAI ghi các skill gắn với agent vào các đường dẫn trong bảng trên, để mỗi công cụ tự nhận diện chúng qua cơ chế native của mình.
+
+Skill đã có sẵn trong repository không bao giờ bị ghi đè. Khi trùng tên, UniAI dùng tên thư mục khác cho bản được chèn; sau lần chạy, nó chỉ dọn những file do chính nó tạo ra.
+
+Codex, Hermes và OpenClaw được xử lý hơi khác:
+
+- Codex dùng `CODEX_HOME` theo từng task, nên skill không bao giờ bị ghi vào thư mục Codex cấp hệ thống.
+- Hermes dùng `HERMES_HOME` theo từng task. Cấu hình cục bộ sẵn có vẫn đọc được, nhưng skill đã gắn và dữ liệu phiên được cô lập theo task. Cơ chế cô lập này chỉ kích hoạt khi agent có skill gắn kèm; task không có skill dùng Hermes home gốc của máy.
+- OpenClaw dùng `skills/` dưới thư mục làm việc của task hiện tại, và cấu hình mỗi lần chạy đặt thư mục đó làm workspace.
+
+Về tạo và gắn skill, xem [Skills](/skills).
+
+## Bước tiếp theo
+
+- [Tạo và cấu hình agent](/agents-create) — thiết lập model và mức thinking.
+- [Cài đặt công cụ lập trình AI](/install-agent-runtime) — các bước cài đặt và phát hiện.
+- [Daemon và runtime](/daemon-runtimes) — đăng ký runtime và mức song song.

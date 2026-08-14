@@ -1,65 +1,76 @@
 ---
 title: Hộp thư đến và theo dõi
-description: Khi nào UniAI thông báo cho bạn, và cách tắt tiếng các issue bạn không quan tâm.
+description: Một nơi cho các lượt giao việc, lượt nhắc, bình luận và lỗi agent cần bạn theo sát.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Hộp thư đến là nơi UniAI **chủ động báo tin cho bạn** — [issue](/issues) giao cho bạn, [nhắc `@`](/comments) và hoạt động trên các issue bạn theo dõi đều đổ về đây.
+Hộp thư đến gom các hoạt động công việc liên quan đến bạn. Nó không phải nhật ký hoạt động đầy đủ — nó chỉ ra chỗ có thay đổi cần bạn chú ý; ngữ cảnh đầy đủ vẫn nằm trên issue tương ứng.
 
-Bạn kiểm soát hoạt động nào trên issue được báo tới mình bằng cách **theo dõi** và **bỏ theo dõi**.
+## Những gì đổ về hộp thư đến
 
-## Những gì xuất hiện trong hộp thư
+Các thông báo thường gặp gồm:
 
-Các sự kiện sau gửi thông báo vào hộp thư của bạn:
+- một issue được giao cho bạn, hoặc chuyển khỏi tay bạn;
+- issue bạn theo dõi có bình luận mới, hoặc đổi người phụ trách, trạng thái, độ ưu tiên hay ngày;
+- ai đó @nhắc bạn trong mô tả issue hoặc bình luận;
+- issue hoặc bình luận bạn tạo nhận được một lượt thả cảm xúc;
+- một lượt chạy agent thất bại trên issue bạn theo dõi;
+- việc tạo issue qua agent hoàn thành hoặc thất bại;
+- một Tự động hóa bạn theo dõi tạo issue mới, hoặc bị tạm dừng sau nhiều lần thất bại liên tiếp.
 
-- **Issue được giao / hủy giao / giao lại** — bạn được báo khi là người phụ trách mới (hoặc cũ)
-- **Thay đổi trạng thái, độ ưu tiên hoặc hạn chót trên issue bạn theo dõi**
-- **Bình luận mới trên issue bạn theo dõi**
-- **Bạn được `@`nhắc trong bình luận** — gửi tới dù bạn có theo dõi hay không
-- **Ai đó thả cảm xúc vào issue hoặc bình luận của bạn**
-- **Một [task](/tasks) bạn giao cho agent bị thất bại**
+Hành động của chính bạn không tạo thông báo cho bạn. Nhiều thông báo trên cùng một issue được gộp thành một mục; mở nó để xem các thay đổi gần đây của issue.
 
-## `@all` thông báo cả không gian làm việc
+## Các nguồn tự động theo dõi
 
-`@all` là đích đặc biệt — nó đẩy thông báo tới **mọi thành viên** của không gian làm việc.
+Những người tham gia sau được tự động theo dõi một issue:
 
-<Callout type="warning">
-**Hạn chế dùng `@all`.** Trong không gian làm việc 50 người, một bình luận `@all` tạo ra 50 thông báo hộp thư ngay lập tức. Hãy dành nó cho những sự kiện hệ trọng (sự cố production, công bố cột mốc) — không phải bàn luận thường ngày.
+- người tạo issue;
+- người phụ trách mới;
+- bất kỳ ai bình luận;
+- bất kỳ ai vừa được @nhắc trong mô tả issue;
+- những người theo dõi được cấu hình sẵn trong một Tự động hóa.
+
+Đổi người phụ trách không gỡ các lượt theo dõi hiện có. Bạn theo dõi hoặc bỏ theo dõi bất cứ lúc nào trên trang issue; sau khi bỏ theo dõi, các cập nhật thông thường ngừng đến hộp thư của bạn, còn @nhắc trực tiếp vẫn thông báo riêng cho bạn.
+
+<Callout type="info">
+Khi trạng thái của issue con thay đổi, người theo dõi issue cha cũng được báo. Bình luận, độ ưu tiên và thay đổi ngày của issue con không được báo lên issue cha.
 </Callout>
 
-## Agent không bao giờ nhận thông báo
+## Agent không dùng hộp thư đến
 
-Agent **không bao giờ** nhận thông báo hộp thư — kể cả khi là người phụ trách, người tạo, hay được `@`nhắc trong bình luận.
+Hộp thư đến chỉ dành cho thành viên của không gian làm việc. Kể cả khi agent là người phụ trách hay người theo dõi, nó không bao giờ đọc thông báo hộp thư.
 
-Đây không phải bug: agent không đọc hộp thư. Chúng làm việc theo cơ chế [**kích hoạt tức thời**](/assigning-issues) — giao issue hoặc `@`nhắc agent trong bình luận là khởi động task cho nó ngay. Hộp thư là cơ chế nhắc dành cho con người; với agent nó vô nghĩa.
+@nhắc một agent trong bình luận, giao issue cho nó, hoặc kích hoạt một Tự động hóa sẽ tạo thẳng một lượt chạy thay vì để lại thông báo cho agent. `@all` chỉ thông báo cho thành viên.
 
-## Quy tắc theo dõi
+## Xử lý thông báo
 
-Bạn được **tự động theo dõi** một issue trong bốn tình huống:
+Chọn một thông báo là đánh dấu đã đọc. Xong việc thì lưu trữ nó; lưu trữ không sửa hay xóa issue tương ứng. Khi issue đạt `in_review`, `done` hoặc `cancelled`, các thông báo lỗi lượt chạy của nó tự động được lưu trữ.
 
-- Bạn là người **tạo** issue
-- Bạn được **giao** issue đó
-- Bạn **bình luận** vào issue
-- Bạn được **`@`nhắc** trong issue hoặc trong một bình luận của issue
+Chuột phải vào một thông báo để **Đánh dấu đã đọc** / **Đánh dấu chưa đọc** và **Lưu trữ** (**Bỏ lưu trữ** trong mục Archived). Đánh dấu chưa đọc là thao tác "đã xem, nhưng chưa xử lý xong": thông báo trở về trạng thái chưa đọc và tăng lại bộ đếm chưa đọc, và nó giữ nguyên chưa đọc kể cả khi bạn vẫn đang mở nó — lần mở sau sẽ đánh dấu đã đọc như bình thường. Thông báo đã lưu trữ giữ nguyên trạng thái đọc, nên khôi phục lại sẽ đưa nó về đúng như lúc bạn rời đi.
 
-Tự theo dõi chỉ xảy ra một lần — vừa là người tạo vừa được nhắc không khiến bạn theo dõi hai lần.
+Từ menu của hộp thư đến bạn cũng có thể:
 
-<Callout type="warning">
-**Giao lại không tự bỏ theo dõi cho bạn.** Nếu bạn từng là người phụ trách và bị thay, bạn **vẫn nhận cập nhật trên issue đó** — bản ghi tự theo dõi vẫn nằm trong cơ sở dữ liệu.
+- đánh dấu tất cả đã đọc;
+- lưu trữ tất cả, hoặc lưu trữ tất cả thông báo đã đọc;
+- lưu trữ thông báo của các issue ở `done` hoặc `cancelled`;
+- mở mục Archived và khôi phục một thông báo.
 
-Muốn ngừng nhận thông báo, mở issue và bỏ theo dõi thủ công.
-</Callout>
+## Tinh chỉnh loại thông báo
 
-Bạn cũng có thể **theo dõi thủ công** bất kỳ issue nào (kể cả không liên quan), hoặc **bỏ theo dõi thủ công** bất kỳ lượt tự theo dõi nào. Trên UI, dùng khung bên phải của trang issue; trên CLI, dùng `uniai issue subscriber add/remove`.
+Mở **Settings → Notifications** để bật tắt từng nhóm riêng:
 
-## Thay đổi trạng thái của issue con được báo lên issue cha
+- giao việc;
+- thay đổi trạng thái;
+- bình luận;
+- lượt nhắc;
+- độ ưu tiên và ngày;
+- hoạt động của agent.
 
-Khi **trạng thái** của issue con thay đổi, người theo dõi issue cha cũng được báo — kể cả khi họ không theo dõi issue con.
+Tắt một nhóm không ngăn các thay đổi được ghi lại trên issue — nó chỉ dừng thông báo vào hộp thư. Một vài loại, như lượt thả cảm xúc, kết quả tạo nhanh và việc Tự động hóa bị tạm dừng, nằm ngoài sáu nhóm này và luôn được gửi. Thông báo hệ thống và trình duyệt chỉ điều khiển banner trên desktop, không thay đổi bản thân hộp thư đến.
 
-Điều này chỉ áp dụng cho **trạng thái**: bình luận, độ ưu tiên và hạn chót thay đổi trên issue con **không** được báo lên issue cha.
+## Bước tiếp theo
 
-## Tiếp theo
-
-- [Bình luận và nhắc tên](/comments) — nhắc `@` hoạt động ra sao và những điểm dễ vấp
-- [Giao issue cho agent](/assigning-issues) — agent được kích hoạt thế nào (và vì sao chúng không đọc hộp thư)
+- [Bình luận](/comments) — trả lời, nhắc tên và các luồng thảo luận.
+- [@nhắc agent trong bình luận](/mentioning-agents) — thông báo cho thành viên khác gì lượt chạy của agent.
+- [Tự động hóa](/autopilots) — cấu hình tạo việc tự động và người theo dõi mặc định.

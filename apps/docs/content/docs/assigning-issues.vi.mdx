@@ -1,83 +1,83 @@
 ---
 title: Giao issue cho agent
-description: Trao một issue cho agent và nó tiếp quản vai trò người phụ trách chính thức tới khi xong việc — với đầy đủ ngữ cảnh cùng khả năng đổi trạng thái và các trường của issue.
+description: Đặt một agent phụ trách issue và quyết định nó có bắt tay vào việc ngay hay không.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Giao một [issue](/issues) cho [agent](/agents) và nó làm việc với tư cách **người phụ trách chính thức** tới khi xong — nó đọc được toàn bộ ngữ cảnh issue (mô tả + mọi [bình luận](/comments)) và đổi trạng thái, đăng bình luận, sửa trường. Đây là cách kích hoạt **phổ biến nhất và có sức nặng lớn nhất** trong bốn cách kích hoạt của UniAI. Cùng luồng này cũng nhận một [đội](/squads) làm người phụ trách — khi đó UniAI kích hoạt **agent leader** của đội.
+Khi một phần việc cần agent nhận và theo lâu dài, hãy giao issue cho nó. Agent đọc mô tả và thảo luận của issue, làm việc với cấu hình và skill của riêng nó, rồi ghi tiến độ và kết quả trở lại chính issue đó.
 
-| Cách kích hoạt | Dùng khi | Đổi issue | Ngữ cảnh | Độ ưu tiên | Tự thử lại |
-|---|---|---|---|---|---|
-| **Giao việc** | Trao quyền sở hữu cho agent | Đổi người phụ trách | Issue + mọi bình luận | Kế thừa từ issue | ✓ |
-| [**@nhắc**](/mentioning-agents) | Kéo vào xem giúp | Không đổi gì | Issue + bình luận kích hoạt | Kế thừa từ issue | ✓ |
-| [**Chat**](/chat) | Trò chuyện một-một ngoài issue | Không dính issue | Lịch sử hội thoại hiện tại | Cố định trung bình | ✓ |
-| [**Tự động hóa**](/autopilots) | Tự động theo lịch hoặc thủ công | Tùy chế độ | Tùy chế độ | Do autopilot đặt | ✗ |
+Khi bạn chỉ cần agent xử lý một yêu cầu cụ thể mà không đổi quyền sở hữu, hãy dùng [@nhắc trong bình luận](/mentioning-agents) thay thế.
 
-"Tự thử lại" nghĩa là thử lại sau lỗi hạ tầng (runtime offline, timeout). Lỗi nghiệp vụ phía agent (ví dụ model báo lỗi) không được thử lại. Chi tiết xem [**Task**](/tasks).
+## Giao và bắt đầu một lượt chạy
 
-## Giao từ giao diện
+1. Mở issue và bấm **Người phụ trách**.
+2. Chọn một agent hoặc một đội.
+3. Xem lại agent sắp khởi động trong hộp thoại xác nhận.
+4. Thêm ghi chú bàn giao nếu cần, rồi chọn **Bắt đầu**.
 
-Trên trang chi tiết issue, bấm bộ chọn **Người phụ trách**. Nó liệt kê mọi thành viên trong không gian làm việc, mọi agent chưa lưu trữ và mọi [đội](/squads) chưa lưu trữ. Chọn một agent (hoặc đội) là issue được giao ngay.
+![Hộp thoại xác nhận giao việc: thêm ghi chú bàn giao, hoặc chọn chưa bắt đầu vội](/images/docs/assign-confirm-dialog.png)
 
-Vài quy tắc:
+Ghi chú bàn giao chỉ áp dụng cho lượt chạy này — dùng nó cho phạm vi, thứ tự, hay điều cần tập trung lần này. Yêu cầu cần giữ lâu dài thì thuộc về issue, mô tả dự án, hoặc hướng dẫn của agent.
 
-- **Agent workspace** ai cũng giao được; **agent private** chỉ người tạo hoặc admin của không gian làm việc giao được.
-- Chỉ giao được cho agent có **runtime đang online** — agent không có máy nào đang chạy nó sẽ hiện là không khả dụng trong bộ chọn.
-- Khi issue ở trạng thái **Backlog**, giao việc **không kích hoạt agent** — Backlog chỉ là chỗ gác việc tạm; agent chỉ được xếp hàng khi bạn chuyển issue sang Todo hoặc In Progress.
+Khi bạn giao cho một đội, đội trở thành người phụ trách issue và leader của đội khởi động trước. Nó tự quyết có chuyển việc cho các thành viên khác hay không, theo cách vận hành của đội.
 
-## Giao từ CLI
+## Thực thi sau khi giao
 
-Lệnh tương đương:
+UniAI tạo một [task](/tasks) cho agent. Khi một runtime đang online nhận task, nó gọi công cụ lập trình AI trên máy đó; tiến độ, bình luận và kết quả sau đó xuất hiện trong issue.
+
+Nếu runtime tạm thời offline, task chờ trong hàng đợi; task gắn chặt với runtime của nó và không bao giờ chuyển sang máy khác.
+
+Trong lúc thực thi, agent có thể:
+
+- đọc mô tả, các trường và bình luận của issue;
+- dùng các skill được gắn, MCP server và bối cảnh dự án;
+- đọc tệp, chạy lệnh và thay đổi trong thư mục làm việc cục bộ của nó;
+- đăng bình luận và cập nhật trạng thái issue.
+
+Những gì nó thực sự làm được vẫn bị giới hạn bởi cấu hình của agent, môi trường runtime và quyền chạy agent của bạn.
+
+Trong lượt chạy, agent được kỳ vọng quản lý trạng thái issue theo quy ước (thường là `todo` → `in_progress`, rồi `in_review` khi bàn giao) — các hành động này hiện dưới danh tính của agent trong dòng thời gian. Vòng đời task và trạng thái issue là hai chuyện tách biệt: task hoàn tất không tự nó đổi trạng thái issue.
+
+Khi người phụ trách là một [đội](/squads), kỳ vọng cũng như vậy: UniAI xếp hàng leader, leader chuyển issue cha sang `in_progress` ở lượt đầu và giữ nguyên trong lúc các thành viên làm việc. Leader chỉ chuyển sang `in_review` khi mục tiêu tổng thể đã đạt — điều phối thành công lượt đầu chưa phải là hoàn thành.
+
+## Giao mà chưa bắt đầu
+
+**Chưa bắt đầu vội** trong hộp thoại xác nhận lưu người phụ trách mà không tạo task cho lượt này. Dùng nó để chốt quyền sở hữu trước, rồi bắt đầu khi bối cảnh hoặc các phụ thuộc đã sẵn sàng.
+
+`backlog` cũng không khởi động lượt chạy khi giao. Việc thực thi chỉ diễn ra sau khi bạn đưa issue ra khỏi `backlog`, hoặc yêu cầu người phụ trách điều gì đó trong một bình luận tiếp theo.
+
+Chỉ `backlog` hoạt động như vậy. Issue đang ở `done` hay `cancelled` vẫn khởi động lượt chạy ngay khi được giao hoặc giao lại cho agent.
+
+## Quyền giao việc
+
+Bạn có giao được một agent hay không do Quyền truy cập của nó quyết định:
+
+- **Chỉ mình tôi**: chỉ chủ sở hữu của agent chạy được nó;
+- **Một số người cụ thể**: chủ sở hữu và các thành viên được liệt kê chạy được;
+- **Toàn bộ không gian làm việc**: mọi thành viên của không gian làm việc đều chạy được.
+
+Owner và admin của không gian làm việc quản lý được agent, nhưng thấy được một agent không có nghĩa là chạy được nó. Bộ chọn người phụ trách vô hiệu hóa các agent bạn không chạy được. Xem [Agent](/agents#permissions-and-access) cho bộ quy tắc đầy đủ.
+
+## Đổi hoặc gỡ người phụ trách
+
+Chuyển người phụ trách sang một agent khác sẽ khởi động lượt chạy mới cho người phụ trách mới; chọn một thành viên chỉ đổi người phụ trách và không gọi công cụ lập trình AI nào. Gỡ người phụ trách cũng không tạo task.
+
+<Callout type="warning">
+Đổi người phụ trách, bỏ giao, hay đổi trạng thái issue đều không dừng được lượt chạy đã bắt đầu. Muốn ngắt nó, hãy dừng task tương ứng trong nhật ký thực thi.
+</Callout>
+
+## Dùng CLI
 
 ```bash
-uniai issue assign UNI-42 --to alice
-uniai issue assign UNI-42 --to-id 5fb87ac7-23b5-4a7a-81fa-ed295a54545d
-```
-
-`--to` nhận username của thành viên hoặc tên agent (khớp mờ). Khi tên chồng nhau — ví dụ agent `J` bên cạnh `Cursor - J` — dùng `--to-id <uuid>` với `user_id` (thành viên) hoặc `id` (agent) từ `uniai workspace member list --output json` / `uniai agent list --output json`. Khớp UUID là nghiêm ngặt và không mơ hồ — đúng thứ bạn cần cho script và cho agent điều khiển CLI. `--to` và `--to-id` loại trừ lẫn nhau.
-
-Bỏ giao:
-
-```bash
+uniai issue assign UNI-42 --to "Agent name"
 uniai issue assign UNI-42 --unassign
 ```
 
-## Điều gì xảy ra sau khi giao
+Trong script, dùng `--to-id <uuid>` để tránh khớp nhầm đối tượng trùng tên. Tra UUID bằng `uniai agent list --output json` hoặc `uniai workspace member list --output json`.
 
-Khi một issue không ở Backlog được giao cho agent, UniAI lập tức làm các việc sau ở nền:
+## Bước tiếp theo
 
-1. Xếp hàng một `task` trạng thái `queued` với độ ưu tiên kế thừa từ issue, định tuyến tới runtime của agent.
-2. Daemon của agent nhận `task` ở lần poll kế tiếp và chuyển nó sang `dispatched`.
-3. Agent bắt đầu làm và `task` sang `running`; kết thúc thì thành `completed` hoặc `failed`.
-4. Trong lúc thực thi, agent có thể đổi trạng thái issue, đăng bình luận, sửa trường — các hành động này hiện dưới danh tính của agent.
-
-**Nếu agent offline**, `task` chờ trong hàng — **quá 5 phút thì timeout và fail** với lý do `runtime_offline`. Với nguồn cho phép thử lại (giao việc, @nhắc, chat), UniAI tự xếp hàng lại. Xem [**Task**](/tasks) cho bộ quy tắc thử lại đầy đủ.
-
-Giao việc cũng tự đăng ký agent theo dõi issue — nhưng trong UniAI **agent không nhận thông báo hộp thư** (chỉ thành viên nhận). Đăng ký này chỉ để hệ thống ghi nhận nội bộ, người dùng không thấy khác biệt gì.
-
-## Giao lại hoặc bỏ giao
-
-Khi bạn đổi người phụ trách từ Agent A sang Agent B:
-
-1. **Mọi thứ A đang chạy bị hủy** — mọi `task` ở trạng thái `queued`, `dispatched` hoặc `running` bị đánh dấu `cancelled`.
-2. **B được xếp hàng một `task` mới ngay** (nếu issue không ở Backlog và B có runtime online).
-
-<Callout type="warning">
-**Giao lại hủy mọi `task` đang hoạt động trên issue này — không chỉ của người phụ trách cũ.** Nếu một agent khác đang làm trên issue vì được @nhắc, `task` của nó cũng bị hủy. Hiện chưa có thao tác UI để hủy riêng `task` của một agent.
-</Callout>
-
-Bỏ giao (`--unassign` hoặc chọn "none" trong bộ chọn) đánh dấu mọi `task` đang hoạt động là `cancelled` và **không xếp hàng cái mới**. Các đăng ký theo dõi sẵn có không bị xóa tự động — người phụ trách cũ vẫn trong danh sách theo dõi (nhưng vẫn không nhận thông báo hộp thư).
-
-## Vì sao mỗi agent chỉ một `task` hoạt động trên mỗi issue
-
-**Một agent chỉ có tối đa một `task` ở `queued` hoặc `dispatched` trên cùng một issue tại một thời điểm.** Một unique index ở tầng cơ sở dữ liệu cùng với logic nhận task đảm bảo điều này — vừa chặn xếp hàng trùng lặp, vừa tránh các lần thực thi song song ghi đè lẫn nhau.
-
-Nhưng **các agent khác nhau làm song song trên cùng issue được** — ví dụ Agent A là người phụ trách và Agent B được @nhắc; hai `task` cùng tồn tại, mỗi cái chạy trên runtime riêng. Xem [**Task**](/tasks) cho bộ quy tắc tuần tự/song song đầy đủ.
-
-## Tiếp theo
-
-- [**@nhắc agent trong bình luận**](/mentioning-agents) — kích hoạt nhẹ hơn, giữ nguyên người phụ trách và trạng thái
-- [**Đội**](/squads) — giao cho một nhóm agent và để leader quyết ai nhận
-- [**Chat**](/chat) — trò chuyện một-một ngoài issue
-- [**Tự động hóa**](/autopilots) — để agent tự bắt đầu việc theo lịch
+- [@nhắc agent trong bình luận](/mentioning-agents) — xử lý một câu hỏi mới mà không đổi người phụ trách.
+- [Task](/tasks) — quy tắc xếp hàng, retry và dừng.
+- [Đội](/squads) — để một leader điều phối nhiều agent.

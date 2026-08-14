@@ -1,0 +1,59 @@
+---
+title: Mô hình bảo mật
+description: Một task của UniAI với tới được những gì trên máy chạy nó, và ranh giới cách ly thực sự nằm ở đâu.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Khi agent nhận một task, daemon khởi chạy một công cụ lập trình AI (Codex, Claude Code, v.v.) dưới dạng tiến trình con. Hiểu tiến trình đó chạm tới được những gì chính là toàn bộ mô hình bảo mật.
+
+## Ranh giới là user chạy daemon
+
+Mặc định, một task chạy với **toàn bộ quyền của user hệ điều hành đang chạy daemon**. Nó đọc và ghi được mọi file user đó đọc ghi được, dùng được thông tin đăng nhập của user đó, và truy cập mạng không giới hạn.
+
+UniAI không đưa ra bất kỳ cam kết sandbox filesystem nào. Hiện có đúng một ngoại lệ hẹp — Windows, khi bạn chủ động bật sandbox gốc của Codex — nhưng tổ hợp nền tảng và cấu hình nào sandbox được gì là chi tiết tương thích thay đổi theo phiên bản công cụ. Hãy coi mọi task là không có sandbox và đặt ranh giới ở bên ngoài daemon.
+
+<Callout type="warning">
+UniAI không sandbox filesystem giúp bạn. Nếu daemon chạy bằng tài khoản cá nhân của bạn, một task có thể đọc SSH key, sửa shell profile và xóa tài liệu của bạn. Sự cách ly phải đến từ ranh giới mà bạn đặt daemon vào.
+</Callout>
+
+Đây là chủ ý thiết kế. Agent được yêu cầu cài dependency, chạy build, dùng các cloud CLI của bạn và điều khiển những bộ công cụ vốn trông đợi một thư mục home bình thường. Một sandbox filesystem nửa vời làm hỏng các công việc đó theo những cách khó chẩn đoán — công cụ báo "not logged in" hoặc âm thầm dùng nhầm tài khoản — trong khi vẫn không bảo vệ được thứ quan trọng nhất, vì nó không ngăn được task đọc thông tin đăng nhập rồi gửi qua mạng.
+
+Vì thế UniAI không giả vờ làm ranh giới. Hãy dựng một ranh giới bao quanh nó.
+
+## Các cách dựng được khuyến nghị
+
+Chọn cách hợp với hạ tầng của bạn — liệt kê từ nhẹ nhất đến mạnh nhất:
+
+1. **Unix user riêng.** Tạo một user `uniai`, chỉ cấp cho nó các repo và thông tin đăng nhập mà agent cần, rồi chạy daemon bằng user đó. Tài khoản của riêng bạn không bị đụng tới.
+2. **Container.** Chạy daemon trong container chỉ với các mount và secret mà agent cần.
+3. **Máy ảo.** Cách ly hoàn toàn, đổi lại phải cấp phát một máy.
+
+Chọn cách nào cũng vậy, hãy coi mọi thông tin đăng nhập với tới được từ môi trường đó là thứ agent có thể dùng: giới hạn phạm vi token thật hẹp, ưu tiên deploy key theo từng mục đích thay vì SSH key cá nhân, và tránh để các thông tin đăng nhập production không liên quan nằm trong thư mục home của user đó.
+
+## Những gì UniAI có cách ly
+
+Những điều sau là thật, nhưng chúng là tiện ích và biện pháp thu hẹp bán kính thiệt hại — không phải ranh giới bảo mật trước một task chủ động tìm cách thoát ra:
+
+- **Thư mục làm việc theo từng task.** Mỗi task có workdir riêng dưới `~/multica_workspaces/`, nên các task chạy song song không va nhau trên cùng một checkout.
+- **Trạng thái agent theo từng task.** Task của Codex có một `CODEX_HOME` riêng theo task chứa cấu hình, session và skill, nên thiết lập theo task không làm bẩn `~/.codex/` của bạn.
+- **API token theo phạm vi task.** `MULTICA_TOKEN` trao cho task được server ràng buộc với đúng agent đó và đúng task đó, nên một task không thể hành xử như bạn hay như agent khác qua API của UniAI.
+
+## Những gì không phải ranh giới
+
+- **Sandbox và thiết lập phê duyệt của chính công cụ lập trình AI.** UniAI chạy agent không cần người ngồi giám sát, nên các câu hỏi phê duyệt được trả lời tự động. Trên đường chạy mặc định, sandbox filesystem cũng tắt: Codex chạy với `sandbox_mode = "danger-full-access"` và Claude Code với `--permission-mode bypassPermissions`. Ngoại lệ là Windows — nếu bạn chủ động cấu hình sandbox gốc của Codex (`windows.sandbox = "unelevated"` hoặc `"elevated"`), UniAI tôn trọng lựa chọn đó và giữ `workspace-write` cho các task ấy. Đáng làm ở nơi phù hợp, nhưng đó là một công cụ trên một nền tảng và không thay đổi cách bạn nên giới hạn quyền cho user chạy daemon.
+- **Bố cục thư mục `HOME` của bạn.** Task kế thừa `HOME` thật và các biến `XDG_*` của user chạy daemon — chính điều này giúp các CLI trên máy (`gh`, `aws`, `kubectl`, `gcloud`, `glab`) hoạt động trong task y hệt trong shell của bạn. Nó cũng có nghĩa mọi thứ dưới home đó đều với tới được.
+
+<Callout>
+Trên Linux, task của Codex trước đây chạy dưới sandbox `workspace-write` với `HOME` chuyển hướng theo từng task. Cơ chế đó đã bị gỡ: nó khiến các CLI trên máy mất cấu hình bên trong task, và vì chỉ hạn chế ghi, nó chưa bao giờ ngăn được task đọc rồi tuồn thông tin đăng nhập ra ngoài. Linux giờ giống mặc định của macOS và Windows.
+</Callout>
+
+## Kiểm tra task đã chạy với thiết lập nào
+
+Daemon ghi log chế độ sandbox hiệu lực ở mức warn khi một task khởi động không có sandbox:
+
+```bash
+uniai daemon logs --lines 200 | grep "codex sandbox"
+```
+
+Để xác nhận cấu hình Codex hiệu lực, đọc khối được quản lý trong `config.toml` của task dưới `CODEX_HOME` của task đó — phần nằm giữa hai đánh dấu `# BEGIN multica-managed` và `# END multica-managed` được daemon ghi lại ở mỗi lượt chạy.

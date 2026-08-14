@@ -1,49 +1,71 @@
 ---
 title: Dự án
-description: Gom các issue liên quan và theo dõi như một khối — với độ ưu tiên, trạng thái, tiến độ và người đứng đầu.
+description: Tổ chức các issue liên quan bằng dự án, cho chúng một mục tiêu, kế hoạch và ngữ cảnh thực thi chung.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-**Dự án** trong UniAI là nơi gom các [issue](/issues) liên quan lại với nhau. Dùng nó khi một khối công việc lớn hơn một issue nhưng nhỏ hơn cả không gian làm việc — một đợt ra mắt, một đợt migration, một tính năng nhiều phần, một chủ đề cần tìm hiểu rẽ thành nhiều nhánh.
+Dự án tổ chức những khối công việc cần nhiều [issue](/issues) mới xong — một đợt ra mắt sản phẩm, một đợt migration, hay một tính năng giao theo từng giai đoạn.
 
-Mỗi dự án có tên, biểu tượng, mô tả, một **lead** (thành viên hoặc [agent](/agents)), một **trạng thái** (`planned` / `in_progress` / `paused` / `completed` / `cancelled`), một **độ ưu tiên** (`urgent` / `high` / `medium` / `low` / `none`), và một tỉ lệ **tiến độ** tự suy ra từ trạng thái các issue đã liên kết.
+Việc mà một issue mô tả được thì không cần dự án. Dự án hợp với một nhóm công việc có chung mục tiêu, cần theo dõi tiến độ chung, hoặc cần dùng chung repository và thư mục làm việc.
 
-## Dự án quan hệ với issue thế nào
+## Các thành phần của dự án
 
-Dự án và issue là hai đối tượng độc lập với quan hệ nhiều-về-một: một issue thuộc **tối đa một** dự án; một dự án chứa **bao nhiêu issue cũng được**. Bạn có thể liên kết hoặc gỡ liên kết bất cứ lúc nào — kéo thả trong khung bảng, hoặc dùng bộ chọn dự án ở bảng thuộc tính bên phải của issue.
+| Thành phần | Vai trò |
+|---|---|
+| **Tên, biểu tượng và mô tả** | Mục tiêu, phạm vi và các yêu cầu lâu dài; mô tả được đưa vào ngữ cảnh thực thi của các agent làm việc trong dự án. |
+| **Trạng thái** | `planned`, `in_progress`, `paused`, `completed` hoặc `cancelled`. |
+| **Độ ưu tiên** | `urgent`, `high`, `medium`, `low` hoặc `none`. |
+| **Lead** | Một thành viên hoặc một agent — người điều phối dự án. |
+| **Ngày bắt đầu và ngày mục tiêu** | Khoảng thời gian dự kiến của dự án. |
+| **Issue và tiến độ** | Công việc trong dự án và đã hoàn thành được bao nhiêu. |
+| **Tài nguyên** | Các repository GitHub hoặc thư mục cục bộ trên máy tính cụ thể được liên kết. |
 
-Thanh tiến độ của dự án được tính từ các issue liên kết — càng nhiều issue đạt `done`, thanh càng đầy. Issue `cancelled` bị loại khỏi phép đếm; issue ở `backlog` tính vào mẫu số nhưng không tính vào tử số.
+![Chi tiết dự án: issue nhóm theo trạng thái, tiến độ và mô tả dự án](/images/docs/project-detail.png)
 
-## Ghim vào thanh bên
+## Dự án và issue
 
-Bấm biểu tượng ghim ở góc trên phải của dự án để thêm nó vào danh sách ghim trên thanh bên. Dự án đã ghim luôn chỉ cách một cú bấm dù bạn đang ở đâu trong không gian làm việc; mỗi người trong nhóm ghim độc lập — ghim là thiết lập cá nhân.
+Một dự án chứa bao nhiêu issue cũng được; một issue thuộc tối đa một dự án. Bạn có thể tạo issue ngay trong dự án, hoặc chọn / đổi dự án từ phần thuộc tính của issue.
 
-Liên kết **Không gian làm việc → Dự án** trên thanh bên luôn hiện mọi dự án trong không gian làm việc; ghim chỉ là lối tắt cá nhân bổ sung thêm.
+Tiến độ dự án được tính tự động từ các issue liên kết:
 
-## Đính kèm tài nguyên
+```text
+progress = issues in done or cancelled ÷ all issues in the project
+```
 
-Mỗi dự án có mục **Tài nguyên** để bạn đính kèm các repository GitHub. Sau khi đính kèm, mọi [agent](/agents) được giao issue trong dự án này có thể đọc và ghi các repo đó khi thực thi task — UniAI truyền URL repo làm ngữ cảnh cho [daemon](/daemon-runtimes).
+`cancelled` nghĩa là phần việc đó đã được khép lại khỏi phạm vi dự án, nên vẫn tính vào tiến độ. Trạng thái dự án và trạng thái issue độc lập với nhau: hoàn thành mọi issue không tự đưa dự án về `completed`, và đổi trạng thái dự án cũng không đổi hàng loạt các issue của nó.
 
-Tài nguyên gắn theo từng dự án; nếu nhiều dự án dùng chung một repo, hãy đính kèm vào từng dự án.
+## Mô tả dự án và ngữ cảnh thực thi
 
-## Xóa dự án
+Khi một agent chạy một issue trong dự án, tên và mô tả của dự án được thêm vào ngữ cảnh của lượt chạy đó. Mô tả là chỗ cho những thông tin mà mọi task liên quan đều cần: mục tiêu, ranh giới kỹ thuật, quy ước bàn giao. Yêu cầu chỉ áp dụng cho một issue thì thuộc về issue đó.
 
-Xóa dự án **không xóa các issue của nó**. Các issue liên kết chỉ bị gỡ liên kết và quay về danh sách issue phẳng của không gian làm việc. Đây là chủ ý — công việc từng thuộc một dự án hiếm khi đáng vứt bỏ, kể cả khi cách tổ chức dự án thay đổi.
+## Thêm tài nguyên
 
-<Callout type="info">
-Nếu muốn xóa cả công việc, hãy lưu trữ hoặc xóa các issue trước, rồi mới xóa dự án.
-</Callout>
+Tài nguyên dự án cho agent biết dùng mã nguồn và thư mục làm việc nào:
+
+- **Repository GitHub**: cung cấp một repo mà runtime có thể checkout, kèm ref tùy chọn.
+- **Thư mục cục bộ**: để runtime trên một máy tính cụ thể làm việc trong một thư mục sẵn có, nơi agent sửa trực tiếp nội dung.
+
+Xem [Tài nguyên dự án](/project-resources) để biết cách chọn và các ranh giới an toàn.
 
 ## Lead của dự án
 
-Lead là người — hoặc agent — chịu trách nhiệm về dự án. Đây chỉ là dấu hiệu về trách nhiệm, không phải cơ chế kiểm soát truy cập: thành viên nào của không gian làm việc cũng sửa được dự án, bất kể ai là lead. Lead của dự án có thể là:
+Lead có thể là thành viên hoặc agent, đánh dấu ai là người điều phối dự án. Đây không phải thiết lập phân quyền: nó không tự giao các issue của dự án, và đặt một agent làm lead cũng không tự chạy agent đó. Muốn bắt đầu một lượt chạy vẫn cần giao issue, @nhắc, hoặc một trigger Tự động hóa.
 
-- Một thành viên không gian làm việc (đồng đội con người)
-- Một [agent](/agents) — hữu ích khi công việc của dự án chủ yếu ủy thác cho agent (ví dụ "Phân loại bug hằng tuần" do một agent chuyên phân loại làm lead)
+## Ghim vào thanh bên
 
-## Tiếp theo
+Dự án đã ghim xuất hiện trên thanh bên của bạn. Ghim là thiết lập cá nhân, không ảnh hưởng đến thành viên khác.
 
-- [Issue](/issues) — đơn vị công việc nằm bên trong dự án
-- [Agent làm lead dự án](/agents) — khi nào agent là người phụ trách phù hợp
-- [Cách UniAI hoạt động](/how-uniai-works) — bức tranh rộng hơn
+## Tạo, sửa và xóa
+
+Thành viên nào của không gian làm việc cũng tạo và sửa được dự án; chỉ `owner` và `admin` mới xóa được.
+
+<Callout type="warning">
+Xóa dự án không xóa các issue của nó: chúng được tách ra và ở lại trong không gian làm việc. Mô tả, trạng thái và tài nguyên của dự án bị xóa vĩnh viễn.
+</Callout>
+
+## Bước tiếp theo
+
+- [Tài nguyên dự án](/project-resources) — liên kết repository GitHub hoặc thư mục cục bộ.
+- [Issue](/issues) — tạo và tổ chức phần việc cụ thể trong dự án.
+- [Agent](/agents) — tìm hiểu danh tính, cấu hình và Access của agent.

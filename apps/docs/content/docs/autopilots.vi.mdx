@@ -1,235 +1,157 @@
 ---
 title: Tự động hóa
-description: Để agent bắt đầu việc theo lịch cron, webhook gửi vào, hoặc kích hoạt một lần thủ công qua UI hay CLI.
+description: Giao việc lặp lại cho agent một cách tự động, theo lịch hoặc từ webhook.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Tự động hóa (autopilot) cho phép [agent](/agents) **tự bắt đầu công việc theo lịch** — cấu hình một biểu thức cron cùng múi giờ, và UniAI tự gửi một [`task`](/tasks) đi mà bạn không phải kích hoạt gì. Nó hợp với kiểm tra định kỳ, báo cáo lặp lại và các việc dọn dẹp qua đêm — dạng công việc "lệnh thường trực". So với ba đường kích hoạt còn lại ([giao việc](/assigning-issues), [@nhắc](/mentioning-agents) và [chat](/chat), nơi bạn là người khởi động), khác biệt cốt lõi của tự động hóa là chúng **chạy theo thời gian, không cần ai bấm nút**.
+Tự động hóa (autopilot) chạy những việc lặp đi lặp lại — bản tóm tắt tiến độ hằng ngày, một lượt kiểm tra dependency định kỳ, hay một agent được khởi động bởi sự kiện từ hệ thống bên ngoài.
 
-## Cấu hình autopilot
+Mỗi autopilot lưu một Runbook, một người phụ trách và một hoặc nhiều trigger. Khi được kích hoạt, UniAI tạo issue hoặc chạy agent trực tiếp, và ghi lại mọi lượt chạy.
 
-Tạo autopilot mới trên trang **Autopilot** của không gian làm việc. Bạn đặt:
+## Tạo autopilot
 
-- **Tên** — tên hiển thị
-- **Agent** — agent nhận lượt chạy
-- **Độ ưu tiên** — được `task` sinh ra kế thừa (cùng ngữ nghĩa với độ ưu tiên issue)
-- **Mô tả / prompt** — mô tả công việc agent nhận mỗi lượt chạy
-- **Chế độ thực thi** — xem bên dưới
-- **Trigger** — ít nhất một `schedule` (cron + múi giờ) hoặc `webhook`
+Mở **Autopilot** trong thanh bên, chọn một mẫu hoặc bắt đầu từ đầu, rồi cấu hình:
+
+- **Tên**: autopilot này chịu trách nhiệm việc gì;
+- **Runbook**: mục tiêu, bối cảnh, ràng buộc và các bước mà agent đọc ở mỗi lượt chạy;
+- **Người phụ trách**: một agent hoặc một đội;
+- **Dự án**: tùy chọn; đưa các issue tạo tự động vào một dự án cụ thể;
+- **Chế độ thực thi**: tạo issue, hoặc chỉ chạy;
+- **Người theo dõi**: các thành viên được thông báo sau khi issue được tạo tự động;
+- **Trigger**: một lịch chạy hoặc một webhook.
+
+Autopilot được bật mặc định sau khi lưu; **Run now** chạy tay trọn luồng một lần vào bất cứ lúc nào.
 
 ## Chọn chế độ thực thi
 
-Autopilot có hai chế độ thực thi. **Bắt đầu với chế độ "tạo issue".**
+| Chế độ | Hành vi | Hợp với |
+|---|---|---|
+| **Tạo issue** | Mỗi lượt kích hoạt trước tiên tạo một issue, rồi giao cho người phụ trách; thảo luận, trạng thái và bản ghi chạy đều nằm trên issue. | Việc mà cả đội cần xem lại, xác nhận hoặc theo sát. |
+| **Chỉ chạy** | Tạo task trực tiếp, không có issue; kết quả chỉ thấy được trong lịch sử chạy của autopilot. | Các lượt chạy nền không cần dấu vết cộng tác. |
 
-- **Chế độ tạo issue** (`create_issue`) — mặc định, **khuyến nghị**. Mỗi lượt kích hoạt trước tiên tạo một issue trong không gian làm việc (tiêu đề hiện hỗ trợ một placeholder duy nhất, `{{date}}`, nội suy thành ngày UTC dạng `YYYY-MM-DD`; mọi token `{{...}}` khác bị từ chối ngay lúc tạo để lỗi gõ không lặng lẽ thành chuỗi thô trong tiêu đề issue của bạn), rồi giao issue cho agent qua luồng giao việc bình thường. Mọi công việc nằm trên bảng issue với đầy đủ lịch sử, bình luận và trạng thái như issue được giao thủ công.
-- **Chế độ chỉ chạy** (`run_only`) — bỏ qua bước tạo issue và đưa thẳng `task` vào hàng đợi. Lượt chạy không hiển thị trên bảng issue — chỉ thấy được trong lịch sử chạy của autopilot.
+Chế độ **tạo issue** dùng chung hàng đợi task với issue thường: khi runtime offline, issue vẫn được tạo và task chờ tới khi runtime online.
+
+Chế độ **chỉ chạy** yêu cầu runtime sẵn sàng đúng lúc kích hoạt; nếu không, lượt chạy hiển thị là skipped và không để lại issue nào chờ.
 
 ## Chạy theo lịch
 
-Mỗi autopilot cần ít nhất một trigger `schedule`. Cron dùng **định dạng 5 trường chuẩn** (phút giờ ngày tháng thứ), bước nhỏ nhất là **1 phút** (không hỗ trợ giây). Múi giờ theo định dạng IANA (ví dụ `Asia/Ho_Chi_Minh`) và quyết định biểu thức cron được hiểu theo múi giờ nào.
+Trình soạn lịch cho bạn chọn giờ chạy, các ngày lặp lại, khung giờ và múi giờ, đồng thời xem trước các lần chạy sắp tới. Một autopilot có thể có nhiều lịch; bật hoặc tắt từng trigger riêng lẻ được thực hiện bằng lệnh `autopilot trigger-update` của CLI — xem [Tham chiếu lệnh CLI](/cli) để biết tham số.
 
-Vài ví dụ:
+Khi cần quy tắc phức tạp hơn, sửa trực tiếp cron 5 trường chuẩn:
 
-- `0 9 * * 1-5`, `Asia/Ho_Chi_Minh` — 9 giờ sáng giờ Việt Nam các ngày trong tuần
-- `*/30 * * * *`, `UTC` — mỗi 30 phút
-- `0 3 * * *`, `UTC` — mỗi ngày 3 giờ sáng UTC
-
-UniAI server quét trigger đến hạn mỗi **30 giây** — **thời điểm kích hoạt thực tế có thể trễ tới 30 giây**, không chính xác tới từng giây. Nếu server khởi động lại đúng lúc trigger đến hạn, nó sẽ chạy bù các trigger bị lỡ khi bật lại (không mất gì, nhưng chúng chạy ngay lập tức).
-
-## Kích hoạt một lần thủ công
-
-Để khỏi chờ cron khi đang debug autopilot, kích hoạt tay:
-
-- UI: bấm "Run now" trên trang chi tiết autopilot
-- CLI:
-
-```bash
-uniai autopilot trigger <autopilot-id>
+```text
+minute hour day month weekday
 ```
 
-Kích hoạt tay đi đúng luồng thực thi như trigger `schedule` — chỉ trường `source` trên bản ghi chạy được đánh `manual`.
+Ví dụ:
 
-## Kích hoạt từ webhook
+| Cron | Múi giờ | Ý nghĩa |
+|---|---|---|
+| `0 9 * * 1-5` | `Asia/Ho_Chi_Minh` | 9:00 các ngày trong tuần |
+| `*/30 * * * *` | `UTC` | Mỗi 30 phút |
+| `0 3 * * *` | `UTC` | Mỗi ngày lúc 3:00 |
 
-Autopilot cũng kích hoạt được bằng webhook HTTP gửi vào. Thêm trigger **Webhook** trên trang chi tiết autopilot; UniAI sinh một URL duy nhất dạng:
+Cron không có trường giây, và múi giờ dùng tên IANA như `Asia/Ho_Chi_Minh`. Trước khi lưu, đối chiếu kết quả với các mốc "next runs" hiển thị trên trang.
 
-```
-https://uniai.unicomhub.com/api/webhooks/autopilots/awt_…
-```
+![Trình soạn autopilot: Runbook, thiết lập lịch và bản xem trước vài lần chạy kế tiếp](/images/docs/autopilot-schedule.png)
 
-POST JSON bất kỳ vào URL đó — UniAI ghi một lượt chạy với `source = webhook`, lưu body làm `trigger_payload` của lượt chạy, và điều agent chạy y hệt như trigger theo lịch.
+## Chạy từ webhook
+
+Sau khi thêm trigger webhook, UniAI sinh một URL duy nhất. Gửi vào đó một object hoặc array JSON để kích hoạt autopilot:
 
 ```bash
 curl -X POST "$UNIAI_WEBHOOK_URL" \
   -H "Content-Type: application/json" \
-  -d '{"event":"demo.received","eventPayload":{"message":"hello"}}'
+  -H "Idempotency-Key: demo-001" \
+  -d '{"event":"build.completed","eventPayload":{"status":"success"}}'
 ```
 
-Ở **chế độ tạo issue**, payload gửi vào được nối vào mô tả của issue mới để agent đọc trực tiếp. Ở **chế độ chỉ chạy**, payload là một phần ngữ cảnh chạy mà daemon trao cho agent.
+Payload được lưu trên bản ghi nhận webhook (delivery) và bản ghi chạy, rồi trao cho agent. Ở chế độ tạo issue, nó còn được nối vào mô tả issue.
 
-### Cấu trúc payload
+Ràng buộc với request webhook:
 
-Bạn có thể gửi envelope theo cấu trúc của riêng mình:
+- body phải là object hoặc array JSON hợp lệ, tối đa 256 KiB;
+- `Idempotency-Key` ngăn chạy trùng khi bên gửi retry; delivery từ GitHub còn được khử trùng lặp theo `X-GitHub-Delivery`;
+- không có idempotency key ổn định thì UniAI không đảm bảo được request lặp lại chỉ chạy đúng một lần;
+- khi trigger đang tắt hoặc sự kiện không khớp, delivery được ghi là ignored và không tạo lượt chạy nào.
 
-```json
-{ "event": "github.pull_request.opened", "eventPayload": { } }
-```
+### Lọc sự kiện
 
-…hoặc bất kỳ object/array JSON nào. UniAI chuẩn hóa thành envelope nội bộ:
+Khi một nguồn gửi nhiều loại sự kiện, thêm bộ lọc sự kiện vào trigger. Mỗi dòng gồm một tên sự kiện cùng danh sách action tùy chọn; lượt chạy được kích hoạt nếu bất kỳ dòng nào khớp, và để trống toàn bộ các dòng thì nhận mọi sự kiện.
 
-```json
-{
-  "event": "<inferred>",
-  "eventPayload": <your body>,
-  "request": { "receivedAt": "<rfc3339>", "contentType": "application/json" }
-}
-```
+Ví dụ, với tên sự kiện là `workflow_run` và action là `completed, failed`, chỉ hai loại kết quả `workflow_run` đó được chấp nhận. UniAI nhận diện event và action từ các header request và trường payload phổ biến, bao gồm `X-GitHub-Event` của GitHub và trường `action` trong body.
 
-Khi bạn không cung cấp trường `event`, UniAI suy ra từ các header và trường body phổ biến (`X-GitHub-Event` + `action` trong body, `X-Gitlab-Event`, `X-Event-Type`, `event`/`type`/`action` trong body). Không khớp gì thì event là `webhook.received`.
-
-Khi cấu hình GitHub hay nguồn tương tự, đặt content type là `application/json` — payload webhook mã hóa form không được chấp nhận.
-
-### Bộ lọc sự kiện
-
-Trigger webhook mới tạo sẽ kích hoạt với mọi POST gửi vào — ổn với URL chỉ phục vụ một mục đích, nhưng ồn ào với các nguồn bắn ra nhiều loại sự kiện (GitHub là ví dụ rõ nhất — một webhook repo có thể gửi `push`, `pull_request`, `workflow_run`, `check_suite` và hơn nữa). Mục **Event filters** trên trigger webhook cho bạn giới hạn sự kiện nào thực sự tạo lượt chạy; phần còn lại được ghi vào lịch sử nhận webhook với `status = ignored` và `reason = event_filtered`, không tạo lượt chạy hay issue nào.
-
-Mỗi dòng là một quy tắc: một **tên sự kiện** cùng danh sách **actions** tùy chọn phân tách bởi dấu phẩy. UniAI cho qua nếu **bất kỳ** dòng nào khớp; để trống cả mục để nhận tất cả (hành vi trước khi có bộ lọc).
-
-Ví dụ:
-
-| Tên sự kiện     | Actions             | Khớp                                                                     |
-| -------------- | ------------------- | ------------------------------------------------------------------------ |
-| `workflow_run` | `completed, failed` | Chỉ các sự kiện `workflow_run` với `action: completed` hoặc `action: failed` |
-| `workflow_run` | _(trống)_           | Mọi sự kiện `workflow_run`, bất kể action                                 |
-| `push`         | _(trống)_           | Mọi sự kiện `push`                                                        |
-
-#### Tên sự kiện và action lấy từ đâu
-
-UniAI suy `event` và `action` từ request gửi vào theo thứ tự này — **khớp đầu tiên thắng**.
-
-**1. Envelope trong body.** Nếu body là object JSON có trường `event` dạng chuỗi, giá trị đó được dùng trực tiếp làm tên sự kiện. Object `eventPayload` (nếu có) cung cấp các ứng viên action từ các trường `action` / `state` / `conclusion` / `status` của nó.
-
-```bash
-curl -X POST "$UNIAI_WEBHOOK_URL" \
-  -H 'Content-Type: application/json' \
-  -d '{"event":"trigger","eventPayload":{"action":"true"}}'
-# suy ra: event = trigger, ứng viên action = true
-```
-
-**2. Header.** Nếu body không có envelope, UniAI đọc các header provider quen thuộc:
-
-- `X-GitHub-Event: <event>` — ghép với trường `action` cấp cao nhất của body (nếu có) thành `github.<event>.<action>`.
-- `X-Gitlab-Event: <event>` — thành `gitlab.<event>`.
-- `X-Event-Type: <event>` — truyền qua nguyên vẹn.
-
-```bash
-# Kiểu GitHub: header cho tên sự kiện, body cho action.
-curl -X POST "$UNIAI_WEBHOOK_URL" \
-  -H 'X-GitHub-Event: workflow_run' \
-  -H 'Content-Type: application/json' \
-  -d '{"action":"completed"}'
-# suy ra: event = github.workflow_run.completed
-#        → khớp dòng lọc workflow_run / completed
-
-# Header event-type chung — không cần trường body nào.
-curl -X POST "$UNIAI_WEBHOOK_URL" \
-  -H 'X-Event-Type: trigger.true' \
-  -H 'Content-Type: application/json' \
-  -d '{}'
-# suy ra: event = trigger.true → khớp trigger / true
-```
-
-**3. Body dự phòng.** Nếu không có envelope trong body lẫn header quen thuộc, UniAI dùng tới các trường chuỗi cấp cao nhất của body theo thứ tự: `event` → `type` → `action`.
-
-```bash
-curl -X POST "$UNIAI_WEBHOOK_URL" \
-  -H 'Content-Type: application/json' \
-  -d '{"type":"trigger","action":"true"}'
-# suy ra: event = trigger (từ `type`), ứng viên action = true
-```
-
-**4. Mặc định.** Không gì khớp thì event là `webhook.received` và không có ứng viên action.
-
-**Danh sách đầy đủ ứng viên action.** Khi event đã xác định, UniAI xét mọi giá trị dưới đây làm ứng viên khớp action:
-
-- Hậu tố tên sự kiện, khi event có dạng `provider.event.<action>` (ví dụ `github.workflow_run.completed` → `completed`).
-- Các trường body `action`, `state`, `conclusion` và `status` — **chỉ khi chúng là chuỗi JSON**. Boolean (`{"action": true}`) hay số đều không tính, nên bộ lọc yêu cầu `event=trigger, action=true` sẽ không bao giờ khớp với body `{"trigger": true}` vì `true` là bool, không phải chuỗi.
-
-**Bẫy thường gặp.** Dòng lọc kiểu `Event name: trigger` / `Actions: true` **không** có nghĩa "kích hoạt khi body có `trigger: true`" — Event filters khớp *event và action đã suy ra*, không phải trường body tùy ý. Gửi `trigger.true` qua `X-Event-Type` (hoặc dùng envelope trong body như trên) để khớp dòng lọc này. Khoảng trắng bao quanh trong dòng lọc đã lưu (`" workflow_run "`) được giữ nguyên vẹn và sẽ không bao giờ khớp — hãy xóa khoảng trắng thừa trước khi lưu.
-
-#### Thử nhanh
-
-Cấu hình lọc xong, xác nhận cả hai nhánh bằng `curl`:
-
-```bash
-# Cho qua — header cho event=workflow_run, body cho action=completed
-curl -X POST "$UNIAI_WEBHOOK_URL" \
-  -H 'X-GitHub-Event: workflow_run' \
-  -H 'Content-Type: application/json' \
-  -d '{"action":"completed"}'
-# → 200 {"status":"accepted", ...}
-
-# Bị lọc — cùng event, action không trong danh sách cho phép
-curl -X POST "$UNIAI_WEBHOOK_URL" \
-  -H 'X-GitHub-Event: workflow_run' \
-  -H 'Content-Type: application/json' \
-  -d '{"action":"in_progress"}'
-# → 200 {"status":"ignored","reason":"event_filtered"}
-```
-
-### URL chính là bí mật xác thực (bearer)
-
-URL được sinh **chính là** thông tin xác thực. Ai có nó đều kích hoạt được autopilot. Hãy đối xử với nó như một token:
-
-- **Đừng dán vào luồng issue công khai, ảnh chụp màn hình hay lịch sử chat.**
-- **Nếu lộ, hãy thay URL ngay** — bấm "Rotate URL" trên dòng trigger, hoặc chạy `uniai autopilot trigger-rotate-url <autopilot-id> <trigger-id>`. URL cũ ngừng hoạt động ngay.
-- Với nguồn đòi hỏi xác thực chặt, hãy chờ tính năng xác minh chữ ký HMAC theo từng trigger; URL v1 này chỉ dùng cơ chế bearer.
-- Hiện tại, thành viên nào xem được autopilot đều đọc được các URL webhook của nó — việc siết quyền xem bí mật theo vai trò sẽ được bổ sung sau.
-
-### Ngữ nghĩa mã trạng thái
-
-UniAI trả `200 OK` kèm trường `status` cho các kết quả no-op bình thường để cơ chế retry webhook của provider không liên tục gọi lại URL:
-
-- `{"status":"accepted","run_id":"…","autopilot_id":"…","trigger_id":"…"}` — một lượt chạy đã được phát.
-- `{"status":"skipped","run_id":"…","reason":"agent runtime is offline at dispatch time"}` — với autopilot `run_only`, runtime của người phụ trách đang offline nên không có task nào được xếp vào hàng đợi. Autopilot `create_issue` vẫn tạo issue theo dõi để công việc luôn hiển thị và có thể được nhận xử lý khi runtime hoạt động trở lại.
-- `{"status":"ignored","reason":"trigger_disabled"}` — trigger đang tắt.
-- `{"status":"ignored","reason":"autopilot_paused"}` — autopilot đang tạm dừng.
-- `{"status":"ignored","reason":"autopilot_archived"}` — autopilot đã lưu trữ.
-
-Phản hồi non-2xx cho lỗi thật:
-
-- `400` — JSON không hợp lệ, body là giá trị vô hướng (scalar), hoặc body rỗng.
-- `404` — token lạ (`{"error":"webhook not found"}`).
-- `413` — payload vượt 256 KiB.
-- `429` — vượt hạn mức theo token (mặc định 60 req/phút).
-
-## Xem lịch sử chạy
-
-Mỗi lượt kích hoạt sinh một **bản ghi chạy**, xem ở tab "History" trên trang chi tiết autopilot:
-
-- Nguồn kích hoạt (`schedule` / `manual` / `webhook`)
-- Thời điểm bắt đầu, thời điểm hoàn thành
-- Trạng thái (`issue_created` / `running` / `completed` / `failed` / `skipped`)
-- Issue liên kết (chế độ tạo issue) hoặc `task` (chế độ chỉ chạy)
-- Lý do thất bại (nếu failed hoặc skipped)
-
-## Điều gì xảy ra khi autopilot thất bại
+### Bảo vệ URL webhook
 
 <Callout type="warning">
-**Autopilot thất bại không được tự thử lại và không gửi thông báo vào hộp thư đến.** Thất bại để lại một mục `failed` trong lịch sử chạy — không có xếp hàng lại cấp hệ thống như giao việc hay @nhắc, và không thông báo cho ai. Nếu autopilot chạy định kỳ, **lần cron kế tiếp sẽ kích hoạt lượt chạy mới**, nhưng phần việc thất bại không tự chạy lại.
-
-Nếu autopilot quan trọng, hãy tự thiết kế cơ chế giám sát — ví dụ để agent đăng bình luận khi thành công, và phát hiện thất bại khi không thấy bình luận xuất hiện.
+Token trong URL webhook chính là thông tin xác thực để gọi. Đừng đưa URL đầy đủ vào repo công khai, issue hay ảnh chụp màn hình. Nếu URL bị lộ, bấm nút **Rotate URL** ngay cạnh nó và cập nhật bên gửi lập tức; URL cũ ngừng hoạt động ngay.
 </Callout>
 
-Vì sao không tự thử lại: autopilot vốn đã chạy định kỳ, nên thêm cơ chế thử lại cấp hệ thống sẽ chồng lên lần chạy kế theo lịch và tạo ra các lần thực thi trùng nhau. Giao hẳn việc lên lịch cho cron giúp mọi thứ gọn gàng.
+Chỉ người tạo autopilot, chủ sở hữu/quản trị viên không gian làm việc và các cộng tác viên được cấp quyền mới xem được URL đầy đủ. UI mặc định ẩn token trong URL, và sao chép không cần hiển thị nó; bấm vào URL hoặc biểu tượng con mắt để xem địa chỉ đầy đủ.
 
-## Những gì chưa có
+### Tra cứu phản hồi webhook
 
-**Trigger loại API chưa hoạt động.** Schema trigger có chừa sẵn loại `api`, nhưng chưa có route nào kích hoạt nó; UI hiển thị huy hiệu Deprecated cho các dòng sẵn có và không có nút sao chép hay rotate. Xác minh chữ ký HMAC theo trigger, danh sách IP cho phép và preset sự kiện theo provider đã được ghi nhận để bổ sung sau; URL v1 chỉ dùng cơ chế bearer.
+Khi debug bên gửi, dùng bảng này để đọc phản hồi của UniAI:
 
-## Tiếp theo
+| Mã HTTP | Trạng thái phản hồi | Ý nghĩa |
+|---|---|---|
+| 200 | `accepted` | Đã nhận và tạo lượt chạy; trả về ID của delivery và lượt chạy. |
+| 200 | `skipped` | Đã nhận nhưng lượt chạy này bị bỏ qua (ví dụ runtime offline ở chế độ chỉ chạy); kèm lý do. |
+| 200 | `ignored` | Không tạo lượt chạy: trigger đang tắt, autopilot đang tạm dừng hoặc đã lưu trữ, hoặc sự kiện bị lọc; trường `reason` giải thích vì sao. |
+| 200 | `duplicate` | Idempotency key trùng với một delivery đã có; trả về ID delivery gốc và không chạy lại. |
+| 400 | Thông báo lỗi | Body rỗng, không phải JSON hợp lệ, hoặc không phải object/array JSON. |
+| 401 | `rejected` | Trigger có cấu hình signing secret nhưng request thiếu chữ ký hoặc chữ ký không khớp. |
+| 404 | Thông báo lỗi | Token trong URL không hợp lệ hoặc đã bị thay (rotate). |
+| 413 | Thông báo lỗi | Body vượt 256 KiB. |
+| 429 | Thông báo lỗi | Quá nhiều request; thử lại sau theo header phản hồi `Retry-After`. |
+| 500 | Thông báo lỗi | Lỗi nội bộ của UniAI; bên gửi có thể thử lại sau. |
 
-- [**Giao issue cho agent**](/assigning-issues) — bàn giao trọn một issue cho agent trong một lần
-- [**@nhắc agent trong bình luận**](/mentioning-agents) — kéo agent vào xem từ một bình luận
-- [**Chat**](/chat) — trò chuyện một-một ngoài issue
+Các lượt bỏ qua ở mức nghiệp vụ — tạm dừng, lưu trữ và lọc sự kiện — trả 200 thay vì 4xx, để bên gửi không retry mãi.
+
+Thứ tự suy ra event và action:
+
+1. nếu body có trường `event` dạng chuỗi, dùng trực tiếp giá trị đó;
+2. nếu không, dùng header request `X-GitHub-Event`, ghép với `action` trong body thành `github.<event>.<action>`;
+3. rồi tới header request `X-Gitlab-Event`;
+4. rồi tới header request `X-Event-Type`;
+5. rồi tới các trường `event`, `type` và `action` trong body;
+6. khi tất cả đều thiếu, event được ghi là `webhook.received`.
+
+## Xem lượt chạy và delivery
+
+Lịch sử chạy hiển thị nguồn kích hoạt, thời gian, trạng thái, issue hoặc task liên kết, và lý do khi thất bại hay bị bỏ qua. Trigger webhook còn giữ riêng bản ghi delivery, gồm sự kiện đã phân tích, phản hồi, thông tin khử trùng lặp và lý do thất bại.
+
+Một delivery webhook đã xử lý xong có thể được phát lại (replay) từ trang chi tiết của nó. Phát lại tạo delivery và lượt chạy mới mà không ghi đè bản ghi gốc; delivery không qua được xác minh chữ ký hoặc còn đang xếp hàng thì không phát lại được, và các lượt phát lại không tham gia khử trùng lặp.
+
+## Thất bại, tạm dừng và xóa
+
+Task thất bại ở chế độ chỉ chạy không được tự thử lại; lịch kế tiếp vẫn chạy như dự kiến. Chế độ tạo issue sinh task issue thông thường, và lỗi hạ tầng tuân theo quy tắc trong [Task](/tasks#failures-and-automatic-retries).
+
+UniAI định kỳ kiểm tra xem các lượt chạy gần đây có thất bại liên tục không: khi 7 ngày qua có ít nhất 50 lượt chạy hoàn thành hoặc thất bại với tỷ lệ thất bại 90%, hệ thống tạm dừng autopilot và thông báo cho người tạo; sửa xong nguyên nhân thì bật lại thủ công.
+
+Tạm dừng thủ công sẽ dừng lịch chạy, webhook và cả **Run now**. Xóa thực chất là lưu trữ: các lượt kích hoạt tương lai dừng lại, còn lịch sử chạy và delivery được giữ nguyên.
+
+## Quyền hạn
+
+- Mọi thành viên không gian làm việc đều tạo được autopilot;
+- người tạo và chủ sở hữu/quản trị viên không gian làm việc có thể sửa, chạy, xóa và quản lý trigger;
+- người tạo và chủ sở hữu/quản trị viên có thể thêm cộng tác viên vào quyền quản lý;
+- cộng tác viên có thể sửa, chạy và quản lý trigger, nhưng không cấp quyền cho người khác được;
+- quản lý được autopilot không đồng nghĩa với chạy được agent của nó — Quyền truy cập (Access) của agent vẫn áp dụng.
+
+## Dùng CLI
+
+```bash
+uniai autopilot trigger <autopilot-id>
+uniai autopilot runs <autopilot-id>
+uniai autopilot trigger-rotate-url <autopilot-id> <trigger-id>
+```
+
+Xem [Tham chiếu lệnh CLI](/cli) để biết đầy đủ tham số.
+
+## Bước tiếp theo
+
+- [Giao issue cho agent](/assigning-issues) — giao việc và cửa sổ xác nhận.
+- [Hộp thư đến và theo dõi](/inbox) — nơi thông báo lượt chạy đổ về.
+- [Task](/tasks) — trạng thái lượt chạy và cách xử lý thất bại.

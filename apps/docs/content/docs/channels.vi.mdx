@@ -1,80 +1,78 @@
 ---
-title: Tích hợp chat (kênh)
-description: Cách UniAI nối agent với các nền tảng chat — một bộ máy kênh chung, adapter theo nền tảng cho Lark (飞书) và Slack — bao gồm pipeline nhận tin, phiên và ủy quyền.
+title: Tích hợp chat
+description: Kết nối agent UniAI với Feishu, Lark, Slack, DingTalk hoặc WeCom và dùng chúng ngay trong công cụ chat nhóm bạn đang sử dụng.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
-import { Mermaid } from "@/components/mermaid";
 
-Một **kênh** nối một [agent](/agents) UniAI với một nền tảng chat để nhóm của bạn làm việc với nó ngay nơi họ vẫn trò chuyện. Hiện có hai kênh — Lark (飞书) và Slack — và cả hai chạy trên **cùng một bộ máy**: một lõi độc lập với nền tảng, cộng một adapter mỏng cho từng nền tảng. Thêm nền tảng mới là "viết adapter", không phải "xây lại pipeline".
+Tích hợp chat cho phép nhóm hỏi agent, @nhắc nó trong chat nhóm, hoặc tạo issue ngay từ cửa sổ chat — mà không phải mở UniAI.
 
-Một **installation** là đơn vị gắn kết mọi thứ: một bot gắn với một cặp `(không gian làm việc, agent)`. Tin nhắn gửi vào được định tuyến tới một installation, rồi qua pipeline chung; câu trả lời của agent được gửi lại đúng cuộc chat.
+Hiện hỗ trợ Feishu/Lark, Slack, DingTalk và WeCom. Chúng dùng chung cơ chế phiên, danh tính và thực thi, nhưng cách cài đặt khác nhau.
 
-## Kiến trúc
+## Chọn nền tảng
 
-<Mermaid chart={`
-flowchart LR
-  subgraph P["Nền tảng chat"]
-    LK["Lark / 飞书"]
-    SL["Slack"]
-  end
-  subgraph ENG["Bộ máy kênh (trung lập nền tảng)"]
-    direction TB
-    SUP["Supervisor<br/>một kết nối thường trực cho mỗi installation"]
-    ROU["Pipeline router:<br/>route → dedup → auth → session → trigger"]
-  end
-  LK -->|kết nối dài| SUP
-  SL -->|Socket Mode| SUP
-  SUP -->|sự kiện thô| ADP["Adapter theo nền tảng<br/>dịch + ResolverSet"]
-  ADP --> ROU
-  ROU -->|task cho agent| RUN["Daemon chạy agent"]
-  RUN -->|trả lời| OUT["Gửi ra theo nền tảng<br/>(bot token → API nền tảng)"]
-  OUT --> P
-`} />
+| | Feishu / Lark | Slack | DingTalk | WeCom |
+|---|---|---|---|---|
+| Cài đặt | Tạo mã QR trong UniAI và quét bằng Feishu để cấp quyền | Tạo một app trong Slack, rồi dán hai token vào UniAI | Tạo internal app và robot Stream mode, rồi dán AppKey và AppSecret của nó vào UniAI | Tạo smart bot có bật kết nối dài trong trang quản trị WeCom, rồi dán Bot ID và Secret của nó vào UniAI |
+| DM cho agent | Hỗ trợ | Hỗ trợ | Hỗ trợ | Hỗ trợ |
+| Nhóm hoặc kênh | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot |
+| Tạo issue | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập | Slash command `/issue`; agent viết lại mô tả trước khi tạo | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập |
+| Kết nối | Kết nối dài của nền tảng | Socket Mode | Stream mode | Kết nối dài của nền tảng |
 
-## Pipeline nhận tin (chung)
+Hiện chỉ mở kết nối mới cho Feishu Trung Quốc đại lục; các kết nối Lark quốc tế hiện có vẫn hoạt động và vẫn quản lý được.
 
-Mọi tin nhắn gửi vào — Lark hay Slack — chạy qua cùng các bước theo thứ tự trong `Router` của bộ máy. Adapter chỉ cung cấp phần đặc thù của từng nền tảng (`ResolverSet`); phần chính sách nằm trong bộ máy.
+Mỗi Bot gắn với một agent UniAI. Muốn dùng nhiều agent trên cùng một nền tảng chat, kết nối một Bot riêng cho từng agent.
 
-1. **Định tuyến tới installation** — ánh xạ sự kiện tới một `channel_installation` (→ không gian làm việc + agent). Lark định tuyến theo `app_id`; Slack theo app id mang trên sự kiện.
-2. **Lọc @nhắc** — trong nhóm/kênh, chỉ tin nhắn **@nhắc bot** mới đi tiếp; chuyện phiếm trong nhóm bị bỏ qua (không đọc).
-3. **Khử trùng lặp** — cơ chế nhận xử lý hai pha theo `(installation, message_id)` đảm bảo mỗi tin chỉ được xử lý đúng một lần, kể cả khi chạy nhiều bản sao server.
-4. **Danh tính + ủy quyền** — phân giải id người gửi trên nền tảng về một người dùng UniAI ([liên kết tài khoản](#authorization)), rồi kiểm tra lại tư cách thành viên không gian làm việc. Người chưa liên kết nhận lời nhắc "liên kết tài khoản"; tin nhắn của người ngoài bị bỏ qua.
-5. **Phiên** — tìm hoặc tạo một [phiên chat](/chat) cho cuộc trò chuyện này và nối tin nhắn vào (xem [Phiên](#sessions-and-context)).
-6. **Kích hoạt** — xếp hàng một [task](/tasks) cho agent; một [daemon](/daemon-runtimes) chạy agent và câu trả lời được gửi lại vào cuộc chat.
+DingTalk và WeCom do cộng đồng duy trì: chúng có mặt trong mọi bản phát hành nhưng không kèm SLA hỗ trợ chính thức. Báo lỗi tại [GitHub issues](https://github.com/phanducquanguet/usf/issues).
 
-## Phiên và ngữ cảnh
+WeCom hiện chỉ xử lý tin nhắn văn bản. Tin nhắn thoại, hình ảnh và tệp nhận một câu trả lời ngắn giải thích điều đó, và không được chuyển cho agent.
 
-Ngữ cảnh của agent là **bản ghi phiên chat** — các tin nhắn đã nạp vào phiên đó theo thời gian. Mô hình bản ghi này dùng chung cho mọi kênh. Điểm khác nhau giữa các nền tảng là **khóa cách ly phiên** mà adapter ghép nên:
+Hướng dẫn từng bước:
 
-| Nền tảng | Khóa cách ly | Kết quả |
-|---|---|---|
-| **Lark / 飞书** | id cuộc chat | Một phiên cho mỗi chat/nhóm — các lượt liên tiếp trong cùng chat dồn vào một bản ghi (nhớ nhiều lượt). |
-| **Slack** | DM: kênh; kênh: `kênh + gốc thread` | Mỗi DM là một phiên; **mỗi thread @bot là phiên riêng**, nên hai thread trong một kênh không trộn lẫn. |
+- [Tích hợp Bot Feishu / Lark](/lark-bot-integration)
+- [Tích hợp Slack Bot](/slack-bot-integration)
+- [Tích hợp Bot DingTalk](/dingtalk-bot-integration)
 
-<Callout type="info">
-Trong nhóm, chỉ tin nhắn **@nhắc bot** được nạp. Hiện cả hai kênh đều không đọc các tin nhắn khác (không @) hay lịch sử cũ của kênh, nên agent không thấy những tin nhắn không nhắc tới nó. Việc lấy các tin nhắn xung quanh làm ngữ cảnh là cải tiến đã nằm trong kế hoạch.
-</Callout>
+## Một tin nhắn được xử lý thế nào
 
-## Ủy quyền
+1. UniAI phân giải Bot về không gian làm việc và agent của nó.
+2. Trong nhóm hoặc kênh, chỉ tin nhắn @nhắc Bot rõ ràng mới đi tiếp; DM không cần nhắc.
+3. UniAI kiểm tra liên kết tài khoản và tư cách thành viên của người gửi.
+4. Tin nhắn được nối vào một phiên [chat với agent](/chat), và một task được tạo.
+5. Câu trả lời của agent quay về đúng DM hoặc thread ban đầu.
 
-Hai lớp kiểm soát độc lập bảo vệ bot trong nhóm chung — cả hai đều do bộ máy kênh thực thi trên mọi tin nhắn, giống hệt nhau giữa Lark và Slack:
+Tin nhắn trong kênh không @nhắc Bot sẽ không bao giờ kích hoạt agent và không được thêm vào ngữ cảnh trò chuyện của nó.
 
-- **Liên kết tài khoản (xác thực)** — id người gửi trên nền tảng phải được liên kết với một người dùng UniAI. Lần đầu ai đó nhắn cho bot, họ nhận một liên kết dùng một lần để gắn danh tính với tài khoản UniAI **của chính họ**; chưa liên kết xong thì agent sẽ không chạy.
-- **Tư cách thành viên (ủy quyền)** — người dùng UniAI đã liên kết phải là thành viên của không gian làm việc của installation, kiểm tra lại ở mỗi tin nhắn. Tin nhắn của người ngoài bị âm thầm bỏ qua.
+Tin nhắn thường đi theo luồng này. `/issue` là một lệnh, không phải một lượt chat: UniAI gửi kết quả về đúng nền tảng gốc nhưng không thêm lệnh vào UniAI Chat. Slash command gốc của Slack tiếp tục qua luồng tạo issue bất đồng bộ riêng của nó.
 
-Vì vậy, thêm bot vào kênh công khai vẫn an toàn: chỉ thành viên đã liên kết danh tính mới điều khiển được agent, và từng người gửi được kiểm tra độc lập. Xem trang của từng nền tảng để biết các lời nhắc hiển thị cho người dùng.
+## Cách ly phiên
 
-## Hai kênh
+- Feishu/Lark tách phiên theo cuộc chat; các tin nhắn sau trong cùng cuộc chat tiếp tục cùng một phiên.
+- Slack tách DM theo kênh; trong kênh, mỗi thread giữ một phiên riêng.
+- DingTalk tách phiên theo cuộc hội thoại; mỗi DM hoặc nhóm tiếp tục phiên của riêng nó.
+- WeCom tách phiên theo cuộc chat; mỗi DM hoặc chat nhóm tiếp tục phiên của riêng nó.
+
+Hỏi tiếp trong kênh vẫn cần @nhắc lại. Agent chỉ nhận các tin nhắn gửi đích danh cho nó — nó không bao giờ tự đọc toàn bộ lịch sử kênh.
+
+## Liên kết tài khoản
+
+Lần đầu một thành viên nhắn Bot, họ nhận một đường dẫn liên kết tài khoản. Sau khi đăng nhập UniAI, tài khoản trên nền tảng được nối với tư cách thành viên của họ trong không gian làm việc hiện tại.
+
+UniAI chỉ chạy agent sau khi liên kết hoàn tất. Mỗi tin nhắn đều kiểm tra lại liên kết tài khoản và tư cách thành viên; sau khi rời một không gian làm việc, không còn dùng Bot để truy cập nó được nữa.
 
 <Callout type="info">
-**Lark (飞书) — quét mã là cài xong.** Admin của không gian làm việc gắn một agent bằng cách quét mã QR bằng app Lark; không cần thao tác gì trong developer console. Mỗi agent một Bot.
+Liên kết tài khoản chỉ xác nhận người gửi là ai. Các thành viên khác trên nền tảng chat không tự động được thêm vào không gian làm việc UniAI.
 </Callout>
 
-<Callout type="info">
-**Slack — tự mang app.** Admin của không gian làm việc tạo một app Slack, cài vào Slack workspace của mình, rồi dán bot token + app-level token vào UniAI. Mỗi agent có app Slack riêng, nên nhiều agent có thể cùng hoạt động trong một Slack workspace, mỗi agent một bot riêng.
-</Callout>
+## Quản lý kết nối
 
-## Tiếp theo
+Owner và admin của không gian làm việc có thể kết nối hoặc ngắt kết nối Bot; với Bot Feishu/Lark, owner của agent cũng kết nối và ngắt kết nối được. Thành viên thường có thể xem các tích hợp đã kết nối và dùng những agent họ có quyền truy cập.
 
-- [Agent](/agents) · [Chat](/chat) · [Task](/tasks)
+Sau khi ngắt kết nối, Bot ngừng nhận tin nhắn mới. Các cuộc trò chuyện và bản ghi chạy hiện có trong UniAI được giữ lại.
+
+## Bước tiếp theo
+
+- [Tích hợp Bot Feishu / Lark](/lark-bot-integration) — kết nối một agent bằng cách quét mã QR.
+- [Tích hợp Slack Bot](/slack-bot-integration) — tạo một app Slack và dán token của nó vào UniAI.
+- [Tích hợp Bot DingTalk](/dingtalk-bot-integration) — tạo robot Stream mode và dán thông tin xác thực của nó vào UniAI.
+- [Chat](/chat) — mô hình trò chuyện và thực thi đứng sau mọi Bot.
