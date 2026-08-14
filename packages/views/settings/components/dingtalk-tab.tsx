@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ChevronRight, ExternalLink, MessagesSquare, Trash2 } from "lucide-react";
+import { BookOpen, ChevronRight, MessagesSquare, Trash2 } from "lucide-react";
 import { cn } from "@multica/ui/lib/utils";
 import { Button } from "@multica/ui/components/ui/button";
 import { Card, CardContent } from "@multica/ui/components/ui/card";
@@ -29,11 +29,11 @@ import { useAuthStore } from "@multica/core/auth";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { memberListOptions } from "@multica/core/workspace/queries";
 import { useActorName } from "@multica/core/workspace/hooks";
+import { useDocsViewerStore } from "@multica/core/docs";
 import { dingtalkInstallationsOptions, dingtalkKeys } from "@multica/core/dingtalk";
 import { api } from "@multica/core/api";
 import type { DingTalkInstallation } from "@multica/core/types";
 import { ActorAvatar } from "../../common/actor-avatar";
-import { openExternal } from "../../platform";
 import { useT } from "../../i18n";
 
 // formatInstalledAt renders the install timestamp defensively: the schema
@@ -230,21 +230,6 @@ function InstallationRow({
   );
 }
 
-// dingtalkDocsUrl points at the DingTalk integration guide on the docs site,
-// localized to the viewer's language. The docs site uses /<lang>/ path
-// prefixes (English has none), matching the convention used elsewhere in the
-// app for doc links.
-function dingtalkDocsUrl(lang: string | undefined): string {
-  const prefix = lang?.startsWith("zh")
-    ? "/zh"
-    : lang?.startsWith("ja")
-      ? "/ja"
-      : lang?.startsWith("ko")
-        ? "/ko"
-        : "";
-  return `https://multica.ai/docs${prefix}/dingtalk-bot-integration`;
-}
-
 // DingTalkAgentBindButton is the per-agent CTA exposed from the agent detail
 // page. DingTalk uses the bring-your-own-app model: the button opens a dialog
 // where the admin pastes the AppKey (client id) + AppSecret (client secret) of
@@ -270,7 +255,8 @@ export function DingTalkAgentBindButton({
    */
   onShowConnectedDetails?: () => void;
 }) {
-  const { t, i18n } = useT("settings");
+  const { t } = useT("settings");
+  const openDocs = useDocsViewerStore((s) => s.openDocs);
   const wsId = useWorkspaceId();
   const qc = useQueryClient();
   const user = useAuthStore((s) => s.user);
@@ -380,11 +366,11 @@ export function DingTalkAgentBindButton({
 
             <button
               type="button"
-              onClick={() => openExternal(dingtalkDocsUrl(i18n.language))}
+              onClick={() => openDocs("dingtalk-bot-integration")}
               className="inline-flex w-fit items-center gap-1.5 text-caption text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
               data-testid="dingtalk-byo-docs-link"
             >
-              <ExternalLink className="h-3.5 w-3.5" />
+              <BookOpen className="h-3.5 w-3.5" />
               {t(($) => $.dingtalk.byo_docs_link)}
             </button>
           </DialogHeader>

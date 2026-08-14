@@ -29,9 +29,9 @@ describe("workspaceUrlHost", () => {
   });
 
   it("falls back to the brand host when no app URL is configured", () => {
-    expect(workspaceUrlHost("")).toBe("multica.ai");
-    expect(workspaceUrlHost("   ")).toBe("multica.ai");
-    expect(workspaceUrlHost(null)).toBe("multica.ai");
-    expect(workspaceUrlHost(undefined)).toBe("multica.ai");
+    expect(workspaceUrlHost("")).toBe("uniai.unicomhub.com");
+    expect(workspaceUrlHost("   ")).toBe("uniai.unicomhub.com");
+    expect(workspaceUrlHost(null)).toBe("uniai.unicomhub.com");
+    expect(workspaceUrlHost(undefined)).toBe("uniai.unicomhub.com");
   });
 });

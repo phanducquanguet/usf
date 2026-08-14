@@ -19,10 +19,10 @@ interface CollectionPageHeaderProps {
   title: ReactNode;
   count?: number;
   description?: ReactNode;
-  learnMore?: {
-    href: string;
-    label: ReactNode;
-  };
+  /** Either an external `href` or an in-app `onClick` (e.g. the docs viewer). */
+  learnMore?:
+    | { href: string; onClick?: never; label: ReactNode }
+    | { href?: never; onClick: () => void; label: ReactNode };
   actions?: ReactNode;
   className?: string;
 }
@@ -59,14 +59,24 @@ export function CollectionPageHeader({
             {learnMore ? (
               <>
                 {" "}
-                <a
-                  href={learnMore.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline decoration-muted-foreground/30 underline-offset-4 transition-colors hover:text-foreground"
-                >
-                  {learnMore.label}
-                </a>
+                {learnMore.href !== undefined ? (
+                  <a
+                    href={learnMore.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline decoration-muted-foreground/30 underline-offset-4 transition-colors hover:text-foreground"
+                  >
+                    {learnMore.label}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={learnMore.onClick}
+                    className="underline decoration-muted-foreground/30 underline-offset-4 transition-colors hover:text-foreground"
+                  >
+                    {learnMore.label}
+                  </button>
+                )}
               </>
             ) : null}
           </p>

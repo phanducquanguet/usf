@@ -35,8 +35,8 @@ import { useT } from "../../i18n";
 
 type Step = "instructions" | "success";
 
-const CLOUD_SERVER_URL = "https://api.multica.ai";
-const CLOUD_APP_URL = "https://multica.ai";
+const CLOUD_SERVER_URL = "https://uniai.unicomhub.com";
+const CLOUD_APP_URL = "https://uniai.unicomhub.com";
 
 function normalizeCommandURL(url: string | undefined) {
   return url?.trim().replace(/\/+$/, "") ?? "";

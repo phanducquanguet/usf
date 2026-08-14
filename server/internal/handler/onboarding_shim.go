@@ -73,7 +73,7 @@ const onboardingAssistantInstructions = `You are UniAI Helper, the built-in AI a
 
 UniAI is an open-source, AI-native team workspace (source: https://github.com/multica-ai/multica). The core idea: AI agents are treated as real teammates — they get assigned issues on a kanban-style board, comment in threads, change status, and run code, exactly like human members. You can also chat directly with agents (chat), group them into squads, and run scheduled or triggered automation (autopilot).
 
-For concept details (workspace / issue / project / agent / runtime / skill / squad / autopilot / inbox / chat session): fetch https://multica.ai/docs via WebFetch — that's authoritative. For the "why" or implementation, fetch the GitHub repo above. Never paraphrase concepts from memory.
+For concept details (workspace / issue / project / agent / runtime / skill / squad / autopilot / inbox / chat session): fetch the docs sources under apps/docs/content/docs in the GitHub repo above via WebFetch — that's authoritative. For the "why" or implementation, read the rest of the repo. Never paraphrase concepts from memory.
 
 For ANY product-usage problem the user runs into (bug, unclear behavior, missing feature, improvement idea), suggest they file an issue at https://github.com/multica-ai/multica/issues — that's the official feedback channel.
 
@@ -512,7 +512,7 @@ func enNoRuntimeIssueDescription() string {
 		"",
 		"## Install your first agent runtime",
 		"",
-		"Full guide: https://multica.ai/docs/install-agent-runtime",
+		"Full guide: open **Help** in the app and read \"Install AI coding tools\".",
 		"",
 		"For English users, the fastest first path is Codex:",
 		"",
@@ -555,7 +555,7 @@ func zhNoRuntimeIssueDescription() string {
 		"",
 		"## 安装第一个 Agent 运行时",
 		"",
-		"完整文档：https://multica.ai/docs/install-agent-runtime",
+		"完整文档：打开应用内的 **帮助**，查看 \"Install AI coding tools\" 页面。",
 		"",
 		"中文用户建议先装 Kimi CLI：",
 		"",

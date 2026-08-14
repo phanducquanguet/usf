@@ -3,9 +3,9 @@
 import { useId, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import {
+  BookOpen,
   ChevronDown,
   ChevronLeft,
-  ExternalLink,
   Loader2,
   Pencil,
   Plus,
@@ -52,7 +52,7 @@ import {
   type RuntimeCatalogSections,
 } from "./runtime-profile-catalog";
 import { useT } from "../../i18n";
-import { customRuntimeDocsHref } from "./runtime-docs";
+import { useDocsViewerStore } from "@multica/core/docs";
 
 // The dialog runs in two surfaces that swap inside one Popup:
 //   - "browse": custom-first master list + adaptive detail
@@ -77,7 +77,7 @@ export function RuntimeProfilesDialog({
   onProfileCreated?: (profile: RuntimeProfile) => void;
   onClose: () => void;
 }) {
-  const { t, i18n } = useT("runtimes");
+  const { t } = useT("runtimes");
   const { data: profiles = [], isLoading } = useQuery(
     runtimeProfileListOptions(wsId),
   );
@@ -105,7 +105,7 @@ export function RuntimeProfilesDialog({
     entries.find((entry) => entry.id === selectedId) ?? null;
   const openCreateForm = () =>
     setState({ surface: "form", mode: "create", step: "family" });
-  const docsHref = customRuntimeDocsHref(i18n.language);
+  const openDocs = useDocsViewerStore((s) => s.openDocs);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -167,15 +167,14 @@ export function RuntimeProfilesDialog({
                   })
                 : t(($) => $.profiles.dialog_description)}
             </span>{" "}
-            <a
-              href={docsHref}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => openDocs("daemon-runtimes")}
               className="mt-1 inline-flex items-center gap-1 rounded-sm font-medium text-foreground underline underline-offset-2 transition-colors hover:text-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {t(($) => $.profiles.learn_more)}
-              <ExternalLink aria-hidden="true" className="h-3 w-3" />
-            </a>
+              <BookOpen aria-hidden="true" className="h-3 w-3" />
+            </button>
           </DialogDescription>
         </DialogHeader>
 

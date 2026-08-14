@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ChevronRight, ExternalLink, MessagesSquare, Trash2 } from "lucide-react";
+import { BookOpen, ChevronRight, ExternalLink, MessagesSquare, Trash2 } from "lucide-react";
 import { cn } from "@multica/ui/lib/utils";
 import { Button } from "@multica/ui/components/ui/button";
 import { Card, CardContent } from "@multica/ui/components/ui/card";
@@ -30,6 +30,7 @@ import { useAuthStore } from "@multica/core/auth";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { memberListOptions } from "@multica/core/workspace/queries";
 import { useActorName } from "@multica/core/workspace/hooks";
+import { useDocsViewerStore } from "@multica/core/docs";
 import { slackInstallationsOptions, slackKeys } from "@multica/core/slack";
 import { api } from "@multica/core/api";
 import type { SlackInstallation } from "@multica/core/types";
@@ -241,12 +242,6 @@ function InstallationRow({
 // shows how to create the Slack app + copy its two tokens is recorded.
 const SLACK_BYO_VIDEO_URL = "";
 
-// slackDocsUrl points at the Slack integration guide on the docs site.
-// Docs ship in English only for the supported app locales (vi falls back).
-function slackDocsUrl(_lang: string | undefined): string {
-  return `https://multica.ai/docs/slack-bot-integration`;
-}
-
 // SlackAgentBindButton is the per-agent CTA exposed from the agent detail page.
 // Slack uses the bring-your-own-app model: the button opens a dialog where the
 // admin pastes the bot token (xoxb-) + app-level token (xapp-) of the Slack app
@@ -272,7 +267,8 @@ export function SlackAgentBindButton({
    */
   onShowConnectedDetails?: () => void;
 }) {
-  const { t, i18n } = useT("settings");
+  const { t } = useT("settings");
+  const openDocs = useDocsViewerStore((s) => s.openDocs);
   const wsId = useWorkspaceId();
   const qc = useQueryClient();
   const user = useAuthStore((s) => s.user);
@@ -390,11 +386,11 @@ export function SlackAgentBindButton({
 
           <button
             type="button"
-            onClick={() => openExternal(slackDocsUrl(i18n.language))}
+            onClick={() => openDocs("slack-bot-integration")}
             className="inline-flex w-fit items-center gap-2 text-body font-medium text-primary underline-offset-2 hover:underline"
             data-testid="slack-byo-docs-link"
           >
-            <ExternalLink className="h-4 w-4" />
+            <BookOpen className="h-4 w-4" />
             {t(($) => $.slack.byo_docs_link)}
           </button>
 

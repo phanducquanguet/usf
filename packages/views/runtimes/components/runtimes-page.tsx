@@ -56,7 +56,7 @@ import { pendingRuntimeFromProfile } from "./pending-runtime";
 import { buildRuntimeMachines, type RuntimeMachine } from "./runtime-machines";
 import { HealthDot, HealthIcon, useHealthLabel } from "./shared";
 import { useT, useTimeAgo } from "../../i18n";
-import { daemonRuntimesDocsHref } from "./runtime-docs";
+import { useDocsViewerStore } from "@multica/core/docs";
 
 export interface RuntimesPageProps {
   /** Desktop-only daemon id used to identify this device. */
@@ -383,7 +383,8 @@ function PageHeaderBar({
   cloudRuntimeEnabled: boolean;
   onOpenCloudRuntime: () => void;
 }) {
-  const { t, i18n } = useT("runtimes");
+  const { t } = useT("runtimes");
+  const openDocs = useDocsViewerStore((s) => s.openDocs);
   return (
     <CollectionPageHeader
       icon={Server}
@@ -391,7 +392,7 @@ function PageHeaderBar({
       count={totalCount}
       description={t(($) => $.page.tagline)}
       learnMore={{
-        href: daemonRuntimesDocsHref(i18n.language),
+        onClick: () => openDocs("daemon-runtimes"),
         label: t(($) => $.page.learn_more),
       }}
       actions={
