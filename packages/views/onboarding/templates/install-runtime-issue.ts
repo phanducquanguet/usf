@@ -26,6 +26,7 @@ export const INSTALL_RUNTIME_ISSUE_TITLE = {
   zh: "连接运行时，和 Mika 开始",
   ko: "runtime을 연결하고 Mika와 시작하기",
   ja: "runtime を接続して Mika と始める",
+  vi: "Kết nối runtime để bắt đầu cùng Mika",
 } as const;
 
 const en = `Welcome to UniAI.
@@ -195,4 +196,45 @@ Codex のリファレンス: https://developers.openai.com/codex/cli
 
 Mika は実際の目標を 1 つのタスクにし、適切なエージェントで実行を開始し、ワークフローに必要なときは再利用可能な specialist を提案します。`;
 
-export const INSTALL_RUNTIME_ISSUE_BODY = { en, zh, ko, ja } as const;
+const vi = `Chào mừng đến với UniAI.
+
+Agent cần một runtime trước khi có thể thực thi công việc. Trong lúc cài đặt runtime, bạn vẫn có thể dùng UniAI như một không gian quản lý dự án gọn nhẹ.
+
+## Dùng thử UniAI trước
+
+Trước khi runtime sẵn sàng, bạn có thể:
+
+1. Tạo một dự án cho công việc hiện tại.
+2. Tạo vài issue và chuyển chúng qua các trạng thái backlog, todo, in_progress, done.
+3. Thêm độ ưu tiên, nhãn, bình luận và theo dõi.
+4. Dùng Hộp thư đến để theo dõi việc được giao và các lượt @nhắc.
+
+Như vậy bạn làm quen với lớp quản lý dự án trước. Khi runtime được kết nối, agent sẽ bắt đầu làm việc ngay trên chính các issue đó.
+
+## Cài đặt runtime đầu tiên cho agent
+
+Hướng dẫn đầy đủ: mở nút **Trợ giúp** trong ứng dụng và xem trang "Cài đặt công cụ lập trình AI".
+
+Đường nhanh nhất để bắt đầu là Codex:
+
+1. Đảm bảo đã cài Node.js.
+2. Cài Codex:
+   npm i -g @openai/codex
+3. Đăng nhập:
+   codex
+4. Xác nhận terminal tìm thấy nó:
+   which codex
+   codex --version
+5. Chờ UniAI nhận diện. Daemon đang chạy sẽ tự kiểm tra lại các CLI mới cài
+   sau vài phút, nên thường không cần khởi động lại. Muốn áp dụng ngay:
+   uniai daemon restart
+   Trong app desktop, mở một runtime cục bộ bất kỳ và bấm Restart. Thoát rồi mở
+   lại app là KHÔNG đủ — daemon vẫn chạy nền.
+6. Quay lại trang Runtime và tải lại. Bạn sẽ thấy một runtime Codex online.
+7. Mở trang Runtime. Trang sẽ hiện **Bắt đầu cùng Mika**; dùng nó để tạo Mika và mở cuộc trò chuyện hướng dẫn đầu tiên.
+
+Tài liệu Codex: https://developers.openai.com/codex/cli
+
+Mika sẽ biến một mục tiêu thực thành issue, khởi động với agent phù hợp, và gợi ý các specialist tái sử dụng được khi quy trình của bạn cần.`;
+
+export const INSTALL_RUNTIME_ISSUE_BODY = { en, zh, ko, ja, vi } as const;

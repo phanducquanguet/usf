@@ -32,6 +32,7 @@ var mikaOnboardingLanguages = map[string]string{
 	"zh": "Simplified Chinese",
 	"ko": "Korean",
 	"ja": "Japanese",
+	"vi": "Vietnamese",
 }
 
 // StartMikaOnboarding opens an otherwise empty Mika chat by writing two rows:
@@ -68,7 +69,7 @@ func (h *Handler) StartMikaOnboarding(w http.ResponseWriter, r *http.Request) {
 	}
 	languageName, ok := mikaOnboardingLanguages[req.Language]
 	if !ok {
-		writeError(w, http.StatusBadRequest, "language must be en, zh, ko, or ja")
+		writeError(w, http.StatusBadRequest, "language must be en, zh, ko, ja, or vi")
 		return
 	}
 
@@ -317,7 +318,7 @@ func mikaOnboardingProfileBlock(
 	}
 	if len(useCases) > 0 {
 		// Joined with "; " because several labels contain their own commas.
-		fmt.Fprintf(&b, "- Wants to use Multica to: %s\n", strings.Join(useCases, "; "))
+		fmt.Fprintf(&b, "- Wants to use UniAI to: %s\n", strings.Join(useCases, "; "))
 	}
 	return strings.TrimRight(b.String(), "\n")
 }

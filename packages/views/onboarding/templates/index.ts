@@ -12,11 +12,10 @@ export {
   type MikaContentLang,
   type MikaOnboardingDefinition,
 } from "./mika";
-type ContentLang = "en" | "zh" | "ko" | "ja";
+type ContentLang = "en" | "zh" | "ko" | "ja" | "vi";
 
 const CONTENT_LANG_BY_LOCALE: Record<SupportedLocale, ContentLang> = {
-  // No Vietnamese onboarding content yet; fall back to English templates.
-  vi: "en",
+  vi: "vi",
   en: "en",
 };
 

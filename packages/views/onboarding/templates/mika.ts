@@ -7,6 +7,7 @@ interface LocalizedText {
   zh: string;
   ko: string;
   ja: string;
+  vi: string;
 }
 
 export interface MikaOnboardingDefinition {
@@ -29,6 +30,7 @@ const MIKA_CHAT_TITLE: LocalizedText = {
   zh: "和 Mika 开始",
   ko: "Mika와 시작하기",
   ja: "Mika と始める",
+  vi: "Bắt đầu cùng Mika",
 };
 
 export function getMikaOnboarding(
