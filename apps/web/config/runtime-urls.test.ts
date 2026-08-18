@@ -269,6 +269,34 @@ describe("runtimeRewriteDestination", () => {
     ).toBe("http://multica-docs:3000/docs/zh/agents");
   });
 
+  // The public portal endpoints (`/portal/projects`, `/portal/config`, guest
+  // sessions) live on the backend without an /api prefix. The build-time
+  // rewrite in next.config.ts already forwards them, but production standalone
+  // images rely on this runtime resolver — missing the branch here made the
+  // marketplace render empty because `/portal/projects` fell through to the
+  // Next.js router and returned HTML.
+  it("maps public portal paths to the runtime API origin", () => {
+    expect(
+      runtimeRewriteDestination("/portal/projects", {
+        REMOTE_API_URL: "http://backend:8080",
+      }),
+    ).toBe("http://backend:8080/portal/projects");
+    expect(
+      runtimeRewriteDestination("/portal/config", {
+        REMOTE_API_URL: "http://backend:8080",
+      }),
+    ).toBe("http://backend:8080/portal/config");
+    expect(
+      runtimeRewriteDestination("/portal/sessions/tok-1/messages", {
+        REMOTE_API_URL: "http://backend:8080",
+      }),
+    ).toBe("http://backend:8080/portal/sessions/tok-1/messages");
+  });
+
+  it("keeps same-origin fallback for portal paths when no upstream is configured", () => {
+    expect(runtimeRewriteDestination("/portal/projects", {})).toBeUndefined();
+  });
+
   it("maps websocket paths to the runtime API origin", () => {
     expect(
       runtimeRewriteDestination("/ws", {

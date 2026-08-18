@@ -114,13 +114,17 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   // Backend ops / observability
   // `/health`, `/readyz`, `/healthz`, and `/ws` exist on the backend host;
   // reserving them on the workspace slug space prevents naming confusion if/when
-  // these paths are ever proxied through the web origin.
+  // these paths are ever proxied through the web origin. `portal` covers the
+  // public customer-portal guest endpoints (`/portal/*`), which the web origin
+  // already rewrites to the backend — a workspace with that slug would have
+  // every page swallowed by the rewrite.
   "health",
   "readyz",
   "healthz",
   "ws",
   "metrics",
   "ping",
+  "portal",
 
   // RFC 2142 — privileged email mailboxes
   // Allowing user workspaces with these slugs would let attackers spoof system

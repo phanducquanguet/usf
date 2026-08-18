@@ -128,6 +128,11 @@ export function runtimeRewriteDestination(
   if (pathname === "/uploads" || pathname.startsWith("/uploads/")) {
     return appendPath(remoteApiUrl, pathname);
   }
+  // Public customer portal guest endpoints (no /api prefix). "portal" is a
+  // reserved workspace slug, so nothing on the frontend serves under /portal.
+  if (pathname === "/portal" || pathname.startsWith("/portal/")) {
+    return appendPath(remoteApiUrl, pathname);
+  }
   if (pathname === "/ws") {
     return appendPath(remoteApiUrl, "/ws");
   }

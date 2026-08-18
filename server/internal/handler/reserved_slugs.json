@@ -108,14 +108,15 @@
     },
     {
       "label": "Backend ops / observability",
-      "description": "`/health`, `/readyz`, `/healthz`, and `/ws` exist on the backend host; reserving them on the workspace slug space prevents naming confusion if/when these paths are ever proxied through the web origin.",
+      "description": "`/health`, `/readyz`, `/healthz`, and `/ws` exist on the backend host; reserving them on the workspace slug space prevents naming confusion if/when these paths are ever proxied through the web origin. `portal` covers the public customer-portal guest endpoints (`/portal/*`), which the web origin already rewrites to the backend — a workspace with that slug would have every page swallowed by the rewrite.",
       "slugs": [
         "health",
         "readyz",
         "healthz",
         "ws",
         "metrics",
-        "ping"
+        "ping",
+        "portal"
       ]
     },
     {
