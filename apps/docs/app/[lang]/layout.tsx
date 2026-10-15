@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     default: "UniAI Docs",
   },
   description:
-    "Documentation for UniAI — the open-source managed agents platform.",
+    "Documentation for UniAI — the source-available managed agents platform.",
   openGraph: {
     type: "website",
     siteName: "UniAI Docs",

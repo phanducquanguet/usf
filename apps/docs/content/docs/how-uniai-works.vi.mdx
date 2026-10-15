@@ -5,19 +5,19 @@ description: UniAI ghi lại và điều phối công việc; các máy tính đ
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Khi bạn giao một issue cho agent, UniAI tạo một task để một runtime trên máy tính đã kết nối nhận lấy. Runtime gọi một công cụ lập trình AI cục bộ và ghi tiến độ cùng kết quả ngược về issue ban đầu.
+Khi bạn giao một issue cho agent, UniAI tạo một lượt chạy để một runtime trên máy tính đã kết nối nhận lấy. Runtime gọi một công cụ lập trình AI cục bộ và ghi tiến độ cùng kết quả ngược về issue ban đầu.
 
 ## Trọn đường đi của một lượt chạy
 
-![Sơ đồ một lượt chạy: bên trái, vùng UniAI ghi nhận và lập lịch — một issue kích hoạt việc tạo task; bên phải, trong vùng "máy tính của bạn", daemon nhận task, khởi chạy công cụ lập trình AI và đọc ghi thư mục làm việc; các thông điệp tiến độ đổ về nhật ký thực thi theo thời gian thực, và daemon ghi kết quả cuối cùng ngược về issue](/images/docs/how-a-run-works.png)
+![Sơ đồ một lượt chạy: bên trái, vùng UniAI ghi nhận và lập lịch — một issue kích hoạt việc tạo lượt chạy; bên phải, trong vùng "máy tính của bạn", daemon nhận lượt chạy, khởi chạy công cụ lập trình AI và đọc ghi thư mục làm việc; các thông điệp tiến độ đổ về nhật ký thực thi theo thời gian thực, và daemon ghi kết quả cuối cùng ngược về issue](/images/docs/how-a-run-works.webp)
 
 1. **Issue cung cấp ngữ cảnh.** Issue chứa mô tả công việc, phần thảo luận và người phụ trách. Khi issue được giao cho một agent, hệ thống dùng chỉ dẫn, model, skill và cấu hình runtime của agent đó.
-2. **UniAI tạo một task.** Task vào hàng đợi; nếu không có runtime nào online, nó chờ ở đó.
-3. **Một runtime nhận task.** Một runtime đang online trên máy tính đã kết nối nhận task và gọi công cụ lập trình AI mà agent được cấu hình dùng.
+2. **UniAI tạo một lượt chạy.** Lượt chạy vào hàng đợi; nếu không có runtime nào online, nó chờ ở đó.
+3. **Một runtime nhận lượt chạy.** Một runtime đang online trên máy tính đã kết nối nhận lượt chạy và gọi công cụ lập trình AI mà agent được cấu hình dùng.
 4. **Công cụ lập trình AI thực thi cục bộ.** Công cụ đọc thư mục làm việc, chạy lệnh và tạo ra kết quả.
 5. **Kết quả được ghi ngược về issue.** Tiến độ, bình luận và kết quả xuất hiện trong dòng thời gian và nhật ký thực thi của issue.
 
-Danh sách đầy đủ về issue, agent, task, runtime và cách chúng liên hệ với nhau, xem [Khái niệm cốt lõi](/concepts).
+Danh sách đầy đủ về issue, agent, lượt chạy, runtime và cách chúng liên hệ với nhau, xem [Khái niệm cốt lõi](/concepts).
 
 ## Ranh giới dữ liệu và thực thi
 
@@ -25,7 +25,7 @@ Danh sách đầy đủ về issue, agent, task, runtime và cách chúng liên 
 |---|---|
 | Không gian làm việc, issue, bình luận và trạng thái | Công cụ lập trình AI và thông tin xác thực của chúng |
 | Cấu hình agent và skill | Thư mục mã nguồn và file cục bộ |
-| Trạng thái task, bản ghi lượt chạy và kết quả | Thay đổi file và thực thi lệnh thực tế |
+| Trạng thái, bản ghi và kết quả của lượt chạy | Thay đổi file và thực thi lệnh thực tế |
 
 Ranh giới này giống nhau trên UniAI Cloud và trong các bản triển khai tự host.
 
@@ -44,5 +44,5 @@ Khi nhật ký thực thi hiển thị Completed, điều đó chỉ có nghĩa 
 ## Bước tiếp theo
 
 - [Daemon và runtime](/daemon-runtimes) — máy tính kết nối với UniAI ra sao, và điều gì xảy ra khi runtime online hay offline.
-- [Task](/tasks) — trạng thái task, quy tắc thử lại và hủy.
+- [Lượt chạy](/tasks) — trạng thái lượt chạy, quy tắc thử lại và hủy.
 - [Giao issue cho agent](/assigning-issues) — cách cộng tác phổ biến nhất.

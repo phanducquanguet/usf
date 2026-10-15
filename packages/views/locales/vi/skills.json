@@ -25,7 +25,7 @@
     },
     "empty": {
       "title": "Chưa có skill nào",
-      "description": "Tạo skill đầu tiên của bạn, nhập từ URL, hoặc sao chép từ một runtime đã kết nối — và mọi agent trong không gian làm việc đều dùng được."
+      "description": "Tạo hoặc nhập một skill."
     },
     "no_matches": {
       "title": "Không có kết quả",
@@ -36,7 +36,7 @@
     },
     "intro_banner": {
       "title": "Được chia sẻ trong không gian làm việc của bạn.",
-      "body": "Ai cũng có thể tạo skill, nhập từ URL, hoặc sao chép từ runtime cục bộ của mình — và mọi agent đều dùng được.",
+      "body": "Bất kỳ ai cũng có thể tạo skill, nhập từ URL hoặc thư mục cục bộ, hoặc sao chép từ runtime cục bộ của mình — và mọi agent đều có thể dùng.",
       "highlight": "Skill trong runtime cục bộ vẫn riêng tư cho đến khi bạn sao chép vào đây."
     },
     "list_error": {
@@ -67,6 +67,7 @@
   "actions": {
     "row_menu": "Thao tác",
     "add_to_agent": "Thêm vào agent",
+    "refresh": "Cập nhật từ nguồn",
     "my_agents": "Agent của tôi",
     "other_agents": "Agent khác",
     "no_agents": "Không có agent nào",
@@ -83,7 +84,15 @@
     "delete_dialog_desc_other": "{{count}} skill đã chọn sẽ bị xóa vĩnh viễn và gỡ khỏi tất cả agent.",
     "deleted_toast_other": "Đã xóa {{count}} skill",
     "delete_failed_toast": "Không thể xóa skill",
-    "add_dialog_description": "Chọn những agent sẽ nhận các skill đã chọn.",
+    "update": "Cập nhật",
+    "update_none": "Lựa chọn không có skill được nhập nào mà bạn có thể cập nhật",
+    "update_dialog_title": "Cập nhật skill từ nguồn?",
+    "update_summary_selected_other": "{{count}} skill sẽ được cập nhật từ nguồn của chúng",
+    "update_summary_skipped_other": "{{count}} skill không thể cập nhật từ nguồn — bỏ qua",
+    "update_confirm": "Cập nhật {{count}}",
+    "update_updating": "Đang cập nhật {{done}}/{{total}}…",
+    "updated_toast_other": "Đã cập nhật {{count}} skill từ nguồn",
+    "update_partial_toast": "Đã cập nhật {{count}}, {{failed}} thất bại",
     "cancel": "Hủy",
     "add_confirm": "Thêm ({{num}})",
     "adding": "Đang thêm...",
@@ -95,11 +104,17 @@
     "filter_active_count_other": "{{count}} bộ lọc",
     "clear_filters": "Xóa bộ lọc",
     "section_usage": "Mức dùng",
+    "section_labels": "Nhãn",
+    "filter_search_placeholder": "Lọc...",
+    "no_labels": "Chưa có nhãn nào",
+    "no_results": "Không có kết quả",
     "display": "Hiển thị",
     "sort_by": "Sắp xếp theo",
     "direction_asc": "Tăng dần",
     "direction_desc": "Giảm dần",
-    "section_columns": "Cột"
+    "section_columns": "Cột",
+    "manage_labels": "Quản lý nhãn...",
+    "manage_labels_title": "Nhãn skill"
   },
   "detail": {
     "all_skills": "Tất cả skill",
@@ -139,6 +154,23 @@
     "toast_save_failed": "Không thể lưu skill",
     "toast_deleted": "Đã xóa skill",
     "toast_delete_failed": "Không thể xóa skill",
+    "refresh": {
+      "button": "Cập nhật",
+      "tooltip": "Tải lại skill này từ nguồn",
+      "source_github": "GitHub",
+      "source_skills_sh": "Skills.sh",
+      "source_clawhub": "ClawHub",
+      "toast_success": "Đã cập nhật skill từ {{source}}",
+      "toast_failed": "Không thể cập nhật skill",
+      "dialog": {
+        "title": "Cập nhật từ nguồn?",
+        "description": "Thao tác này sẽ tải lại \"{{name}}\" từ {{source}} và thay thế tên, mô tả, SKILL.md và các tệp bằng phiên bản mới nhất.",
+        "warning": "Các chỉnh sửa cục bộ của skill này sẽ bị ghi đè. Việc gán agent, nhãn và người tạo được giữ nguyên.",
+        "cancel": "Hủy",
+        "confirm": "Cập nhật",
+        "refreshing": "Đang cập nhật…"
+      }
+    },
     "delete_dialog": {
       "title": "Xóa skill?",
       "description_with_agents_other": "\"{{name}}\" sẽ bị xóa vĩnh viễn và gỡ khỏi {{count}} agent đang dùng.",
@@ -178,13 +210,15 @@
       "properties_hint": "Các trường này luôn đồng bộ với frontmatter của SKILL.md.",
       "name": "Tên",
       "description": "Mô tả",
-      "description_hint": "{{count}} ký tự. Agent đọc phần này để quyết định có nạp skill hay không.",
+      "description_hint": "Agent dùng nội dung này để quyết định khi nào tải skill.",
       "labels": "Nhãn",
       "used_by_other": "Được {{count}} agent sử dụng",
       "used_by_empty": "Chưa được gán cho agent nào. Mở thẻ Skills của một agent để gán.",
       "permissions_owner": "Bạn có thể sửa và xóa skill này. Thay đổi có hiệu lực ở lần chạy agent tiếp theo.",
       "permissions_locked_creator": "Chỉ người tạo ({{name}}) hoặc quản trị viên không gian làm việc mới sửa được skill này.",
-      "permissions_locked": "Chỉ người tạo hoặc quản trị viên không gian làm việc mới sửa được skill này."
+      "permissions_locked": "Chỉ người tạo hoặc quản trị viên không gian làm việc mới sửa được skill này.",
+      "properties_help": "Về thuộc tính skill",
+      "character_count": "{{count}} ký tự"
     },
     "files": {
       "list_aria": "Tệp của skill",
@@ -206,28 +240,24 @@
     "method": {
       "chooser": {
         "title": "Tạo skill mới",
-        "desc": "Chọn cách bạn muốn thêm skill vào không gian làm việc này."
+        "desc": "Chọn cách thêm skill vào không gian làm việc này."
       },
       "manual": {
         "title": "Tạo thủ công",
-        "desc": "Viết một SKILL.md mới từ đầu."
+        "desc": "Bắt đầu từ một SKILL.md trống."
+      },
+      "local": {
+        "title": "Nhập từ máy",
+        "desc": "Chọn thư mục có SKILL.md, hoặc tệp lưu trữ .skill / .zip."
       },
       "url": {
         "title": "Nhập từ URL",
-        "desc": "Lấy một skill đã xuất bản qua URL. Tệp được tải phía máy chủ."
+        "desc": "Lấy một skill đã xuất bản qua URL."
       },
       "runtime": {
         "title": "Sao chép từ runtime",
-        "desc": "Quét một runtime cục bộ và đưa một skill trên máy vào không gian làm việc này."
+        "desc": "Đưa một skill đã cài trên runtime cục bộ của bạn lên."
       }
-    },
-    "method_card": {
-      "manual_title": "Tạo thủ công",
-      "manual_desc": "Bắt đầu từ một SKILL.md trống và tự viết chỉ dẫn.",
-      "url_title": "Nhập từ URL",
-      "url_desc": "Lấy một skill đã xuất bản từ ClawHub hoặc Skills.sh.",
-      "runtime_title": "Sao chép từ runtime",
-      "runtime_desc": "Đưa một skill đã cài trên runtime cục bộ của bạn lên."
     },
     "manual": {
       "name_label": "Tên",
@@ -241,6 +271,23 @@
       "submit": "Tạo skill",
       "submitting": "Đang tạo…",
       "toast_created": "Đã tạo skill"
+    },
+    "local": {
+      "choose_folder": "Chọn thư mục",
+      "choose_archive": "Chọn .skill / .zip",
+      "folder_label": "Thư mục",
+      "archive_label": "Tệp lưu trữ",
+      "files_other": "{{count}} tệp",
+      "missing_skill_md": "Thư mục này không phải skill — không có SKILL.md.",
+      "too_large": "Skill này quá lớn để nhập.",
+      "empty": "Thư mục trống.",
+      "too_many_files": "Skill này có quá nhiều tệp để nhập.",
+      "name_conflict_hint": " Tên của skill được nhập đã tồn tại — hãy xóa skill hiện có trước khi thử lại.",
+      "fallback_error": "Nhập thất bại",
+      "cancel": "Hủy",
+      "import": "Nhập",
+      "importing": "Đang nhập…",
+      "toast_imported": "Đã nhập skill"
     },
     "url": {
       "url_label": "URL của skill",
@@ -266,9 +313,7 @@
     "load_failed": "Không thể tải skill cục bộ của runtime",
     "not_supported": "Provider của runtime này chưa hỗ trợ liệt kê skill cục bộ.",
     "no_skills_title": "Không tìm thấy skill cục bộ nào",
-    "no_skills_hint": "Runtime này chưa có skill cục bộ nào có thể phát hiện.",
     "search_placeholder": "Tìm skill cục bộ",
-    "no_search_results_title": "Không có skill cục bộ nào khớp",
     "no_search_results_hint": "Không có skill cục bộ nào khớp \"{{query}}\".",
     "ignored_files_hint": "Symlink, tệp không đọc được, tệp quá khổ và gói quá lớn sẽ bị bỏ qua khi nhập.",
     "ready": "Sẵn sàng nhập",

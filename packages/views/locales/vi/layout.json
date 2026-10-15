@@ -29,6 +29,7 @@
   },
   "help": {
     "trigger": "Trợ giúp",
+    "download_desktop": "Ứng dụng desktop",
     "docs": "Tài liệu",
     "changelog": "Nhật ký thay đổi",
     "feedback": "Phản hồi",
@@ -64,8 +65,10 @@
     "new_issue": "Tạo issue mới",
     "new_issue_shortcut": "C",
     "pinned_label": "Đã ghim",
-    "workspace_group": "Không gian làm việc",
-    "configure_group": "Cấu hình",
+    "work_group": "Công việc",
+    "ai_team_group": "Đội AI",
+    "show_more_pins": "Hiện thêm {{count}}…",
+    "show_fewer_pins": "Thu gọn",
     "unread_overflow": "99+"
   }
 }

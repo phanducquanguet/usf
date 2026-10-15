@@ -8,6 +8,11 @@ type UpdateState =
   | { status: "idle" }
   | { status: "ready"; version: string };
 
+// The fork has no changelog page; release notes live on its GitHub releases.
+function changelogUrl(version: string): string {
+  return `https://github.com/phanducquanguet/usf/releases/tag/v${version}`;
+}
+
 export function UpdateNotification() {
   const [state, setState] = useState<UpdateState>({ status: "idle" });
   const [dismissed, setDismissed] = useState(false);
@@ -45,10 +50,12 @@ export function UpdateNotification() {
           <div className="mt-2 flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setDismissed(true)}
+              onClick={() =>
+                window.desktopAPI.openExternal(changelogUrl(state.version))
+              }
               className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-caption font-medium text-foreground hover:bg-accent transition-colors"
             >
-              Later
+              See changelog
             </button>
             <button
               type="button"

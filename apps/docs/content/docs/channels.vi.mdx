@@ -1,49 +1,62 @@
 ---
 title: Tích hợp chat
-description: Kết nối agent UniAI với Feishu, Lark, Slack, DingTalk hoặc WeCom và dùng chúng ngay trong công cụ chat nhóm bạn đang sử dụng.
+description: Kết nối agent UniAI với Feishu, Lark, Slack, DingTalk, WeCom hoặc Telegram và dùng chúng ngay trong công cụ chat nhóm bạn đang sử dụng.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
 Tích hợp chat cho phép nhóm hỏi agent, @nhắc nó trong chat nhóm, hoặc tạo issue ngay từ cửa sổ chat — mà không phải mở UniAI.
 
-Hiện hỗ trợ Feishu/Lark, Slack, DingTalk và WeCom. Chúng dùng chung cơ chế phiên, danh tính và thực thi, nhưng cách cài đặt khác nhau.
+Hiện hỗ trợ Feishu/Lark, Slack, DingTalk, WeCom và Telegram. Chúng dùng chung cơ chế phiên, danh tính và thực thi, nhưng cách cài đặt khác nhau.
 
 ## Chọn nền tảng
 
-| | Feishu / Lark | Slack | DingTalk | WeCom |
-|---|---|---|---|---|
-| Cài đặt | Tạo mã QR trong UniAI và quét bằng Feishu để cấp quyền | Tạo một app trong Slack, rồi dán hai token vào UniAI | Tạo internal app và robot Stream mode, rồi dán AppKey và AppSecret của nó vào UniAI | Tạo smart bot có bật kết nối dài trong trang quản trị WeCom, rồi dán Bot ID và Secret của nó vào UniAI |
-| DM cho agent | Hỗ trợ | Hỗ trợ | Hỗ trợ | Hỗ trợ |
-| Nhóm hoặc kênh | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot |
-| Tạo issue | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập | Slash command `/issue`; agent viết lại mô tả trước khi tạo | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập |
-| Kết nối | Kết nối dài của nền tảng | Socket Mode | Stream mode | Kết nối dài của nền tảng |
+| | Feishu / Lark | Slack | DingTalk | WeCom | Telegram |
+|---|---|---|---|---|---|
+| Cài đặt | Tạo mã QR trong UniAI và quét bằng Feishu để cấp quyền | Tạo một app trong Slack, rồi dán hai token vào UniAI | Tạo internal app và robot Stream mode, rồi dán AppKey và AppSecret của nó vào UniAI | Tạo smart bot có bật kết nối dài trong trang quản trị WeCom, rồi dán Bot ID và Secret của nó vào UniAI | Tạo Bot bằng @BotFather, rồi dán token của nó vào UniAI |
+| DM cho agent | Hỗ trợ | Hỗ trợ | Hỗ trợ | Hỗ trợ | Hỗ trợ |
+| Nhóm hoặc kênh | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc Bot | Kích hoạt bằng cách @nhắc hoặc trả lời Bot |
+| Tạo issue | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập | Slash command `/issue`; agent viết lại mô tả trước khi tạo | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập | Lệnh tin nhắn `/issue`; tạo issue đúng theo nội dung bạn nhập |
+| Bắt đầu Chat mới | `/new [message]` | DM: `/new [message]`; kênh/thread: `@UniAI /new [message]` | `/new [message]` | `/new [message]` | `/new [message]` |
+| Xóa ngữ cảnh Chat hiện tại | `/clear [message]` | DM: `/clear [message]`; kênh/thread: `@UniAI /clear [message]` | `/clear [message]` | `/clear [message]` | `/clear [message]` |
+| Kết nối | Kết nối dài của nền tảng | Socket Mode | Stream mode | Kết nối dài của nền tảng | Long polling `getUpdates` |
 
 Hiện chỉ mở kết nối mới cho Feishu Trung Quốc đại lục; các kết nối Lark quốc tế hiện có vẫn hoạt động và vẫn quản lý được.
 
 Mỗi Bot gắn với một agent UniAI. Muốn dùng nhiều agent trên cùng một nền tảng chat, kết nối một Bot riêng cho từng agent.
 
-DingTalk và WeCom do cộng đồng duy trì: chúng có mặt trong mọi bản phát hành nhưng không kèm SLA hỗ trợ chính thức. Báo lỗi tại [GitHub issues](https://github.com/phanducquanguet/usf/issues).
+DingTalk, WeCom và Telegram do cộng đồng duy trì: chúng có mặt trong mọi bản phát hành nhưng không kèm SLA hỗ trợ chính thức. Báo lỗi tại [GitHub issues](https://github.com/phanducquanguet/usf/issues).
 
 WeCom hiện chỉ xử lý tin nhắn văn bản. Tin nhắn thoại, hình ảnh và tệp nhận một câu trả lời ngắn giải thích điều đó, và không được chuyển cho agent.
+
+Telegram chuyển ảnh, tệp, video và âm thanh cho agent dưới dạng tệp đính kèm, và gửi các tệp agent tạo ra trở lại cuộc chat, khi server đã cấu hình object storage; nếu không có, media nhận cùng câu trả lời ngắn báo không hỗ trợ như trước. Sticker và các tin nhắn không phải tệp khác nhận câu trả lời đó và không được chuyển cho agent.
 
 Hướng dẫn từng bước:
 
 - [Tích hợp Bot Feishu / Lark](/lark-bot-integration)
 - [Tích hợp Slack Bot](/slack-bot-integration)
 - [Tích hợp Bot DingTalk](/dingtalk-bot-integration)
+- [Tích hợp Bot Telegram](/telegram-bot-integration)
 
 ## Một tin nhắn được xử lý thế nào
 
 1. UniAI phân giải Bot về không gian làm việc và agent của nó.
 2. Trong nhóm hoặc kênh, chỉ tin nhắn @nhắc Bot rõ ràng mới đi tiếp; DM không cần nhắc.
 3. UniAI kiểm tra liên kết tài khoản và tư cách thành viên của người gửi.
-4. Tin nhắn được nối vào một phiên [chat với agent](/chat), và một task được tạo.
+4. Tin nhắn được nối vào một phiên [chat với agent](/chat), và một lượt chạy được tạo.
 5. Câu trả lời của agent quay về đúng DM hoặc thread ban đầu.
 
 Tin nhắn trong kênh không @nhắc Bot sẽ không bao giờ kích hoạt agent và không được thêm vào ngữ cảnh trò chuyện của nó.
 
 Tin nhắn thường đi theo luồng này. `/issue` là một lệnh, không phải một lượt chat: UniAI gửi kết quả về đúng nền tảng gốc nhưng không thêm lệnh vào UniAI Chat. Slash command gốc của Slack tiếp tục qua luồng tạo issue bất đồng bộ riêng của nó.
+
+## Điều khiển cuộc trò chuyện
+
+`/new` tạo một UniAI Chat mới và chuyển các tin nhắn sau từ cuộc trò chuyện bên ngoài đó sang Chat mới. `/new <message>` tạo Chat và dùng tin nhắn làm lượt đầu tiên. Chat trước đó vẫn được lưu và vẫn dùng được trong UniAI.
+
+`/clear` giữ nguyên UniAI Chat hiện tại nhưng bắt đầu một ngữ cảnh mới mà agent nhìn thấy. Toàn bộ lịch sử Chat vẫn có trong UniAI, nhưng agent không thể truy xuất các tin nhắn trước ranh giới này. `/clear <message>` dùng tin nhắn làm lượt đầu tiên trong ngữ cảnh mới; `/clear` không kèm nội dung sẽ áp dụng cho tin nhắn thực tiếp theo.
+
+Trên Slack, `/new` và `/clear` là slash command gốc trong DM. Payload slash command gốc không xác định được thread trong kênh, nên hãy dùng `@UniAI /new [message]` hoặc `@UniAI /clear [message]` ngay trong thread đích.
 
 ## Cách ly phiên
 
@@ -51,6 +64,7 @@ Tin nhắn thường đi theo luồng này. `/issue` là một lệnh, không ph
 - Slack tách DM theo kênh; trong kênh, mỗi thread giữ một phiên riêng.
 - DingTalk tách phiên theo cuộc hội thoại; mỗi DM hoặc nhóm tiếp tục phiên của riêng nó.
 - WeCom tách phiên theo cuộc chat; mỗi DM hoặc chat nhóm tiếp tục phiên của riêng nó.
+- Telegram tách phiên theo cuộc chat; các topic trong forum được cách ly theo topic.
 
 Hỏi tiếp trong kênh vẫn cần @nhắc lại. Agent chỉ nhận các tin nhắn gửi đích danh cho nó — nó không bao giờ tự đọc toàn bộ lịch sử kênh.
 
@@ -75,4 +89,5 @@ Sau khi ngắt kết nối, Bot ngừng nhận tin nhắn mới. Các cuộc tr�
 - [Tích hợp Bot Feishu / Lark](/lark-bot-integration) — kết nối một agent bằng cách quét mã QR.
 - [Tích hợp Slack Bot](/slack-bot-integration) — tạo một app Slack và dán token của nó vào UniAI.
 - [Tích hợp Bot DingTalk](/dingtalk-bot-integration) — tạo robot Stream mode và dán thông tin xác thực của nó vào UniAI.
+- [Tích hợp Bot Telegram](/telegram-bot-integration) — tạo Bot bằng @BotFather và dán token của nó vào UniAI.
 - [Chat](/chat) — mô hình trò chuyện và thực thi đứng sau mọi Bot.

@@ -1,4 +1,4 @@
-# UniAI installer for Windows — one command to get started.
+# UniAI installer for Windows - one command to get started.
 #
 # Install CLI (default): connects to uniai.unicomhub.com
 #   irm https://raw.githubusercontent.com/phanducquanguet/usf/feature/customer-portal/scripts/install.ps1 | iex
@@ -297,10 +297,10 @@ function Install-CliBinary {
             }
             Write-Ok "Checksum verified"
         } else {
-            Write-Warn "Could not find checksum entry for $releaseAsset — skipping verification."
+            Write-Warn "Could not find checksum entry for $releaseAsset - skipping verification."
         }
     } catch {
-        Write-Warn "Could not download checksums.txt — skipping verification."
+        Write-Warn "Could not download checksums.txt - skipping verification."
     }
 
     Expand-Archive -Path (Join-Path $tmpDir "cli.zip") -DestinationPath $tmpDir -Force
@@ -323,7 +323,7 @@ function Install-CliBinary {
     # Pre-rename installs left a multica.exe here. Replace it with a .cmd
     # forwarder that resolves uniai.exe by name at call time, so `multica`
     # keeps tracking future self-updates (a copy or hard link would freeze on
-    # the binary present at install time — self-update renames a new file
+    # the binary present at install time - self-update renames a new file
     # over uniai.exe, leaving old inodes behind).
     $legacyExe = Join-Path $binDir "multica.exe"
     if (Test-Path $legacyExe) {

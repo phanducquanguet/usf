@@ -227,6 +227,12 @@ type Client struct {
 	userID      string
 	workspaceID string
 
+	// sendMu guards sendClosed so a late inbound-response or fanout send
+	// can never write to the closed send channel. closeSend flips
+	// sendClosed under sendMu before closing send, mirroring daemonws.
+	sendMu     sync.Mutex
+	sendClosed bool
+
 	// subscriptions is guarded by hub.mu. Tracks the scopes this client is
 	// currently in. Used to clean up rooms on disconnect.
 	subscriptions map[scopeKey]bool
@@ -364,7 +370,7 @@ func (h *Hub) removeClient(client *Client) {
 			}
 		}
 	}
-	close(client.send)
+	client.closeSend()
 	cb := h.onLastSubscriber
 	total := len(h.clients)
 	h.mu.Unlock()
@@ -509,10 +515,9 @@ func (h *Hub) BroadcastToScopeDedup(scopeType, scopeID string, message []byte, e
 		if !client.markSeen(eventID) {
 			continue
 		}
-		select {
-		case client.send <- message:
+		if client.trySend(message) {
 			sent++
-		default:
+		} else {
 			slow = append(slow, client)
 		}
 	}
@@ -545,10 +550,9 @@ func (h *Hub) fanoutAllDedup(message []byte, excludeWorkspace, eventID string) {
 		if !client.markSeen(eventID) {
 			continue
 		}
-		select {
-		case client.send <- message:
+		if client.trySend(message) {
 			sent++
-		default:
+		} else {
 			slow = append(slow, client)
 		}
 	}
@@ -641,7 +645,7 @@ func (h *Hub) evictSlow(slow []*Client) {
 			}
 		}
 		c.subscriptions = nil
-		close(c.send)
+		c.closeSend()
 		evicted++
 	}
 	cb := h.onLastSubscriber
@@ -685,6 +689,9 @@ func authenticateToken(tokenStr string, pr PATResolver, ctx context.Context) (st
 		if !ok {
 			return "", `{"error":"invalid token"}`
 		}
+		if auth.IsTemporarilyDisabledUserID(uid) {
+			return "", `{"error":"account disabled"}`
+		}
 		return uid, ""
 	}
 
@@ -706,6 +713,10 @@ func authenticateToken(tokenStr string, pr PATResolver, ctx context.Context) (st
 	uid, ok := claims["sub"].(string)
 	if !ok || strings.TrimSpace(uid) == "" {
 		return "", `{"error":"invalid claims"}`
+	}
+	email, _ := claims["email"].(string)
+	if auth.IsTemporarilyDisabledUser(uid, email) {
+		return "", `{"error":"account disabled"}`
 	}
 	return uid, ""
 }
@@ -786,7 +797,11 @@ func HandleWebSocket(hub *Hub, mc MembershipChecker, pr PATResolver, resolveSlug
 	if cookie, err := r.Cookie(auth.AuthCookieName); err == nil && cookie.Value != "" {
 		uid, errMsg := authenticateToken(cookie.Value, pr, r.Context())
 		if errMsg != "" {
-			http.Error(w, errMsg, http.StatusUnauthorized)
+			status := http.StatusUnauthorized
+			if errMsg == `{"error":"account disabled"}` {
+				status = http.StatusForbidden
+			}
+			http.Error(w, errMsg, status)
 			return
 		}
 		if !mc.IsMember(r.Context(), uid, workspaceID) {
@@ -1020,15 +1035,41 @@ func (c *Client) handleUnsubscribe(scope, id string) {
 // sendJSON best-effort encodes v and pushes it to the client's send channel.
 // Drops the message if the channel is full (the writePump will be evicted by
 // the next BroadcastToScope cycle).
+// trySend delivers frame to the write pump without blocking and without
+// ever writing to a closed channel (safe against concurrent teardown).
+// Returns false when the buffer is full or the connection is closing.
+func (c *Client) trySend(frame []byte) bool {
+	c.sendMu.Lock()
+	defer c.sendMu.Unlock()
+	if c.sendClosed {
+		return false
+	}
+	select {
+	case c.send <- frame:
+		return true
+	default:
+		return false
+	}
+}
+
+// closeSend closes the client's send channel exactly once. Safe to call
+// from removeClient and evictSlow concurrently.
+func (c *Client) closeSend() {
+	c.sendMu.Lock()
+	defer c.sendMu.Unlock()
+	if c.sendClosed {
+		return
+	}
+	c.sendClosed = true
+	close(c.send)
+}
+
 func (c *Client) sendJSON(v any) {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return
 	}
-	select {
-	case c.send <- data:
-	default:
-	}
+	c.trySend(data)
 }
 
 func (c *Client) writePump() {

@@ -1,6 +1,6 @@
 ---
 title: Git provider tự vận hành
-description: Kết nối một instance Forgejo, Gitea, hoặc GitLab tự vận hành theo từng không gian làm việc để pull/merge request tham chiếu mã định danh issue tự động gắn vào issue đó, chuyển nó sang Done khi merge, và hiển thị trạng thái CI.
+description: Kết nối một instance Forgejo, Gitea, hoặc GitLab tự vận hành theo từng không gian làm việc để pull/merge request có mã định danh issue trong tên nhánh hoặc tiêu đề, hoặc sau một từ khóa đóng trong phần thân, tự động gắn vào issue đó, chuyển nó sang trạng thái mà không gian làm việc đã chọn khi merge, và hiển thị trạng thái CI.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -11,10 +11,10 @@ UniAI; nó không được cung cấp trên UniAI Cloud. "Tự vận hành" ở 
 **UniAI** được tự vận hành — thường để nó với tới được một instance Git trong
 mạng nội bộ của bạn. Người vận hành máy chủ phải bật nó (`MULTICA_VCS_INTEGRATION_ENABLED=true`)
 và đặt `MULTICA_VCS_SECRET_KEY`; trước đó, mục này không xuất hiện trong
-Cài đặt → Integrations.
+Cài đặt → Code.
 </Callout>
 
-UniAI kết nối với một Git provider tự vận hành theo từng không gian làm việc: **Forgejo**, **Gitea**, hoặc **GitLab**. Kết nối xong, bất kỳ pull request nào (GitLab: merge request) có tên nhánh, tiêu đề, hoặc phần thân chứa một mã định danh issue (ví dụ `UNI-123`) sẽ được **tự động liên kết** với [issue](/issues) đó, xuất hiện dưới mục **Pull requests** ở thanh bên của issue, và — khi được merge kèm từ khóa đóng — chuyển issue sang **Done**. CI của commit đầu nhánh hiển thị thành thanh checks trên thẻ.
+UniAI kết nối với một Git provider tự vận hành theo từng không gian làm việc: **Forgejo**, **Gitea**, hoặc **GitLab**. Kết nối xong, bất kỳ pull request nào (GitLab: merge request) có tên nhánh hoặc tiêu đề chứa một mã định danh issue (ví dụ `UNI-123`), hoặc có phần thân nêu mã đó sau một từ khóa đóng (`Closes UNI-123`), sẽ được **tự động liên kết** với [issue](/issues) đó và xuất hiện dưới mục **Pull requests** ở thanh bên của issue. Khi mọi PR liên kết với issue đều đã merge, issue chuyển sang trạng thái mà không gian làm việc đã chọn (mặc định là **Done**). CI của commit đầu nhánh hiển thị thành thanh checks trên thẻ.
 
 Các provider này chạy song song với GitHub: một không gian làm việc dùng được bất kỳ tổ hợp nào.
 
@@ -51,13 +51,19 @@ Cả hai đều bắt buộc: công tắc quyết định tính năng có đư�
 1. Tạo một access token trong provider của bạn với quyền đọc các repo bạn muốn phản chiếu:
    - **Forgejo / Gitea**: Settings → Applications.
    - **GitLab**: một personal (hoặc group/project) access token với scope `read_api`.
-2. Trong UniAI, mở **Cài đặt → Integrations → Git providers**.
+2. Trong UniAI, mở **Cài đặt → Code**, rồi bấm **Connect** ở hàng **Self-hosted Git**.
 3. Chọn **provider**, nhập URL instance (ví dụ `https://forgejo.example.com`) và access token, rồi bấm **Connect**. UniAI xác thực token với instance trước khi lưu.
 4. Chép **webhook URL** và **webhook secret** hiện ra sau khi kết nối.
 
 <Callout type="warn">
 Webhook secret chỉ hiện đúng một lần. Chép nó trước khi rời trang. Kết nối lại cùng một instance sẽ xoay vòng token và secret.
 </Callout>
+
+### Instance dùng CA riêng
+
+Nếu **Connect** báo rằng chứng chỉ của provider "is signed by a certificate authority this server does not trust", chứng chỉ HTTPS của instance được cấp bởi một CA nội bộ (hoặc tự ký) mà UniAI server không tin cậy. Người vận hành máy chủ cần thêm CA đó vào trust store của backend: với Helm, đặt `backend.extraCACerts.configMap`; với Docker Compose, mount CA và đặt `SSL_CERT_DIR`. Xem các bước tại [Private CA certificates](https://github.com/phanducquanguet/usf/blob/main/SELF_HOSTING_ADVANCED.md#private-ca-certificates-optional).
+
+UniAI không có tùy chọn bỏ qua xác minh chứng chỉ, vì request kết nối mang theo access token của bạn. Nếu thông báo cho biết chứng chỉ không khớp tên host, hoặc xác minh thất bại (ví dụ đã hết hạn), hãy sửa chính chứng chỉ đó; tin cậy CA không giúp được.
 
 ## Đăng ký webhook
 
@@ -81,7 +87,7 @@ UniAI xác thực mọi lần gửi bằng secret đã lưu, nên webhook không
 ## Những gì được phản chiếu
 
 - **Pull / merge request** — trạng thái open, closed, merged, và draft, tác giả, nhánh, và (khi provider cung cấp) thống kê diff.
-- **Liên kết issue** — mã định danh trong tiêu đề, phần thân, hoặc nhánh liên kết PR với issue. Một từ khóa đóng (`Closes`/`Fixes`/`Resolves UNI-123`) trên PR đã merge chuyển issue sang **Done** khi không còn PR liên kết nào đang mở.
+- **Liên kết issue** — mã định danh trong tiêu đề hoặc nhánh liên kết PR với issue, mã định danh đứng sau một từ khóa đóng trong phần thân cũng vậy; chỉ nhắc suông trong phần thân thì không liên kết gì. Khi mọi PR liên kết với issue đều đã merge — trên cả GitHub lẫn các provider tự vận hành — issue chuyển sang trạng thái mà không gian làm việc đã chọn. Trang này hiển thị cùng thiết lập **After PRs merge, move the issue to** khi đã kết nối một provider.
 - **CI** — commit status của Forgejo/Gitea và pipeline của GitLab được tổng hợp thành thanh checks passed/failed/pending cho commit đầu nhánh.
 
 ## Agent mở pull request

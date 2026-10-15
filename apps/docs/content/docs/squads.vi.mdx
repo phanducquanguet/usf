@@ -28,13 +28,13 @@ Tạo đội cần một cái tên và một leader. Leader tự động trở t
 
 ## Luồng thực thi sau khi giao việc
 
-Khi một issue không ở Backlog được giao cho đội, UniAI lập tức xếp hàng một `task` cho **agent leader** (không phải cho mọi thành viên). Luồng tiếp theo:
+Khi một issue không ở Backlog được giao cho đội, UniAI lập tức xếp hàng một lượt chạy cho **agent leader** (không phải cho mọi thành viên). Luồng tiếp theo:
 
-1. **Leader nhận task.** Runtime của agent nhận task ở lần poll kế tiếp, như mọi lần giao cho agent.
+1. **Leader nhận lượt chạy.** Runtime của agent nhận lượt chạy ở lần poll kế tiếp, như mọi lần giao cho agent.
 2. **Leader được brief.** Lúc nhận, UniAI gắn thêm ba khối vào system prompt của leader — xem [Leader thấy gì mỗi lượt](#what-the-leader-sees-on-every-turn) bên dưới.
-3. **Leader chuyển issue cha sang `in_progress`.** Cùng giao ước trạng thái do agent quản lý như khi giao trực tiếp cho agent: lượt đầu tiên nên đưa việc ở `todo` / việc vừa được nâng khỏi `backlog` về `in_progress`. Giao việc cho thành viên chưa phải là hoàn thành — issue cha ở nguyên `in_progress` trong lúc đội làm việc.
-4. **Leader đăng một bình luận ủy thác.** Bình luận `@`nhắc thành viên được chọn bằng đúng markdown mention từ danh sách đội — mention đó kích hoạt một `task` mới cho từng agent được nhắc.
-5. **Leader ghi đánh giá** qua `uniai squad activity <issue-id> action --reason "..."`. Lệnh này ghi một mục vào dòng thời gian hoạt động của issue để con người thấy leader đã thực sự đánh giá lượt kích hoạt.
+3. **Leader đăng một bình luận ủy thác.** Bình luận `@`nhắc thành viên được chọn bằng đúng markdown mention từ danh sách đội — mention đó kích hoạt một lượt chạy mới cho từng agent được nhắc.
+4. **Leader ghi đánh giá** qua `uniai squad activity <issue-id> action --reason "..."`. Lệnh này ghi một mục vào dòng thời gian hoạt động của issue để con người thấy leader đã thực sự đánh giá lượt kích hoạt.
+5. **Lượt giao việc để issue cha ở `in_progress`.** Cùng giao ước trạng thái do agent quản lý như khi giao trực tiếp cho agent — điều phối đội chính là đang xử lý yêu cầu của issue cha, nên issue cha chuyển từ `todo` sang `in_progress`; còn giao việc cho thành viên chưa phải là bàn giao kết quả, nên issue cha ở nguyên đó trong lúc đội làm việc.
 6. **Leader dừng.** Leader không tự triển khai. Khi thành viên được ủy thác báo lại — hoặc khi một issue con / chốt chặn giai đoạn đóng lại — leader được kích hoạt lại để đọc cập nhật và hoặc ủy thác bước kế tiếp, hoặc báo lên, hoặc chuyển issue cha sang `in_review` một khi mục tiêu tổng thể đã đạt, hoặc im lặng. `done` dành cho người review hoặc các tích hợp sẵn có (ví dụ một PR có ý định đóng issue được merge).
 
 Nếu issue ở **Backlog**, leader không được kích hoạt — Backlog chỉ là chỗ gác việc tạm, cùng quy tắc với giao trực tiếp cho agent.
@@ -43,7 +43,7 @@ Nếu issue ở **Backlog**, leader không được kích hoạt — Backlog ch�
 
 Ở mỗi lượt chạy của leader đội, ba khối được gắn thêm vào chỉ dẫn của leader:
 
-- **Squad Operating Protocol** — bộ quy tắc cứng: đọc issue, chuyển issue cha sang `in_progress` ở lượt đầu, ủy thác bằng `@`nhắc, viết gọn (đừng kể lại thân issue — người nhận tự đọc được), ghi đánh giá mỗi lượt, **dừng lại sau khi đã giao việc**, và chỉ chuyển issue cha sang `in_review` một khi mục tiêu tổng thể đã đạt. Giao thức này do hệ thống quản lý, không sửa được.
+- **Squad Operating Protocol** — bộ quy tắc cứng: đọc issue, ủy thác bằng `@`nhắc, viết gọn (đừng kể lại thân issue — người nhận tự đọc được), ghi đánh giá mỗi lượt, **dừng lại sau khi đã giao việc** — lượt giao việc kết thúc với issue cha ở `in_progress` — và chỉ chuyển issue cha sang `in_review` một khi mục tiêu tổng thể đã đạt. Giao thức này do hệ thống quản lý, không sửa được.
 
   Phần trạng thái của giao thức đó **chỉ áp dụng với issue thực sự được giao cho đội này**. Leader được đánh thức bởi một lượt `@`nhắc đội trên issue của người khác vẫn nhận cùng danh sách đội và quy tắc ủy thác, nhưng được dặn tường minh là **không** đụng vào trạng thái của issue đó — trạng thái thuộc về người phụ trách của chính issue.
 - **Squad Roster** — dòng của chính leader cùng một dòng cho mỗi thành viên chưa lưu trữ. Mỗi dòng mang đúng markdown mention (`[@Name](mention://agent/<uuid>)` hoặc `[@Name](mention://member/<uuid>)`) mà leader nên dán — gõ chay `@name` không kích hoạt ai cả.
@@ -61,7 +61,7 @@ Sau lần ủy thác đầu tiên, leader được đánh thức tự động b�
 | Bình luận của chính leader (tự kích hoạt) | **Không** — được chặn để tránh vòng lặp |
 | Bình luận chỉ chứa tham chiếu chéo issue (`[UNI-123](mention://issue/...)`) | **Có** — tham chiếu issue không phải định tuyến |
 
-Ngoài các quy tắc trên còn có cơ chế lọc trùng: nếu leader đã có `task` ở `queued` hoặc `dispatched` trên issue này, kích hoạt mới sẽ không xếp hàng thêm bản trùng lặp.
+Ngoài các quy tắc trên còn có cơ chế lọc trùng: nếu leader đã có lượt chạy ở `queued` hoặc `dispatched` trên issue này, kích hoạt mới sẽ không xếp hàng thêm bản trùng lặp.
 
 <Callout type="info">
 **Vì sao leader không kích hoạt khi thành viên đăng bình luận có `@`nhắc.** Khi một thành viên đội trực tiếp `@` ai đó, bình luận đó là một cú bàn giao có chủ đích — đánh thức leader để "quan sát" việc định tuyến chỉ sinh một lượt vô nghĩa và làm rối dòng thời gian. Bình luận do agent viết là ngoại lệ: khi một agent đăng kết quả có `@` agent khác, leader vẫn được đánh thức để tiếp tục điều phối mạch trao đổi.
@@ -114,4 +114,4 @@ Lệnh đầy đủ tại [Dùng CLI](/cli).
 
 - [Giao issue cho agent](/assigning-issues) — so sánh người phụ trách là thành viên, agent và đội.
 - [@nhắc agent trong bình luận](/mentioning-agents) — quy tắc kích hoạt và định tuyến của @nhắc.
-- [Task](/tasks) — mỗi lượt chạy của agent được xếp hàng và ghi lại thế nào.
+- [Lượt chạy](/tasks) — mỗi lượt chạy của agent được xếp hàng và ghi lại thế nào.

@@ -37,11 +37,12 @@ import { useAuthStore } from "@multica/core/auth";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { memberListOptions } from "@multica/core/workspace/queries";
 import { useActorName } from "@multica/core/workspace/hooks";
+import { useDocsViewerStore } from "@multica/core/docs";
 import { larkInstallationsOptions, larkKeys } from "@multica/core/lark";
 import { api, ApiError } from "@multica/core/api";
 import type { LarkInstallation, LarkInstallStatusResponse } from "@multica/core/types";
 import { ActorAvatar } from "../../common/actor-avatar";
-import { useT } from "../../i18n";
+import { useLocale, useT } from "../../i18n";
 
 // MUL-3083: the Lark (international, open.larksuite.com) "connect a Bot"
 // entry is temporarily hidden while its install → inbound pipeline is
@@ -107,19 +108,13 @@ export function LarkTab() {
 
   return (
     <div className="space-y-8">
-      <section className="space-y-1">
-        <p className="text-body text-muted-foreground">
-          {t(($) => $.lark.page_description)}
-        </p>
-      </section>
-
       {!configured ? (
         <Card>
           <CardContent className="space-y-2">
             <p className="text-body font-medium">{t(($) => $.lark.not_enabled_title)}</p>
             <p className="text-caption text-muted-foreground">
               {t(($) => $.lark.not_enabled_description_prefix)}{" "}
-              <code className="rounded bg-muted px-1 py-0.5 text-micro">
+              <code className="rounded-xs bg-muted px-1 py-0.5 text-micro">
                 MULTICA_LARK_SECRET_KEY
               </code>{" "}
               {t(($) => $.lark.not_enabled_description_suffix)}{" "}
@@ -131,7 +126,7 @@ export function LarkTab() {
         // Device-flow install path is not wired (HTTP client is the stub
         // or RegistrationService didn't initialize). We deliberately do
         // NOT direct users to the agent-detail "Bind" button because the
-        // backend would 503 anyway. Existing installations still render
+        // backend would reject it anyway. Existing installations still render
         // via the branch below; this only hides the empty-state CTA
         // when there is nothing to manage.
         <Card>
@@ -220,6 +215,7 @@ function InstallationRow({
   onDisconnect: () => void;
 }) {
   const { t } = useT("settings");
+  const locale = useLocale();
   // The bot is bound 1:1 to a UniAI Agent (per the (workspace_id,
   // agent_id) UNIQUE in lark_installation). Render the UniAI agent's
   // identity here rather than the raw Lark app_id / bot_open_id — those
@@ -242,20 +238,20 @@ function InstallationRow({
         <div className="space-y-1">
           <p className="text-body font-medium">
             {agentName}
-            <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
+            <span className="ml-2 rounded-xs bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
               {installation.region === "lark"
                 ? t(($) => $.lark.region_lark)
                 : t(($) => $.lark.region_feishu)}
             </span>
             {!isActive && (
-              <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
+              <span className="ml-2 rounded-xs bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
                 {t(($) => $.lark.revoked_badge)}
               </span>
             )}
           </p>
           <p className="text-micro text-muted-foreground">
             {t(($) => $.lark.installed_at_label, {
-              when: new Date(installation.installed_at).toLocaleString(),
+              when: new Date(installation.installed_at).toLocaleString(locale),
             })}
           </p>
         </div>
@@ -474,7 +470,7 @@ function LarkAgentBotStatusRow({
       data-testid="lark-agent-bot-status"
     >
       <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
-      <span className="rounded bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
+      <span className="rounded-xs bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
         {installation.region === "lark"
           ? t(($) => $.lark.region_lark)
           : t(($) => $.lark.region_feishu)}
@@ -520,6 +516,7 @@ function LarkAgentBotConnectedBadge({
   className?: string;
 }) {
   const { t } = useT("settings");
+  const openDocs = useDocsViewerStore((s) => s.openDocs);
   const wsId = useWorkspaceId();
   const qc = useQueryClient();
   const manageHref = `${larkDevConsoleHost(installation.region)}/app/${encodeURIComponent(installation.app_id)}`;
@@ -565,7 +562,7 @@ function LarkAgentBotConnectedBadge({
       <div className="flex items-center justify-between gap-3">
         <span className="inline-flex min-w-0 items-center gap-2 text-caption text-muted-foreground">
           <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
-          <span className="rounded bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
+          <span className="rounded-xs bg-muted px-1.5 py-0.5 text-micro text-muted-foreground">
             {installation.region === "lark"
               ? t(($) => $.lark.region_lark)
               : t(($) => $.lark.region_feishu)}
@@ -608,6 +605,22 @@ function LarkAgentBotConnectedBadge({
           ? t(($) => $.lark.agent_bot_manage_link_lark)
           : t(($) => $.lark.agent_bot_manage_link_feishu)}
       </a>
+
+      {/* Row 3: the check a silent Bot almost always needs (#8496). An app
+          whose events go to a request URL instead of the long connection
+          binds fine and shows exactly this badge while receiving nothing,
+          and this row is where someone looks when the Bot stays quiet —
+          the install dialog closes itself a beat after success. */}
+      <p className="text-caption text-muted-foreground">
+        {t(($) => $.lark.agent_bot_silent_hint)}{" "}
+        <button
+          type="button"
+          onClick={() => openDocs("lark-bot-integration")}
+          className="underline underline-offset-2 transition-colors hover:text-foreground"
+        >
+          {t(($) => $.lark.agent_bot_silent_hint_link)}
+        </button>
+      </p>
 
       <AlertDialog
         open={confirmOpen}
@@ -862,11 +875,6 @@ function LarkInstallDialog({
                   network image dependency, prints at any DPI. */}
                 <QRCode value={session.qrCodeURL} size={192} />
               </div>
-              <p className="text-center text-caption text-muted-foreground">
-                {region === "lark"
-                  ? t(($) => $.lark.install_scan_hint_lark)
-                  : t(($) => $.lark.install_scan_hint_feishu)}
-              </p>
               <a
                 href={session.qrCodeURL}
                 target="_blank"

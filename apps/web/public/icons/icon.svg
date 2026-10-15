@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="UniAI">
+  <!--
+    Full-bleed source for the generated home-screen icons (apple-touch-icon.png,
+    icon-maskable-512.png). Full-bleed because both surfaces mask the artwork
+    themselves: iOS rounds the corners, Android crops to the launcher shape.
+    The mark is /favicon.svg's star on its brand gradient, held at 52% of the
+    canvas so it stays inside the maskable safe zone (the centre circle of 80%
+    diameter). See app/manifest.ts for the regeneration commands.
+  -->
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3C83F6"/>
+      <stop offset="1" stop-color="#06BBE0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#brand)"/>
+  <path
+    fill="#ffffff"
+    transform="translate(256 256) scale(3.9118) translate(-50 -50)"
+    d="M50 16 C54.3 37.4 62.9 46 84 50 C62.9 54 54.3 62.6 50 84 C45.7 62.6 37.1 54 16 50 C37.1 46 45.7 37.4 50 16 Z"
+  />
+</svg>

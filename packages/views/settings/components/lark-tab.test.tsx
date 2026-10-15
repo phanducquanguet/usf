@@ -1,6 +1,7 @@
 import { StrictMode, type ReactNode } from "react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useDocsViewerStore } from "@multica/core/docs";
 import userEvent from "@testing-library/user-event";
 import { I18nProvider } from "@multica/core/i18n/react";
 import enCommon from "../../locales/en/common.json";
@@ -482,6 +483,21 @@ describe("LarkAgentBotConnectedBadge (Unbind / Disconnect)", () => {
     expect(screen.getByTestId("lark-agent-bot-disconnect")).toBeTruthy();
     // Fixture omits region → Feishu copy.
     expect(screen.getByRole("link", { name: /Manage in Feishu/i })).toBeTruthy();
+  });
+
+  it("points a silent bot at the event-delivery check (#8496)", () => {
+    render(<LarkAgentBindButton agentId="agent-1" agentName="Bot" />, {
+      wrapper: I18nWrapper,
+    });
+    // A bound app whose events go to a request URL renders this exact
+    // badge and receives nothing, so the connected state has to name the
+    // one setting that explains the silence.
+    expect(screen.getByText(/long connection/i)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Troubleshooting/i }));
+    expect(useDocsViewerStore.getState()).toMatchObject({
+      open: true,
+      slug: "lark-bot-integration",
+    });
   });
 
   it("opens the confirm dialog and does NOT call the API until the user confirms", async () => {

@@ -11,7 +11,17 @@ Bình luận là nơi diễn ra sự cộng tác liên tục trên một [issue]
 
 Gõ vào khu vực hoạt động của issue và gửi để tạo bình luận. Bình luận hỗ trợ định dạng, khối mã, liên kết và tệp đính kèm.
 
+Khối mã `html` hoặc `mermaid` được hiển thị ngay tại chỗ thành biểu đồ hoặc sơ đồ, kèm nút chuyển sang xem mã nguồn. Tệp đính kèm hiện dưới dạng thẻ và mở trong trình xem; kể cả tệp HTML.
+
 Trả lời một bình luận tạo thành luồng thảo luận. Trả lời có thể lồng sâu hơn, nhưng tất cả vẫn nằm dưới cùng một thảo luận cấp cao nhất.
+
+## Chú thích bình luận và mô tả
+
+Trên web, bôi chọn văn bản trong bất kỳ bình luận nào đã đăng, kể cả của chính bạn, rồi chọn **Add to reply** trên thanh công cụ vùng chọn. Viết ghi chú cạnh đoạn đã chọn, rồi bấm **Add annotation** để thêm nó vào bản nháp trả lời. Chỉ những ghi chú đã xác nhận và không rỗng mới được đánh số và gắn dấu nguồn. Khi sửa, bấm **Save annotation** để áp dụng thay đổi. Enter để xác nhận; Shift + Enter để xuống dòng. Escape hoặc bấm ra ngoài sẽ hủy các thay đổi chưa xác nhận. Bấm vào dấu nguồn có đánh số để sửa lại. Nút thùng rác cạnh ghi chú xóa chú thích đó ngay tại nguồn, gồm cả phần tô sáng và mục trong bản nháp. Rê chuột lên số đếm chú thích để xem hoặc gỡ các trích dẫn trong một bảng nổi, hoặc bấm vào một trích dẫn để sửa ghi chú của nó tại nguồn. Bạn cũng mở được bảng này bằng cách bấm hoặc dùng bàn phím. Gửi tất cả thành một câu trả lời bằng nút gửi sẵn có, các chú thích cách nhau một dòng trống. Chú thích hiện trước, tiếp theo là câu trả lời chung của bạn, có đường phân cách giữa hai phần khi cả hai cùng có. Với mô tả issue, chọn **Add to comment** trên thanh công cụ vùng chọn của nó. Chú thích trên mô tả được đưa vào bản nháp bình luận mới và gửi thành một luồng mới; chú thích trên bình luận ở lại trong luồng gốc của chúng.
+
+Với chú thích trên bình luận, chú thích đầu tiên được lưu sẽ cố định đích trả lời, kể cả các trả lời lồng nhau. Trích dẫn từ các tin nhắn khác trong cùng thảo luận đó được gộp vào cùng bản nháp. Dùng nút gửi sẵn có để đăng tất cả thành một bình luận. Mention nằm trong trích dẫn không thông báo hay kích hoạt ai; mention bạn tự viết tuân theo quy tắc thông thường.
+
+Bản nháp là riêng tư trên thiết bị và không gian làm việc này, vẫn còn sau khi tải lại trang và hết hạn sau 30 ngày. Mỗi câu trả lời hỗ trợ tối đa 20 chú thích, mỗi trích dẫn tối đa 4.000 ký tự. Nếu nguồn thay đổi, trích dẫn đã lưu vẫn giữ nguyên; nếu đích trả lời bị xóa, việc gửi sẽ bị chặn. Không áp dụng cho Chat và không đồng bộ bản nháp giữa các thiết bị.
 
 ## Chốt một thảo luận
 
@@ -26,7 +36,7 @@ Gõ `@` và chọn một đích từ danh sách:
 | Đích | Hiệu ứng |
 |---|---|
 | **Thành viên** | Nhận thông báo được nhắc trong hộp thư đến; @ trong bình luận không tạo đăng ký theo dõi. |
-| **Agent** | Tạo một task cho agent đó; agent không có hộp thư đến. |
+| **Agent** | Tạo một lượt chạy cho agent đó; agent không có hộp thư đến. |
 | **Đội** | Thông báo các thành viên của đội và kích hoạt leader của đội. |
 | **Issue** | Chèn liên kết tới issue khác — không thông báo, không kích hoạt agent. |
 | **@all** | Thông báo mọi thành viên của không gian làm việc và không kích hoạt agent nào. |
@@ -49,10 +59,10 @@ Thả cảm xúc emoji vào bình luận để ghi nhận, đồng tình hay ph�
 
 Tác giả bình luận có thể sửa hoặc xóa bình luận của mình; `owner` và `admin` của không gian làm việc cũng sửa và xóa được bình luận của bất kỳ ai. Với bình luận do agent đăng, giao diện chỉ cho xóa, không cho sửa.
 
-Sau khi bình luận được sửa, UniAI tính lại các kích hoạt từ nội dung mới. Các @nhắc thêm vào lúc sửa cũng tạo task; phần xem trước kích hoạt hiện dưới ô nhập trước khi bạn lưu.
+Sau khi bình luận được sửa, UniAI tính lại các kích hoạt từ nội dung mới. Các @nhắc thêm vào lúc sửa cũng tạo lượt chạy; phần xem trước kích hoạt hiện dưới ô nhập trước khi bạn lưu.
 
 <Callout type="warning">
-Xóa bình luận là không thể hoàn tác. Xóa một bình luận cấp cao nhất sẽ xóa mọi trả lời bên dưới nó. Nếu nội dung sai, hãy sửa thay vì xóa.
+Xóa bình luận là không thể hoàn tác. Chỉ đúng bình luận đó bị xóa: nếu nó có trả lời, các trả lời vẫn ở lại trong luồng và bình luận đã xóa không để lại dấu vết. Ngoại lệ là bình luận mở đầu một luồng — nó giữ lại một chỗ trống "This comment was deleted", vì các trả lời bám vào nó. Nếu nội dung sai, hãy sửa thay vì xóa.
 </Callout>
 
 ## Bước tiếp theo

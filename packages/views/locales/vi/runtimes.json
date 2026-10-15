@@ -13,7 +13,7 @@
     "filter_all_description": "Tất cả runtime trong chế độ xem này",
     "empty": {
       "title": "Chưa có runtime nào",
-      "hint": "Ứng dụng desktop tự động quét máy này. Để dùng máy khác — server, máy dev, hoặc bất kỳ máy tính nào có terminal — hãy thêm nó tại đây."
+      "hint": "Desktop tự động phát hiện máy tính này. Kết nối các máy tính khác tại đây."
     },
     "no_matches": {
       "title": "Không có kết quả",
@@ -24,16 +24,15 @@
     },
     "bootstrapping": {
       "title": "Đang khởi động runtime cục bộ…",
-      "hint": "Thường chỉ mất vài giây. Daemon của bạn đang đăng ký với không gian làm việc."
+      "hint": "Đang kết nối với không gian làm việc..."
     }
   },
   "mika_setup": {
     "title": "Runtime của bạn đã sẵn sàng. Hãy bắt đầu với Mika.",
-    "description": "Mika biến mục tiêu của bạn thành issue, điều phối đúng agent, và giúp bạn thêm các chuyên gia tái sử dụng khi quy trình của bạn cần.",
+    "description": "Để Mika sắp xếp công việc và điều phối các agent.",
     "action": "Bắt đầu với Mika",
     "failed": "Không thể khởi động Mika",
     "dialog_title": "Mika nên chạy ở đâu?",
-    "dialog_description": "Chọn runtime mà Mika sẽ dùng. Bạn có thể đổi sau trong cài đặt.",
     "cancel": "Hủy"
   },
   "machine": {
@@ -76,7 +75,7 @@
     "rename": "Đổi tên máy",
     "rename_dialog": {
       "title": "Đổi tên máy",
-      "description": "Đặt cho máy này một cái tên dễ nhận ra. Tên áp dụng cho mọi runtime trên máy và hiển thị khi bạn chọn runtime cho agent.",
+      "description": "Dùng cho máy tính này và tất cả runtime của nó.",
       "placeholder": "vd. MacBook của Quang",
       "hint": "Để trống để dùng tên mặc định của thiết bị.",
       "cancel": "Hủy",
@@ -90,7 +89,7 @@
   "health": {
     "online": {
       "label": "Trực tuyến",
-      "description": "Nhận được heartbeat trong 45 giây qua. Sẵn sàng nhận task."
+      "description": "Đã nhận heartbeat trong 45 giây qua. Sẵn sàng điều phối lượt chạy."
     },
     "recently_lost": {
       "label": "Vừa mất kết nối",
@@ -100,9 +99,9 @@
       "label": "Ngoại tuyến",
       "description": "Không có heartbeat trong hơn 5 phút. Hãy khởi động lại daemon hoặc kiểm tra máy chủ."
     },
-    "about_to_gc": {
-      "label": "Sắp bị dọn dẹp",
-      "description": "Ngoại tuyến hơn 6 ngày. Sẽ tự động bị xóa sau 7 ngày trừ khi kết nối lại."
+    "long_offline": {
+      "label": "Ngoại tuyến lâu",
+      "description": "Không có heartbeat trong hơn 6 ngày. Nếu máy này sẽ tiếp tục ngoại tuyến, hãy gắn lại các agent của nó sang runtime khác hoặc xóa runtime này."
     }
   },
   "detail": {
@@ -128,8 +127,12 @@
       "public": "Công khai"
     },
     "visibility_hint": {
-      "private": "Chỉ bạn và quản trị viên của không gian làm việc mới có thể tạo agent trên runtime này.",
+      "private": "Chỉ bạn mới có thể tạo agent trên runtime này.",
       "public": "Mọi thành viên của không gian làm việc đều có thể tạo agent trên runtime này."
+    },
+    "visibility_hint_readonly": {
+      "private": "Chỉ chủ sở hữu runtime mới có thể tạo agent trên runtime này và chuyển nó sang Công khai.",
+      "public": "Mọi thành viên không gian làm việc đều có thể tạo agent trên runtime này. Chỉ chủ sở hữu runtime mới có thể chuyển nó về Riêng tư."
     },
     "visibility_toast_updated": "Đã đặt phạm vi hiển thị là {{visibility}}",
     "visibility_toast_failed": "Không thể cập nhật phạm vi hiển thị",
@@ -145,11 +148,11 @@
       },
       "cascade": {
         "title_other": "Lưu trữ {{count}} agent và xóa runtime này?",
-        "description": "Xóa \"{{name}}\". Các agent bên dưới sẽ được lưu trữ và gỡ khỏi các luồng công việc đang hoạt động; task đang chờ hoặc đang chạy của chúng sẽ bị hủy, sau đó runtime sẽ bị xóa.",
-        "warning": "Đây là thao tác phá hủy. Agent bị lưu trữ sẽ bị gỡ khỏi các luồng công việc đang hoạt động và task đang chờ hoặc đang chạy của chúng sẽ bị hủy.",
+        "description": "Xóa \"{{name}}\". Các agent bên dưới vẫn được giữ — hướng dẫn, cuộc trò chuyện và lịch sử lượt chạy của chúng vẫn nguyên vẹn — nhưng sẽ bị gỡ liên kết và không thể chạy cho đến khi bạn gắn chúng với runtime khác. Các lượt chạy đang chờ hoặc đang thực hiện của chúng sẽ bị hủy, sau đó Runtime sẽ bị xóa.",
+        "warning": "Các lượt chạy đang chờ và đang thực hiện sẽ bị hủy, và các agent này không thể nhận việc mới cho đến khi được gắn với một runtime.",
         "notice_runtime_has_active_agents": "Có agent đang hoạt động được thêm sau khi bạn mở hộp thoại này. Hãy xem lại kế hoạch mới và xác nhận.",
         "notice_runtime_delete_plan_changed": "Danh sách agent đang hoạt động đã thay đổi khi hộp thoại này đang mở. Hãy xem lại kế hoạch mới và xác nhận.",
-        "checkbox_other": "Tôi hiểu rằng {{count}} agent này sẽ được lưu trữ và mọi task đang chờ hoặc đang chạy sẽ bị hủy.",
+        "checkbox_other": "Tôi hiểu rằng {{count}} agent này sẽ bị gỡ liên kết và không thể chạy cho đến khi tôi gắn chúng với một runtime, và mọi lượt chạy đang chờ hoặc đang thực hiện sẽ bị hủy.",
         "cancel": "Hủy",
         "confirm_other": "Lưu trữ {{count}} agent và xóa runtime",
         "submitting": "Đang lưu trữ và xóa...",
@@ -187,10 +190,12 @@
     "title": "Thêm máy tính",
     "description": "Chạy hai lệnh sau trên máy tính bạn muốn thêm. Chúng tôi sẽ phát hiện ngay khi daemon trực tuyến.",
     "step1_label": "Cài đặt UniAI CLI",
+    "platform_group": "Chọn nền tảng của bạn",
+    "platform_macos_linux": "macOS / Linux",
+    "platform_windows": "Windows",
     "step2_label": "Khởi động daemon",
     "step2_hint": "Mở trình duyệt để đăng nhập, sau đó giữ daemon chạy nền.",
     "live_listening": "Đang chờ máy tính của bạn",
-    "live_listening_hint": "Chúng tôi sẽ phát hiện ngay khi daemon khởi động — thường dưới một phút.",
     "troubleshooting": "Không mở được trình duyệt trên máy đó?",
     "trouble_intro": "Dùng token thay cho đăng nhập bằng trình duyệt. Cách này thay thế bước 2 và hoạt động ở bất kỳ đâu có terminal.",
     "trouble_token_hint_prefix": "Tạo token trong ",
@@ -201,21 +206,20 @@
     "copy_aria": "Sao chép",
     "cancel": "Hủy",
     "success_title": "Đã kết nối máy tính",
-    "success_description": "Máy tính của bạn đã trực tuyến và sẵn sàng. Hãy tạo một agent để nó bắt đầu nhận task tại đây.",
+    "success_description": "Đã kết nối máy tính. Giờ bạn có thể tạo agent.",
     "view_runtime": "Xem runtime",
     "create_agent": "Tạo agent"
   },
   "cloud_runtime": {
     "action": "Runtime đám mây",
     "title": "Runtime đám mây",
-    "description": "Khởi tạo một node đám mây được quản lý và theo dõi trạng thái Fleet của nó.",
+    "description": "Tạo một runtime đám mây.",
     "create_title": "Node mới",
-    "create_hint": "Chọn tên, loại instance và dung lượng đĩa. Fleet lo phần còn lại.",
     "nodes_title": "Node Fleet",
     "refresh": "Làm mới",
     "nodes_empty": "Không có node đám mây nào",
     "nodes_failed": "Runtime đám mây không khả dụng",
-    "nodes_failed_hint": "Fleet không trả về danh sách node.",
+    "nodes_failed_hint": "Không thể tải các node đám mây. Hãy thử lại.",
     "node_fallback_name": "Node đám mây",
     "create": "Tạo node",
     "creating": "Đang tạo...",
@@ -271,6 +275,12 @@
   "charts": {
     "heatmap_less": "Ít",
     "heatmap_more": "Nhiều",
+    "heatmap_no_activity": "Không có hoạt động",
+    "heatmap_busiest_day": "Ngày bận nhất",
+    "heatmap_most_active_weekday": "Ngày trong tuần hoạt động nhiều nhất",
+    "heatmap_quietest_weekday": "Ngày trong tuần ít hoạt động nhất",
+    "heatmap_average": "tb {{value}}",
+    "heatmap_window_total_other": "Tổng {{count}} ngày",
     "tooltip_total": "Tổng"
   },
   "list": {
@@ -328,7 +338,7 @@
       "read_only": "Chỉ xem"
     },
     "detail": {
-      "base_family": "Họ giao thức gốc",
+      "base_family": "Runtime gốc",
       "command": "Lệnh",
       "description": "Mô tả",
       "no_description": "Không có mô tả",
@@ -340,12 +350,12 @@
     "form": {
       "create_title": "Runtime tùy chỉnh mới",
       "edit_title": "Sửa runtime tùy chỉnh",
-      "step_family_label": "Chọn họ giao thức gốc",
-      "step_family_hint": "Giao thức CLI nền tảng mà runtime này sử dụng.",
+      "step_family_label": "Chọn runtime gốc",
+      "step_family_hint": "Chọn CLI mà lệnh này tương thích.",
       "step_details_label": "Cấu hình runtime",
       "step_progress": "Bước {{current}} / {{total}}",
-      "family_label": "Họ giao thức gốc",
-      "family_locked_hint": "Không thể đổi họ giao thức gốc sau khi tạo.",
+      "family_label": "Runtime gốc",
+      "family_locked_hint": "Không thể thay đổi runtime gốc sau khi tạo.",
       "display_name_label": "Tên hiển thị",
       "display_name_placeholder": "Claude tùy chỉnh của tôi",
       "command_name_label": "Lệnh",
@@ -379,7 +389,7 @@
       "cancel": "Hủy",
       "deleting": "Đang xóa…",
       "toast_deleted": "Đã xóa runtime tùy chỉnh",
-      "error_bound": "Không thể xóa runtime này khi vẫn còn agent đang dùng nó.",
+      "error_bound": "Không thể xóa runtime tùy chỉnh này khi vẫn còn agent đang dùng nó — kể cả agent trên các máy khác đã đăng ký nó.",
       "error_generic": "Không thể xóa runtime."
     }
   },

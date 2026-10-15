@@ -1,115 +1,87 @@
 ---
-title: Tích hợp DingTalk Bot
-description: Nối một agent UniAI với app DingTalk của riêng bạn — tạo một robot chế độ Stream trên DingTalk Open Platform, chép AppKey + AppSecret, dán vào UniAI, rồi DM cho bot, @nhắc nó trong nhóm, hoặc gõ /issue ngay trong DingTalk.
+title: DingTalk Bot
+description: Nối một agent với DingTalk và giao việc cho nó ngay trong DM hoặc chat nhóm.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Nối bất kỳ [agent](/agents) nào với một bot DingTalk và nhóm của bạn làm việc với nó ngay trong DingTalk — DM cho bot, @nhắc nó trong nhóm, gửi ảnh chụp màn hình, hoặc gõ `/issue` để tạo một [issue UniAI](/issues) mà không phải mở app.
-
-Hỗ trợ DingTalk do cộng đồng duy trì: nó có mặt trong mọi bản phát hành, nhưng không kèm SLA hỗ trợ chính thức. Báo lỗi tại [GitHub issues](https://github.com/phanducquanguet/usf/issues).
-
-DingTalk dùng mô hình **bring-your-own-app (BYO)**: admin của không gian làm việc tạo một app DingTalk, thêm một robot chế độ Stream vào đó và dán thông tin xác thực của app vào UniAI. Mỗi agent có **app DingTalk riêng** — nên nhiều agent có thể có bot riêng, @nhắc được riêng từng bot, trong cùng một tổ chức. (Khác với [Lark](/lark-bot-integration), nơi việc gắn dùng luồng quét mã để cài.)
-
-Toàn bộ thiết lập ở bên dưới, mất khoảng năm phút. Kết quả là hai thông tin xác thực để dán vào UniAI:
-
-- một **AppKey** — client id của app
-- một **AppSecret** — client secret của app
-
-## Thiết lập app DingTalk của bạn
-
-### 1. Tạo app và thêm robot chế độ Stream
-
-1. Vào [DingTalk Open Platform](https://open-dev.dingtalk.com) và tạo một **app nội bộ doanh nghiệp** (企业内部应用).
-2. Mở app và thêm khả năng **robot** (机器人).
-3. Trong phần cài đặt robot, đặt **chế độ nhận tin nhắn** thành **chế độ Stream** (Stream 模式 / 推送模式). Chính chế độ này cho phép bot kết nối ra ngoài qua một kết nối đẩy dài hạn thay vì nhận webhook.
-
-Đó là tất cả những gì UniAI cần ở tầng nền tảng — bot kết nối ra ngoài qua chế độ Stream, nên bạn không phải cấu hình địa chỉ công khai nào:
-
-| Mục | Vì sao cần |
-|---|---|
-| **App nội bộ doanh nghiệp** | Vỏ chứa app sở hữu robot và cấp cặp thông tin xác thực AppKey / AppSecret. |
-| **Khả năng robot** | Tạo danh tính bot được @nhắc và đăng trả lời. |
-| **Chế độ Stream** | Bot kết nối ra ngoài qua một kết nối Stream dài hạn — **không cần webhook / URL công khai**. |
-| **Quyền gửi tin của robot** | Cho bot gửi tin nhắn ngược vào DingTalk (câu trả lời và tin nhắn chủ động của agent). |
-| **Scope đọc tin nhắn** | Để bot nhận tin nhắn 1:1 và các tin nhắn nhóm có @nhắc nó. |
-
-**Không có webhook URL và không có OAuth redirect URL**, vì robot chạy qua chế độ Stream và BYO không dùng OAuth.
+Sau khi nối một [agent](/agents) với DingTalk, thành viên trong không gian làm việc của agent có thể DM cho Bot, @nhắc nó trong nhóm, hoặc dùng lệnh `/issue` để tạo trực tiếp một [issue](/issues) UniAI. Các cuộc trò chuyện và bản ghi lượt chạy được lưu vào không gian làm việc UniAI.
 
 <Callout type="info">
-DingTalk không có chỉ báo đang gõ / cảm xúc gốc, nên — khác với Slack — bot thay vào đó đăng một lời xác nhận ngắn kiểu "đang xử lý" khi bắt đầu, và câu trả lời đầy đủ đến sau khi agent làm xong. Một loạt tin nhắn gửi dồn dập được gộp thành một lời xác nhận duy nhất.
+Tích hợp DingTalk do cộng đồng duy trì và không kèm SLA hỗ trợ chính thức. Báo lỗi tại [GitHub issues](https://github.com/phanducquanguet/usf/issues).
 </Callout>
 
-### 2. Cấp quyền cho robot
+## Kết nối Bot
 
-Cấp cho robot các scope nó cần để có thể **nhận tin nhắn** và **gửi tin nhắn trả lời** (quyền gửi tin nhắn của robot). Thiếu quyền gửi, agent vẫn chạy được nhưng câu trả lời của nó không thể chuyển đi.
+Người tạo agent hoặc owner/admin của không gian làm việc có thể nối agent với DingTalk. Agent và DingTalk Bot kết nối một-một với nhau.
 
-### 3. Chép AppKey và AppSecret
+## 1. Tạo robot chế độ Stream
 
-Mở phần **凭证与基础信息** (Thông tin xác thực & thông tin cơ bản) của app và chép:
+1. Tạo một **app nội bộ doanh nghiệp** (企业内部应用) trên [DingTalk Open Platform](https://open-dev.dingtalk.com).
+2. Bật khả năng robot và đặt **chế độ nhận tin nhắn** thành **chế độ Stream**.
 
-- **AppKey** — đây là **client id** của app
-- **AppSecret** — đây là **client secret** của app
+## 2. Cấp quyền cho robot
 
-### 4. Kết nối trong UniAI
+Quyền **gửi tin nhắn của robot** (`qyapi_robot_sendmsg`) được thêm sẵn theo mặc định. Để hiện tên Bot trong UniAI, hãy thêm thủ công quyền **quản lý thông tin cơ bản của nhóm DingTalk** (`qyapi_chat_manage`).
 
-1. Mở agent trong **Agents → _agent của bạn_** → tab **Integrations** (hoặc mục **Integrations** ở thanh bên trái).
+## 3. Lấy thông tin xác thực của app
+
+Mở trang **凭证与基础信息** (Thông tin xác thực & thông tin cơ bản) và chép **Client ID (AppKey)** cùng **Client Secret (AppSecret)**.
+
+## 4. Nối agent với DingTalk
+
+1. Quay lại UniAI và mở **Agents → _agent của bạn_ → Capabilities → Integrations**.
 2. Bấm **Connect DingTalk**.
-3. Dán **AppKey** và **AppSecret**, rồi bấm **Connect**.
-4. Agent hiện **Connected to DingTalk**. Bot giờ đang nghe qua kết nối Stream của riêng nó.
+3. Nhập **AppKey** và **AppSecret**, rồi gửi.
 
-<Callout type="warning">
-Hai thông tin xác thực phải từ **cùng một** app DingTalk, và app đó ánh xạ tới đúng **một** agent. Kết nối một app đã nối với agent hoặc không gian làm việc khác sẽ bị từ chối. Muốn chuyển app sang agent khác, ngắt kết nối trước; kết nối lại một agent với một app **mới** sẽ cập nhật thẳng bot của agent đó.
-</Callout>
+## 5. Liên kết tài khoản DingTalk và UniAI
 
-<Callout type="info">
-Thiết lập cho **nhiều agent**? Lặp lại toàn bộ luồng cho từng agent — mỗi agent có app DingTalk riêng và cặp AppKey / AppSecret riêng, chúng hiện thành các bot tách biệt trong tổ chức của bạn.
-</Callout>
+DM cho Bot trong DingTalk hoặc @nhắc nó trong nhóm để kích hoạt yêu cầu liên kết. Bạn sẽ nhận một đường dẫn trong DM với Bot; đường dẫn có hiệu lực khoảng 15 phút. Mở đường dẫn. Khi thông báo thành công xuất hiện, việc liên kết tài khoản đã hoàn tất.
 
-## Tích hợp làm gì
+## Giao việc cho agent trong DingTalk
 
-| Vị trí | Hành vi |
-|---|---|
-| **Agent → Integrations** | Owner và admin thấy **Connect DingTalk**; nối xong nó chuyển thành huy hiệu **Connected to DingTalk** kèm nút **Disconnect**. |
-| **DM cho bot** | Một thành viên nhắn thẳng cho bot trong cuộc trò chuyện 1:1. Cuộc trò chuyện thành một phiên [chat](/chat) UniAI với agent; mọi tin nhắn đều được đọc. |
-| **@nhắc trong nhóm** | Thêm bot vào nhóm và @nhắc nó. Chỉ tin nhắn có nhắc mới được đọc — bot không nghe cả nhóm. |
-| **Gửi ảnh** | Ảnh trong DM, hoặc gửi kèm một @nhắc trong nhóm, xuất hiện trong cuộc trò chuyện để agent xem — PNG, JPEG, GIF, WebP, hoặc BMP, tối đa 4 ảnh mỗi tin nhắn và 10 MB mỗi ảnh. Mỗi ảnh được sao chép vào bộ lưu trữ UniAI, nên vẫn hiển thị trong chat sau khi liên kết tạm thời của DingTalk hết hạn. Ảnh gửi cùng `/issue` được đưa vào issue được tạo thay vì lượt chat. Tệp và tin nhắn thoại không được hỗ trợ. |
-| **Lệnh `/issue`** | Bắt đầu tin nhắn bằng `/issue <tiêu đề>` tạo một issue UniAI trực tiếp từ nội dung bạn nhập, đứng tên bạn, và đăng ID cùng tiêu đề issue trở lại đúng cuộc trò chuyện đó. Viết mô tả ở các dòng tiếp theo. Ảnh gửi trong cùng tin nhắn DingTalk được đính kèm vào issue được tạo. Bản thân lệnh không xuất hiện trong UniAI Chat; issue được tạo là kết quả được ghi lại trong UniAI. |
-| **Lệnh `/new`** | Bắt đầu tin nhắn bằng `/new <tin nhắn của bạn>` chạy tin nhắn đó mà không kèm ngữ cảnh trò chuyện trước. Gửi `/new` một mình ghi lại cùng ý định bắt đầu mới đó cho tin nhắn không rỗng kế tiếp của bạn mà không tạo lượt rỗng, và bot xác nhận khi ý định đó đã sẵn sàng. Ý định đang chờ vẫn có hiệu lực cho đến khi một chat task sau đó được xếp hàng thành công. Lịch sử trò chuyện vẫn giữ nguyên. |
-| **Trả lời** | Câu trả lời của agent được đăng lại vào đúng cuộc trò chuyện 1:1 hoặc nhóm. |
+### Tin nhắn trực tiếp
 
-## Dùng bot (thành viên)
+Nhắn cho Bot. Khi agent làm xong, nó trả lời kết quả trong DM.
 
-### Tin nhắn đầu tiên: liên kết tài khoản
+### Chat nhóm
 
-Lần đầu bạn @nhắc hoặc DM bot, nó trả lời với lời nhắc **liên kết tài khoản** trỏ đến trang **/dingtalk/bind** trong sản phẩm. Bấm liên kết, đăng nhập UniAI, và danh tính DingTalk của bạn được nối với tài khoản thành viên UniAI — nhờ đó agent có thể hành động thay bạn (ví dụ `/issue` tạo issue đứng tên bạn). Liên kết dùng một lần và hết hạn sau khoảng 15 phút; nhắn bot lần nữa để lấy liên kết mới.
+Thêm Bot vào một nhóm DingTalk, rồi gửi `@your-bot <message>`. Mỗi câu hỏi tiếp theo đều phải @nhắc Bot lại. Bot chỉ xử lý các tin nhắn có @nhắc nó.
 
-<Callout type="warning">
-Chỉ **thành viên của không gian làm việc** dùng được bot. Nếu bạn không phải thành viên, hoặc bỏ qua bước liên kết danh tính, bot sẽ không chạy — tin nhắn của bạn bị bỏ qua (được ghi lại để kiểm toán, không kèm nội dung).
-</Callout>
+### Gửi ảnh
 
-### Chat và lệnh
+Cả tin nhắn trực tiếp và chat nhóm đều hỗ trợ tin nhắn có văn bản và ảnh. Định dạng ảnh được hỗ trợ là PNG, JPEG, GIF, WebP và BMP. Mỗi tin nhắn chứa tối đa 4 ảnh, mỗi ảnh tối đa 10 MB. Hiện chưa hỗ trợ tệp và tin nhắn thoại.
 
-- **Trong nhóm** — thêm bot vào nhóm, rồi `@your-bot <tin nhắn của bạn>`. Mỗi câu tiếp theo phải @nhắc lại (bot chỉ đọc tin có nhắc nó).
-- **Trong chat 1:1** — mở bot và nhắn trực tiếp; không cần nhắc, mọi tin nhắn đều được đọc.
-- **Gửi ảnh** — gửi ảnh chụp màn hình hoặc ảnh chụp, kèm hoặc không kèm chữ; chúng xuất hiện trong cuộc trò chuyện để agent làm việc. PNG, JPEG, GIF, WebP, hoặc BMP; tối đa 4 ảnh mỗi tin nhắn, 10 MB mỗi ảnh.
-- **Tạo issue** — gửi `/issue the login redirect is broken on Safari`; thêm mô tả ở các dòng tiếp theo nếu cần. UniAI tạo issue đồng bộ, đính kèm ảnh từ tin nhắn đó vào issue, và đăng ID cùng tiêu đề trở lại chat.
-- **Bắt đầu mới** — gửi `/new <tin nhắn của bạn>` để chạy tin nhắn đó không kèm ngữ cảnh trước, hoặc gửi `/new` một mình để áp dụng việc bắt đầu mới cho tin nhắn không rỗng kế tiếp. Một `/new` trống nhận được xác nhận, và ý định đang chờ của nó vẫn có hiệu lực cho đến khi một chat task sau đó được xếp hàng thành công. Cả hai cách đều không xóa lịch sử trò chuyện hiện có.
+Với tin nhắn nhóm có cả văn bản và ảnh, phần @nhắc Bot cũng được đưa vào tin nhắn gửi cho agent. Để loại bỏ chính xác tên Bot, hãy thêm quyền **quản lý thông tin cơ bản của nhóm DingTalk** (`qyapi_chat_manage`).
 
-## Quản lý và ngắt kết nối
+### Hỏi tiếp bằng tin nhắn trích dẫn
 
-Quản lý toàn không gian làm việc nằm ở **Cài đặt → Integrations**:
+Dùng thao tác trích dẫn của DingTalk để chọn một tin nhắn, rồi nhập nội dung hiện tại của bạn. Trong nhóm, bạn vẫn phải @nhắc Bot. UniAI chèn nội dung trích dẫn được hỗ trợ do callback của DingTalk cung cấp vào trước tin nhắn hiện tại làm ngữ cảnh cho agent. `/issue`, `/new` hoặc `/clear` nằm trong phần trích dẫn chỉ là nội dung trích dẫn, không phải lệnh cho lượt hiện tại.
 
-- **Connected bots** liệt kê mọi bot trong không gian làm việc và agent mà từng bot gắn vào (mọi thành viên thấy được).
-- **Disconnect** chỉ dành cho **owner / admin**. Nó làm bot ngừng nhận tin DingTalk và gỡ kết nối; bản ghi installation giữ lại để kiểm toán, và bạn nối lại được về sau.
+### Phản hồi xử lý tin nhắn
 
-## Quyền
+Sau khi nhận một tin nhắn DingTalk, UniAI cố gắng thêm reaction `RogerThat` của DingTalk vào tin nhắn gốc của người dùng để báo rằng tin nhắn đã được chuyển cho agent xử lý. Khi agent xử lý xong và câu trả lời được gửi thành công về DingTalk, `RogerThat` được thay bằng `Done`. Nếu việc xử lý bị hủy, `RogerThat` bị gỡ bỏ.
 
-- **Kết nối / ngắt** cần **owner** hoặc **admin** của không gian làm việc.
-- **Nói chuyện với bot** yêu cầu là thành viên của không gian làm việc và đã liên kết danh tính DingTalk. Tin nhắn của những người khác đều bị bỏ qua.
-- Nội dung của tin nhắn bị bỏ qua không bao giờ được lưu — chỉ lưu lý do, để kiểm toán.
+Reaction phụ thuộc vào API của DingTalk và có thể không cập nhật ngay. Khi đánh giá kết quả, hãy kiểm tra câu trả lời của Bot và bản ghi lượt chạy trong UniAI.
+
+### Tạo issue bằng `/issue`
+
+Gửi `/issue <title>` hoặc `/issue <title>{newline}<detailed description>` để tạo một issue UniAI mới và tự động giao cho agent đang nối với Bot. Ảnh trong cùng tin nhắn cũng được thêm vào issue dưới dạng tệp đính kèm. Khác với tin nhắn chat thường, lệnh `/issue` không để lại bản ghi nào trong [Chat](/chat) UniAI.
+
+### Bắt đầu Chat mới bằng `/new`
+
+Gửi `/new` để tạo một UniAI Chat mới, trống và chuyển các tin nhắn DingTalk sau đó sang Chat này. Gửi `/new <message>` để tạo Chat và dùng tin nhắn đó làm lượt đầu tiên. Chat trước đó vẫn được lưu và vẫn dùng được trong UniAI.
+
+### Xóa ngữ cảnh hiện tại bằng `/clear`
+
+Gửi `/clear` để giữ UniAI Chat hiện tại nhưng áp dụng một ngữ cảnh mới mà agent nhìn thấy cho tin nhắn tiếp theo. Gửi `/clear <message>` để dùng tin nhắn đó làm lượt đầu tiên sau ranh giới. Toàn bộ lịch sử Chat vẫn hiển thị trong UniAI.
+
+## Quản lý kết nối
+
+- Tại **Agents → _agent của bạn_ → Capabilities → Integrations**, người tạo agent và owner/admin của không gian làm việc có thể nối agent với DingTalk hoặc ngắt kết nối. Khi đã nối, trang này hiện tên Bot, các nhóm DingTalk mà Bot đã xử lý tin nhắn thành công, và dữ liệu trạng thái hoạt động của Bot trong các nhóm đó. Mọi thành viên có quyền đọc agent đều thấy thông tin này. Các nhóm không có tin nhắn nào được xử lý thành công trong 90 ngày qua được xếp vào mục **Long inactive** và chỉ tải khi mở rộng.
+- **Cài đặt → Messaging → DingTalk** liệt kê mọi agent đã nối DingTalk trong không gian làm việc hiện tại mà người xem có quyền đọc, kèm dữ liệu trạng thái hoạt động của Bot trong các nhóm DingTalk. Owner/admin của không gian làm việc cũng có thể ngắt kết nối DingTalk của bất kỳ agent nào trong danh sách. Sau khi ngắt, Bot ngừng nhận tin nhắn, còn bản ghi installation được giữ lại để kiểm toán. Owner/admin cũng có thể quên một nhóm. Thao tác này gỡ nhóm khỏi danh sách mà không xóa cuộc trò chuyện hay tin nhắn. Nhóm sẽ xuất hiện lại nếu sau đó một thành viên đã liên kết tài khoản DingTalk @nhắc Bot trong nhóm và UniAI chấp nhận tin nhắn đó.
 
 ## Tiếp theo
 
-- [Tích hợp chat](/channels) — bộ máy kênh, phiên và ủy quyền hoạt động ra sao
+- [Tích hợp chat](/channels) — bộ máy Channel, phiên và ủy quyền hoạt động ra sao
 - [Agent](/agents) · [Chat](/chat) · [Issue](/issues)

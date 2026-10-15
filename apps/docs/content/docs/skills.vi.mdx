@@ -7,7 +7,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 Skill là một bộ phương pháp làm việc dùng lại được trong không gian làm việc. File chính của nó là `SKILL.md`, tùy chọn kèm theo script, mẫu và tài liệu tham chiếu.
 
-Thêm skill vào một [agent](/agents) và agent dùng hướng dẫn trong đó khi thực thi các task liên quan. Cùng một phương pháp không còn phải chép vào chỉ dẫn của từng agent, và cập nhật được bảo trì ở một chỗ.
+Thêm skill vào một [agent](/agents) và agent dùng hướng dẫn trong đó khi làm các việc liên quan. Cùng một phương pháp không còn phải chép vào chỉ dẫn của từng agent, và cập nhật được bảo trì ở một chỗ.
 
 ## Skill và chỉ dẫn của agent
 
@@ -19,23 +19,41 @@ Thêm skill vào một [agent](/agents) và agent dùng hướng dẫn trong đ�
 
 ## Tạo hoặc nhập skill
 
-Trên trang **Skills** của không gian làm việc, chọn "New skill". Có ba lựa chọn:
+Trên trang **Skills** của không gian làm việc, chọn "New skill". Có bốn lựa chọn:
 
 | Lựa chọn | Hợp khi |
 |---|---|
 | **Tạo thủ công** | Bắt đầu viết từ một `SKILL.md` trắng. |
+| **Nhập từ máy** | Chọn một thư mục chứa `SKILL.md`, hoặc một file nén `.skill` / `.zip` trên máy này. |
 | **Nhập từ URL** | Nhập một skill đã công bố từ GitHub, ClawHub hoặc Skills.sh. |
 | **Sao chép từ runtime** | Quét skill trên một máy đang kết nối và sao chép những cái được chọn vào không gian làm việc. |
 
 Sao chép từ runtime lấy ảnh chụp của file tại thời điểm đó. Thay đổi sau này trên file cục bộ không tự cập nhật bản trong không gian làm việc; hãy nhập lại hoặc sửa trong UniAI.
 
-Với CLI, bạn còn nhập được từ file `.skill` hoặc `.zip`:
+Định dạng file nén này cũng dùng được từ CLI:
 
 ```bash
 uniai skill import --file ./review-helper.skill
 ```
 
-Nếu không gian làm việc đã có skill trùng tên, lần nhập có thể dừng lại, ghi đè nội dung hiện có, lưu dưới tên mới, hoặc bỏ qua. Ghi đè qua đường nhập chỉ dành cho người tạo skill; một `admin` của không gian làm việc dù sửa được skill trong ứng dụng vẫn không ghi đè được nó qua đường nhập.
+Nếu không gian làm việc đã có skill trùng tên, lần nhập có thể dừng lại, ghi đè nội dung hiện có, lưu dưới tên mới, hoặc bỏ qua. Ghi đè qua đường nhập chỉ dành cho người tạo skill; một `admin` của không gian làm việc dù sửa được skill trong ứng dụng vẫn không ghi đè được nó qua đường nhập. Muốn kéo phiên bản mới hơn của một skill đã có trong không gian làm việc, hãy dùng [Cập nhật skill đã nhập](#updating-an-imported-skill).
+
+## Cập nhật skill đã nhập
+
+Skill nhập từ GitHub, ClawHub hoặc Skills.sh giữ tham chiếu tới nguồn của nó. Để kéo phiên bản mới nhất, dùng **Update** trên trang skill (hoặc "Update from source" trong menu của dòng trong danh sách), hoặc dùng CLI:
+
+```bash
+uniai skill refresh <skill-id>
+```
+
+Skill được tải lại từ nguồn và thay thế tại chỗ:
+
+- **Giữ nguyên**: danh tính của skill — các agent được gắn, nhãn, người tạo và ngày tạo. Agent vẫn giữ skill mà không phải thêm lại.
+- **Thay thế**: tên (nếu nguồn đã đổi tên), mô tả, `SKILL.md` và toàn bộ file hỗ trợ. Các chỉnh sửa cục bộ trên skill sẽ bị ghi đè.
+
+Người tạo skill cùng `owner` / `admin` của không gian làm việc cập nhật được từ nguồn. Skill tạo thủ công, nhập từ file nén hoặc sao chép từ runtime không có nguồn lưu trữ nên không cập nhật được theo cách này — hãy nhập lại.
+
+Để cập nhật nhiều skill cùng lúc, chọn chúng trong danh sách skill rồi chọn **Update** trên thanh công cụ vùng chọn. Mọi skill được chọn có nguồn lưu trữ sẽ được tải lại từ nguồn; skill không có nguồn bị bỏ qua.
 
 ## Nội dung skill
 
@@ -65,7 +83,7 @@ Tạo hoặc nhập xong, skill vẫn cần được thêm vào từng agent c�
 - Một agent dùng được nhiều skill;
 - một skill phục vụ được nhiều agent;
 - khi tạm thời chưa cần một skill, hãy tắt liên kết thay vì xóa skill;
-- chỉnh sửa có hiệu lực từ các lượt chạy sau và không thay đổi task đang chạy.
+- chỉnh sửa có hiệu lực từ các lượt chạy sau và không thay đổi các lượt chạy đang diễn ra.
 
 Chỉ những thành viên sửa được agent mới thêm, gỡ hoặc tắt được skill của nó.
 

@@ -11,7 +11,7 @@ Trong sử dụng hằng ngày với UniAI, bạn chủ yếu gặp hai loại t
 
 Sau khi đăng nhập bằng mã xác thực qua email hoặc Google, UniAI lưu một JWT trong cookie HttpOnly tên `multica_auth`. Trình duyệt tự động gửi nó; JavaScript không đọc trực tiếp được.
 
-Phiên kéo dài 30 ngày theo mặc định. Quản trị viên tự host có thể chỉnh vòng đời của các phiên cấp từ đó về sau bằng `AUTH_TOKEN_TTL`. Đăng xuất sẽ xóa cookie xác thực và cookie CSRF trong trình duyệt hiện tại.
+Theo mặc định một phiên kéo dài 30 ngày, nhưng đó không phải đếm ngược từ lúc đăng nhập: phiên đang được dùng liên tục sẽ được cấp lại trước khi hết hạn, nên bạn không phải đăng nhập lại theo định kỳ. Phiên chỉ được cấp lại khi đã qua nửa vòng đời, nên một phiên bỏ không dùng có thể kết thúc sớm hơn 30 ngày kể từ lần dùng cuối. Quản trị viên tự host có thể chỉnh vòng đời này bằng `AUTH_TOKEN_TTL`. Đăng xuất sẽ xóa cookie xác thực và cookie CSRF trong trình duyệt hiện tại.
 
 Cookie trình duyệt không dành để chép vào script hay CLI; hãy dùng personal access token để truy cập UniAI từ terminal.
 
@@ -77,7 +77,7 @@ Nếu token có khả năng đã lộ, hãy thu hồi ngay ở **Cài đặt →
 
 ## Token tạm thời cho lượt chạy của agent
 
-Khi daemon nhận một task, server tạo một token tạm thời cho lượt chạy đó, tiền tố `mat_`. Nó bị gắn với người dùng, không gian làm việc, agent và task hiện tại, có hiệu lực tối đa 24 giờ, và được dọn dẹp khi task kết thúc.
+Khi daemon nhận một lượt chạy, server tạo một token tạm thời cho lượt chạy đó, tiền tố `mat_`. Nó bị gắn với người dùng, không gian làm việc, agent và lượt chạy hiện tại, có hiệu lực tối đa 24 giờ, và được dọn dẹp khi lượt chạy kết thúc.
 
 Daemon tiêm token tạm thời này vào công cụ lập trình AI thay vì trao PAT của người dùng cho agent. Nhờ vậy các request agent thực hiện được ghi nhận là hành động của agent, và token này không dùng được để chạm tới các thao tác nhạy cảm dành riêng cho người dùng hoặc owner.
 

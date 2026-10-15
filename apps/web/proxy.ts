@@ -75,10 +75,14 @@ export function proxy(req: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Logged-in but no cookie yet (first login since slug migration, or
-    // cookie cleared). Bounce to /login; it resolves already-authenticated
-    // arrivals into their workspace client-side.
+    // Logged-in but no cookie yet (never opened a workspace, or the cookie was
+    // cleared). /login already resolves an authenticated visitor against
+    // their workspace list — including pending invitations and the
+    // no-workspace-yet case — and replaces to the right destination. Deep-link
+    // path and query are dropped rather than passed as `next`: they are legacy
+    // segments themselves, so feeding one back would land here again.
     url.pathname = "/login";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 
@@ -106,11 +110,12 @@ export const config = {
   // proxy routes whose upstream origins are resolved from process.env at
   // request time instead of being baked into next.config.js at build time.
   matcher: [
+    "/v1/:path*",
     "/api/:path*",
     "/auth/:path*",
     "/uploads/:path*",
     "/docs/:path*",
     "/ws",
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.).*)",
+    "/((?!api|v1|_next/static|_next/image|favicon.ico|.*\\.).*)",
   ],
 };

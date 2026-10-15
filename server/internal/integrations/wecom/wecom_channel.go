@@ -29,6 +29,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/multica-ai/multica/server/internal/integrations/channel"
+	"github.com/multica-ai/multica/server/internal/integrations/channel/engine"
 	"github.com/multica-ai/multica/server/internal/util"
 )
 
@@ -60,11 +61,26 @@ const writeDeadline = 10 * time.Second
 // handshakeTimeout bounds the initial TCP + WS handshake dial.
 const handshakeTimeout = 15 * time.Second
 
+// unsupportedMsgTypeReceipt is the one line sent back for a message this
+// adapter cannot read at all. It used to say "我目前只能处理文字消息" — text
+// only — which stopped being true the moment photos, files, videos and
+// 图文混排 started routing: a person who has just watched the bot answer a
+// screenshot, then gets told it only handles text, reads that as the bot
+// being broken rather than as this one kind not being supported.
+const unsupportedMsgTypeReceipt = "抱歉，我暂时无法处理这类消息。"
+
 // wecomChannel is one installation's aibot smart-bot WebSocket connection.
 // The engine.Supervisor builds one per active installation via the
 // registered Factory and drives lease / reconnect lifecycle; Connect blocks
 // on the receive loop until ctx is cancelled or the link drops.
 type wecomChannel struct {
+	// dedup claims the inbound message id for the one reply this adapter sends
+	// before the Router sees the message: the unsupported-kind receipt. It goes
+	// out from dispatchFrame, ahead of c.handler, so the Router's own Claim
+	// never runs for it and nothing else can dedupe it. Nil leaves it
+	// unclaimed, which is main's behaviour.
+	dedup engine.Deduper
+
 	installationID pgtype.UUID
 	botID          string
 	secret         string
@@ -101,12 +117,13 @@ func (c *wecomChannel) mx() Metrics {
 	return c.metrics
 }
 
-// Capabilities declares what the aibot adapter supports today. Text is the
-// only fully wired capability; attachments arrive as MsgTypeImage / File /
-// Audio / Video but we do not yet download the media (WeCom's aibot API
-// requires an additional aibot_upload_media_* dance to send back media).
+// Capabilities declares what the aibot adapter supports today. Inbound
+// attachments are downloaded, decrypted and bound (media_ingest.go), so
+// CapAttachment holds in the same direction it holds for DingTalk
+// (dingtalk_channel.go:52). Sending media back out is a separate matter —
+// it needs WeCom's aibot_upload_media_* handshake — and is not claimed here.
 func (c *wecomChannel) Capabilities() channel.Capability {
-	return channel.CapText
+	return channel.CapText | channel.CapAttachment
 }
 
 // Disconnect is a no-op: the WS connection's whole lifetime is scoped to
@@ -442,29 +459,24 @@ func (c *wecomChannel) dispatchFrame(ctx context.Context, env frameEnvelope, sen
 			log.Warn("wecom: bad aibot_msg_callback body", "error", err)
 			return nil
 		}
-		// Trace the body the adapter will actually route, not the typed
-		// field: a voice note carries its words in voice.content, and an
-		// operator who turned tracing on to follow one would otherwise read
-		// len=0 next to a bot that answered.
-		body, routable := mc.bodyText()
-		traceInbound(log, mc, body)
-		msg := channelMessageFromCallback(c.botID, c.botDisplayName, mc, env.Headers.ReqID)
-		// A voice note is a sentence that happened to be spoken: WeCom does
-		// the recognition and hands over the transcript, so it needs no
-		// download, no media key and no storage. Answering it with "I only
-		// handle text" was refusing content we already had in hand.
-		if !routable {
-			// Kinds that carry a downloadable payload (image / file / video /
-			// mixed), and a voice note whose recognition came back empty.
-			// Rather than drop them silently — which reads as a broken bot —
-			// answer the same chat with a one-line "text only" receipt, then
-			// stop. Media routing, and dedup'd receipts that never double-answer
-			// a WeCom delivery retry, are a follow-up. Best-effort: a send
-			// failure degrades to the prior silent drop.
-			log.Debug("wecom: unroutable message, replying text-only", "msg_type", mc.MsgType, "msg_id", mc.MsgID)
-			if err := sender.sendText(msg.Source.ChatID, aibotChatTypeFromChannel(msg.Source.ChatType), "抱歉，我目前只能处理文字消息。"); err != nil {
-				log.Debug("wecom: text-only receipt send failed", "error", err, "msg_id", mc.MsgID)
-			}
+		text, ok := mc.ownText()
+		// Traced with the RESOLVED body, not mc.Text.Content: that field is
+		// empty for every voice, media and 图文混排 callback, so tracing it
+		// would print len=0 for exactly the messages an operator turned
+		// tracing on to look at.
+		traceInbound(log, mc, text)
+		msg := channelMessageFromCallback(c.botID, c.botDisplayName, mc, text, env.Headers.ReqID)
+		if !ok {
+			// Nothing in this message can be read: a kind the adapter does
+			// not know (a location card), or a known kind that arrived
+			// without the one field that makes it usable — a voice note whose
+			// recognition came back empty, an image callback carrying no url.
+			// Silence reads as a broken bot, so answer the same chat with a
+			// one-line receipt and stop. Best-effort: a send failure degrades
+			// to the prior silent drop.
+			log.Debug("wecom: unsupported message kind, replying with a receipt", "msg_type", mc.MsgType, "msg_id", mc.MsgID)
+			c.sendUnsupportedReceipt(ctx, sender, mc.MsgID, msg.Source.ChatID,
+				aibotChatTypeFromChannel(msg.Source.ChatType), unsupportedMsgTypeReceipt, log)
 			return nil
 		}
 		if err := c.handler(ctx, msg); err != nil {
@@ -584,6 +596,13 @@ var ErrSendNotSupported = errors.New("wecom: Channel.Send is not supported; outb
 // channel.Config.Handler; the CredentialsResolver decrypts the stored
 // secret.
 type ChannelDeps struct {
+	// Dedup claims the unsupported-kind receipt so a redelivered callback does
+	// not answer twice. Build it with NewDeduper(store) — the same store the
+	// Router's own claim uses, so a message answered here can never also be
+	// answered there. Nil keeps main's behaviour: every redelivery repeats the
+	// receipt, and RegisterWecom says so at WARN.
+	Dedup engine.Deduper
+
 	Credentials CredentialsResolver
 	Logger      *slog.Logger
 
@@ -606,12 +625,101 @@ type ChannelDeps struct {
 	WSURL string
 }
 
+// sendUnsupportedReceipt answers a message kind the adapter cannot read, once
+// per message rather than once per delivery.
+//
+// WeCom redelivers a callback it did not get an ack for, and the receipt is
+// sent from dispatchFrame — before c.handler, so the Router's own Claim
+// (router.go) never runs for this message and nothing downstream deduplicates
+// it. Unclaimed, every redelivery of one unreadable photo puts another "sorry,
+// I can only read text" in the chat, and each copy spends one of the
+// conversation's active pushes.
+//
+// The claim is the same two-phase token the Router uses, on the same table and
+// the same (installation, message) key, so a message answered here can never
+// also be answered there.
+//
+// Three outcomes, and the failure directions are chosen so the user's worst
+// case is the behaviour they already had:
+//
+//   - already claimed → the receipt is on their screen; say nothing.
+//   - sent → Mark it processed, and later redeliveries stop at the claim.
+//   - send failed → Release, so the NEXT redelivery may try again. Holding the
+//     claim would turn one failed send into permanent silence for a message
+//     the user is waiting on an answer for.
+//
+// A dedup that errors (or is not wired) falls through and sends anyway: with
+// the database unreachable the choice is a possible duplicate against a bot
+// that looks broken, and silence is the worse of the two. That is the same
+// stance the send itself takes.
+func (c *wecomChannel) sendUnsupportedReceipt(
+	ctx context.Context,
+	sender *wsSender,
+	messageID, chatID string,
+	chatType int,
+	content string,
+	log *slog.Logger,
+) {
+	var (
+		token   pgtype.UUID
+		claimed bool
+	)
+	if c.dedup != nil && messageID != "" {
+		tok, err := c.dedup.Claim(ctx, c.installationID, messageID)
+		switch {
+		case errors.Is(err, engine.ErrDuplicate):
+			// A redelivery of a message already answered. The receipt the
+			// user is meant to read is the one they already have.
+			log.Debug("wecom: unsupported-kind receipt already sent for this message, not repeating",
+				"msg_id", messageID)
+			return
+		case err != nil:
+			log.Warn("wecom: cannot claim the unsupported-kind receipt, sending it unclaimed",
+				"error", err, "msg_id", messageID)
+		default:
+			token, claimed = tok, true
+		}
+	}
+
+	if err := sender.sendText(chatID, chatType, content); err != nil {
+		log.Debug("wecom: unsupported-kind receipt send failed", "error", err, "msg_id", messageID)
+		if claimed {
+			// Nothing was delivered, so the claim must not stand: it would
+			// suppress the redelivery that is this message's only remaining
+			// chance of being answered at all.
+			if rerr := c.dedup.Release(ctx, c.installationID, messageID, token); rerr != nil {
+				log.Warn("wecom: cannot release the unsupported-kind receipt claim; a redelivery will "+
+					"now be silently dropped", "error", rerr, "msg_id", messageID)
+			}
+		}
+		return
+	}
+	if claimed {
+		if err := c.dedup.Mark(ctx, c.installationID, messageID, token); err != nil {
+			log.Warn("wecom: cannot mark the unsupported-kind receipt processed; a redelivery may repeat it",
+				"error", err, "msg_id", messageID)
+		}
+	}
+}
+
 // RegisterWecom registers the per-installation wecom smart-bot Factory so
 // the engine.Supervisor builds + supervises one wecomChannel per active
 // installation. "Adding wecom smart-bot inbound" is this call plus the
 // adapter — no engine edit (same contract as lark.RegisterFeishu /
 // slack.RegisterSlack).
 func RegisterWecom(reg *channel.Registry, deps ChannelDeps) {
+	if deps.Dedup == nil {
+		// Not fatal — answering twice is what main does today — but it has no
+		// other symptom: nothing errors, and the duplicate only shows up in
+		// somebody's chat, one per redelivery, each spending a push from that
+		// conversation's quota.
+		logger := deps.Logger
+		if logger == nil {
+			logger = slog.Default()
+		}
+		logger.Warn("wecom: no deduper wired; a redelivered unreadable message will be answered again " +
+			"on every delivery (set ChannelDeps.Dedup to NewDeduper(store))")
+	}
 	reg.Register(TypeWecom, newWecomFactory(deps))
 }
 
@@ -640,6 +748,7 @@ func newWecomFactory(deps ChannelDeps) channel.Factory {
 		}
 		return &wecomChannel{
 			installationID: cfg.ID,
+			dedup:          deps.Dedup,
 			botID:          creds.BotID,
 			secret:         creds.Secret,
 			botDisplayName: ic.BotDisplayName,

@@ -7,7 +7,30 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/multica-ai/multica/server/internal/testutil"
 )
+
+func TestUpdateMeVietnameseLanguageRoundTrip(t *testing.T) {
+	if testHandler == nil || testPool == nil {
+		t.Skip("database not available")
+	}
+	userID := dbfx.User(t, "Vietnamese user", "lang-vi@multica.ai", testutil.Cols{"language": "en"})
+	var updated UserResponse
+	testutil.Call(t, testHandler.UpdateMe, newPatchMeRequest(userID, `{"language":"vi"}`)).Want(http.StatusOK).JSON(&updated)
+	if updated.Language == nil || *updated.Language != "vi" {
+		t.Fatalf("updated language = %v, want vi", updated.Language)
+	}
+
+	// A fresh request after reload must restore Vietnamese, not the old preference.
+	get := newRequest(http.MethodGet, "/api/me", nil)
+	get.Header.Set("X-User-ID", userID)
+	var reloaded UserResponse
+	testutil.Call(t, testHandler.GetMe, get).Want(http.StatusOK).JSON(&reloaded)
+	if reloaded.Language == nil || *reloaded.Language != "vi" {
+		t.Fatalf("reloaded language = %v, want vi", reloaded.Language)
+	}
+}
 
 func newLanguageTestUser(t *testing.T, email string) string {
 	t.Helper()
@@ -80,7 +103,7 @@ func TestUpdateMeRejectsUnsupportedLanguage(t *testing.T) {
 func TestUpdateMeRejectsDroppedLocales(t *testing.T) {
 	userID := newLanguageTestUser(t, "lang-dropped@multica.ai")
 
-	for _, lang := range []string{"zh-Hans", "ko", "ja"} {
+	for _, lang := range []string{"zh-Hans", "ko", "ja", "fr"} {
 		w := httptest.NewRecorder()
 		req := newPatchMeRequest(userID, `{"language":"`+lang+`"}`)
 		testHandler.UpdateMe(w, req)

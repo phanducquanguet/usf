@@ -9,17 +9,8 @@
     "projects": "Dự án",
     "issues": "Issues",
     "cancelled": "Đã hủy",
-    "recent": "Gần đây"
-  },
-  "pages": {
-    "inbox": "Hộp thư đến",
-    "my_issues": "Issue của tôi",
-    "issues": "Issues",
-    "projects": "Dự án",
-    "agents": "Agent",
-    "runtimes": "Runtime",
-    "skills": "Skills",
-    "settings": "Cài đặt"
+    "recent": "Gần đây",
+    "workspaces": "Không gian làm việc"
   },
   "commands": {
     "current_theme_aria": "Giao diện hiện tại",

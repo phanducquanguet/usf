@@ -45,7 +45,7 @@ Hộp thư đến chỉ dành cho thành viên của không gian làm việc. K�
 
 ## Xử lý thông báo
 
-Chọn một thông báo là đánh dấu đã đọc. Xong việc thì lưu trữ nó; lưu trữ không sửa hay xóa issue tương ứng. Khi issue đạt `in_review`, `done` hoặc `cancelled`, các thông báo lỗi lượt chạy của nó tự động được lưu trữ.
+Chọn một thông báo là đánh dấu đã đọc. Xong việc thì lưu trữ nó; lưu trữ không sửa hay xóa issue tương ứng. Khi issue chuyển sang một trạng thái trả việc về cho con người — `in_review`, một trạng thái tùy chỉnh thuộc nhóm `started`, hoặc bất kỳ trạng thái nào thuộc nhóm `done` hay `closed` — các thông báo lỗi lượt chạy của nó tự động được lưu trữ. `blocked` là ngoại lệ: nó cũng trả issue về, nhưng công việc vẫn đang bị kẹt, nên các lỗi trước đó vẫn đáng đọc.
 
 Chuột phải vào một thông báo để **Đánh dấu đã đọc** / **Đánh dấu chưa đọc** và **Lưu trữ** (**Bỏ lưu trữ** trong mục Archived). Đánh dấu chưa đọc là thao tác "đã xem, nhưng chưa xử lý xong": thông báo trở về trạng thái chưa đọc và tăng lại bộ đếm chưa đọc, và nó giữ nguyên chưa đọc kể cả khi bạn vẫn đang mở nó — lần mở sau sẽ đánh dấu đã đọc như bình thường. Thông báo đã lưu trữ giữ nguyên trạng thái đọc, nên khôi phục lại sẽ đưa nó về đúng như lúc bạn rời đi.
 
@@ -55,6 +55,8 @@ Từ menu của hộp thư đến bạn cũng có thể:
 - lưu trữ tất cả, hoặc lưu trữ tất cả thông báo đã đọc;
 - lưu trữ thông báo của các issue ở `done` hoặc `cancelled`;
 - mở mục Archived và khôi phục một thông báo.
+
+Mở **Archived** ở cuối hộp thư đến để xem các thông báo cũ hơn. Bản ghi tải thêm khi bạn cuộn. Bộ lọc áp dụng cho toàn bộ kho lưu trữ, kể cả những bản ghi chưa được tải.
 
 ## Tinh chỉnh loại thông báo
 

@@ -2,7 +2,7 @@ import type { Translations } from "fumadocs-ui/i18n";
 import type { Lang } from "./i18n";
 
 // Fumadocs built-in UI strings (search, TOC, last-updated, etc.) per locale.
-// English uses Fumadocs defaults so we only override Vietnamese.
+// English uses Fumadocs defaults, so only the translated locales override them.
 export const uiTranslations: Partial<Record<Lang, Partial<Translations>>> = {
   vi: {
     search: "Tìm kiếm",
@@ -37,6 +37,6 @@ export const homeCopy = {
     eyebrow: "Tài liệu UniAI",
     titleLead: "Con người và agent,",
     titleAccent: "cùng một nơi.",
-    byline: ["Bắt đầu", "Cập nhật tháng 4/2026", "Đọc trong 6 phút"],
+    byline: ["Bắt đầu", "Cập nhật tháng 7/2026", "Đọc trong 2 phút"],
   },
 } as const satisfies Record<Lang, unknown>;

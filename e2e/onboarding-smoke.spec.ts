@@ -94,31 +94,31 @@ test("onboarding — one skip clears the whole questionnaire step", async ({ pag
   await page.screenshot({ path: `${SHOTS_DIR}/04-after-skip.png` });
 });
 
-test("onboarding — zh-Hans renders Chinese labels", async ({ page, context, baseURL }) => {
+test("onboarding — vi renders Vietnamese labels", async ({ page, context, baseURL }) => {
   await context.addCookies([
     {
       name: "multica-locale",
-      value: "zh-Hans",
+      value: "vi",
       url: baseURL ?? "http://localhost:3000",
     },
   ]);
   const api = new TestApiClient();
-  await api.login(`zh-${Date.now()}@localhost`, "中文用户");
+  await api.login(`vi-${Date.now()}@localhost`, "Người dùng Việt");
   const token = api.getToken();
 
   await page.addInitScript((t) => localStorage.setItem("multica_token", t), token);
   await page.goto("/onboarding", { waitUntil: "domcontentloaded" });
-  await waitForPageText(page, "在 web 端继续");
+  await waitForPageText(page, "Tiếp tục trên web");
 
   // Click the CTA by name. `getByRole("button").first()` used to stand in for
   // it, but the welcome screen renders the pinned Log out button first in DOM
   // order — so this step was signing the user out and the assertions below
   // were waiting on a page that had already redirected to login.
-  await page.getByRole("button", { name: "在 web 端继续" }).click();
+  await page.getByRole("button", { name: "Tiếp tục trên web" }).click();
 
-  // About-you screen — Chinese headline + both sub-questions.
-  await expect(page.getByText("简单介绍一下你自己。")).toBeVisible({ timeout: 10000 });
-  await expect(page.getByText("哪一项最符合你？")).toBeVisible();
+  // About-you screen — Vietnamese headline + both sub-questions.
+  await expect(page.getByText("Hãy cho chúng tôi biết đôi chút về bạn.")).toBeVisible({ timeout: 10000 });
+  await expect(page.getByText("Mô tả nào đúng với bạn nhất?")).toBeVisible();
   await page.waitForTimeout(500);
-  await page.screenshot({ path: `${SHOTS_DIR}/05-about-you-zh.png` });
+  await page.screenshot({ path: `${SHOTS_DIR}/05-about-you-vi.png` });
 });

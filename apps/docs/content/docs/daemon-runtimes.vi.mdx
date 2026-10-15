@@ -1,15 +1,15 @@
 ---
 title: Daemon và runtime
-description: Cách UniAI kết nối các máy tính, phát hiện công cụ lập trình AI và thực thi task.
+description: Cách UniAI kết nối các máy tính, phát hiện công cụ lập trình AI và thực thi lượt chạy.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-UniAI ghi nhận và điều phối công việc; các máy tính được kết nối là nơi thực thi. **Daemon** trên một máy nhận task và gọi các công cụ lập trình AI cài trên chính máy đó.
+UniAI ghi nhận và điều phối công việc; các máy tính được kết nối là nơi thực thi. **Daemon** trên một máy nhận lượt chạy và gọi các công cụ lập trình AI cài trên chính máy đó.
 
 ## Daemon vs runtime
 
-- **Daemon** là tiến trình nền của UniAI chạy trên một máy tính. Nó kết nối tới server, phát hiện công cụ cục bộ, nhận task và báo kết quả về.
+- **Daemon** là tiến trình nền của UniAI chạy trên một máy tính. Nó kết nối tới server, phát hiện công cụ cục bộ, nhận lượt chạy và báo kết quả về.
 - **Runtime** đại diện cho một môi trường thực thi cụ thể mà một không gian làm việc dùng được. Nó ứng với một máy tính cộng một công cụ lập trình AI — hoặc một runtime profile tùy chỉnh — trên máy đó.
 
 Ví dụ: một máy cài cả Claude Code lẫn Codex và được kết nối với hai không gian làm việc. Daemon đăng ký runtime Claude Code và Codex cho từng không gian làm việc. Khởi động lại daemon chỉ cập nhật các bản ghi hiện có; nó không tạo thêm runtime mới cho cùng một tổ hợp.
@@ -18,7 +18,7 @@ Ví dụ: một máy cài cả Claude Code lẫn Codex và được kết nối 
 
 Các công cụ lập trình AI mà runtime cục bộ gọi, thông tin đăng nhập riêng của các công cụ đó, và thư mục mã nguồn cục bộ của bạn đều ở lại trên máy được kết nối. UniAI server không thực thi lệnh thay cho công cụ cục bộ, và không tự động tải toàn bộ thư mục làm việc của bạn lên.
 
-Để cả đội cộng tác được, server lưu issue, bình luận, cấu hình agent, ngữ cảnh task, bản ghi lượt chạy và kết quả mà agent ghi về. Nội dung đó có thể gồm đoạn mã hoặc ngữ cảnh dự án khác mà agent đã chọn đọc và đưa vào phần trả lời.
+Để cả đội cộng tác được, server lưu issue, bình luận, cấu hình agent, ngữ cảnh lượt chạy, bản ghi lượt chạy và kết quả mà agent ghi về. Nội dung đó có thể gồm đoạn mã hoặc ngữ cảnh dự án khác mà agent đã chọn đọc và đưa vào phần trả lời.
 
 <Callout type="warning">
 Biến môi trường tùy chỉnh của agent được lưu phía server và gửi xuống runtime lúc thực thi. Đừng hiểu "thực thi cục bộ" thành "mọi bí mật chỉ tồn tại trên máy này": biến môi trường tùy chỉnh và cấu hình MCP nằm trên server, và việc hiển thị chúng được giới hạn theo quy tắc giá trị nhạy cảm.
@@ -42,44 +42,72 @@ Daemon mặc định chạy nền. Các lệnh thường dùng:
 | `uniai daemon stop` | Dừng daemon |
 | `uniai daemon start --foreground` | Chạy trong terminal hiện tại, để gỡ lỗi |
 
+Để đặt thư mục làm việc của lượt chạy trên một ổ đĩa khác, hãy lưu một thư mục gốc cho profile hiện tại bằng `uniai config set workspaces_root <path>`, hoặc truyền `--workspaces-root <path>` cho `daemon start` hay `daemon restart`. Cờ này ghi đè `MULTICA_WORKSPACES_ROOT`, còn biến đó ghi đè cấu hình profile. Khi đổi thư mục gốc, các thư mục lượt chạy hiện có không bị di chuyển.
+
 Khi khởi động, daemon phát hiện các công cụ lập trình AI được hỗ trợ trên `PATH` và đăng ký runtime cho các không gian làm việc bạn được phép kết nối. Nếu vừa cài hoặc vừa đăng nhập một công cụ, hãy khởi động lại daemon để phát hiện lại.
 
 Daemon cần phát hiện được ít nhất một công cụ lập trình AI có sẵn được hỗ trợ thì mới khởi động. Cách cài và tên file thực thi xem tại [Cài đặt công cụ lập trình AI](/install-agent-runtime).
 
 ## Điều phối và trạng thái online
 
-Sau khi đăng ký, runtime giữ một kết nối bền vững. Khi task mới vào hàng đợi, server thông báo cho daemon phù hợp; daemon cũng poll định kỳ như lưới an toàn sau các lần gián đoạn kết nối. Vì thế khi runtime online và còn chỗ trống, task thường bắt đầu ngay lập tức.
+Sau khi đăng ký, runtime giữ một kết nối bền vững. Khi lượt chạy mới vào hàng đợi, server thông báo cho daemon phù hợp; daemon cũng poll định kỳ như lưới an toàn sau các lần gián đoạn kết nối. Vì thế khi runtime online và còn chỗ trống, lượt chạy thường bắt đầu ngay lập tức.
 
 Daemon gửi heartbeat mỗi 15 giây. Server kết hợp heartbeat và trạng thái kết nối để quyết định runtime có online hay không; sau khi daemon thoát bất thường, runtime thường hiện offline muộn nhất khoảng 3 phút.
 
-![Chi tiết runtime của một máy đang online: cùng một daemon đăng ký 7 runtime, mỗi dòng ứng với một công cụ lập trình AI được phát hiện, kèm trạng thái online và phiên bản CLI](/images/docs/runtime-machine-detail.png)
+![Chi tiết runtime của một máy đang online: cùng một daemon đăng ký 7 runtime, mỗi dòng ứng với một công cụ lập trình AI được phát hiện, kèm trạng thái online và phiên bản CLI](/images/docs/runtime-machine-detail.webp)
 
 Khi runtime offline:
 
-- Task đã ở trong hàng đợi chờ runtime hồi phục, tối đa 2 giờ.
-- Task đang chạy thất bại; task issue hoặc chat đủ điều kiện có thể tự thử lại.
-- Khi daemon khởi động lại, nó đăng ký lại runtime và thu hồi các task lần trước chưa kết thúc gọn gàng.
+- Lượt chạy đã ở trong hàng đợi chờ runtime hồi phục. Chúng chỉ thất bại khi runtime đã ngừng gửi heartbeat lâu hơn thời gian ân hạn kết nối lại **và** bản thân lượt chạy cũng đã xếp hàng lâu như vậy; nhờ đó runtime chỉ đơn giản là đang bận vẫn giữ được hàng đợi tồn, còn công việc giao cho một runtime vốn đã offline vẫn được chờ trọn thời gian ân hạn.
+- Lượt chạy đang chạy thất bại; lượt chạy issue hoặc chat đủ điều kiện có thể tự thử lại.
+- Khi daemon khởi động lại, nó đăng ký lại runtime và thu hồi các lượt chạy lần trước chưa kết thúc gọn gàng.
 - Runtime offline quá 7 ngày và không gắn agent nào (kể cả agent đã lưu trữ) sẽ được tự động dọn dẹp.
 
-Chi tiết trạng thái và quy tắc thử lại xem tại [Task](/tasks).
+Chi tiết trạng thái và quy tắc thử lại xem tại [Lượt chạy](/tasks).
 
 ## Giới hạn đồng thời
 
-Một daemon mặc định thực thi tối đa 20 task cùng lúc; mỗi agent tối đa 6. Mức đồng thời hiệu dụng là con số nhỏ hơn trong hai giới hạn.
+Một daemon mặc định thực thi tối đa 20 lượt chạy cùng lúc; mỗi agent tối đa 6. Mức đồng thời hiệu dụng là con số nhỏ hơn trong hai giới hạn.
 
-Chạm trần thì task mới tiếp tục xếp hàng. Bạn có thể chỉnh mức đồng thời của từng agent trong cài đặt agent, và trần toàn máy qua `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`. Các lượt chạy song song cạnh tranh cùng lúc về năng lực máy, quota tài khoản công cụ và cùng một thư mục làm việc.
+Chạm trần thì lượt chạy mới tiếp tục xếp hàng. Bạn có thể chỉnh mức đồng thời của từng agent trong cài đặt agent, và trần toàn máy qua `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`. Các lượt chạy song song cạnh tranh cùng lúc về năng lực máy, quota tài khoản công cụ và cùng một thư mục làm việc.
 
 ## Runtime riêng tư và công khai
 
-Runtime cục bộ mặc định là **riêng tư**: chủ runtime cùng các owner và admin của không gian làm việc có thể tạo agent trên nó.
+Runtime cục bộ mặc định là **riêng tư**: chỉ chủ runtime mới tạo được agent trên nó. Owner và admin của không gian làm việc cũng không ngoại lệ — runtime là máy tính của người khác, và chạy agent trên đó tiêu tốn máy và thông tin đăng nhập công cụ của họ.
 
-Chủ runtime hoặc admin có thể chuyển nó thành **công khai**. Khi đó các thành viên khác trong không gian làm việc cũng chọn được runtime này; điều đó không chia sẻ thông tin đăng nhập của công cụ lập trình AI bên dưới — chỉ cho phép thành viên định tuyến task của agent họ về máy này.
+Chỉ chủ runtime mới chuyển được nó thành **công khai** — admin không gian làm việc có thể đổi tên hoặc xóa runtime, nhưng chia sẻ là quyết định của chủ sở hữu. Khi đó các thành viên khác trong không gian làm việc cũng chọn được runtime này; điều đó không chia sẻ thông tin đăng nhập của công cụ lập trình AI bên dưới — chỉ cho phép thành viên định tuyến lượt chạy của agent họ về máy này.
 
 ## Runtime profile tùy chỉnh
 
 Nếu đội của bạn dùng một wrapper nội bộ, một file thực thi ghim phiên bản, hoặc cần đối số cố định thêm cho một công cụ tương thích, hãy tạo **runtime profile tùy chỉnh**.
 
 Profile tùy chỉnh không thêm giao thức giao tiếp mới. Bạn vẫn chọn một trong các họ giao thức UniAI đã hỗ trợ (loại giao thức tích hợp của công cụ; xem [So sánh công cụ lập trình AI](/providers)), và bản thân lệnh phải tương thích với họ đó.
+
+### Môi trường runtime của task
+
+Khi daemon khởi động một task của agent, nó tiêm ngữ cảnh task vào tiến trình runtime. Các giá trị này do daemon quản lý: môi trường tùy chỉnh của agent không thể ghi đè bất kỳ biến `MULTICA_` nào hay các biến thư mục tạm của task.
+
+Bảng dưới liệt kê các biến mà runtime tùy chỉnh dùng được hiện nay. Bảng cố ý không đầy đủ và không phải một bề mặt API có phiên bản. Chỉ xây tích hợp dựa trên năm biến được đánh dấu **hợp đồng tích hợp**; coi các biến còn lại là chi tiết tham khảo có thể thay đổi.
+
+| Biến | Giá trị trong một task | Độ ổn định |
+| --- | --- | --- |
+| `MULTICA_TOKEN` | Thông tin xác thực API `mat_` theo phạm vi task | **Hợp đồng tích hợp** |
+| `MULTICA_TASK_ID` | ID của task đang chạy | **Hợp đồng tích hợp** |
+| `MULTICA_AGENT_ID` | ID của agent được giao | **Hợp đồng tích hợp** |
+| `MULTICA_WORKSPACE_ID` | ID không gian làm việc của task | **Hợp đồng tích hợp** |
+| `MULTICA_SERVER_URL` | URL UniAI server mà daemon chọn | **Hợp đồng tích hợp** |
+| `MULTICA_TASK_CONFIG_ROOT` | Thư mục gốc cấu hình UniAI CLI riêng, cục bộ cho task | Tham khảo |
+| `MULTICA_TASK_WORKSPACES_ROOT` | Thư mục gốc của các thư mục làm việc task do daemon quản lý | Tham khảo |
+| `MULTICA_AGENT_NAME` | Tên hiển thị của agent được giao | Tham khảo |
+| `MULTICA_DAEMON_PORT` | Cổng health/API của daemon cục bộ, dùng bởi các lệnh chỉ dành cho task như `uniai repo checkout` | Tham khảo |
+| `MULTICA_TASK_SLOT` | Vị trí slot trong bể đồng thời toàn daemon; hữu ích cho tài nguyên đánh chỉ số theo slot như GPU | Tham khảo |
+| `TMPDIR` | Thư mục tạm riêng của task đang chạy; cũng được cấp dưới dạng `TMP` và `TEMP`, trừ trên Windows, nơi task kế thừa đường dẫn tạm của người dùng để dùng chung `/tmp` của Git Bash; trên Windows, Claude Code mặc định đặt `CLAUDE_CODE_TMPDIR` thành thư mục tạm của task | Tham khảo |
+
+Server xác định tác giả cho các yêu cầu gửi bằng `MULTICA_TOKEN`; các thao tác ghi như bình luận issue được ghi nhận cho agent được giao và task đang chạy. Về ràng buộc đầy đủ của token, quyền, cách ghi nhận tác giả, thời hạn tối đa 24 giờ và hành vi dọn dẹp, xem [Token tạm thời cho lượt chạy của agent](/auth-tokens#temporary-tokens-for-agent-runs).
+
+<Callout type="warning">
+Các giá trị này nằm trong môi trường thực của tiến trình runtime. Mọi tiến trình con mà runtime khởi động mặc định kế thừa tất cả, kể cả `MULTICA_TOKEN`. Nếu một tiến trình con không nên giữ thông tin xác thực, hãy gỡ nó ra một cách tường minh; đừng dựa vào sự cô lập tiến trình vốn không tồn tại. Ngoại lệ lại theo chiều ngược: các công cụ tự lọc môi trường cho tiến trình con có thể cần một quy tắc cho phép tường minh. Ví dụ, shell tool của Codex bỏ các tên chứa `TOKEN`, `KEY` hoặc `SECRET`, nên daemon cài một chính sách shell được quản lý để cho phép các biến task cần thiết. Chỉ giữ token trong môi trường tiến trình — không bao giờ đưa vào prompt, log, file trong repository hay cấu hình lưu bền. Tiến trình con dùng chung danh tính và quyền của task cha; nó không nhận một danh tính mới có phạm vi độc lập.
+</Callout>
 
 ### Tạo profile
 
@@ -94,6 +122,23 @@ Profile được chia sẻ trong toàn không gian làm việc. Mỗi máy kết
 
 Trường lệnh nhận file thực thi và đối số, không phải một shell script. Đối số thường, dấu nháy và escape bằng backslash dùng được; pipe, redirect, `&&`, `;`, backtick và mở rộng biến môi trường thì không. Khi cần các hành vi đó, hãy đưa chúng vào một script bọc ngoài và dùng script đó làm lệnh.
 
+### Thứ tự sắp xếp đối số của bạn
+
+Mọi thứ bạn nhập trong trường lệnh luôn đứng ngay sau file thực thi, trước các đối số UniAI thêm vào:
+
+```text
+<your command> <your fixed arguments> <UniAI's protocol arguments> <the agent's custom arguments>
+```
+
+Đây là điều giúp wrapper kiểu subcommand hoạt động. Nếu lệnh của bạn là `ccms start q36`, công cụ thấy `start q36` trước và có thể chọn subcommand của nó trước khi `-p` của UniAI và phần còn lại tới — đó là thứ tự duy nhất mà wrapper kiểu này chấp nhận.
+
+Trước đây đối số của bạn được nối vào cuối. Phần lớn lệnh kiểu cờ phân tích như nhau theo cả hai cách, nhưng không phải lệnh nào cũng vậy — một lệnh phân biệt cờ toàn cục với cờ của subcommand có thể quan tâm cờ nằm ở đâu. Nếu bạn đã có profile với đối số cố định, hãy khởi động một lượt chạy trên nó sau khi nâng cấp để xác nhận vẫn hoạt động.
+
+Thêm hai hệ quả nên biết:
+
+- **Giá trị của UniAI thắng khi xung đột.** Nếu đối số cố định của bạn đặt một cờ mà UniAI cũng đặt, giá trị của UniAI đứng sau và có hiệu lực. Quan trọng nhất, mô hình chọn trên agent sẽ ghi đè `--model` ghim trong profile. Muốn ghim một mô hình cho mọi người, hãy để trống trường mô hình của các agent.
+- **Các cờ thiết yếu của giao thức bị bỏ qua.** `-p`, `--output-format`, `--input-format`, `--permission-mode` và các cờ tương đương của những họ khác bị loại khỏi đối số cố định của bạn, vì ghi đè chúng sẽ phá vỡ kết nối của daemon tới công cụ. Subcommand và các đối số vị trí khác luôn được truyền qua.
+
 Nếu daemon không tìm thấy một lệnh mà terminal của bạn chạy được, hãy đặt đường dẫn tuyệt đối cho máy hiện tại:
 
 ```bash
@@ -106,7 +151,7 @@ Gỡ ghi đè đường dẫn:
 uniai runtime profile unset-path <profile-id>
 ```
 
-Sửa profile chỉ ảnh hưởng các task nhận sau đó. Trước khi xóa profile, hãy xử lý các agent đang hoạt động còn gắn với runtime của nó. Chỉ xóa thể hiện runtime trên một máy không xóa profile — daemon đang chạy sẽ đăng ký lại nó.
+Sửa profile chỉ ảnh hưởng các lượt chạy nhận sau đó. Trước khi xóa profile, hãy xử lý các agent đang hoạt động còn gắn với runtime của nó. Chỉ xóa thể hiện runtime trên một máy không xóa profile — daemon đang chạy sẽ đăng ký lại nó.
 
 ## Chẩn đoán runtime offline
 
@@ -124,4 +169,4 @@ Nếu vấn đề vẫn còn, xem `uniai daemon logs -f` để lấy đúng thô
 
 - [Cài đặt công cụ lập trình AI](/install-agent-runtime) — cài và kiểm chứng một công cụ lập trình AI được hỗ trợ.
 - [So sánh công cụ lập trình AI](/providers) — so sánh mô hình, khôi phục phiên, MCP và hỗ trợ skill.
-- [Task](/tasks) — xếp hàng, dừng và thử lại.
+- [Lượt chạy](/tasks) — xếp hàng, dừng và thử lại.

@@ -59,19 +59,19 @@ func TestSquadAssignedLeaderCanWrapUpOnCommentTurn(t *testing.T) {
 		t.Fatalf("squad-assigned briefing must grant status ownership:\n%s", briefing)
 	}
 
-	// The runtime brief must not restate the prohibition in its absolute form,
-	// which is what contradicted the grant. The absolute sentence ends right
-	// after "explicitly asks for it"; the leader variant continues past it.
-	if strings.Contains(brief, "explicitly asks for it\n") {
-		t.Error("leader runtime brief still carries the unqualified no-status-change rule, " +
+	// The runtime brief must not carry a blanket no-status-change rule: any
+	// unqualified form of it contradicts the grant this leader just received.
+	if strings.Contains(brief, "Do NOT change the issue status") {
+		t.Error("leader runtime brief still carries an unqualified no-status-change rule, " +
 			"which contradicts the Own-the-parent-issue-status grant")
 	}
 	for _, want := range []string{
-		// The carve-out must name the granting section, not gesture at it —
-		// the leader has to be able to tell whether it applies to this turn.
-		`Squad Operating Protocol's "Own the parent issue status"`,
-		"only appears when this issue is assigned to your squad",
-		"without waiting to be asked",
+		// MUL-6417: the brief's status rule is a fact judgment, and the
+		// leader bullet must point the same way as the briefing's grant —
+		// in_review is reached on the confirming turn, not on dispatch.
+		"dispatching members is not delivery",
+		"a dispatch turn leaves the parent `in_progress`",
+		"where you confirm the overall goal is met",
 	} {
 		if !strings.Contains(brief, want) {
 			t.Errorf("leader runtime brief missing %q\n--- brief ---\n%s", want, brief)
@@ -80,7 +80,7 @@ func TestSquadAssignedLeaderCanWrapUpOnCommentTurn(t *testing.T) {
 
 	// End to end: both halves must agree that in_review is reachable here.
 	combined := briefing + "\n" + brief
-	if !strings.Contains(combined, "multica issue status <issue-id> in_review") {
+	if !strings.Contains(combined, "uniai issue status <issue-id> in_review") {
 		t.Error("combined instructions never tell the owning leader how to wrap up")
 	}
 }
@@ -112,13 +112,14 @@ func TestGuestLeaderCannotChangeStatusOnCommentTurn(t *testing.T) {
 		}
 	}
 
-	// But the grant is absent, so the runtime brief's carve-out has nothing to
-	// activate and the default prohibition governs.
+	// But the grant is absent: the briefing's prohibition governs (Agent
+	// Identity outranks the workflow), and the brief's fact-judgment rule
+	// (MUL-6417) hands the guest no runnable status command to contradict it.
 	if strings.Contains(briefing, "Own the parent issue status") {
 		t.Errorf("guest leader must not receive the status-ownership grant:\n%s", briefing)
 	}
 	combined := briefing + "\n" + brief
-	if strings.Contains(combined, "multica issue status <issue-id> in_review") {
+	if strings.Contains(combined, "uniai issue status <issue-id> in_review") {
 		t.Error("combined instructions hand a guest leader an in_review command for " +
 			"an issue assigned to someone else")
 	}
@@ -126,7 +127,7 @@ func TestGuestLeaderCannotChangeStatusOnCommentTurn(t *testing.T) {
 	compact := strings.Join(strings.Fields(briefing), " ")
 	for _, want := range []string{
 		"Do NOT change this issue's status",
-		"never run `multica issue status` on it",
+		"never run `uniai issue status` on it",
 	} {
 		if !strings.Contains(compact, want) {
 			t.Errorf("guest-leader briefing missing %q\n--- briefing ---\n%s", want, briefing)

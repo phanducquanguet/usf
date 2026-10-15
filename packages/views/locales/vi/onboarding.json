@@ -3,16 +3,13 @@
     "wordmark": "UniAI",
     "label": "Các bước khởi đầu",
     "about_you": {
-      "label": "Về bạn",
-      "description": "Vai trò của bạn và điều bạn muốn hoàn thành."
+      "label": "Về bạn"
     },
     "workspace": {
-      "label": "Không gian làm việc",
-      "description": "Đặt tên và chọn URL."
+      "label": "Không gian làm việc"
     },
     "runtime": {
-      "label": "Gặp Mika",
-      "description": "Đồng đội agent đầu tiên của bạn, và nơi nó chạy."
+      "label": "Gặp Mika"
     }
   },
   "welcome": {
@@ -27,7 +24,6 @@
     "continue_on_web": "Tiếp tục trên web",
     "start_exploring": "Bắt đầu khám phá",
     "skip_existing": "Tôi đã làm bước này rồi",
-    "illustration_caption": "Mọi issue, mọi cuộc thảo luận, mọi quyết định — được chia sẻ giữa nhóm của bạn và các agent.",
     "illustration": {
       "card1_actor_name": "Bạn",
       "card1_actor_initial": "N",
@@ -59,9 +55,9 @@
   },
   "source_backfill": {
     "eyebrow": "Một câu hỏi nhanh",
-    "lede": "Có vẻ bạn chưa chọn mục này khi đăng ký — nó giúp chúng tôi hiểu ai thấy UniAI hữu ích. Một câu hỏi thôi, rồi bạn quay lại công việc ngay.",
+    "lede": "Giúp chúng tôi hiểu bạn biết đến UniAI bằng cách nào.",
     "submit": "Gửi",
-    "hint_ready": "Ổn rồi. Nhấn Gửi khi bạn sẵn sàng."
+    "save_failed_toast": "Không thể lưu"
   },
   "questions": {
     "about_you": {
@@ -116,18 +112,20 @@
     "other_aria": "Mô tả lựa chọn khác"
   },
   "step_question": {
-    "hint_pick": "Chọn một mục để tiếp tục — hoặc bỏ qua nếu bạn không muốn trả lời.",
-    "hint_continue": "Ổn rồi. Nhấn Tiếp tục khi bạn sẵn sàng."
+    "hint_pick": "Bạn có thể bỏ qua bước này."
   },
   "cli_install": {
     "copy_aria": "Sao chép",
     "intro": "Bạn cần một agent runtime trên máy này (Claude Code, Codex, Cursor, …) để nó chạy agent của bạn. Cũng hoạt động trên server và máy dev từ xa.",
     "step1_label": "Cài đặt UniAI CLI",
+    "platform_group": "Chọn nền tảng của bạn",
+    "platform_macos_linux": "macOS / Linux",
+    "platform_windows": "Windows",
     "step2_label": "Khởi động daemon"
   },
   "cloud_waitlist": {
     "intro_main": "Runtime đám mây chưa ra mắt. Hãy để lại email và chúng tôi sẽ liên hệ khi sẵn sàng.",
-    "intro_warning": "Lưu ý: agent không thể thực thi task nếu không có runtime — nếu bạn nhấn Bỏ qua bây giờ, không gian làm việc của bạn sẽ ở chế độ chỉ xem cho đến khi bạn quay lại cài một runtime.",
+    "intro_warning": "Lưu ý: agent không thể bắt đầu lượt chạy khi chưa có runtime — nếu bạn bấm Bỏ qua bây giờ, sẽ không có gì chạy cho đến khi bạn quay lại và cài đặt một runtime.",
     "email_label": "Email",
     "email_placeholder": "you@work.com",
     "reason_label": "Vì sao chọn đám mây?",
@@ -142,7 +140,7 @@
     "skip": {
       "loading": "Đang thiết lập không gian làm việc của bạn…",
       "title": "Chào mừng đến với UniAI!",
-      "subtitle": "Chúng tôi đã thêm hai task để giúp bạn ở bước tiếp theo.",
+      "subtitle": "Chúng tôi đã thêm một issue để giúp bạn kết nối runtime. Khi đã sẵn sàng, hãy bắt đầu với Mika từ trang Runtime.",
       "got_it": "Đã hiểu",
       "status_in_progress": "Đang thực hiện",
       "error_title": "Chúng tôi không thể thiết lập mục đó",
@@ -172,8 +170,8 @@
     "issue_prefix_label": "Tiền tố issue",
     "issue_prefix_prefix": "Issue sẽ có dạng ",
     "issue_prefix_suffix": ". Bạn có thể đổi sau trong cài đặt.",
+    "issue_prefix_pending": "Đặt URL ở trên và số issue sẽ theo nó — hoặc nhập tiền tố tại đây.",
     "create_new_title": "Tạo không gian làm việc mới",
-    "create_new_subtitle": "Bắt đầu mới — một không gian riêng cho một mảng công việc khác.",
     "hint_opening": "Đang mở {{name}}.",
     "hint_creating": "Đang tạo {{name}}.",
     "hint_creating_pending": "Đang tạo {{name}}…",
@@ -202,7 +200,6 @@
     "scanning_lede_prefix": "Agent của bạn làm việc thông qua công cụ lập trình AI bạn đã có — như ",
     "scanning_lede_suffix": ", và nhiều công cụ khác. Chúng tôi đang kiểm tra máy này xem bạn đã cài công cụ nào.",
     "found_headline": "Máy tính này đã được kết nối. Hãy chọn một agent runtime.",
-    "found_lede": "Đây là các agent runtime chúng tôi tìm thấy trên máy này. Chọn một cái cho agent đầu tiên của bạn — bạn có thể đổi hoặc thêm sau.",
     "runtime_count_other": "{{count}} agent runtime",
     "status_all_online": "tất cả trực tuyến",
     "status_none_online": "không có cái nào trực tuyến",
@@ -213,7 +210,7 @@
     "empty_lede_prefix": "Agent runtime là công cụ lập trình AI mà chúng tôi kết nối tới — như ",
     "empty_lede_suffix": ". Hãy cài một cái rồi làm mới, hoặc chọn một hướng bên dưới.",
     "empty_skip_title": "Bỏ qua lúc này",
-    "empty_skip_subtitle": "Vào không gian làm việc ở chế độ chỉ xem. Agent của bạn không thể chạy task cho đến khi một agent runtime được kết nối trên máy này — nhưng bạn vẫn có thể xem, lên kế hoạch và mời đồng đội.",
+    "empty_skip_subtitle": "Agent không thể chạy cho đến khi có runtime được kết nối.",
     "empty_skip_action": "Bỏ qua",
     "empty_waitlist_title": "Dùng máy tính đám mây",
     "empty_waitlist_subtitle": "Chúng tôi sẽ chạy một máy tính cho bạn trên đám mây. Chưa ra mắt.",
@@ -224,16 +221,15 @@
     "hint_selected": "Đã chọn: {{name}}",
     "hint_pick": "Chọn một agent runtime ở trên để tiếp tục.",
     "hint_waiting": "Đang chờ kết quả đầu tiên…",
-    "hint_skip_or_refresh": "Làm mới sau khi cài, hoặc bỏ qua để vào không gian làm việc.",
     "continue": "Bắt đầu với Mika"
   },
   "step_platform": {
     "eyebrow": "Kết nối máy tính",
     "headline": "Kết nối một máy tính để chạy agent của bạn.",
-    "lede": "Agent của bạn chạy trên một máy tính thật mà bạn kết nối với UniAI. Chọn cách bạn muốn kết nối.",
-    "hint_default": "Chọn một cách kết nối — hoặc bỏ qua và kết nối máy tính sau.",
+    "lede": "Kết nối một máy tính để Mika có thể bắt đầu làm việc.",
+    "hint_default": "Bạn có thể kết nối sau.",
     "download_title": "Dùng máy tính này",
-    "download_subtitle": "Cài ứng dụng desktop của chúng tôi để kết nối máy này. Không cần thiết lập gì — chọn nền tảng của bạn ở trang tiếp theo.",
+    "download_subtitle": "Cài Desktop để kết nối máy tính này.",
     "download_button": "Tải xuống",
     "cli_title": "Kết nối từ terminal",
     "cli_subtitle": "Kết nối server, máy dev từ xa, hoặc bất kỳ máy nào không có màn hình. Cần terminal.",
@@ -242,7 +238,6 @@
     "cloud_subtitle": "Chúng tôi sẽ chạy một máy tính cho bạn trên đám mây. Chưa ra mắt.",
     "cloud_action": "Sắp ra mắt",
     "cli_dialog_title": "Kết nối từ terminal",
-    "cli_dialog_description": "Kết nối giống Desktop, nhưng thiết lập từ terminal. Dùng cho server, máy dev từ xa, hoặc bất kỳ máy nào không có màn hình.",
     "cli_dialog_pick_hint": "Chọn một máy tính ở trên.",
     "cli_dialog_connect": "Kết nối & tiếp tục",
     "runtimes_connected_other": "Đã kết nối {{count}} máy tính",

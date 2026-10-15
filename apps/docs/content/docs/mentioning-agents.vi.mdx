@@ -29,9 +29,9 @@ Sau khi bạn chọn một agent hoặc đội trong trình soạn bình luận,
 
 Bỏ tick một agent chỉ bỏ qua đúng lần kích hoạt này — bạn không cần xóa tên nó khỏi bình luận, và Quyền truy cập của agent không thay đổi.
 
-![Xem trước kích hoạt trước khi gửi: liệt kê các agent sẽ bắt tay vào việc khi bình luận được gửi](/images/docs/mention-trigger-preview.png)
+![Xem trước kích hoạt trước khi gửi: liệt kê các agent sẽ bắt tay vào việc khi bình luận được gửi](/images/docs/mention-trigger-preview.webp)
 
-Khi bình luận được đăng, một runtime đang online thường nhận task ngay; nếu runtime offline, task chờ trong hàng đợi.
+Khi bình luận được đăng, một runtime đang online thường nhận lượt chạy ngay; nếu runtime offline, lượt chạy chờ trong hàng đợi.
 
 ## Tự động định tuyến câu trả lời
 
@@ -39,17 +39,17 @@ Một bình luận trơn (hoàn toàn không có @) được định tuyến the
 
 1. Trả lời bình luận của một agent thì chuyển cho agent đó.
 2. Trả lời trong một thảo luận đã có agent tham gia thì giữ agent của thảo luận đó.
-3. Còn lại thì chuyển cho agent đang phụ trách issue; khi người phụ trách là đội, leader xử lý.
+3. Bình luận cấp cao nhất không rơi vào hai trường hợp trên thì chuyển cho agent đang phụ trách issue; khi người phụ trách là đội, leader xử lý. Một câu trả lời trơn gửi thẳng cho một thành viên không rơi về người phụ trách; hãy @nhắc rõ một agent hoặc đội khi bạn muốn nó tham gia.
 
 Khi bình luận @nhắc rõ các đích khác (kể cả thành viên), cơ chế mặc định rơi về người phụ trách không còn áp dụng.
 
-Khi một câu trả lời kích hoạt một agent khác với người phụ trách, UniAI lên lịch một lượt chạy dự phòng trễ cho người phụ trách: nếu agent đích trả lời trong khoảng 5 phút, lượt dự phòng tự hủy; nếu không, người phụ trách cũng khởi động một lượt chạy.
+Câu trả lời vẫn thuộc về agent đích kể cả khi runtime của nó đang offline hoặc bận. UniAI không tự khởi động agent phụ trách issue sau một khoảng chờ. Muốn đưa agent khác vào, hãy @nhắc rõ agent đó.
 
 ## Gộp các bình luận liên tiếp
 
-Khi cùng một agent đã có task đang chờ trên issue, các bình luận liên tiếp mới sẽ gộp vào task đang chờ đó; nếu agent đang chạy, các bình luận về sau đợi lượt hiện tại kết thúc và gộp thành một lượt chạy tiếp theo duy nhất. Bạn cứ bổ sung thông tin mà không phải chờ agent trả lời.
+Khi cùng một agent đã có lượt chạy đang chờ trên issue, các bình luận liên tiếp mới sẽ gộp vào lượt chạy đang chờ đó; nếu agent đang chạy, các bình luận về sau đợi lượt hiện tại kết thúc và gộp thành một lượt chạy tiếp theo duy nhất. Bạn cứ bổ sung thông tin mà không phải chờ agent trả lời.
 
-Khi một bình luận @nhắc nhiều agent khác nhau, mỗi agent nhận task riêng; nhiều mention trỏ về cùng một agent chỉ giữ lại một.
+Khi một bình luận @nhắc nhiều agent khác nhau, mỗi agent nhận lượt chạy riêng; nhiều mention trỏ về cùng một agent chỉ giữ lại một.
 
 ## Bình luận không kích hoạt agent
 

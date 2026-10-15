@@ -1,5 +1,6 @@
 "use client";
 
+import { statusCategoryOfKey } from "@multica/core/issues";
 import { useState } from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@multica/ui/components/ui/button";
@@ -7,7 +8,7 @@ import { MulticaIcon } from "@multica/ui/components/common/multica-icon";
 import { cn } from "@multica/ui/lib/utils";
 import { DragStrip } from "@multica/views/platform";
 import { STATUS_CONFIG } from "@multica/core/issues/config";
-import type { IssueStatus } from "@multica/core/types";
+import type { BuiltInIssueStatus } from "@multica/core/types";
 import { StatusIcon } from "../../issues/components/status-icon";
 import { ProviderLogo } from "../../runtimes/components/provider-logo";
 import { useT } from "../../i18n";
@@ -139,9 +140,6 @@ export function StepWelcome({
       <div className="hidden border-l bg-muted/40 lg:flex lg:flex-1 lg:flex-col lg:overflow-hidden">
         <DragStrip />
         <div className="flex flex-1 flex-col items-center justify-center gap-7 px-8 py-8">
-          <p className="max-w-[440px] text-balance text-center font-serif text-body-lg italic leading-snug text-muted-foreground">
-            {t(($) => $.welcome.illustration_caption)}
-          </p>
           <WelcomeIllustration />
         </div>
       </div>
@@ -264,7 +262,7 @@ function MockActivityCard({
   actor: ActivityActor;
   issueId: string;
   content: React.ReactNode;
-  status?: Extract<IssueStatus, "in_progress" | "done" | "in_review">;
+  status?: Extract<BuiltInIssueStatus, "in_progress" | "done" | "in_review">;
   timestamp?: string;
   className?: string;
 }) {
@@ -326,10 +324,16 @@ function StatusFooter({
   status,
   timestamp,
 }: {
-  status: IssueStatus;
+  status: BuiltInIssueStatus;
   timestamp?: string;
 }) {
-  const cfg = STATUS_CONFIG[status];
+  // The illustration's statuses are hard-coded BUILT-IN keys, so the label
+  // resolves from i18n exactly the way `useStatusLabel` does for real issues
+  // (MUL-6243) — `STATUS_CONFIG` still owns the icon color, but its `.label`
+  // is the server's English seed and must never reach the screen.
+  const { t } = useT("issues");
+  const category = statusCategoryOfKey(status);
+  const cfg = STATUS_CONFIG[category];
   return (
     <div className="mt-3 flex items-center gap-2 text-caption">
       <span
@@ -342,7 +346,7 @@ function StatusFooter({
             status === "in_progress" && "animate-pulse",
           )}
         />
-        {cfg.label}
+        {t(($) => $.status[status])}
       </span>
       {timestamp && (
         <>

@@ -13,7 +13,6 @@
   "delete_issue": {
     "title": "Xóa issue",
     "description": "Issue này cùng toàn bộ bình luận sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác.",
-    "hint": "Mọi thành viên của không gian làm việc đều có thể xóa issue.",
     "cancel": "Hủy",
     "confirm": "Xóa",
     "deleting": "Đang xóa...",
@@ -29,14 +28,16 @@
     "toast_failed": "Không thể gửi phản hồi",
     "send": "Gửi phản hồi",
     "sending": "Đang gửi…",
-    "github_hint_prefix": "Muốn được xử lý nhanh hơn và thảo luận công khai? Hãy đến ",
+    "github_hint_prefix": "Bạn cũng có thể gửi phản hồi trên ",
     "github_hint_link": "GitHub"
   },
   "issue_picker": {
     "search_placeholder": "Tìm issue...",
     "searching": "Đang tìm...",
     "no_results": "Không tìm thấy issue nào.",
-    "prompt_to_search": "Nhập để tìm issue"
+    "prompt_to_search": "Nhập để tìm issue",
+    "suggested_similar": "Tiêu đề tương tự",
+    "suggested_recent": "Đã xem gần đây"
   },
   "set_parent": {
     "title": "Đặt issue cha",
@@ -54,10 +55,10 @@
     "title_assign": "Giao việc và bắt đầu?",
     "assign_single": "Giao issue này cho {{name}}. Họ sẽ bắt đầu ngay nếu đủ điều kiện chạy.",
     "assign_batch": "Giao {{count}} issue cho {{name}}. Họ sẽ bắt đầu ngay nếu đủ điều kiện chạy.",
-    "note_label": "Ghi chú bàn giao (không bắt buộc)",
-    "note_placeholder": "Cho họ biết điều quan trọng — phạm vi, trọng tâm, hoặc điều cần tránh…",
-    "note_unsupported": "Runtime của họ quá cũ để nhận ghi chú bàn giao này; ghi chú có thể không được đọc.",
+    "title_promote": "Bắt đầu làm ngay?",
+    "promote_single": "Chuyển issue này sang {{status}}. {{name}} sẽ bắt đầu ngay nếu thỏa điều kiện chạy.",
     "confirm_assign": "Xác nhận giao việc",
+    "confirm_promote": "Chuyển và bắt đầu",
     "dont_start": "Chưa bắt đầu",
     "toast_failed": "Thao tác thất bại",
     "create_will_start": "{{name}} sẽ bắt đầu làm ngay sau khi tạo.",
@@ -72,11 +73,11 @@
     "description_label": "Mô tả",
     "description_placeholder": "Mô tả trách nhiệm của đội này...",
     "leader_label": "Agent đội trưởng",
-    "leader_hint": "Đội trưởng nhận mọi task được giao cho đội và điều phối cả nhóm.",
+    "leader_hint": "Đội trưởng nhận mọi issue được giao cho đội này và điều phối cả đội.",
     "leader_placeholder": "Chọn agent đội trưởng",
     "members_label": "Thành viên bổ sung",
     "members_optional": "(không bắt buộc)",
-    "members_hint": "Những thành viên mà đội trưởng có thể giao task con. Có thể thêm sau.",
+    "members_hint": "Đội trưởng có thể giao issue con cho các thành viên này.",
     "members_placeholder": "Thêm agent hoặc thành viên không gian làm việc",
     "members_selected_count_other": "Đã chọn {{count}}",
     "members_more_count": "+{{count}}",
@@ -100,7 +101,7 @@
     "icon_tooltip": "Chọn biểu tượng",
     "title_placeholder": "Tên dự án",
     "description_placeholder": "Thêm mô tả...",
-    "description_hint": "Được chia sẻ với agent làm ngữ cảnh cho mọi task trong dự án này.",
+    "description_hint": "Được chia sẻ với agent làm ngữ cảnh cho mọi lượt chạy trong dự án này.",
     "lead": "Phụ trách",
     "no_lead": "Chưa có người phụ trách",
     "set_start_date": "Đặt ngày bắt đầu...",
@@ -136,7 +137,8 @@
     "local_clear": "Xóa",
     "local_pick_failed": "Không thể mở hộp chọn thư mục.",
     "local_invalid_dir": "Không dùng được thư mục này. Hãy chọn thư mục khác.",
-    "local_hint": "Agent trên máy khác sẽ không thấy đường dẫn này — chúng sẽ không khởi động được. Dùng repo cho công việc chung."
+    "local_hint": "Agent trên máy khác sẽ không thấy đường dẫn này — chúng sẽ không khởi động được. Dùng repo cho công việc chung.",
+    "repos_ref_default": "Nhánh mặc định"
   },
   "create_issue": {
     "sr_manual": "Tạo issue mới",
@@ -154,10 +156,37 @@
     "toast_failed": "Không thể tạo issue",
     "toast_duplicate_title": "Issue trùng lặp",
     "toast_duplicate_view": "Xem issue đã có",
+    "issue_limit": {
+      "title": "Không gian làm việc này đã đạt giới hạn issue",
+      "checking_description": "Đang kiểm tra các thao tác thanh toán khả dụng cho không gian làm việc này…",
+      "upgrade_description": "Nâng cấp lên Pro để tiếp tục tạo issue.",
+      "portal_description": "Mở Billing Portal để quản lý gói đăng ký của không gian làm việc này và khôi phục việc tạo issue.",
+      "contact_description": "Hãy nhờ chủ sở hữu hoặc quản trị viên không gian làm việc nâng cấp lên Pro.",
+      "billing_description": "Mở Thanh toán để xem các tùy chọn nâng cấp khả dụng cho không gian làm việc này.",
+      "billing_unavailable_description": "Không thể tải các thao tác thanh toán. Mở Thanh toán để thử lại.",
+      "billing_disabled_description": "Xóa một issue hiện có để giải phóng chỗ, hoặc liên hệ quản trị viên không gian làm việc.",
+      "upgrade_action": "Nâng cấp lên Pro",
+      "portal_action": "Mở Billing Portal",
+      "billing_action": "Xem Thanh toán"
+    },
+    "autopilot_quota_limit": {
+      "title": "Không gian làm việc này đã đạt giới hạn lượt chạy autopilot",
+      "checking_description": "Đang kiểm tra các thao tác thanh toán khả dụng cho không gian làm việc này…",
+      "upgrade_description": "Nâng cấp lên Pro để khôi phục lượt chạy autopilot.",
+      "portal_description": "Mở Billing Portal để quản lý gói đăng ký của không gian làm việc này và khôi phục lượt chạy autopilot.",
+      "contact_description": "Hãy nhờ chủ sở hữu hoặc quản trị viên không gian làm việc nâng cấp lên Pro.",
+      "billing_description": "Mở Thanh toán để xem các tùy chọn nâng cấp khả dụng cho không gian làm việc này.",
+      "billing_unavailable_description": "Không thể tải các thao tác thanh toán. Mở Thanh toán để thử lại.",
+      "billing_disabled_description": "Chờ hạn mức hiện tại được đặt lại, hoặc liên hệ quản trị viên không gian làm việc.",
+      "upgrade_action": "Nâng cấp lên Pro",
+      "portal_action": "Mở Billing Portal",
+      "billing_action": "Xem Thanh toán"
+    },
     "toast_link_subissues_all_failed": "Không thể liên kết các issue con",
     "toast_link_subissues_partial": "Không thể liên kết {{failed}} trong số {{total}} issue con",
     "toast_link_labels_failed": "Không thể gắn nhãn",
     "toast_set_properties_failed": "Không thể đặt {{count}} giá trị thuộc tính tùy chỉnh",
+    "unavailable_property_removed": "Một thuộc tính tùy chỉnh không khả dụng đã bị gỡ khỏi bản nháp. Hãy xem lại trước khi gửi lại.",
     "switch_to_agent": "Chuyển sang agent",
     "switch_to_agent_tooltip": "Chuyển sang tạo bằng agent — mô tả trong một dòng và để agent lập issue",
     "switch_to_manual": "Chuyển sang thủ công",
@@ -199,6 +228,7 @@
       "version_missing": "Daemon của agent này không báo phiên bản CLI. Tạo bằng agent cần UniAI CLI ≥ {{min}}. Hãy nâng cấp daemon rồi kết nối lại, hoặc chuyển sang tạo thủ công.",
       "version_below": "CLI của daemon agent này là {{current}} — Tạo bằng agent cần ≥ {{min}}. Hãy nâng cấp daemon, hoặc chuyển sang tạo thủ công.",
       "prompt_placeholder": "Nói cho agent biết cần làm gì, vd. \"nhờ Bohan sửa lỗi tải chậm hộp thư đến trong dự án Web\"",
+      "source_context_prompt_placeholder": "Cho agent biết cần làm gì với ngữ cảnh này, ví dụ \"tiếp tục điều tra và sửa vấn đề được mô tả ở đây\"",
       "more_fields_aria": "Trường khác",
       "set_project": "Chọn dự án...",
       "set_priority": "Đặt độ ưu tiên...",
@@ -216,5 +246,13 @@
       "error_unknown": "Gửi thất bại. Hãy thử lại.",
       "sub_issue_of": "Issue con của {{identifier}}"
     }
+  },
+  "mark_duplicate": {
+    "title": "Đánh dấu là trùng lặp",
+    "description": "Tìm issue gốc. Issue này sẽ bị hủy và liên kết với issue gốc.",
+    "toast_success": "Đã đánh dấu là trùng lặp của {{identifier}}",
+    "toast_failed": "Không thể đánh dấu là trùng lặp",
+    "error_target_is_duplicate": "Bản thân {{identifier}} là một bản trùng lặp. Hãy chọn issue gốc của nó.",
+    "error_has_duplicates": "Có issue khác được đánh dấu là trùng lặp của issue này. Hãy gỡ các đánh dấu đó trước."
   }
 }

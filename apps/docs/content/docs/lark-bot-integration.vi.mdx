@@ -58,7 +58,7 @@ Dòng đầu thành tiêu đề, phần còn lại thành mô tả. Gửi mỗi 
 
 ## Quản lý kết nối
 
-Mở **Cài đặt → Integrations** để xem các Bot đã kết nối trong không gian làm việc. Owner và admin của không gian làm việc có thể ngắt kết nối tại đây; owner của agent cũng quản lý được Bot của mình từ trang **Integrations** của agent đó.
+Mở **Cài đặt → Messaging → Lark** để xem các Bot đã kết nối trong không gian làm việc. Owner và admin của không gian làm việc có thể ngắt kết nối tại đây; owner của agent cũng quản lý được Bot của mình từ trang **Integrations** của agent đó.
 
 Sau khi ngắt kết nối, Bot ngừng nhận tin nhắn mới. Các cuộc trò chuyện và bản ghi kiểm toán hiện có không bị xóa.
 
@@ -68,6 +68,7 @@ Sau khi ngắt kết nối, Bot ngừng nhận tin nhắn mới. Các cuộc tr�
 - **Mã QR hết hạn**: đóng hộp thoại và bắt đầu lại kết nối.
 - **Bot yêu cầu liên kết tài khoản**: mở đường dẫn liên kết và đăng nhập bằng tài khoản UniAI của không gian làm việc đó.
 - **Bot không chạy**: kiểm tra agent có bị lưu trữ không và [runtime](/daemon-runtimes) nó dùng có trực tuyến không.
+- **Bot hoàn toàn không bao giờ trả lời**: app phải đẩy sự kiện qua kết nối dài — UniAI không có endpoint webhook. Trong developer console của Feishu/Lark, mở **Events & Callbacks → Event Configuration** và xác nhận phương thức đăng ký là kết nối dài chứ không phải request URL, đã đăng ký `im.message.receive_v1`, và phiên bản app chứa cấu hình đó đã được phát hành (và đã được duyệt, nếu tenant có xét duyệt bản phát hành). App đặt request URL vẫn gắn được, vẫn hiện Connected, nhưng âm thầm không nhận được gì.
 
 ## Bước tiếp theo
 

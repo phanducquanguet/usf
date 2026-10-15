@@ -1,6 +1,6 @@
 ---
 title: Tài nguyên dự án
-description: Gắn repository GitHub hoặc thư mục cục bộ vào dự án để các lần chạy sau có ngữ cảnh làm việc ổn định.
+description: Gắn repository GitHub hoặc thư mục cục bộ vào dự án để các lượt chạy sau có ngữ cảnh làm việc ổn định.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -14,19 +14,19 @@ Hiện hỗ trợ hai kiểu tài nguyên:
 | **Repository GitHub** | Mã nguồn cả nhóm dùng chung, checkout do runtime quản lý | Thư mục làm việc do runtime quản lý |
 | **Thư mục cục bộ** | Một bản checkout sẵn có, repository rất lớn, hoặc khi bạn muốn xem trực tiếp các thay đổi trên máy | Chính thư mục gốc trên một máy cụ thể |
 
-## Tài nguyên đi vào lần chạy như thế nào
+## Tài nguyên đi vào lượt chạy như thế nào
 
-Khi agent xử lý issue trong dự án, UniAI thêm tên dự án, mô tả dự án và danh sách tài nguyên vào ngữ cảnh của lần chạy, đồng thời ghi `.multica/project/resources.json` vào thư mục làm việc.
+Khi agent xử lý issue trong dự án, UniAI thêm tên dự án, mô tả dự án và danh sách tài nguyên vào ngữ cảnh của lượt chạy, đồng thời ghi `.multica/project/resources.json` vào thư mục làm việc.
 
-Danh sách repository gắn với không gian làm việc luôn có mặt trong ngữ cảnh của lần chạy. Repository gắn với dự án thì chỉ rõ thêm mã nguồn và ref mặc định mà phần việc này dùng.
+Danh sách repository gắn với không gian làm việc luôn có mặt trong ngữ cảnh của lượt chạy. Repository gắn với dự án thì chỉ rõ thêm mã nguồn và ref mặc định mà phần việc này dùng.
 
-Thư mục cục bộ chỉ áp dụng cho daemon nó được gắn. Khi daemon chạy task có thư mục cục bộ khớp, agent làm việc trực tiếp trong thư mục đó; các máy khác vẫn dùng repository GitHub của dự án hoặc repository của không gian làm việc.
+Thư mục cục bộ chỉ áp dụng cho daemon nó được gắn. Khi daemon thực thi lượt chạy có thư mục cục bộ khớp, agent làm việc trực tiếp trong thư mục đó; các máy khác vẫn dùng repository GitHub của dự án hoặc repository của không gian làm việc.
 
 ## Thêm repository GitHub
 
-Mở dự án và chọn "Add resource" dưới mục **Resources**. Chọn một repository đã gắn với không gian làm việc, hoặc dán một URL Git. Repository của không gian làm việc được quản lý ở **Settings → Repositories**; sau khi kết nối GitHub, trang này có thêm **Pick from GitHub** để nhập các repository mà App được cấp quyền.
+Mở dự án và chọn "Add resource" dưới mục **Resources**. Chọn một repository đã gắn với không gian làm việc, hoặc dán một URL Git. Repository của không gian làm việc được quản lý ở **Settings → Code**; sau khi kết nối GitHub, trang này có thêm **Pick from GitHub** để nhập các repository mà App được cấp quyền.
 
-Repository không giới hạn ở GitHub: mọi URL Git mà runtime truy cập được đều dùng được làm tài nguyên repository. Bản UniAI self-hosted còn kết nối được Forgejo, Gitea hoặc GitLab tự vận hành ở **Settings → Integrations → Git hosting**; xem [Git provider tự vận hành](/vcs-integration).
+Repository không giới hạn ở GitHub: mọi URL Git mà runtime truy cập được đều dùng được làm tài nguyên repository. Bản UniAI self-hosted còn kết nối được Forgejo, Gitea hoặc GitLab tự vận hành ở **Settings → Code**; xem [Git provider tự vận hành](/vcs-integration).
 
 Khi tạo dự án, bạn cũng chọn được repository ngay dưới mục **Repos**. Một dự án gắn được nhiều repository GitHub.
 
@@ -37,33 +37,62 @@ Khi tạo dự án, bạn cũng chọn được repository ngay dưới mục **
 Thêm thư mục cục bộ cần một daemon đang chạy trên máy đó, vì trình duyệt không thể chọn thư mục trên máy của bạn.
 
 <Callout type="warning">
-**Đây là lối thoát hiểm, không phải một mặc định tiện hơn.** `local_directory` tồn tại cho những ai không còn lựa chọn khác — trường hợp điển hình là dự án game với bản checkout hàng chục gigabyte, nơi clone lại theo từng task đơn giản là bất khả thi.
+**Đây là lối thoát hiểm, không phải một mặc định tiện hơn.** `local_directory` tồn tại cho những ai không còn lựa chọn khác — trường hợp điển hình là dự án game với bản checkout hàng chục gigabyte, nơi clone lại theo từng lượt chạy đơn giản là bất khả thi.
 
-Nếu thư mục của bạn là một repo git bình thường clone được, **hãy dùng `github_repo`**: nó mặc định chạy ở chế độ worktree, nên các task trên cùng repo chạy song song không giới hạn. Chọn `local_directory` nghĩa là mọi task trên thư mục đó chạy **tuyệt đối tuần tự, mỗi lúc một task, mãi mãi**. Đọc kỹ phần "khi nào chọn" bên dưới trước khi quyết định.
+Nếu thư mục của bạn là một repo git bình thường clone được, **hãy dùng `github_repo`**: nó mặc định dùng chế độ worktree, cho phép số lượt chạy song song không giới hạn trên cùng repo. `local_directory` **mặc định xử lý mỗi lúc một lượt chạy**; nếu thư mục là repo git, bạn có thể chọn bật chế độ worktree để lấy lại khả năng chạy song song (xem "Các lượt chạy dùng chung thư mục ra sao"). Đọc kỹ phần "khi nào chọn" bên dưới trước khi quyết định.
 </Callout>
 
 
 1. Đảm bảo daemon cục bộ trên máy này đang online.
-2. Mở mục **Resources** của dự án.
+2. Mở mục **Resources** của dự án, hoặc tab **Local directory** trong hộp thoại tạo dự án — lựa chọn này có sẵn ngay cả trước khi dự án tồn tại.
 3. Chọn "Add local directory", rồi chọn thư mục muốn dùng.
+4. Chọn cách các lượt chạy dùng thư mục — **Direct** hoặc **Parallel**, mô tả ở phần "Các lượt chạy dùng chung thư mục ra sao". Hộp thoại chọn sẵn **Parallel** khi thư mục là repository git mà runtime trên máy đó cô lập được, và **Direct** trong các trường hợp khác. Đổi ngay tại đó, hoặc sau này từ **Resources** bằng biểu tượng bút chì cạnh thư mục.
+
+Việc chọn sẵn chỉ áp dụng cho thư mục bạn đang gắn lúc này. Thư mục gắn trước đó giữ nguyên chế độ đã lưu — một thiết lập sẵn có không bao giờ bị đổi sau lưng bạn.
 
 Thư mục phải là đường dẫn tuyệt đối, phải tồn tại sẵn, và daemon hiện tại phải đọc và ghi được. Các đường dẫn sau bị từ chối: gốc hệ thống và gốc ổ đĩa (`/`, `C:\`), chính thư mục home và thư mục cha của các thư mục home (như `/Users`, `/home`, `/root`), cùng các thư mục hệ thống như `/etc`, `/var`, `/tmp`, `/usr` và `/opt`. Nếu đường dẫn được chọn là symlink, nó được phân giải về đường dẫn thật trước rồi kiểm tra lại theo cùng bộ quy tắc; khóa tuần tự cũng áp dụng trên đường dẫn thật.
 
 Mỗi dự án gắn được tối đa một thư mục cục bộ cho mỗi daemon. Các máy khác nhau trong nhóm đều gắn được thư mục riêng của mình cho cùng một dự án.
 
 <Callout type="warning">
-Thư mục cục bộ không phải môi trường cách ly. Agent nhìn thấy và sửa trực tiếp nhánh hiện tại cùng các file chưa commit của bạn; UniAI không tự chuyển nhánh, stash, commit, push hay mở PR.
+Ở chế độ mặc định `in_place`, thư mục cục bộ không phải môi trường cách ly: agent nhìn thấy và sửa trực tiếp nhánh hiện tại cùng các file chưa commit của bạn, và UniAI không tự chuyển nhánh, stash, commit, push hay mở PR. Chế độ worktree thay đổi điều này — xem "Các lượt chạy dùng chung thư mục ra sao" bên dưới.
 </Callout>
 
-## Thư mục cục bộ chạy tuần tự
+<span id="how-tasks-share-the-directory" />
 
-Khi hai task dùng cùng một thư mục thật, task đến sau vào trạng thái `waiting_local_directory` và tiếp tục sau khi task trước nhả thư mục. Hai đường dẫn dẫn tới cùng một thư mục qua các symlink khác nhau cũng tuần tự hóa như vậy.
+## Các lượt chạy dùng chung thư mục ra sao
 
-Việc chờ không đụng vào thư mục. Task đang chờ có thể bị hủy; nếu không, nó chờ tới khi thư mục sẵn sàng.
+Thư mục cục bộ có hai chế độ thực thi, đặt riêng cho từng tài nguyên qua `execution_mode`. Ứng dụng web gọi chúng là **Direct** và **Parallel**; API, CLI và phần còn lại của trang này dùng các định danh.
 
-Muốn làm nhiều thay đổi cùng lúc, hãy dùng tài nguyên repository GitHub để runtime chuẩn bị thư mục làm việc riêng cho từng phần việc.
+### `in_place` (mặc định) — "Direct"
 
-## Những gì được ghi trong lần chạy
+Agent làm việc trực tiếp trong thư mục của bạn, và các lượt chạy thực thi lần lượt từng cái một. Khi hai lượt chạy dùng cùng một thư mục thật, lượt đến sau vào trạng thái `waiting_local_directory` và tiếp tục sau khi lượt trước nhả thư mục. Hai đường dẫn dẫn tới cùng một thư mục qua các symlink khác nhau cũng tuần tự hóa như vậy.
+
+Việc chờ không đụng vào thư mục. Lượt chạy đang chờ có thể bị hủy; nếu không, nó chờ tới khi thư mục sẵn sàng.
+
+### `worktree` — "Parallel"
+
+Mỗi lượt chạy nhận một [git worktree](https://git-scm.com/docs/git-worktree) riêng của repo, tạo bên trong thư mục làm việc của chính runtime. **Các lượt chạy trên cùng thư mục chạy song song — không lượt nào phải chờ**, và không lượt nào ghi vào bản làm việc của bạn.
+
+Yêu cầu thư mục là một repository git có ít nhất một commit. Nếu không, lượt chạy thất bại với lỗi rõ ràng thay vì lặng lẽ quay về thực thi tuần tự. Runtime trên máy đó cũng phải hỗ trợ chế độ này. Runtime khai báo điều đó khi kết nối, và UniAI dựa vào khai báo chứ không dựa vào số phiên bản — một bản build phát triển có thể mang chuỗi phiên bản trông đủ mới mà không có phần cài đặt nào. Khai báo được kiểm tra hai lần: việc lưu tài nguyên bị từ chối, kèm gợi ý cập nhật daemon trên máy đó, khi runtime của nó chưa khai báo khả năng này; và mỗi lượt chạy được kiểm tra lại với runtime thực sự nhận nó — nên một máy bị hạ cấp sau khi tài nguyên đã lưu sẽ có các lượt chạy bị hủy kèm lý do, thay vì lặng lẽ chạy tại chỗ. Yêu cầu `worktree` là yêu cầu sự cô lập; sửa trực tiếp bản làm việc của bạn không bao giờ là phương án dự phòng.
+
+Agent thấy gì, và bạn nhận lại gì:
+
+- **Agent bắt đầu từ những gì bạn thấy, không phải từ `HEAD`.** Các sửa đổi chưa commit và file chưa được theo dõi của bạn được phát lại vào worktree, nên agent không review mã bạn đã không còn. Bản làm việc, index và danh sách stash của bạn không bao giờ bị đụng tới. Nếu trạng thái đó không tái tạo trung thực được — kể cả khi nội dung chưa được theo dõi vượt quá phạm vi phát lại (2000 file / 200 MiB) — lượt chạy thất bại thay vì bắt đầu từ một cây mà bạn không nhận ra. Cách khắc phục thường gặp là gitignore hoặc dọn sạch output build chưa được ignore.
+- **Kết quả là một nhánh trong repo của bạn**, mỗi issue một nhánh chứ không phải mỗi lượt chạy một nhánh: `agent/<agent>/<issue>` (chat thì dùng `agent/<agent>/chat-<session>`). Bảng **Run details** của lượt chạy hiển thị tên nhánh (và cho phép sao chép); bạn cũng tìm được nó bằng `git branch`. Review bằng `git log` / `git diff`, rồi tự merge hoặc cherry-pick. UniAI không bao giờ merge thay bạn. Lượt chạy thất bại giữa chừng vẫn báo nhánh của nó, vì nó vẫn commit những gì agent đã tạo ra.
+- **Lượt tiếp theo nối tiếp chỗ lượt trước dừng.** Bình luận kế tiếp trên cùng issue checkout lại nhánh đó, nên agent đứng trên chính công việc nó vừa giao, thay vì bắt đầu từ `HEAD` với thay đổi của mình bị bỏ lại trên một nhánh khác. Chỉ những gì bạn đổi trong thư mục của mình kể từ lượt trước mới được phát lại lên trên — nhánh đã mang phần còn lại. Merge nhánh xong thì lượt chạy kế tiếp lại bắt đầu từ `HEAD` của bạn. Nếu hai lượt chạy trên một issue chồng lấn nhau, lượt thứ hai rẽ nhánh từ công việc của lượt thứ nhất sang `agent/<agent>/<issue>-<task>`, vì git chỉ cho phép một worktree mỗi nhánh.
+- **Nếu sửa đổi của bạn xung đột với của agent, agent sẽ giải quyết.** Khi bạn viết lại đúng những dòng agent đã viết lại, git không quyết được phiên bản nào thắng, nên lượt chạy bắt đầu trên một worktree đang xung đột và được yêu cầu hoàn tất merge trước mọi việc khác — `git status` trong worktree đó liệt kê các đường dẫn chưa merge. Lượt chạy còn để lại bất kỳ file nào chưa merge thì không giao gì cả: nó thất bại, giữ lại worktree, và lượt chạy kế tiếp đưa ra lại đúng các sửa đổi đó, nên thay đổi của bạn không bao giờ bị lặng lẽ bỏ qua.
+- **Chỉ những nhánh UniAI sở hữu mới được nối tiếp.** Việc nối tiếp một nhánh được quyết định bởi bản ghi sở hữu, không phải bởi tên: bản ghi nêu cuộc hội thoại, và nêu commit mà nhánh được để lại. Một nhánh do bạn tự tạo mà tình cờ tên là `agent/<agent>/<issue>` không bao giờ bị checkout, nối thêm hay được đọc như một lượt chạy trước — nhánh không còn chứa commit đã ghi cũng vậy, nên việc xóa nhánh của UniAI rồi tự tạo nhánh trùng tên, hoặc force-move nó sang lịch sử khác, đều an toàn. Trong các trường hợp đó, lượt chạy dùng `agent/<agent>/<issue>-<id>` thay thế. Commit chồng lên một nhánh đã giao là trường hợp bình thường và giữ cho nhánh tiếp tục được nối — commit của bạn đơn giản là có mặt ở lượt chạy sau. Mỗi nhánh cũng bắt đầu bằng một commit cơ sở riêng, đánh dấu cây mà lượt chạy đầu tiên khởi đầu — commit đó là thứ nhận diện nhánh về sau, và `git diff <baseline>..<branch>` chính xác là công việc của agent. Lượt chạy không ghi được nhánh của mình — thất bại trước khi xong, không ghi được bản ghi, hoặc đã reset worktree vượt qua commit mang sửa đổi của bạn vào nhánh — sẽ báo thất bại và giữ lại worktree, và các lượt chạy sau bắt đầu nhánh mới thay vì nối tiếp một nhánh chúng không chứng minh được là của mình.
+- **Không gì bị lặng lẽ bỏ đi.** Mọi thứ agent để lại chưa commit đều được commit vào nhánh đó trước khi worktree bị xóa, kể cả khi lượt chạy thất bại giữa chừng. Trong trường hợp hiếm mà chính commit đó không tạo được — ví dụ repo bật `commit.gpgSign` mà runtime không có khóa ký — worktree được cố ý giữ lại thay vì xóa, lượt chạy được báo là thất bại, và `git worktree list` trong repo của bạn chỉ tới thư mục chứa công việc.
+- **Lượt chạy không thay đổi gì thì không để lại gì.** Nhánh của nó bị xóa thay vì để lại một mục rỗng trong `git branch` — trừ khi đó là nhánh của issue đang mang công việc của các lượt chạy trước, loại nhánh này luôn được giữ.
+
+Vì worktree nằm trong thư mục làm việc của runtime, nó được thu hồi theo lịch dọn dẹp thông thường. Hai thứ tồn tại lâu dài trong repo của bạn: nhánh, và một ref ẩn cho mỗi nhánh dưới `refs/multica/local-state/` ghi lại ai sở hữu nhánh và thư mục của bạn trông thế nào ở lần nối tiếp gần nhất. Các ref ẩn không bao giờ xuất hiện trong `git branch`; liệt kê chúng bằng `git for-each-ref refs/multica`. UniAI xóa từng ref cùng với nhánh của nó, và bỏ những ref có nhánh bạn đã tự xóa vào lần tới một lượt chạy bắt đầu trên repo đó — hoặc bạn có thể xóa tất cả ngay bằng `git for-each-ref --format='%(refname)' refs/multica | xargs -n1 git update-ref -d`.
+
+<Callout type="info">
+Chế độ worktree áp dụng cho repository git. Thư mục thường không phải git vẫn chạy tuần tự — đó là lý do có `in_place`.
+</Callout>
+
+## Những gì được ghi trong lượt chạy
 
 Ngoài các thay đổi mã do agent thực hiện, runtime còn có thể ghi vào thư mục các file hướng dẫn mà công cụ lập trình AI hiện tại cần, cùng `.multica/project/resources.json`. Thêm chúng vào `.gitignore` nếu bạn không muốn đưa vào quản lý phiên bản.
 
@@ -90,14 +119,25 @@ uniai project resource add <project-id> \
   --local-path /absolute/path/to/repo \
   --daemon-id <daemon-id>
 
+# Gắn một repo git cục bộ và cho các lượt chạy thực thi song song trong worktree riêng
+uniai project resource add <project-id> \
+  --type local_directory \
+  --local-path /absolute/path/to/repo \
+  --daemon-id <daemon-id> \
+  --execution-mode worktree
+
+# Chuyển một thư mục cục bộ sẵn có giữa các chế độ
+uniai project resource update <project-id> <resource-id> --execution-mode worktree
+uniai project resource update <project-id> <resource-id> --execution-mode in_place
+
 # Gỡ một tài nguyên
 uniai project resource remove <project-id> <resource-id>
 ```
 
-Thay đổi tài nguyên chỉ ảnh hưởng các task tạo sau đó; nó không viết lại hồ sơ của những lần chạy đã kết thúc.
+Thay đổi tài nguyên chỉ ảnh hưởng các lượt chạy tạo sau đó; nó không viết lại hồ sơ của những lượt chạy đã kết thúc.
 
 ## Bước tiếp theo
 
 - [Dự án](/projects) — tìm hiểu ngữ cảnh dự án, tiến độ và lead.
-- [Daemon và runtime](/daemon-runtimes) — tìm hiểu máy nào nhận task.
-- [Task](/tasks) — xem các trạng thái chạy như `waiting_local_directory`.
+- [Daemon và runtime](/daemon-runtimes) — tìm hiểu máy nào nhận lượt chạy.
+- [Lượt chạy](/tasks) — xem các trạng thái lượt chạy như `waiting_local_directory`.

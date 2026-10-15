@@ -1,0 +1,84 @@
+---
+title: Telegram Bot
+description: Nối một agent UniAI với Telegram Bot của riêng bạn để dùng trong chat riêng, @nhắc trong nhóm, topic và lệnh /issue.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+UniAI dùng một Bot do bạn tạo bằng [@BotFather](https://t.me/BotFather) chính thức của Telegram. Một Bot ánh xạ tới một agent UniAI. Tạo một Bot riêng cho mỗi agent cần danh tính Telegram riêng.
+
+Hỗ trợ Telegram do cộng đồng duy trì: nó có mặt trong mọi bản phát hành, nhưng không kèm SLA hỗ trợ chính thức. Báo lỗi tại [GitHub issues](https://github.com/phanducquanguet/usf/issues).
+
+## Trước khi bắt đầu
+
+- Việc kết nối Bot phải do owner hoặc admin của không gian làm việc UniAI thực hiện.
+- Bạn cần Bot token do @BotFather cấp. Hãy giữ nó như mật khẩu.
+
+## 1. Tạo Bot
+
+1. Mở [@BotFather](https://t.me/BotFather) và gửi `/newbot`.
+2. Chọn tên hiển thị và một username kết thúc bằng `bot`.
+3. Chép HTTP API token.
+4. Để nguyên **Group Privacy** ở trạng thái bật cho thiết lập mặc định, ít hiển thị nhất: khi đó trong nhóm, Telegram chỉ chuyển các lệnh, các @nhắc rõ ràng và các câu trả lời Bot. Tắt nó là tùy chọn. Việc tắt cho phép Bot đưa cuộc trò chuyện xung quanh trong nhóm vào làm ngữ cảnh, đổi lại Bot sẽ nhận mọi tin nhắn trong nhóm — xem [Nhóm và topic trong forum](#groups-and-forum-topics).
+
+<Callout type="warning">
+Đừng bao giờ dán token vào issue, tin nhắn chat, log hay kho mã. Nếu token bị lộ, hãy dùng @BotFather để thu hồi, rồi kết nối lại Bot bằng token thay thế.
+</Callout>
+
+## 2. Kết nối với một agent
+
+1. Trong UniAI, mở **Agents**, chọn một agent và mở **Integrations**.
+2. Bấm **Connect Telegram**.
+3. Dán Bot token và bấm **Connect**.
+
+UniAI gọi Telegram để xác minh Bot, kiểm tra không có webhook đi ra nào xung đột với long polling, mã hóa token, và khởi động một kết nối `getUpdates` có giám sát. Bot đã nối với agent hoặc không gian làm việc khác phải được ngắt kết nối ở đó trước.
+
+## Lần dùng đầu tiên và liên kết tài khoản
+
+Lần đầu một thành viên nhắn Bot, nó gửi một đường dẫn liên kết tài khoản UniAI dùng một lần. Mở đường dẫn, đăng nhập vào đúng không gian làm việc UniAI đó, rồi quay lại Telegram và gửi lại tin nhắn. Đường dẫn hết hạn sau 15 phút; nhắn Bot lần nữa để lấy đường dẫn mới.
+
+Trong nhóm, Bot không bao giờ đăng công khai đường dẫn bearer này. Nó yêu cầu người gửi mở chat riêng với Bot trước.
+
+Chỉ thành viên hiện tại của không gian làm việc dùng được Bot. Tư cách thành viên được kiểm tra lại với mỗi tin nhắn.
+
+## Dùng Bot
+
+### Chat riêng
+
+Mở Bot và nhắn trực tiếp. Không cần @nhắc.
+
+### Nhóm và topic trong forum
+
+Thêm Bot vào một nhóm, rồi @nhắc nó hoặc trả lời trực tiếp một tin nhắn của nó. Các tin nhắn được chấp nhận nằm lại trong cuộc trò chuyện UniAI đang tiếp diễn. Một tin nhắn nhóm không gửi đích danh cho Bot không bao giờ tự bắt đầu cuộc trò chuyện hay một lượt. Tuy vậy, nó được giữ trong một bộ đệm ngắn trong bộ nhớ: 10 tin nhắn gần nhất mỗi nhóm (hoặc mỗi topic trong forum) mà Bot đã nhận, bị xóa mỗi khi server khởi động lại. Khi sau đó một thành viên gửi đích danh cho Bot — bằng cách @nhắc hoặc trả lời một tin nhắn của nó — các tin nhắn trong bộ đệm được chèn vào trước lượt đó làm ngữ cảnh chỉ đọc, và được lưu cùng lượt đó như một phần của cuộc trò chuyện. Ảnh hoặc tệp trong bộ đệm chỉ xuất hiện dưới dạng một dấu như `[Image]` kèm chú thích của nó; bản thân tệp không được tải về. `/new` bắt đầu một chat mới không kèm ngữ cảnh đó. Những gì vào được bộ đệm tùy vào những gì Telegram chuyển tới: khi bật Group Privacy, đó chỉ là các lệnh, các @nhắc rõ ràng và các câu trả lời Bot, nên ngữ cảnh chỉ chứa những tin nhắn gửi đích danh trước đó. Muốn đưa cả trò chuyện thường trong nhóm vào, hãy tắt Group Privacy trong @BotFather rồi xóa và thêm lại Bot vào nhóm; từ đó Bot nhận mọi tin nhắn trong nhóm. Bot là admin của nhóm thì nhận mọi tin nhắn bất kể thiết lập privacy, nên ngữ cảnh của nó có cả trò chuyện thường mà không cần thay đổi gì trong @BotFather. Khi trả lời tin nhắn của người khác, hãy @nhắc Bot rõ ràng: chỉ khi đó người gửi và nội dung (hoặc chú thích) được trích dẫn mới được kèm theo chỉ dẫn của bạn. Khi một câu trả lời gửi đích danh cho Bot trích dẫn một tin nhắn có ảnh hoặc tệp, tệp đó cũng được đính kèm, bất kể ai đã gửi. Trả lời tin nhắn của người khác mà không nhắc Bot sẽ không kích hoạt nó. Mỗi nhóm thường có một chat UniAI tiếp diễn riêng; các topic trong forum được tách thành các chat riêng.
+
+### Lệnh
+
+- `/new` tạo một UniAI Chat mới, trống và chuyển các tin nhắn sau trong cuộc trò chuyện Telegram sang Chat đó. `/new <message>` tạo Chat với tin nhắn đó làm lượt đầu tiên. Trong một câu trả lời có @nhắc rõ ràng gửi cho tin nhắn của người khác, phần trích dẫn đã chọn vẫn được đính kèm vào lượt đầu tiên đó.
+- `/clear` giữ UniAI Chat hiện tại và áp dụng một ngữ cảnh mới mà agent nhìn thấy cho tin nhắn không rỗng tiếp theo. `/clear <message>` dùng tin nhắn đó làm lượt đầu tiên sau ranh giới ngữ cảnh; phần trích dẫn trả lời được chọn rõ ràng vẫn được đính kèm.
+- `/issue <title>` tạo một issue UniAI; các dòng tiếp theo được dùng làm mô tả (tùy chọn). `/issue` không kèm tiêu đề sẽ trả về hướng dẫn cách dùng.
+- Trong nhóm, hỗ trợ hậu tố lệnh của Telegram như `/issue@your_bot`.
+
+### Trả lời và nội dung được hỗ trợ
+
+Bot stream văn bản bằng cách đăng rồi sửa một tin nhắn Telegram, trích dẫn tin nhắn kích hoạt, giữ nguyên topic trong forum, và chia các câu trả lời dài để nằm trong giới hạn tin nhắn của Telegram. Câu trả lời cuối được gửi bất đồng bộ qua một hàng đợi trong tiến trình. Bình thường, việc backoff của một chat không chiếm một worker; nếu áp lực bộ nhớ đệm làm gộp trạng thái backoff chính xác, các chat khác dưới cùng installation của Bot có thể bị trì hoãn một cách thận trọng. Hàng đợi cuối có dung lượng cố định: phần tràn bị từ chối và ghi log, và các câu trả lời đang xếp hàng không được khôi phục sau khi khởi động lại dịch vụ.
+
+Tin nhắn ảnh, tệp, video, thoại và âm thanh đến agent dưới dạng tệp đính kèm trong cùng cuộc trò chuyện, với chú thích làm nội dung tin nhắn. Trả lời một tin nhắn có một trong các loại này — trong chat riêng, hoặc trong nhóm khi gửi đích danh cho Bot, bất kể ai đã gửi — sẽ trích dẫn tin nhắn đó trước chỉ dẫn của bạn và đính kèm tệp của nó, nhờ đó bạn có thể chỉ cho agent một ảnh hay video trước đó. Telegram cho phép Bot tải tệp tối đa 20 MB; khi không lấy được tệp (quá lớn, hoặc tải thất bại), Bot sẽ báo cho bạn, và agent chỉ thấy một placeholder. Các tệp agent tạo ra được gửi lại vào chat thành các tin nhắn riêng sau câu trả lời của nó: ảnh tối đa 10 MB hiển thị trực tiếp, mọi thứ khác tối đa 50 MB đến dưới dạng tệp; nếu không xác nhận được tệp đã được gửi, Bot sẽ báo, và tệp vẫn được đính kèm vào câu trả lời trong UniAI. Nếu bộ lưu trữ tệp không khả dụng, Bot trả lời media bằng thông báo tin nhắn không được hỗ trợ, và agent được cho biết là nó không gửi được tệp. Sticker, vị trí, bình chọn và các tin nhắn không phải tệp khác nhận cùng thông báo đó trong chat riêng và khi được gửi đích danh trong nhóm; các tin nhắn nhóm loại này không gửi đích danh thì được bỏ qua im lặng.
+
+## Quản lý kết nối
+
+Mở **Cài đặt → Messaging → Telegram** để xem các Bot đã kết nối. Owner và admin có thể ngắt kết nối một Bot. Ngắt kết nối sẽ dừng long polling và các câu trả lời gửi đi, nhưng giữ lại các cuộc trò chuyện UniAI và bản ghi kiểm toán.
+
+## Khắc phục sự cố
+
+- **Không xác minh được Bot**: kiểm tra bạn đã dán đầy đủ token từ @BotFather. Nếu Telegram từ chối, tạo token mới bằng @BotFather và kết nối lại.
+- **Xung đột webhook**: gỡ webhook hiện có của Bot trước khi kết nối. Telegram không cho phép `getUpdates` khi đang có webhook hoạt động.
+- **Xung đột polling 409**: một dịch vụ hoặc tiến trình khác đang polling cùng Bot. Dừng consumer kia hoặc dùng Bot riêng cho mỗi môi trường.
+- **Không trả lời trong nhóm**: xác nhận Bot có trong nhóm và tin nhắn có @nhắc nó hoặc trả lời tin nhắn của nó.
+- **Đường dẫn liên kết hết hạn**: nhắn riêng cho Bot lần nữa và dùng đường dẫn mới nhất.
+- **Bot không chạy**: kiểm tra agent có bị lưu trữ không và [runtime](/daemon-runtimes) của nó có trực tuyến không.
+
+## Bước tiếp theo
+
+- [Tích hợp chat](/channels) — so sánh nền tảng và hiểu cách xử lý phiên và danh tính.
+- [Chat](/chat) — tin nhắn gửi Bot trở thành lượt chạy của agent như thế nào.
+- [Issue](/issues) — công việc mà `/issue` tạo ra.

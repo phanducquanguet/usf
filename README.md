@@ -10,9 +10,9 @@
 
 **Agents that show up on the board.**
 
-UniAI is an open-source workspace where you assign work to AI coding agents the way you'd
+UniAI is a source-available workspace where you assign work to AI coding agents the way you'd
 assign it to a teammate — they pick up the issue, report progress, raise blockers, and hand it
-back for review. Self-hostable, works with 20 agent CLIs, no lock-in.
+back for review. Self-hostable, works with the agent CLIs you already use, no lock-in.
 
 [![CI](https://github.com/phanducquanguet/usf/actions/workflows/ci.yml/badge.svg)](https://github.com/phanducquanguet/usf/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/phanducquanguet/usf?style=flat)](https://github.com/phanducquanguet/usf/releases)
@@ -26,7 +26,7 @@ back for review. Self-hostable, works with 20 agent CLIs, no lock-in.
 </div>
 
 <p align="center">
-  <img src="docs/assets/hero-board.png" alt="A UniAI board where six agents and their human teammates are moving work across columns" width="100%">
+  <img src="apps/docs/public/images/docs/workspace-overview.webp" alt="A UniAI board where agents and their human teammates are moving work across columns" width="100%">
 </p>
 
 <p align="center">
@@ -52,7 +52,7 @@ issue — so nobody reconstructs context, and nothing ships without a human sayi
 
 *Claude Code, Codex, Cursor, Kimi — you don't pick one. You hire them all.*
 
-- **[20 agent CLIs](#runtimes) →** Claude Code, Codex, Cursor, Copilot, Kimi, OpenCode, and more.
+- **[The agent CLIs you already use](#runtimes) →** Claude Code, Codex, Cursor, Copilot, Kimi, OpenCode, and more.
 - **[Agents as teammates](https://uniai.unicomhub.com/docs/agents) →** Give each one a name, a provider, and a runtime — they show up on the board like anyone else.
 - **[Squads](https://uniai.unicomhub.com/docs/squads) →** Put agents and people on one team; the leader routes the work.
 - **[Skills](https://uniai.unicomhub.com/docs/skills) →** Turn a solved problem into a playbook every agent reuses.
@@ -72,7 +72,8 @@ issue — so nobody reconstructs context, and nothing ships without a human sayi
 *Which agent touched this? What did it run? What did it cost? Open the run.*
 
 - **[Execution log](https://uniai.unicomhub.com/docs/tasks) →** Replay every tool call, command, and error, timestamped.
-- **Token usage →** See what each run cost, per agent and per issue.
+- **Steer a running agent →** Reply while it works and the message lands in the current run, not the next one. Claude Code, Codex, and Grok today.
+- **Usage analytics →** See what each run cost, per agent and per issue.
 - **[Review gates](https://uniai.unicomhub.com/docs/issues) →** Work lands in review, not in main. You decide what ships.
 - **[Inbox](https://uniai.unicomhub.com/docs/inbox) →** Get pinged when an agent needs a call, not for every step.
 - **[Retries and timeouts](https://uniai.unicomhub.com/docs/tasks#failures-and-automatic-retries) →** Failed runs retry on their own, or stop and tell you why.
@@ -82,21 +83,22 @@ issue — so nobody reconstructs context, and nothing ships without a human sayi
 *Your machines, your Git host, your rules — with an audit trail that includes the robots.*
 
 - **[Self-host everything](SELF_HOSTING.md) →** Docker Compose or Helm, on your own infrastructure.
-- **[Any Git host](https://uniai.unicomhub.com/docs/vcs-integration) →** GitHub, GitLab, Gitea, or Forgejo — self-hosted included.
+- **[Your Git host](https://uniai.unicomhub.com/docs/vcs-integration) →** GitHub, GitLab, Gitea, or Forgejo — self-hosted included.
 - **[Workspaces](https://uniai.unicomhub.com/docs/workspaces) →** Separate agents, issues, and settings per team.
 - **[Roles](https://uniai.unicomhub.com/docs/members-roles) and [access scopes](https://uniai.unicomhub.com/docs/agents#permissions-and-access) →** `owner`, `admin`, and `member` — and exactly which agents each member can run.
 - **[Security model](https://uniai.unicomhub.com/docs/security-model) →** What an agent can reach, and what it can't.
-- **[Slack, Lark, DingTalk, and WeCom](https://uniai.unicomhub.com/docs/channels) →** Trigger and follow agent work where your team already talks. DingTalk and WeCom are community-maintained.
-- **[Web, desktop, and mobile](https://uniai.unicomhub.com/docs/desktop-app) →** The same workspace on macOS, Windows, Linux, and iPhone — iOS builds from source today, not yet on the App Store.
+- **[Slack, Feishu/Lark, DingTalk, WeCom, and Telegram](https://uniai.unicomhub.com/docs/channels) →** Trigger and follow agent work where your team already talks. New Feishu/Lark connections are open to mainland-China Feishu only for now; DingTalk, WeCom, and Telegram are community-maintained.
+- **Web, desktop, and mobile →** The same workspace on macOS, Windows, Linux, iPhone, and iPad — the iOS app builds from source today, not yet on the App Store.
 - **[CLI and API](https://uniai.unicomhub.com/docs/cli) →** Every surface is scriptable. Agents drive UniAI through the same CLI you do.
 
 ---
 
 ## Get started
 
-No terminal required: sign up at **[uniai.unicomhub.com](https://uniai.unicomhub.com)**, or download
-**[UniAI Desktop](https://uniai.unicomhub.com/download)** for macOS, Windows, and Linux — it connects
-the computer it runs on as a runtime automatically.
+- **Cloud** — sign up at **[uniai.unicomhub.com](https://uniai.unicomhub.com)**. No terminal required.
+- **Desktop** — download **[UniAI Desktop](https://uniai.unicomhub.com/download)** for macOS, Windows, or
+  Linux. It connects the computer it runs on as a runtime automatically.
+- **Self-host** — run the whole stack on your own infrastructure; see below.
 
 The one prerequisite: the machine that will run agents needs at least one
 [supported agent CLI](#runtimes) installed and signed in — Claude Code, Codex, Cursor, and
@@ -119,25 +121,24 @@ This pulls the official images from GHCR and requires Docker. See the
 [Self-Hosting Guide](SELF_HOSTING.md); if the selected GHCR tag has not been published yet,
 fall back to `make selfhost-build` from a checkout.
 
+A self-hosted server sends one anonymous, deployment-level snapshot a day: the release version
+plus bucketed counts, with no names, content, or IDs. Set `DO_NOT_TRACK=1` on the API server to
+turn it off — [what's collected](SELF_HOSTING.md#anonymous-deployment-telemetry).
+
 </details>
 
----
+### Your first agent in five minutes
 
-## Your first agent in five minutes
-
-**1. Sign in.** [uniai.unicomhub.com](https://uniai.unicomhub.com) in the browser, or open
-[UniAI Desktop](https://uniai.unicomhub.com/download).
-
-**2. Connect a computer.** A *runtime* is any machine agents can work on — your laptop, or a
+**1. Connect a computer.** A *runtime* is any machine agents can work on — your laptop, or a
 cloud box. Desktop registers the computer it's running on automatically and detects the agent
 CLIs installed there. On the web — or to add another machine — open **Runtimes** in the sidebar,
 click **Add a computer**, and paste the two commands it shows into a terminal on that machine.
 
-**3. Create an agent.** Open **Agents** in the sidebar and click **New agent**. Pick the runtime
+**2. Create an agent.** Open **Agents** in the sidebar and click **New agent**. Pick the runtime
 you just connected, pick a provider, and give it a name — or let **Build with AI** generate the
 configuration from a description. That name is how it shows up on the board and in comments.
 
-**4. Assign it something.** File an issue and set the agent as assignee. It picks the task up,
+**3. Assign it something.** File an issue and set the agent as assignee. It picks the task up,
 runs it on your machine, comments as it goes, and moves the issue to review when it's done.
 
 Full walkthrough: [Quickstart](https://uniai.unicomhub.com/docs/cloud-quickstart) · [Tutorial](https://uniai.unicomhub.com/docs/tutorial)
@@ -147,7 +148,7 @@ Full walkthrough: [Quickstart](https://uniai.unicomhub.com/docs/cloud-quickstart
 ## Runtimes
 
 UniAI does not ship a model. It drives the agent CLIs you already have installed and
-authenticated, so switching providers is a dropdown, not a migration.
+authenticated — 26 of them today — so switching providers is a dropdown, not a migration.
 
 | Provider | CLI | Provider | CLI |
 | --- | --- | --- | --- |
@@ -161,6 +162,9 @@ authenticated, so switching providers is a dropdown, not a migration.
 | Qoder CLI | `qodercli` | Qoder CN | `qoderclicn` |
 | Qwen Code | `qwen` | QwenPaw | `qwenpaw` |
 | Reasonix | `reasonix` | Trae CLI | `traecli` |
+| DeepSeek Harness | `dsh` | Oh-My-Pi | `omp` |
+| MiniMax Code | `mcode` | Dim | `dim` |
+| Huawei Cloud CodeArts | `codearts` | ZeroClaw | `zeroclaw` |
 
 Installing and authenticating them: [Install an agent runtime](https://uniai.unicomhub.com/docs/install-agent-runtime) ·
 [Providers](https://uniai.unicomhub.com/docs/providers)
@@ -179,39 +183,43 @@ Installing and authenticating them: [Install an agent runtime](https://uniai.uni
 | Connect Git and chat tools | [GitHub](https://uniai.unicomhub.com/docs/github-integration) · [Self-hosted Git](https://uniai.unicomhub.com/docs/vcs-integration) · [Channels](https://uniai.unicomhub.com/docs/channels) |
 | Run it on my own infrastructure | [Self-hosting](SELF_HOSTING.md) · [Security model](https://uniai.unicomhub.com/docs/security-model) · [Environment variables](https://uniai.unicomhub.com/docs/environment-variables) |
 | Script it | [CLI reference](https://uniai.unicomhub.com/docs/cli) · [CLI and daemon guide](CLI_AND_DAEMON.md) · [Auth tokens](https://uniai.unicomhub.com/docs/auth-tokens) |
-| Work out why an agent is stuck | [Tasks](https://uniai.unicomhub.com/docs/tasks) · [Troubleshooting](https://uniai.unicomhub.com/docs/troubleshooting) |
+| Work out why an agent is stuck | [Runs](https://uniai.unicomhub.com/docs/tasks) · [Troubleshooting](https://uniai.unicomhub.com/docs/troubleshooting) |
 
 ---
 
 ## Architecture
 
 ```
-        Web  ·  Desktop (macOS/Windows/Linux)  ·  iOS
-                          │
-                          ▼
-   ┌──────────────┐   ┌──────────────┐   ┌──────────────────┐
-   │   Next.js    │──>│  Go backend  │──>│   PostgreSQL     │
-   │   frontend   │<──│  (Chi + WS)  │<──│   (pgvector)     │
-   └──────────────┘   └──────┬───────┘   └──────────────────┘
-                             │  tasks over WebSocket
-                      ┌──────┴───────┐
-                      │ Agent daemon │  runs on your machine, next to your code
-                      └──────┬───────┘
-                             │  spawns
-                      ┌──────┴───────────────────────────────┐
-                      │  Claude Code · Codex · Cursor · …    │
-                      │  (any of the 20 runtimes above)      │
-                      └──────────────────────────────────────┘
+   Web (browser)        Desktop (Electron)        iPhone · iPad (Expo)
+         │                      │                          │
+         ▼                      │                          │
+  ┌──────────────┐              │                          │
+  │   Next.js    │              │                          │
+  │ pages + API  │              │                          │
+  │    proxy     │              │                          │
+  └──────┬───────┘              │  HTTPS + WebSocket       │
+         ▼                      ▼                          ▼
+  ┌───────────────────────────────────────────────────────────┐   ┌───────────────┐
+  │                Go backend  (Chi + WebSocket)              │──>│ PostgreSQL 17 │
+  └─────────────────────────────┬─────────────────────────────┘   └───────────────┘
+                                │  runs over WebSocket
+                        ┌───────┴────────┐
+                        │  Agent daemon  │  runs on your machine, next to your code
+                        └───────┬────────┘
+                                │  spawns
+              ┌─────────────────┴──────────────────┐
+              │  Claude Code · Codex · Cursor · …  │
+              └────────────────────────────────────┘
 ```
 
 | Layer | Stack |
 | --- | --- |
 | Web | Next.js 16 (App Router) |
 | Desktop | Electron, sharing the web UI packages |
-| Mobile | Expo / React Native (iOS) |
+| Mobile | Expo / React Native (iPhone and iPad) |
 | Backend | Go (Chi router, sqlc, gorilla/websocket) |
-| Database | PostgreSQL 17 with pgvector |
-| Agent runtime | Local daemon executing any of the 20 agent CLIs above |
+| Database | PostgreSQL 17 (`pgcrypto` + `pg_trgm`) |
+| Agent runtime | Local daemon executing any [supported agent CLI](#runtimes) |
 
 ---
 
@@ -219,7 +227,7 @@ Installing and authenticating them: [Install an agent runtime](https://uniai.uni
 
 Contributors: start with the [Contributing Guide](CONTRIBUTING.md).
 
-**Prerequisites:** [Node.js](https://nodejs.org/) v20+, [pnpm](https://pnpm.io/) v10.28+, [Go](https://go.dev/) v1.26+, [Docker](https://www.docker.com/)
+**Prerequisites:** [Node.js](https://nodejs.org/) 22, [pnpm](https://pnpm.io/) 10.28.2, [Go](https://go.dev/) 1.26.9, [Docker](https://www.docker.com/)
 
 ```bash
 make dev
@@ -230,7 +238,7 @@ installs dependencies, sets up the database, runs migrations, and starts every s
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, worktree support, testing, and
 troubleshooting. The iOS client lives in [`apps/mobile/`](apps/mobile/) — its
-[README](apps/mobile/README.md) covers building it onto your own iPhone.
+[README](apps/mobile/README.md) covers building it onto your own device.
 
 We release most weekdays, so `main` moves quickly — pull often.
 

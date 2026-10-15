@@ -7,7 +7,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 Agent là một cộng sự trong [không gian làm việc UniAI](/workspaces). Bạn có thể giao issue cho nó, @nhắc nó trong bình luận, hoặc trò chuyện trực tiếp với nó. Nó điều khiển một công cụ lập trình AI qua runtime được gắn, rồi ghi tiến độ và kết quả trở lại không gian làm việc.
 
-Agent không phải một tiến trình chạy liên tục. Nó là một định danh và cấu hình dùng lại được; chỉ khi có việc đến nó mới sinh ra các [task](/tasks) cụ thể.
+Agent không phải một tiến trình chạy liên tục. Nó là một định danh và cấu hình dùng lại được; chỉ khi có việc đến nó mới sinh ra các [lượt chạy](/tasks) cụ thể.
 
 ## Cấu hình agent
 
@@ -15,26 +15,27 @@ Agent không phải một tiến trình chạy liên tục. Nó là một địn
 |---|---|
 | **Tên, avatar và mô tả** | Cho cả nhóm biết agent là ai và giỏi việc gì. Mô tả chỉ để hiển thị, không bao giờ đi vào prompt thực thi. |
 | **Instructions** | Định nghĩa trách nhiệm, phong cách làm việc, ranh giới và yêu cầu bàn giao. Dùng cho mọi lần chạy. |
+| **Conversation starters** | Đưa ra tối đa ba ví dụ riêng cho agent, hiện khi mọi người mở một cuộc chat mới với agent. Chọn một ví dụ sẽ điền vào trình soạn mà không gửi đi. |
 | **Skills** | Cung cấp phương pháp dùng lại được, tài liệu tham khảo và file hỗ trợ. |
 | **Runtime, model và mức suy nghĩ** | Quyết định agent chạy trên runtime, công cụ lập trình AI và model nào; một số công cụ (như Codex) còn có bậc dịch vụ. |
 | **Access** | Quyết định thành viên nào chạy được nó. |
 | **Thiết lập thực thi** | Gồm giới hạn chạy đồng thời, biến môi trường, tham số CLI, MCP và các tích hợp bên ngoài. |
 
-Đổi model hay sửa instructions không tạo ra agent mới, và issue, bình luận cùng lịch sử task trước đó không mất đi.
+Đổi model hay sửa instructions không tạo ra agent mới, và issue, bình luận cùng lịch sử lượt chạy trước đó không mất đi.
 
-## Agent, runtime và task
+## Agent, runtime và lượt chạy
 
 | Khái niệm | Trách nhiệm |
 |---|---|
 | **Agent** | Quyết định ai làm và làm thế nào |
 | **Runtime** | Quyết định máy nào và công cụ lập trình AI nào thực thi |
-| **Task** | Ghi lại quá trình và kết quả của một lần chạy |
+| **Lượt chạy** | Ghi lại quá trình và kết quả của một lần chạy |
 
-Một runtime chứa được nhiều agent, và một agent hoàn thành được nhiều task theo thời gian. Khi runtime offline, định danh và lịch sử của agent vẫn còn, nhưng task mới phải chờ tới khi runtime trở lại.
+Một runtime chứa được nhiều agent, và một agent hoàn thành được nhiều lượt chạy theo thời gian. Khi runtime offline, định danh và lịch sử của agent vẫn còn, nhưng lượt chạy mới phải chờ tới khi runtime trở lại.
 
 ## Các cách agent tham gia
 
-- **Phụ trách một issue** — đặt agent làm người phụ trách; nó bắt đầu ngay khi task được đưa vào hàng đợi.
+- **Phụ trách một issue** — đặt agent làm người phụ trách; nó bắt đầu ngay khi lượt chạy được đưa vào hàng đợi.
 - **Xử lý một bình luận** — @nhắc agent trong bình luận mà không đổi người phụ trách issue.
 - **Tiếp tục thảo luận** — trả lời bình luận của agent; thông tin mới đi vào các lần chạy tiếp theo.
 - **Trò chuyện trực tiếp** — mở một cuộc trò chuyện không gắn với issue nào.
@@ -68,16 +69,16 @@ Cấu hình có thể chứa thông tin đăng nhập, như biến môi trườn
 Danh sách agent hiển thị hai loại trạng thái cạnh nhau:
 
 - **Độ sẵn sàng** đến từ runtime — online, offline hoặc chập chờn.
-- **Khối lượng việc** đến từ task — đang làm, đang xếp hàng hoặc đang rảnh.
+- **Khối lượng việc** đến từ lượt chạy — đang làm, đang xếp hàng hoặc đang rảnh.
 
-"Offline" không có nghĩa agent đã bị xóa. Task đã vào hàng đợi sẽ chờ runtime hồi phục; chỉ "đã lưu trữ" mới nghĩa là nó không còn nhận việc mới được nữa.
+"Offline" không có nghĩa agent đã bị xóa. Lượt chạy đã vào hàng đợi sẽ chờ runtime hồi phục; chỉ "đã lưu trữ" mới nghĩa là nó không còn nhận việc mới được nữa.
 
 ## Lưu trữ và khôi phục
 
 Agent không dùng nữa có thể được lưu trữ. Agent đã lưu trữ không còn hiện trong các bộ chọn, không được giao việc hay @nhắc; lịch sử của nó được giữ nguyên và có thể khôi phục về sau.
 
 <Callout type="warning">
-Lưu trữ sẽ hủy mọi task chưa hoàn thành của agent, gồm cả task đang xếp hàng và đang chạy.
+Lưu trữ sẽ hủy mọi lượt chạy chưa hoàn thành của agent, gồm cả lượt chạy đang xếp hàng và đang chạy.
 </Callout>
 
 Chủ sở hữu agent cùng `owner` và `admin` của không gian làm việc lưu trữ hoặc khôi phục được agent.

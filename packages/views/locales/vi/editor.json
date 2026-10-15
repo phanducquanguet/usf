@@ -10,6 +10,11 @@
     "task_list": "Danh sách việc cần làm",
     "quote": "Trích dẫn",
     "url_aria_label": "URL",
+    "link_edit": {
+      "apply": "Áp dụng liên kết",
+      "remove": "Gỡ liên kết",
+      "close": "Đóng trình sửa liên kết"
+    },
     "heading_dropdown": {
       "text": "Văn bản",
       "normal_text": "Văn bản thường",
@@ -35,10 +40,10 @@
     "delete": "Xóa",
     "link_copied": "Đã sao chép liên kết",
     "copy_link_failed": "Không thể sao chép liên kết",
+    "copy_image": "Sao chép ảnh",
+    "image_copied": "Đã sao chép ảnh",
+    "copy_image_failed": "Không thể sao chép ảnh",
     "canvas_label": "Khung ảnh. Kéo để di chuyển, cuộn để thu phóng, nhấp đúp để chuyển về kích thước thật.",
-    "previous": "Ảnh trước",
-    "next": "Ảnh tiếp theo",
-    "sequence_position": "{{index}} / {{total}}",
     "unavailable": "Ảnh đó không còn khả dụng — đã bỏ qua."
   },
   "canvas": {
@@ -56,7 +61,33 @@
     "preview_unsupported": "Loại tệp này không hỗ trợ xem trước.",
     "close": "Đóng",
     "open_in_new_tab": "Mở trong thẻ mới",
-    "remove": "Gỡ tệp đính kèm"
+    "remove": "Gỡ tệp đính kèm",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "sequence_position": "{{index}} / {{total}}",
+    "overview": "Tất cả sản phẩm bàn giao",
+    "info": "Thông tin",
+    "wrap_lines": "Ngắt dòng",
+    "viewport": "Chiều rộng khung xem",
+    "viewport_fill": "Vừa khung",
+    "viewport_desktop": "Máy tính",
+    "viewport_tablet": "Máy tính bảng",
+    "viewport_phone": "Điện thoại",
+    "viewport_scale": "Thu phóng còn {{percent}}%",
+    "view_source": "Xem mã nguồn",
+    "view_mode": "Chế độ xem",
+    "view_tree": "Dạng cây",
+    "view_raw": "Thô",
+    "structured_parse_failed": "Không thể phân tích tệp này nên hiển thị dưới dạng văn bản.",
+    "tree_show_more": "Hiện thêm (còn {{count}})",
+    "tree_items_other": "{{count}} mục",
+    "tree_keys_other": "{{count}} khóa",
+    "table_empty": "Không có hàng nào",
+    "table_rows_other": "{{count}} hàng",
+    "table_columns_other": "{{count}} cột",
+    "address": "Địa chỉ",
+    "address_hint": "?query",
+    "reload": "Tải lại"
   },
   "link_hover": {
     "copy_link": "Sao chép liên kết",
@@ -68,6 +99,8 @@
     "group_users": "Người dùng",
     "group_issues": "Issues",
     "all_members": "Tất cả thành viên",
+    "agent_badge": "Agent",
+    "squad_badge": "Đội",
     "searching": "Đang tìm...",
     "no_results": "Không có kết quả",
     "group_current": "Trang hiện tại",
@@ -83,10 +116,24 @@
     }
   },
   "code_block": {
+    "html_preview": "Xem trước HTML",
     "copy_code": "Sao chép mã",
     "show_preview": "Hiện bản xem trước",
     "show_source": "Hiện mã nguồn",
     "fullscreen": "Toàn màn hình"
+  },
+  "dynamic_block": {
+    "preview": "Xem trước",
+    "source": "Mã nguồn",
+    "view": "Xem",
+    "copy_source": "Sao chép mã nguồn",
+    "show_all": "Hiện tất cả",
+    "rendering": "Đang hiển thị...",
+    "error_html": "Bản xem trước gặp lỗi script",
+    "error_mermaid": "Không thể vẽ sơ đồ này",
+    "error_at_line": "{{message}} (dòng {{line}})",
+    "view_source": "Xem mã nguồn",
+    "copy_error": "Sao chép lỗi"
   },
   "file_card": {
     "uploading": "Đang tải lên {{filename}}"
@@ -103,6 +150,7 @@
     "title_aria_label": "Tiêu đề"
   },
   "mermaid": {
+    "diagram_label": "Sơ đồ Mermaid",
     "render_error": "Không thể hiển thị sơ đồ Mermaid.",
     "rendering": "Đang vẽ sơ đồ…",
     "viewer_title": "Sơ đồ",

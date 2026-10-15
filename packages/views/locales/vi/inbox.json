@@ -9,6 +9,17 @@
     "archive_all_read": "Lưu trữ mục đã đọc",
     "archive_completed": "Lưu trữ mục đã hoàn thành"
   },
+  "filters": {
+    "tooltip": "Lọc hộp thư đến",
+    "active_count_other": "{{count}} bộ lọc đang bật",
+    "status": "Trạng thái",
+    "priority": "Mức ưu tiên",
+    "from": "Từ",
+    "unread_only": "Chỉ chưa đọc",
+    "notification_count_other": "{{count}} thông báo",
+    "clear": "Xóa bộ lọc",
+    "empty": "Không có thông báo nào khớp bộ lọc"
+  },
   "context_menu": {
     "mark_read": "Đánh dấu đã đọc",
     "mark_unread": "Đánh dấu chưa đọc",
@@ -17,6 +28,7 @@
     "open_in_new_tab": "Mở trong thẻ mới"
   },
   "list": {
+    "loading_selection": "Đang tải thông báo…",
     "empty": "Không có thông báo",
     "mark_done_tooltip": "Đánh dấu hoàn tất",
     "archive_tooltip": "Lưu trữ",
@@ -28,13 +40,20 @@
     },
     "archived_title": "Đã lưu trữ",
     "archived_empty": "Không có thông báo đã lưu trữ",
-    "unarchive_tooltip": "Bỏ lưu trữ"
+    "unarchive_tooltip": "Bỏ lưu trữ",
+    "actions_aria": "Thao tác thông báo",
+    "load_more": "Tải thêm",
+    "loading_more": "Đang tải…",
+    "retry": "Thử lại"
   },
   "detail": {
     "select_prompt": "Chọn một thông báo để xem chi tiết",
     "empty": "Hộp thư đến của bạn đang trống",
     "original_input": "Nội dung nhập ban đầu",
+    "retry_with_context": "Thử lại với ngữ cảnh",
     "edit_advanced": "Chỉnh sửa ở dạng nâng cao",
+    "autopilot_quota_exceeded_body": "Không gian làm việc này đã đạt giới hạn {{limit}} lượt chạy autopilot trong kỳ hiện tại. Các lượt chạy autopilot tiếp theo sẽ không bắt đầu cho đến khi hạn mức được đặt lại vào {{resetAt}}.",
+    "autopilot_quota_upgrade": "Xem tùy chọn nâng cấp",
     "archive": "Lưu trữ",
     "unarchive": "Bỏ lưu trữ"
   },
@@ -50,14 +69,17 @@
     "new_comment": "Bình luận mới",
     "mentioned": "Được nhắc đến",
     "review_requested": "Yêu cầu review",
-    "task_completed": "Task hoàn thành",
-    "task_failed": "Task thất bại",
+    "task_completed": "Lượt chạy đã hoàn tất",
+    "task_failed": "Lượt chạy thất bại",
     "agent_blocked": "Agent bị chặn",
     "agent_completed": "Agent hoàn thành",
     "reaction_added": "Đã bày tỏ cảm xúc",
     "quick_create_done": "Đã tạo bằng agent",
     "quick_create_failed": "Tạo bằng agent thất bại",
-    "quick_create_unconfirmed": "Tạo bằng agent chưa xác nhận"
+    "quick_create_unconfirmed": "Tạo bằng agent chưa xác nhận",
+    "autopilot_paused": "Autopilot đã tạm dừng",
+    "children_done": "Các issue con đã hoàn tất",
+    "autopilot_quota_exceeded": "Đã đạt giới hạn lượt chạy autopilot"
   },
   "labels": {
     "set_status_to": "Đặt trạng thái thành",
@@ -70,9 +92,19 @@
     "removed_due_date": "Đã xóa hạn hoàn thành",
     "reacted_to_comment": "Đã bày tỏ {{emoji}} với bình luận của bạn",
     "created_with_agent": "Đã tạo bằng agent: {{identifier}}",
-    "failed_with_detail": "Thất bại: {{detail}}"
+    "failed_with_detail": "Thất bại: {{detail}}",
+    "autopilot_quota_blocked": "Lượt chạy bị chặn vì đã đạt giới hạn",
+    "children_done_stage": "Các issue con của giai đoạn {{stage}} đã hoàn tất"
+  },
+  "toasts": {
+    "source_context_retry_started": "Đã bắt đầu thử lại với ngữ cảnh ban đầu",
+    "archived": "Đã lưu trữ thông báo",
+    "unarchived": "Đã khôi phục thông báo"
   },
   "errors": {
+    "archived_lookup_failed": "Không thể tải thông báo được liên kết",
+    "source_context_retry_failed": "Không thể thử lại với ngữ cảnh ban đầu",
+    "source_context_retry_unavailable": "Ngữ cảnh này không thể thử lại nữa. Hãy bắt đầu lại từ điểm rẽ nhánh.",
     "mark_read_failed": "Không thể đánh dấu đã đọc",
     "mark_unread_failed": "Không thể đánh dấu chưa đọc",
     "archive_failed": "Không thể lưu trữ",
@@ -82,6 +114,7 @@
     "archive_all_read_failed": "Không thể lưu trữ các mục đã đọc",
     "archive_completed_failed": "Không thể lưu trữ các mục đã hoàn thành",
     "unarchive_failed": "Không thể bỏ lưu trữ",
-    "archived_load_failed": "Không thể tải thông báo đã lưu trữ"
+    "archived_load_failed": "Không thể tải thông báo đã lưu trữ",
+    "filters_load_failed": "Không thể tải bộ lọc"
   }
 }

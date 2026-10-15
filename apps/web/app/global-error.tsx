@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { captureException } from "@multica/core/analytics";
+import type { SupportedLocale } from "@multica/core/i18n";
+import { resolveEmergencyLocale } from "./emergency-locale";
+import { HTML_LANG } from "@/lib/html-lang";
 
 /**
  * Route-level error boundary for the web app. Next.js renders this (replacing
@@ -18,12 +21,19 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [locale, setLocale] = useState<SupportedLocale | null>(null);
+  const copy = EMERGENCY_COPY[locale ?? "en"];
+
   useEffect(() => {
     captureException(error, { source: "global-error", digest: error.digest });
+    setLocale(resolveEmergencyLocale());
   }, [error]);
 
   return (
-    <html>
+    <html
+      lang={locale ? HTML_LANG[locale] : undefined}
+      suppressHydrationWarning
+    >
       <body
         style={{
           display: "flex",
@@ -34,13 +44,16 @@ export default function GlobalError({
         }}
       >
         <div style={{ maxWidth: 420, textAlign: "center" }}>
-          <h1 style={{ fontSize: 18, fontWeight: 600 }}>Something went wrong</h1>
+          <h1 style={{ fontSize: 18, fontWeight: 600 }}>{copy.title}</h1>
           <p style={{ marginTop: 8, color: "#666" }}>
-            The page hit an unexpected error. Try reloading.
+            {copy.description}
           </p>
           <button
             type="button"
             onClick={reset}
+            // This boundary replaces the root layout, so neither design
+            // tokens nor utility classes are available here. Keep this 6px
+            // fallback aligned with the resolved product `radius-md`.
             style={{
               marginTop: 16,
               padding: "8px 16px",
@@ -49,10 +62,26 @@ export default function GlobalError({
               cursor: "pointer",
             }}
           >
-            Reload
+            {copy.reload}
           </button>
         </div>
       </body>
     </html>
   );
 }
+
+// GlobalError replaces the root layout, so it cannot use the normal i18n
+// provider. Keep this provider-less copy aligned with the corresponding error
+// language in packages/views/locales whenever those translations are revised.
+const EMERGENCY_COPY = {
+  en: {
+    title: "Something went wrong",
+    description: "The page hit an unexpected error. Try reloading.",
+    reload: "Reload",
+  },
+  vi: {
+    title: "Đã xảy ra lỗi",
+    description: "Trang gặp lỗi không mong muốn. Hãy thử tải lại.",
+    reload: "Tải lại",
+  },
+} as const;

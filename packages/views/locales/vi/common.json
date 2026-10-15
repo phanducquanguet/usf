@@ -90,6 +90,21 @@
     "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải thành viên của không gian làm việc này.",
     "error_unknown": "Đã có lỗi xảy ra. Hãy thử lại; nếu vẫn không được, liên hệ quản trị viên không gian làm việc."
   },
+  "telegram_bind": {
+    "page_title": "Liên kết tài khoản Telegram của bạn",
+    "redeeming": "Đang liên kết tài khoản…",
+    "needs_auth_description": "Đăng nhập UniAI để hoàn tất liên kết. Token trong liên kết sẽ gắn tài khoản Telegram của bạn với người dùng UniAI này, vì vậy bạn phải đăng nhập trước.",
+    "sign_in": "Đăng nhập",
+    "done_title": "Đã liên kết.",
+    "done_description": "Tin nhắn tiếp theo bạn gửi cho bot trên Telegram sẽ đi thẳng tới agent. Bạn có thể đóng tab này.",
+    "error_title": "Không thể hoàn tất liên kết",
+    "error_admin_hint": "Nếu lỗi này tiếp tục xảy ra, hãy nhắn lại cho bot trên Telegram để nhận liên kết mới.",
+    "error_missing_token": "Liên kết thiếu token. Hãy nhắn lại cho bot trên Telegram để nhận liên kết mới.",
+    "error_expired": "Liên kết này không hợp lệ hoặc đã hết hạn (liên kết có hiệu lực trong 15 phút). Hãy nhắn lại cho bot để nhận liên kết mới.",
+    "error_already_bound": "Tài khoản Telegram này đã được liên kết với một người dùng UniAI khác. Muốn chuyển tài khoản, bạn phải hủy liên kết trước.",
+    "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải là thành viên của không gian làm việc này.",
+    "error_unknown": "Đã xảy ra lỗi. Hãy thử lại, và nếu sự cố vẫn tiếp diễn, hãy liên hệ quản trị viên không gian làm việc."
+  },
   "expandable_description": {
     "expand": "Hiện thêm",
     "collapse": "Thu gọn"
@@ -108,6 +123,11 @@
     "error_already_bound": "Danh tính WeCom này đã được liên kết với một người dùng UniAI khác. Muốn chuyển tài khoản, bạn cần hủy liên kết cũ trước.",
     "error_not_member": "Bạn đang đăng nhập bằng tài khoản UniAI không phải thành viên của không gian làm việc này.",
     "error_unknown": "Đã có lỗi xảy ra. Hãy thử lại; nếu vẫn không được, liên hệ quản trị viên không gian làm việc."
+  },
+  "not_found": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn đang tìm không tồn tại hoặc đã được di chuyển.",
+    "back_to_multica": "Quay lại UniAI"
   },
   "navigation": {
     "open_in_new_tab": "Mở trong thẻ mới"

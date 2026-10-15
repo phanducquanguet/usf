@@ -2,7 +2,7 @@
   "page": {
     "title": "Đội",
     "new_button": "Tạo đội mới",
-    "empty_no_squads": "Chưa có đội nào. Hãy tạo một đội để bắt đầu.",
+    "empty_no_squads": "Chưa có đội nào.",
     "empty_no_match": "Không có đội nào khớp với bộ lọc.",
     "table": {
       "name": "Đội",
@@ -19,6 +19,10 @@
     "details_section": "Chi tiết",
     "archive_button": "Lưu trữ"
   },
+  "member_type": {
+    "agent": "Agent",
+    "member": "Thành viên"
+  },
   "archive_dialog": {
     "title": "Lưu trữ đội này?",
     "description": "\"{{name}}\" sẽ được lưu trữ. Các issue đang giao cho đội này sẽ được chuyển cho đội trưởng. Thao tác này không thể hoàn tác — hãy tạo đội mới nếu bạn cần định tuyến lại.",
@@ -28,21 +32,38 @@
     "success": "Đã lưu trữ đội"
   },
   "name_editor": {
-    "cancel": "Hủy"
+    "title": "Đổi tên đội",
+    "placeholder": "Tên đội",
+    "required": "Tên là bắt buộc",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "saved": "Đã lưu",
+    "save_failed": "Không thể lưu"
   },
   "add_member_dialog": {
     "title": "Thêm thành viên",
-    "description": "Thêm một thành viên hoặc agent trong không gian làm việc vào đội này.",
+    "description": "Chọn thành viên hoặc agent của không gian làm việc.",
     "label_member": "Thành viên",
     "label_role": "Vai trò",
     "label_optional": "(không bắt buộc)",
-    "placeholder_role_inline": "Thêm vai trò…",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "select_target": "Chọn thành viên hoặc agent",
+    "search_placeholder": "Tìm thành viên hoặc agent...",
+    "members_section": "Thành viên",
+    "agents_section": "Agent",
+    "role_placeholder": "ví dụ: Người review, Trưởng frontend",
+    "add": "Thêm"
+  },
+  "role_editor": {
+    "empty": "Thêm vai trò…",
+    "placeholder": "Vai trò (ví dụ: Người review)"
   },
   "description_dialog": {
     "title": "Sửa mô tả",
     "placeholder_empty": "Thêm mô tả",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "responsibility_placeholder": "Đội này chịu trách nhiệm về việc gì?",
+    "save": "Lưu"
   },
   "discard_changes_dialog": {
     "title": "Bỏ các thay đổi chưa lưu?",
@@ -68,6 +89,29 @@
     "active_issue_more": "và {{count}} issue khác",
     "last_active_label": "hoạt động lần cuối {{time}}"
   },
+  "detail_tabs": {
+    "members": "Thành viên",
+    "instructions": "Hướng dẫn"
+  },
+  "details": {
+    "leader": "Đội trưởng",
+    "members": "Thành viên",
+    "created_by": "Người tạo",
+    "created": "Ngày tạo",
+    "updated": "Cập nhật"
+  },
+  "toasts": {
+    "member_added": "Đã thêm thành viên",
+    "member_add_failed": "Không thể thêm thành viên",
+    "member_removed": "Đã gỡ thành viên",
+    "member_remove_failed": "Không thể gỡ thành viên",
+    "role_updated": "Đã cập nhật vai trò",
+    "role_update_failed": "Không thể cập nhật vai trò",
+    "leader_updated": "Đã cập nhật đội trưởng",
+    "leader_update_failed": "Không thể cập nhật đội trưởng",
+    "archive_failed": "Không thể lưu trữ đội",
+    "instructions_saved": "Đã lưu hướng dẫn"
+  },
   "profile_card": {
     "unavailable": "Không có thông tin đội",
     "detail_link": "Chi tiết →",
@@ -77,9 +121,10 @@
     "more_members_other": "+{{count}} nữa"
   },
   "instructions_tab": {
-    "description": "Chỉ dẫn của đội được đưa vào prompt của agent đội trưởng mỗi khi nó xử lý issue được giao cho đội. Dùng để truyền cho đội trưởng các hướng dẫn chung, quy ước làm việc, hoặc ngữ cảnh cần tuân theo trong mọi task.",
+    "description": "Đội trưởng đọc các hướng dẫn này mỗi khi làm việc trên một issue được giao cho đội này.",
     "unsaved_changes": "Có thay đổi chưa lưu",
-    "save_button": "Lưu"
+    "save_button": "Lưu",
+    "placeholder": "ví dụ: Luôn bắt đầu bằng việc viết một test thất bại. Ưu tiên commit nhỏ, nguyên tử."
   },
   "scope": {
     "mine": "Của tôi",

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bot } from "lucide-react";
 import { cn } from "@multica/ui/lib/utils";
+import { parseAvatarEmoji } from "@multica/ui/lib/avatar-emoji";
 import { resolvePublicFileUrl } from "@multica/core/workspace/avatar-url";
 
 /** Circle avatar for the consulting agent: the configured image when it
@@ -24,7 +25,9 @@ export function AgentAvatar({
   useEffect(() => {
     setFailed(false);
   }, [src]);
-  const resolved = src ? resolvePublicFileUrl(src) : null;
+  // Agents can carry an emoji avatar (`emoji:🐳`) instead of an image URL.
+  const emoji = parseAvatarEmoji(src);
+  const resolved = src && !emoji ? resolvePublicFileUrl(src) : null;
   return (
     <div
       className={cn(
@@ -32,7 +35,11 @@ export function AgentAvatar({
         className,
       )}
     >
-      {resolved && !failed ? (
+      {emoji ? (
+        <span aria-hidden="true" className="select-none text-title-lg leading-none">
+          {emoji}
+        </span>
+      ) : resolved && !failed ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={resolved}

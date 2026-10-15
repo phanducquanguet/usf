@@ -20,14 +20,14 @@ Trang tạo agent đưa ra hai lựa chọn:
 
 Build with AI cần một runtime đang online cho cuộc trò chuyện với Builder. Dù chọn cách nào, bạn đều xem lại và sửa được cấu hình cuối trước khi tạo.
 
-![Hai điểm khởi đầu khi tạo agent: Start blank và Build with AI](/images/docs/quickstart-new-agent.png)
+![Hai điểm khởi đầu khi tạo agent: Start blank và Build with AI](/images/docs/quickstart-new-agent.webp)
 
 ## Các trường bắt buộc
 
 Tạo agent chỉ cần hai thứ:
 
 - **Tên** — phải duy nhất trong không gian làm việc.
-- **Runtime** — môi trường thực sự thực thi task.
+- **Runtime** — môi trường thực sự thực thi các lượt chạy.
 
 Mọi trường khác cứ để mặc định rồi chỉnh sau khi tạo. Mặc định, chỉ người tạo chạy được agent mới.
 
@@ -63,12 +63,22 @@ Trong lúc tạo, bạn có thể chọn một hoặc nhiều [skill](/skills) t
 
 Skill hợp với phương pháp và tài liệu dùng lại giữa nhiều agent; yêu cầu lâu dài chỉ thuộc về riêng agent này thì đặt trong chỉ dẫn.
 
+## Gợi ý mở đầu cuộc trò chuyện
+
+Thêm tối đa ba **gợi ý mở đầu** (conversation starters) để cho mọi người thấy agent này giỏi việc gì trước khi họ gửi tin nhắn chat đầu tiên. Chúng hiện khi ai đó mở một cuộc chat mới với agent, phía trên trình soạn. Mỗi gợi ý có một nhãn ngắn và một prompt đầy đủ. Chọn một gợi ý sẽ điền vào trình soạn để người dùng xem lại hoặc sửa; nó không bao giờ tự khởi động một lượt chạy.
+
+Trình chỉnh sửa xem trước đúng những gì một cuộc chat mới sẽ hiển thị, và ai sửa được agent sẽ thấy liên kết **Customize starters** ở trạng thái trống đó, dẫn thẳng về đây.
+
+Nếu để trống danh sách, Chat hiển thị các gợi ý mặc định đa dụng đã được bản địa hóa. Ví dụ riêng cho agent thường hữu ích hơn vì chúng phản ánh được vai trò và ranh giới trong chỉ dẫn.
+
+Từ CLI, đặt chúng bằng `--conversation-starters` trên `agent create` và `agent update` (một mảng JSON gồm các object `{ "label", "prompt" }`; truyền `'[]'` khi update để xóa). `agent copy` vẫn sao chép giá trị của agent nguồn và không có cờ ghi đè.
+
 ## Runtime, model và mức suy nghĩ
 
 Mỗi runtime đã gắn sẵn với một công cụ lập trình AI. Chọn runtime xong, bạn chọn được model và mức suy nghĩ mà công cụ hỗ trợ; một số công cụ (như Codex) còn có bậc dịch vụ:
 
 - Để trống thì áp dụng mặc định của runtime hoặc của CLI cục bộ.
-- Đặt model thì agent dùng lựa chọn đó cho các task nó nhận từ đó về sau.
+- Đặt model thì agent dùng lựa chọn đó cho các lượt chạy nó nhận từ đó về sau.
 - Một số runtime tự quản lý model nên không hiện bộ chọn model.
 
 Các công cụ khác nhau về model được hỗ trợ, khôi phục phiên, skill và năng lực MCP — xem [So sánh công cụ lập trình AI](/providers).
@@ -83,7 +93,7 @@ Quyền truy cập (Access) quyết định thành viên nào chạy được ag
 | **Entire workspace** | Mọi thành viên của không gian làm việc chạy được. |
 | **Specific people** | Chỉ bạn và các thành viên được chọn chạy được. |
 
-![Thiết lập Quyền truy cập: Only me, Entire workspace, Specific people](/images/docs/agent-access-settings.png)
+![Thiết lập Quyền truy cập: Only me, Entire workspace, Specific people](/images/docs/agent-access-settings.webp)
 
 Chỉ chủ của agent đổi được Quyền truy cập — admin của không gian làm việc thì không. `owner` và `admin` của không gian làm việc quản lý được phần cấu hình còn lại, nhưng không thể mượn vai trò quản trị để chạy những agent mình không được cấp quyền.
 
@@ -93,7 +103,7 @@ Trên trang chi tiết của agent, bạn tiếp tục chỉnh được:
 
 | Thiết lập | Tác dụng |
 |---|---|
-| **Giới hạn đồng thời** | Agent chạy được bao nhiêu task cùng lúc. Mặc định là 6; task vượt trần tiếp tục xếp hàng. |
+| **Giới hạn đồng thời** | Agent chạy được bao nhiêu lượt chạy cùng lúc. Mặc định là 6; lượt chạy vượt trần tiếp tục xếp hàng. |
 | **Biến môi trường** | Tiêm biến khi công cụ lập trình AI khởi động. |
 | **Đối số tùy chỉnh** | Nối lần lượt vào đối số CLI của công cụ lập trình AI. |
 | **MCP** | Cung cấp cấu hình MCP server cho các công cụ lập trình AI hỗ trợ. |
@@ -101,7 +111,7 @@ Trên trang chi tiết của agent, bạn tiếp tục chỉnh được:
 
 Daemon chứa runtime cũng có trần đồng thời toàn cục (mặc định 20); mức đồng thời thực tế là con số nhỏ hơn trong hai trần.
 
-Sửa cấu hình không thay đổi task đang chạy. Các task sau đó dùng cấu hình agent đã lưu tại thời điểm runtime nhận chúng.
+Sửa cấu hình không thay đổi các lượt chạy đang diễn ra. Các lượt chạy sau đó dùng cấu hình agent đã lưu tại thời điểm runtime nhận chúng.
 
 ## Biến môi trường và thông tin đăng nhập
 
@@ -119,11 +129,15 @@ Các biến runtime trọng yếu như `PATH`, `HOME` và `MULTICA_*` không ghi
 
 Đối số tùy chỉnh được truyền cho công cụ lập trình AI dưới dạng mảng, từng mục một, không qua khai triển shell. Đối số có hợp lệ không là chuyện của công cụ; cấu hình model đã có trường riêng thì không cần lặp lại ở đây.
 
+<Callout type="warning">
+Đừng đặt thông tin đăng nhập hay bí mật khác vào đối số tùy chỉnh. Chúng nằm lại trong argv của tiến trình con và có thể bị các tiến trình cục bộ khác nhìn thấy qua `ps` hoặc `/proc`; hãy dùng biến môi trường (`custom_env`) thay thế. Log của daemon có che giá trị đối số, nhưng điều đó không bảo vệ được danh sách tiến trình của hệ điều hành.
+</Callout>
+
 Cấu hình MCP có thể chứa token; quy tắc lưu trữ và hiển thị của nó giống biến môi trường. Chỉ những runtime hỗ trợ cấu hình MCP được quản lý mới hiện mục này; công cụ không hỗ trợ MCP không tự có thêm năng lực chỉ vì một cấu hình được lưu.
 
 ## Nhân bản agent
 
-Nhân bản mang theo phần lớn cấu hình đang dùng trừ tên, gồm chỉ dẫn, skill, đối số tùy chỉnh, avatar, giới hạn đồng thời và thiết lập Quyền truy cập. Model, mức suy nghĩ và bậc dịch vụ cũng đi theo; nếu runtime gốc không khả dụng và bản sao buộc phải chuyển sang runtime khác, ba giá trị này bị xóa và phải chọn lại.
+Nhân bản mang theo phần lớn cấu hình đang dùng trừ tên, gồm chỉ dẫn, gợi ý mở đầu cuộc trò chuyện, skill, đối số tùy chỉnh, avatar, giới hạn đồng thời và thiết lập Quyền truy cập. Model, mức suy nghĩ và bậc dịch vụ cũng đi theo; nếu runtime gốc không khả dụng và bản sao buộc phải chuyển sang runtime khác, ba giá trị này bị xóa và phải chọn lại.
 
 Giá trị biến môi trường và cấu hình MCP không bao giờ được sao chép, phải đặt lại trên agent mới. Nhân bản giữ nguyên runtime và thiết lập Quyền truy cập của agent gốc.
 
@@ -134,7 +148,8 @@ uniai agent create \
   --name "Frontend Reviewer" \
   --runtime-id <runtime-id> \
   --description "Reviews frontend pull requests" \
-  --instructions "Read the diff and tests first; post review conclusions only as issue comments."
+  --instructions "Read the diff and tests first; post review conclusions only as issue comments." \
+  --conversation-starters '[{"label":"Review a PR","prompt":"Review the most relevant open pull request."}]'
 ```
 
 Plaintext trong đối số dòng lệnh sẽ nằm lại trong lịch sử shell; stdin và file được giới hạn quyền thì không.

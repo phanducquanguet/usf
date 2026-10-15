@@ -23,24 +23,28 @@ Các bước cài đặt nằm ở [Cài đặt công cụ lập trình AI](/ins
 | Antigravity | `agy` | ✓ | — | `.agents/skills/` |
 | Claude Code | `claude` | ✓ | ✓ | `.claude/skills/` |
 | CodeBuddy | `codebuddy` | ✓ | ✓ | `.codebuddy/skills/` |
+| CodeArts | `codearts` | ✓ | ✓ | `.codeartsdoer/skills/` |
 | Codex | `codex` | ✓ | ✓ | `$CODEX_HOME/skills/` |
 | GitHub Copilot CLI | `copilot` | ✓ | — | `.github/skills/` |
 | Cursor Agent | `cursor-agent` | ✓ | ✓ | `.cursor/skills/` |
+| DeepSeek Harness | `dsh` | ✓ | ✓ | `.dsh/skills/` |
 | DevEco Code | `deveco` | ✓ | — | `.deveco/skills/` |
 | Grok | `grok` | ✓ | ✓ | `.grok/skills/` |
-| Hermes | `hermes` | ✓ | ✓ | `HERMES_HOME/skills/` theo từng task |
+| Hermes | `hermes` | ✓ | ✓ | `HERMES_HOME/skills/` theo từng lượt chạy |
 | Kimi CLI | `kimi` | ✓ | ✓ | `.kimi/skills/` |
 | Kiro CLI | `kiro-cli` | ✓ | ✓ | `.kiro/skills/` |
+| MiniMax Code | `mcode` | — | ✓ | `.minimax/skills/` |
 | OpenClaw | `openclaw` | ✓ | ✓ | `skills/` |
 | OpenCode | `opencode` | ✓ | ✓ | `.opencode/skills/` |
-| Pi | `pi` | ✓ | — | `.pi/skills/` |
-| Oh-My-Pi | `omp` | ✓ | — | `.omp/skills/` |
+| Pi | `pi` | ✓ | ✓ | `.pi/skills/` |
+| Oh-My-Pi | `omp` | ✓ | ✓ | `.omp/skills/` |
 | Qoder CLI | `qodercli` | ✓ | ✓ | `.qoder/skills/` |
 | Qoder CN CLI | `qoderclicn` | ✓ | ✓ | `.qoder/skills/` |
 | Qwen Code | `qwen` | ✓ | ✓ | `.qwen/skills/` |
-| QwenPaw | `qwenpaw` | ✓ | ✓ | `skills/` trong workspace theo từng task |
+| QwenPaw | `qwenpaw` | ✓ | ✓ | `skills/` trong workspace theo từng lượt chạy |
 | Reasonix | `reasonix` | ✓ | ✓ | `.reasonix/skills/` |
 | Trae CLI | `traecli` | ✓ | ✓ | `.traecli/skills/` |
+| Dim | `dim` | ✓ | ✓ | — |
 
 "MCP do UniAI quản lý" nghĩa là bạn có thể khai báo MCP server trong cấu hình agent và UniAI truyền chúng cho công cụ trước mỗi lần chạy. Không có nghĩa công cụ đó không còn cách nào khác để cấu hình MCP.
 
@@ -50,7 +54,9 @@ Khi bạn tạo agent, danh sách model lấy từ runtime tương ứng. Một 
 
 Nếu bạn không chọn model, UniAI dùng mặc định của chính công cụ. Nếu danh sách trống, xác nhận runtime đang online và công cụ đã đăng nhập, rồi làm mới danh sách model.
 
-QwenPaw là ngoại lệ duy nhất: nó không nhận model chọn từ UniAI, nên bộ chọn bị vô hiệu và hiển thị "Managed by runtime". Hãy chọn model trong cấu hình riêng của QwenPaw. Danh sách model trống ở đây là bình thường, không phải dấu hiệu runtime offline.
+QwenPaw và MiniMax Code là ngoại lệ: chúng không nhận model chọn từ UniAI, nên bộ chọn bị vô hiệu và hiển thị "Managed by runtime". Hãy chọn model trong cấu hình riêng của công cụ. Danh sách model trống ở đây là bình thường, không phải dấu hiệu runtime offline.
+
+DeepSeek Harness công bố danh mục model từ chính runtime (`dsh --profile multica --list-models`). Id model của nó có dạng `provider/model` (ví dụ `deepseek-official/deepseek-chat`), nên hãy chọn id đầy đủ trong danh sách.
 
 <Callout type="info">
 Các công cụ khác nhau có thể dùng tên model khác nhau. Sau khi đổi công cụ lập trình AI, giá trị model cũ không còn hợp lệ với công cụ mới và cần chọn lại.
@@ -58,15 +64,17 @@ Các công cụ khác nhau có thể dùng tên model khác nhau. Sau khi đổi
 
 ## Khôi phục phiên
 
-Tất cả các công cụ này đều hỗ trợ tiếp tục phiên hiện có ở lần chạy sau. Điều kiện là phiên gốc vẫn còn và task được thực thi bởi một runtime với tới được nó.
+Mọi công cụ được đánh dấu ✓ đều hỗ trợ tiếp tục phiên hiện có ở lượt chạy sau. Điều kiện là phiên gốc vẫn còn và lượt chạy được thực thi bởi một runtime với tới được nó. MiniMax Code 0.1.2 không công bố khả năng nạp phiên qua ACP, nên UniAI khởi động một phiên MCode mới cho lượt chạy sau.
 
 UniAI lưu định danh phiên mà công cụ trả về. Lần tiếp theo công việc tiếp tục trên cùng issue, runtime thử khôi phục phiên đó; khi không được, nó tạo phiên mới và chạy tiếp. Pi lưu đường dẫn file phiên cục bộ, nên phụ thuộc nhiều hơn vào máy tính và file gốc.
 
-Quy tắc thử lại và khôi phục phiên nằm ở [Task](/tasks#manual-retry).
+Quy tắc thử lại và khôi phục phiên nằm ở [Lượt chạy](/tasks#manual-retry).
 
 ## Cấu hình MCP
 
-Antigravity, GitHub Copilot CLI, DevEco Code và Pi hiện chưa đọc cấu hình MCP trên agent, nên trường này không hiển thị khi tạo agent cho chúng.
+Antigravity, GitHub Copilot CLI và DevEco Code hiện chưa đọc cấu hình MCP trên agent, nên trường này không hiển thị khi tạo agent cho chúng.
+
+Việc chuyển MCP được quản lý cho Pi yêu cầu Pi 0.99.0 trở lên. Các phiên bản Pi cũ hơn vẫn chạy được các agent không có cấu hình MCP.
 
 <Callout type="warning">
 Lệnh, tham số và biến môi trường của MCP server được lưu phía server cùng cấu hình agent. Đừng ghi vào cấu hình những thông tin xác thực cục bộ mà bạn không cần chia sẻ.
@@ -80,9 +88,9 @@ Skill đã có sẵn trong repository không bao giờ bị ghi đè. Khi trùng
 
 Codex, Hermes và OpenClaw được xử lý hơi khác:
 
-- Codex dùng `CODEX_HOME` theo từng task, nên skill không bao giờ bị ghi vào thư mục Codex cấp hệ thống.
-- Hermes dùng `HERMES_HOME` theo từng task. Cấu hình cục bộ sẵn có vẫn đọc được, nhưng skill đã gắn và dữ liệu phiên được cô lập theo task. Cơ chế cô lập này chỉ kích hoạt khi agent có skill gắn kèm; task không có skill dùng Hermes home gốc của máy.
-- OpenClaw dùng `skills/` dưới thư mục làm việc của task hiện tại, và cấu hình mỗi lần chạy đặt thư mục đó làm workspace.
+- Codex dùng `CODEX_HOME` theo từng lượt chạy, nên skill không bao giờ bị ghi vào thư mục Codex cấp hệ thống.
+- Hermes dùng `HERMES_HOME` theo từng lượt chạy. Cấu hình cục bộ sẵn có vẫn đọc được, nhưng skill đã gắn và dữ liệu phiên được cô lập theo lượt chạy. Cơ chế cô lập này chỉ kích hoạt khi agent có skill gắn kèm; lượt chạy không có skill dùng Hermes home gốc của máy.
+- OpenClaw dùng `skills/` dưới thư mục làm việc của lượt chạy hiện tại, và cấu hình mỗi lượt chạy đặt thư mục đó làm workspace.
 
 Về tạo và gắn skill, xem [Skills](/skills).
 

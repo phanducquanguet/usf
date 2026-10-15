@@ -1,22 +1,50 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import type { SupportedLocale } from "@multica/core/i18n";
+import { I18nProvider } from "@multica/core/i18n/react";
 import { paths } from "@multica/core/paths";
+import { RESOURCES } from "@multica/views/locales";
+import { ApiError } from "@multica/core/api";
 
 const {
   mockPush,
+  mockRouter,
   mockSearchParams,
   mockLoginWithGoogle,
   mockListWorkspaces,
   mockListMyInvitations,
   mockSetQueryData,
-} = vi.hoisted(() => ({
-  mockPush: vi.fn(),
-  mockSearchParams: new URLSearchParams(),
-  mockLoginWithGoogle: vi.fn(),
-  mockListWorkspaces: vi.fn(),
-  mockListMyInvitations: vi.fn(),
-  mockSetQueryData: vi.fn(),
-}));
+  mockQueryClient,
+} = vi.hoisted(() => {
+  const mockPush = vi.fn();
+  const mockSetQueryData = vi.fn();
+  return {
+    mockPush,
+    mockRouter: { push: mockPush },
+    mockSearchParams: new URLSearchParams(),
+    mockLoginWithGoogle: vi.fn(),
+    mockListWorkspaces: vi.fn(),
+    mockListMyInvitations: vi.fn(),
+    mockSetQueryData,
+    mockQueryClient: { setQueryData: mockSetQueryData },
+  };
+});
+
+vi.mock("@multica/core/logger", async () => {
+  const actual =
+    await vi.importActual<typeof import("@multica/core/logger")>(
+      "@multica/core/logger",
+    );
+  return {
+    ...actual,
+    createLogger: () => ({
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    }),
+  };
+});
 
 const makeUser = (
   overrides: Partial<{
@@ -36,12 +64,12 @@ const makeUser = (
 });
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => mockRouter,
   useSearchParams: () => mockSearchParams,
 }));
 
 vi.mock("@tanstack/react-query", () => ({
-  useQueryClient: () => ({ setQueryData: mockSetQueryData }),
+  useQueryClient: () => mockQueryClient,
 }));
 
 // Preserve the real sanitizeNextUrl so the "drop unsafe ?next=" behavior is
@@ -65,15 +93,29 @@ vi.mock("@multica/core/workspace/queries", () => ({
   },
 }));
 
-vi.mock("@multica/core/api", () => ({
-  api: {
-    listWorkspaces: mockListWorkspaces,
-    listMyInvitations: mockListMyInvitations,
-    googleLogin: vi.fn(),
-  },
-}));
+vi.mock("@multica/core/api", async () => {
+  const actual = await vi.importActual<typeof import("@multica/core/api")>(
+    "@multica/core/api",
+  );
+  return {
+    ...actual,
+    api: {
+      listWorkspaces: mockListWorkspaces,
+      listMyInvitations: mockListMyInvitations,
+      googleLogin: vi.fn(),
+    },
+  };
+});
 
 import CallbackPage from "./page";
+
+function renderCallback(locale: SupportedLocale = "en") {
+  return render(
+    <I18nProvider locale={locale} resources={RESOURCES}>
+      <CallbackPage />
+    </I18nProvider>,
+  );
+}
 
 describe("CallbackPage", () => {
   beforeEach(() => {
@@ -98,9 +140,125 @@ describe("CallbackPage", () => {
     mockListMyInvitations.mockResolvedValue([]);
   });
 
+  it("renders callback errors in the selected locale", async () => {
+    mockSearchParams.delete("code");
+
+    renderCallback("en");
+
+    expect(await screen.findByText("Login Failed")).toBeInTheDocument();
+    expect(screen.getByText("Missing authorization code")).toBeInTheDocument();
+    expect(screen.getByText("Back to login")).toBeInTheDocument();
+  });
+
+  it("shows access denied before checking for a missing authorization code", async () => {
+    mockSearchParams.delete("code");
+    mockSearchParams.set("error", "access_denied");
+
+    renderCallback("en");
+
+    expect(await screen.findByText("Access denied")).toBeInTheDocument();
+    expect(screen.queryByText("Missing authorization code")).not.toBeInTheDocument();
+    expect(mockLoginWithGoogle).not.toHaveBeenCalled();
+  });
+
+  it("renders a localized generic failure instead of a raw English error", async () => {
+    mockLoginWithGoogle.mockRejectedValue(
+      new Error("upstream authentication failed"),
+    );
+
+    renderCallback("en");
+
+    expect(await screen.findByText("We couldn't complete your sign-in. Please try again.")).toBeInTheDocument();
+    expect(
+      screen.queryByText("upstream authentication failed"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("localizes a stable login error code", async () => {
+    mockLoginWithGoogle.mockRejectedValue(
+      new ApiError("English fallback", 403, "Forbidden", {
+        code: "signup_prohibited",
+      }),
+    );
+
+    renderCallback("en");
+
+    expect(
+      await screen.findByText("User registration is disabled on this self-hosted instance."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("English fallback")).not.toBeInTheDocument();
+  });
+
+  it("preserves an actionable uncoded 4xx message from an older server", async () => {
+    mockLoginWithGoogle.mockRejectedValue(
+      new ApiError("legacy client error", 403, "Forbidden"),
+    );
+
+    renderCallback("en");
+
+    expect(await screen.findByText("legacy client error")).toBeInTheDocument();
+  });
+
+  it("retranslates a missing-email response without repeating the single-use code exchange", async () => {
+    mockLoginWithGoogle.mockRejectedValue(
+      new ApiError("Google did not provide an email address", 400, "Bad Request", {
+        code: "google_account_no_email",
+      }),
+    );
+
+    const view = renderCallback("vi");
+    await waitFor(() => {
+      expect(mockLoginWithGoogle).toHaveBeenCalledTimes(1);
+    });
+
+    view.rerender(
+      <I18nProvider locale="en" resources={RESOURCES}>
+        <CallbackPage />
+      </I18nProvider>,
+    );
+
+    expect(
+      await screen.findByText("Google did not provide an email address for this sign-in."),
+    ).toBeInTheDocument();
+    expect(mockLoginWithGoogle).toHaveBeenCalledTimes(1);
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  // The response matrix lives in callback-error.test.ts; this covers page wiring.
+  it("does not turn a provider failure into a user diagnosis even if it carries a known code", async () => {
+    mockLoginWithGoogle.mockRejectedValue(
+      new ApiError("internal provider detail", 502, "Bad Gateway", {
+        code: "oauth_code_invalid",
+      }),
+    );
+
+    renderCallback("en");
+
+    expect(await screen.findByText("We couldn't complete your sign-in. Please try again.")).toBeInTheDocument();
+    expect(screen.queryByText("internal provider detail")).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["Desktop", "platform:desktop"],
+    ["CLI", "cli_callback:http://127.0.0.1:46233/callback,cli_state:test"],
+  ])("uses the same localized error handling for the %s callback", async (_flow, state) => {
+    const { api: mockedApi } = await import("@multica/core/api");
+    vi.mocked(mockedApi.googleLogin).mockRejectedValue(
+      new ApiError("English fallback", 403, "Forbidden", { code: "signup_prohibited" }),
+    );
+    mockSearchParams.set("state", state);
+
+    renderCallback("en");
+
+    expect(await screen.findByText("User registration is disabled on this self-hosted instance.")).toBeInTheDocument();
+    expect(mockedApi.googleLogin).toHaveBeenCalledTimes(1);
+    expect(mockLoginWithGoogle).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
   it("unonboarded user honors a safe next= (e.g. /invite/{id}) so invitees aren't trapped", async () => {
     mockSearchParams.set("state", "next:/invite/abc123");
-    render(<CallbackPage />);
+    renderCallback();
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith("/invite/abc123");
     });
@@ -110,7 +268,7 @@ describe("CallbackPage", () => {
   });
 
   it("unonboarded user with no next= and no pending invitations lands on /onboarding", async () => {
-    render(<CallbackPage />);
+    renderCallback();
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(paths.onboarding());
     });
@@ -127,7 +285,7 @@ describe("CallbackPage", () => {
         status: "pending",
       },
     ]);
-    render(<CallbackPage />);
+    renderCallback();
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(paths.invitations());
     });
@@ -153,7 +311,7 @@ describe("CallbackPage", () => {
         updated_at: "",
       },
     ]);
-    render(<CallbackPage />);
+    renderCallback();
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(paths.workspace("acme").issues());
     });
@@ -168,7 +326,7 @@ describe("CallbackPage", () => {
     );
     mockSearchParams.set("state", "next:https://evil.example");
 
-    render(<CallbackPage />);
+    renderCallback();
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalled();
@@ -182,7 +340,7 @@ describe("CallbackPage", () => {
     );
     mockSearchParams.set("state", "next:/invite/abc123");
 
-    render(<CallbackPage />);
+    renderCallback();
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith("/invite/abc123");
@@ -191,7 +349,7 @@ describe("CallbackPage", () => {
 
   it("falls through to /onboarding when listMyInvitations errors", async () => {
     mockListMyInvitations.mockRejectedValue(new Error("network"));
-    render(<CallbackPage />);
+    renderCallback();
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(paths.onboarding());
     });
@@ -216,7 +374,7 @@ describe("CallbackPage", () => {
       );
       mockGoogleLogin.mockResolvedValue({ token: "cli-jwt-token" });
 
-      render(<CallbackPage />);
+      renderCallback();
 
       await waitFor(() => {
         expect(mockGoogleLogin).toHaveBeenCalledWith(
@@ -244,7 +402,7 @@ describe("CallbackPage", () => {
     mockListWorkspaces.mockResolvedValue([]);
     mockListMyInvitations.mockResolvedValue([]);
 
-    render(<CallbackPage />);
+    renderCallback();
 
     await waitFor(() => {
       // Normal web flow: loginWithGoogle is called (not googleLogin)
@@ -276,7 +434,7 @@ describe("CallbackPage", () => {
       );
       mockGoogleLogin.mockResolvedValue({ token: "mixed-jwt" });
 
-      render(<CallbackPage />);
+      renderCallback();
 
       await waitFor(() => {
         expect(mockGoogleLogin).toHaveBeenCalled();
@@ -319,7 +477,7 @@ describe("CallbackPage", () => {
         updated_at: "",
       },
     ]);
-    render(<CallbackPage />);
+    renderCallback();
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(paths.workspace("acme").issues());
     });

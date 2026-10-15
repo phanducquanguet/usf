@@ -1,6 +1,6 @@
 ---
 title: Cài đặt công cụ lập trình AI
-description: Cài đặt và đăng nhập một công cụ lập trình AI được hỗ trợ để UniAI thực thi task trên máy của bạn.
+description: Cài đặt và đăng nhập một công cụ lập trình AI được hỗ trợ để UniAI thực thi lượt chạy trên máy của bạn.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -18,14 +18,17 @@ UniAI hiện phát hiện các lệnh sau:
 | Antigravity CLI | `agy` | [Cài đặt và đăng nhập Antigravity](https://antigravity.google/docs/cli-install) |
 | Claude Code | `claude` | [Claude Code quickstart](https://code.claude.com/docs/en/quickstart) |
 | CodeBuddy Code | `codebuddy` | [CodeBuddy quickstart](https://www.codebuddy.ai/docs/cli/quickstart) |
+| CodeArts | `codearts` | [CodeArts CLI quickstart](https://support.huaweicloud.com/qs-codeartssnap/codeartsagent_qs_0004.html) |
 | Codex CLI | `codex` | [Codex CLI](https://developers.openai.com/codex/cli/) |
 | GitHub Copilot CLI | `copilot` | [Cài Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli) |
 | Cursor Agent | `cursor-agent` | [Cài Cursor CLI](https://docs.cursor.com/en/cli/installation) |
+| DeepSeek Harness | `dsh` | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) |
 | DevEco Code | `deveco` | [DevEco Code](https://gitcode.com/openharmony-sig/deveco-code) |
 | Grok Build | `grok` | [Grok Build quickstart](https://docs.x.ai/build/overview) |
 | Hermes Agent | `hermes` | [Hermes quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart/) |
 | Kimi CLI | `kimi` | [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) |
 | Kiro CLI | `kiro-cli` | [Cài Kiro CLI](https://kiro.dev/docs/cli/installation/) |
+| MiniMax Code | `mcode` | [Cài MiniMax Code CLI](https://www.npmjs.com/package/@minimax-ai/code) |
 | OpenClaw | `openclaw` | [Cài OpenClaw](https://docs.openclaw.ai/install) |
 | OpenCode | `opencode` | [OpenCode quickstart](https://opencode.ai/en/docs) |
 | Pi coding agent | `pi` | [Pi coding agent](https://github.com/earendil-works/pi) |
@@ -36,6 +39,7 @@ UniAI hiện phát hiện các lệnh sau:
 | QwenPaw | `qwenpaw` | [QwenPaw](https://github.com/agentscope-ai/QwenPaw) |
 | Reasonix | `reasonix` | [Reasonix](https://github.com/esengine/DeepSeek-Reasonix) |
 | TRAE CLI | `traecli` | [Trang chính thức của TRAE](https://www.trae.cn/) |
+| Dim | `dim` | [DimCode](https://dimagent.cn/en/docs/cli) |
 
 "Được hỗ trợ" nghĩa là UniAI gọi được CLI đó. Không có nghĩa UniAI cung cấp tài khoản, gói đăng ký hay quota model của công cụ cho bạn.
 
@@ -43,14 +47,20 @@ UniAI hiện phát hiện các lệnh sau:
 
 Sau khi cài, tự chạy công cụ một lần trong terminal và hoàn tất đăng nhập hoặc thiết lập nhà cung cấp model. Nếu công cụ không hoàn thành được yêu cầu trong terminal, các lần gọi từ daemon cũng lỗi y như vậy.
 
+Với CodeArts, hãy kiểm chứng đường không tương tác bằng `codearts run --model provider/model "Reply OK"`, không chỉ qua TUI. CodeArts CLI hiện tại có thể để một provider tùy chỉnh chạy được trong TUI trong khi `run`, `models` và `serve` vẫn yêu cầu [`CODEARTS_CLI_AK` / `CODEARTS_CLI_SK`](https://support.huaweicloud.com/usermanual-cli/codeartsagent_cli_0026.html). UniAI có thể phát hiện model tùy chỉnh từ `~/.codeartsdoer/codearts_cli.json` hoặc `.jsonc`, nhưng lượt chạy của agent dùng `codearts run` nên phải tuân theo yêu cầu xác thực của nó.
+
 Với Reasonix, chạy `reasonix setup` và cấu hình provider cùng model mặc định trước khi khởi động daemon.
 
 Với QwenPaw, chọn provider và model trong cấu hình riêng của QwenPaw. UniAI không ghi đè được model của QwenPaw lúc chạy.
 
+Với MiniMax Code, cài một bản Node.js được hỗ trợ (`>=22.19 <23` hoặc `>=24 <27`) rồi chạy `npm install --global @minimax-ai/code@latest`. Cài npm toàn cục sẽ đặt `mcode` vào đường dẫn binary toàn cục của npm; nếu `command -v mcode` hoặc `Get-Command mcode` không tìm thấy, hãy thêm đường dẫn đó vào `PATH`. Sau đó chạy `mcode login`. MiniMax Code tự quản lý việc chọn model; UniAI không ghi đè được qua ACP.
+
+Với DeepSeek Harness, cài Node.js 20+ và chạy `npm install -g @deepseek-ai/dsh`, rồi cấp cho nó runtime profile của UniAI — bundle cài đặt giao thức `--stdio` mà UniAI điều khiển, và là lý do một `dsh` trần không tự dùng được. Đặt `MULTICA_DSH_PROFILE_BUNDLE` thành bundle cần cài và daemon sẽ thêm giúp bạn, hoặc tự thêm bằng `dsh plugin --profile multica add <bundle>`. `<bundle>` là bất cứ thứ gì `dsh plugin` chấp nhận — tên package npm, một thư mục, hoặc một tarball đã đóng gói — và cầu nối nằm tại [multica-ai/dsh-multica-runtime](https://github.com/multica-ai/dsh-multica-runtime). Nó chưa có trên registry npm công khai ([multica#6936](https://github.com/multica-ai/multica/issues/6936)), nên hiện tại bạn build nó từ repository đó rồi trỏ biến tới thư mục build, hoặc tới tarball mà `npm pack` tạo ra — dùng cách sau nếu máy chạy daemon không phải máy đã build. Tên package sẽ là lựa chọn đơn giản nhất khi cầu nối được phát hành. Dù chọn cách nào, hãy ưu tiên thứ do chính đội bạn phát hành hoặc build: giá trị này được cài vào DSH home của mọi máy chạy daemon mà không cần xác nhận thêm, nên một package bên thứ ba chưa được thẩm định là quyết định về chuỗi cung ứng, không phải chuyện tiện lợi. Nếu bạn cài DeepSeek Harness Desktop thay vì package npm, daemon cũng tìm các CLI shim mà ứng dụng đó tạo ra, trong thư mục dữ liệu riêng theo người dùng của nó — `~/Library/Application Support/DSH Desktop` trên macOS, `%APPDATA%\DSH Desktop` trên Windows. Trên Windows đó là dữ liệu ứng dụng roaming, không phải thư mục cài đặt: ứng dụng cài vào Program Files hoặc `%LOCALAPPDATA%\Programs`, nhưng CLI mà nó điều khiển nằm cạnh các trạng thái riêng theo người dùng khác. Phân đoạn phiên bản trong các đường dẫn đó là một id được sinh ra, nên daemon liệt kê chúng và ưu tiên bản mới nhất. Không cần thêm gì vào `PATH` — shim được sinh ra chạy runtime riêng của ứng dụng Desktop qua đường dẫn tuyệt đối. Nếu DSH Desktop được cài ở vị trí không mặc định, hãy trỏ `MULTICA_DSH_PATH` tới shim. Daemon chỉ đăng ký DeepSeek Harness sau khi `dsh --profile multica --probe` thành công, và báo profile còn thiếu trên `/health` khi không thành công. Đặt `DEEPSEEK_API_KEY` (hoặc lưu nó trong cài đặt riêng của dsh) trước khi khởi động daemon.
+
 Các thông tin đăng nhập đó do chính công cụ lưu cục bộ. UniAI không bao giờ nhận token đăng nhập từ Claude, Codex, Cursor hay bất kỳ CLI nào khác.
 
 <Callout type="info">
-Claude Code yêu cầu từ 2.0.0 trở lên, Codex từ 0.100.0, Copilot từ 1.0.0, Grok từ 0.2.89 và Qwen Code từ 0.20.0. Dưới phiên bản tối thiểu, daemon không đăng ký runtime tương ứng.
+Antigravity yêu cầu từ 1.1.10 trở lên, Claude Code từ 2.0.0, Codex từ 0.100.0, Copilot từ 1.0.0, Grok từ 0.2.89, Qwen Code từ 0.20.0, MiniMax Code từ 0.1.2 và OpenCode từ 1.1.54. Dưới phiên bản tối thiểu, daemon không đăng ký runtime tương ứng.
 </Callout>
 
 ## 3. Xác nhận daemon tìm thấy lệnh
@@ -90,7 +100,7 @@ uniai daemon restart
 Sau đó mở trang **Runtime** của UniAI. Công cụ hiện dưới máy tính tương ứng và ở trạng thái online. Giờ bạn có thể chọn runtime này khi tạo hoặc chỉnh sửa agent.
 
 <Callout type="warning">
-Daemon phải phát hiện được ít nhất một CLI được hỗ trợ sẵn thì mới khởi động. Các profile runtime tùy chỉnh chỉ đồng bộ sau khi daemon đã chạy, nên trên một máy trắng chúng không thể là điều kiện khởi động duy nhất.
+Daemon phải phát hiện được ít nhất một CLI được hỗ trợ sẵn thì mới khởi động. Các profile runtime tùy chỉnh chỉ đồng bộ sau khi daemon đã chạy, nên trên một máy trắng chúng không thể là điều kiện khởi động duy nhất. Có một ngoại lệ: khi daemon vừa tự bắt đầu cài runtime profile DSH (`MULTICA_DSH_PROFILE_BUNDLE`), nó khởi động mà không có runtime nào và đăng ký DeepSeek Harness khi việc cài đặt hoàn tất. Nếu không có ngoại lệ này, một máy chỉ có DSH cần profile sẽ không bao giờ cài xong được — daemon sẽ thoát trước khi cài xong và kéo theo việc cài đặt dừng lại.
 </Callout>
 
 ## Không phát hiện được công cụ nào

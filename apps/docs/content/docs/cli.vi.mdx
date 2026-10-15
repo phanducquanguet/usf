@@ -92,6 +92,7 @@ uniai issue assign UNI-123 --to "Backend Agent"
 # Comments and runs
 uniai issue comment list UNI-123
 uniai issue comment add UNI-123 --content "Check the regression tests first"
+uniai issue comment update <comment-id> --expected-revision 2 --content "Check the regression tests and release notes"
 uniai issue runs UNI-123
 ```
 
@@ -100,9 +101,10 @@ uniai issue runs UNI-123
 ```bash
 uniai issue create --title "Upgrade notes" --description-stdin < notes.md
 uniai issue comment add UNI-123 --content-stdin < review.md
+uniai issue comment update <comment-id> --expected-revision 2 --content-file revised-review.md
 ```
 
-Xem tin nhắn của một lượt chạy, hoặc dừng một task:
+Xem tin nhắn của một lượt chạy, hoặc dừng nó:
 
 ```bash
 uniai issue run-messages <task-id> --issue UNI-123
@@ -133,6 +135,21 @@ uniai skill import --url <skill-url> --on-conflict skip
 
 `overwrite` chỉ được phép với người tạo skill và giữ nguyên ID gốc cùng các gắn kết agent.
 
+### Lịch sử lượt chạy của agent
+
+`uniai agent tasks <agent-id> --limit 200` trả về trang lượt chạy mới nhất.
+Kích thước trang mặc định và tối đa là 200. Nếu còn lượt chạy khác, stderr in ra một
+cursor; truyền nguyên giá trị đó vào `--before '<cursor>'` để đọc trang kế tiếp.
+`--output json` giữ đầu ra dạng mảng và chỉ kèm usage của trang đó.
+
+Endpoint tương ứng `GET /api/agents/{id}/tasks` nhận `limit` và
+`before`, và giữ phản hồi JSON dạng mảng. Response header `X-Agent-Tasks-Next-Cursor`
+cung cấp cursor kế tiếp; khi header này vắng mặt nghĩa là đã tới trang cuối.
+Cursor giữ thứ tự `(created_at, id)`, kể cả độ chính xác của timestamp.
+Limit hoặc cursor không hợp lệ trả về HTTP 400; limit lớn hơn 200 bị giới hạn về 200.
+Client không đi theo cursor chỉ nhận được 200 lượt chạy mới nhất.
+
+
 ## Daemon và runtime
 
 ```bash
@@ -148,7 +165,7 @@ uniai runtime usage <runtime-id>
 uniai runtime activity <runtime-id>
 ```
 
-Xóa một runtime vẫn còn agent hoạt động gắn kèm mặc định sẽ bị từ chối. `uniai runtime delete <id> --cascade` gỡ gắn kết các agent đó, giữ nguyên cấu hình và lịch sử của chúng, đồng thời hủy các task đang hoạt động.
+Xóa một runtime vẫn còn agent hoạt động gắn kèm mặc định sẽ bị từ chối. `uniai runtime delete <id> --cascade` gỡ gắn kết các agent đó, giữ nguyên cấu hình và lịch sử của chúng, đồng thời hủy các lượt chạy đang hoạt động.
 
 Xem [Daemon và runtime](/daemon-runtimes) để hiểu cơ chế vận hành và runtime profile tùy chỉnh.
 
@@ -206,6 +223,8 @@ uniai config show
 uniai config show --profile staging
 ```
 
+Đừng đặt `MULTICA_DAEMON_PORT` trong shell của máy chủ, service Compose hay entrypoint của container dùng để khởi động daemon. Daemon trên máy chủ thường tự suy ra cổng health từ `--profile`; nếu không bind được cổng đó, nó dùng một cổng loopback còn trống và tự tiêm cổng thực tế vào các task của agent. Hãy gỡ hẳn biến này khỏi các môi trường khởi động cũ: nếu không, các phiên bản 0.4.22 và 0.4.23 sẽ nhầm shell đó là một task được quản lý và từ chối đăng nhập. Các phiên bản mới hơn cho phép đăng nhập có kiểm soát của con người và `daemon status` tự phục hồi khi cổng là tín hiệu task duy nhất, nhưng các lệnh API thông thường và các lệnh phân giải profile vẫn cố ý từ chối (fail-closed) cho tới khi gỡ biến này.
+
 Khi CLI chạy bên trong một task agent do daemon quản lý, nó không đọc hay sửa các file profile thuộc về con người này. Các lệnh gọi UniAI API xác thực bằng thông tin xác thực phạm vi task do daemon tiêm vào. `config show` và `config set` dùng trạng thái riêng cục bộ theo task; các lệnh dành cho con người/cục bộ như `login`, `logout`, `setup`, `workspace switch`, thay đổi đường dẫn runtime profile cục bộ, `daemon start` / `stop` / `restart`, `daemon logs` và `daemon probe-runtimes` không khả dụng. `auth status` không in nội dung token trong ngữ cảnh này.
 
 `daemon status` và `daemon disk-usage` vẫn khả dụng để agent kiểm tra runtime đang chứa nó, giới hạn trong runtime đó: `status` thăm dò cổng health do daemon tiêm vào, còn `disk-usage` quét thư mục gốc workspaces do daemon tiêm vào. Cả hai đều không nhận `--profile`, `disk-usage` còn từ chối `--all-profiles` và `--workspaces-root`, và cột STATUS của nó để trống vì việc phân giải trạng thái sẽ cần token đã lưu của con người. Dùng `du` và `df` cho mọi thứ ngoài phạm vi đó.
@@ -224,12 +243,12 @@ Các bảng dưới đây bao phủ mọi lệnh chính hiện có, nhóm theo �
 
 | Lệnh | Lệnh con | Mục đích | Cờ chính |
 | --- | --- | --- | --- |
-| `issue` | `list` | Liệt kê issue | `--status`, `--priority`, `--assignee`, `--project`, `--metadata` (lặp lại được), `--limit`, `--offset`, `--sort`, `--full-id` |
-| | `get <id>` | Xem một issue | |
+| `issue` | `list` | Liệt kê issue | `--status`, `--priority`, `--assignee`, `--project`, `--metadata` (lặp lại được), `--property` (lặp lại được, `"Name=Value"`; `__none__` khớp giá trị chưa đặt), `--limit`, `--offset`, `--sort` (kể cả `property:<name-or-id>`), `--full-id`, `--resolve-properties` (chỉ JSON; các dòng kèm tên thuộc tính, tùy chọn và thành viên bên cạnh id được lưu) |
+| | `get <id>` | Xem một issue | `--resolve-properties` (chỉ JSON; các dòng kèm tên thuộc tính, tùy chọn và thành viên bên cạnh id được lưu) |
 | | `create` | Tạo issue | `--title` (bắt buộc), `--description` / `--description-stdin` / `--description-file`, `--status`, `--priority`, `--assignee`, `--parent`, `--stage`, `--project`, `--start-date`, `--due-date`, `--attachment` (lặp lại được) |
-| | `update <id>` | Cập nhật các trường của issue | Cùng các trường như `create`, thêm `--position` |
-| | `assign <id>` | Giao hoặc bỏ giao | `--to` (khớp tên gần đúng với thành viên, agent và đội), `--to-id`, `--unassign` |
-| | `status <id> <status>` | Đổi trạng thái | |
+| | `update <id>` | Cập nhật các trường của issue | Cùng các trường như `create`, thêm `--position`, `--no-start`, `--duplicate-of` |
+| | `assign <id>` | Giao hoặc bỏ giao | `--to` (khớp tên gần đúng với thành viên, agent và đội), `--to-id`, `--unassign`, `--no-start` |
+| | `status <id> <status>` | Đổi trạng thái | `--no-start`, `--duplicate-of` |
 | | `reorder <id>` | Di chuyển vị trí trong một cột | |
 | | `search <query>` | Tìm issue | `--limit`, `--include-closed` |
 | | `children <id>` | Liệt kê issue con nhóm theo giai đoạn | |
@@ -238,34 +257,37 @@ Các bảng dưới đây bao phủ mọi lệnh chính hiện có, nhóm theo �
 | | `subscriber list/add/remove <issue-id>` | Quản lý người theo dõi | `--user`, `--user-id` (mặc định là người dùng hiện tại) |
 | | `label list/add/remove <issue-id>` | Quản lý nhãn trên một issue | |
 | | `metadata list/get/set/delete <issue-id>` | Quản lý metadata dạng khóa-giá trị ở cấp issue | |
-| | `property list/set/unset <issue-id>` | Đặt giá trị thuộc tính tùy chỉnh | `set`: `--name`, `--value` |
+| | `property list/set/unset <issue-id>` | Đặt giá trị thuộc tính tùy chỉnh | `set`: `--name`, `--value` (`actor` / `multi_actor` nhận tên, email hoặc id của thành viên) |
 | | `runs <issue-id>` | Xem lịch sử chạy | `--full-id` |
 | | `run-messages <task-id>` | Xem tin nhắn của một lượt chạy | `--since`, `--issue` |
 | | `usage <issue-id>` | Xem usage token tổng hợp | |
 | | `rerun <id>` | Đưa một lượt chạy mới vào hàng đợi cho bên đang phụ trách | |
-| | `cancel-task <task-id>` | Hủy task đang chạy hoặc đang xếp hàng | `--issue` |
+| | `cancel-task <task-id>` | Hủy lượt chạy đang chạy hoặc đang xếp hàng | `--issue` |
 | `project` | `list/get/create/update/delete` | Quản lý dự án | |
 | | `status <id> <status>` | Đổi trạng thái dự án | |
-| | `resource list/add/update/remove` | Quản lý tài nguyên dự án | `--type`, `--url` |
-| `label` | `list/get/create/update/delete` | Quản lý nhãn của không gian làm việc | |
-| `property` | `list/get/create/update/archive/unarchive` | Quản lý thuộc tính tùy chỉnh của không gian làm việc | `create`: `--name`, `--type`, `--option` (lặp lại được); `list`: `--include-archived`; không thể đổi kiểu sau khi tạo |
-| `agent` | `list/get/create/update/archive/restore` | Quản lý agent | `--name`, `--runtime-id` (bắt buộc với `create`), `--instructions`, `--model`, `--thinking-level`, `--mcp-config`, `--permission-mode`, `--max-concurrent-tasks` |
+| | `resource list/add/update/remove` | Quản lý tài nguyên dự án | `--type`, `--url`, `--local-path`, `--daemon-id`, `--execution-mode` (`in_place` / `worktree` cho thư mục cục bộ) |
+| `label` | `list/get/create/update/delete` | Quản lý nhãn của không gian làm việc | `list`: `--resource-type` (`issue` hoặc `skill`), `--full-id`; `create`: `--name`, `--color`, `--resource-type` (`issue` hoặc `skill`), `--description` |
+| `property` | `list/get/create/update/archive/unarchive` | Quản lý thuộc tính tùy chỉnh của không gian làm việc | `create`: `--name`, `--type` (`text`, `number`, `select`, `multi_select`, `date`, `checkbox`, `url`, `actor`, `multi_actor`, `multi_text`, `multi_url`), `--option` (lặp lại được, chỉ cho kiểu select); `list`: `--include-archived`; không thể đổi kiểu sau khi tạo |
+| `agent` | `list/get/create/update/archive/restore` | Quản lý agent | `--name`, `--runtime-id` (bắt buộc với `create`), `--instructions`, `--conversation-starters`, `--model`, `--thinking-level`, `--mcp-config`, `--permission-mode`, `--max-concurrent-tasks` |
 | | `copy <agent-id>` | Sao chép thành agent mới; agent gốc không đổi | `--name` (mặc định là tên gốc kèm ` (copy)`), `--runtime-id` (sao chép sang runtime khác còn cần `--model`), `--no-skills`; cấu hình bí mật như `custom_env`, `mcp_config` và `runtime_config` không được sao chép — cung cấp lại bằng cùng các cờ như `create` |
-| | `tasks <id>` | Xem task của một agent | |
+| | `tasks <id>` | Xem lượt chạy của một agent | |
 | | `avatar <id>` | Tải lên avatar | |
 | | `env get/set <agent-id>` | Đọc và ghi biến môi trường tùy chỉnh (chỉ owner và admin) | |
 | | `skills list/set/add <agent-id>` | Quản lý skill được gắn | `--skill-ids` (`set` thay toàn bộ danh sách, `add` nối thêm) |
-| `autopilot` | `list/get/create/update/delete` | Quản lý Tự động hóa | `create`: `--title`, `--agent`, `--mode` (đều bắt buộc), `--priority`, `--project`, `--subscriber` (lặp lại được) |
+| | `mcp list/add/enable/disable/remove <agent-id>` | Gán MCP server của không gian làm việc cho agent này | Lấy id server từ `workspace mcp list`. Một mục trong thư viện không có tác dụng gì cho tới khi được thêm ở đây; `disable` ngừng gửi nó mà không bỏ việc gán |
+| `autopilot` | `list/get/create/update/delete` | Quản lý Tự động hóa | `create`: `--title`, `--agent`, `--mode` (đều bắt buộc), `--project`, `--subscriber` (lặp lại được) |
 | | `trigger <id>` | Kích hoạt một lượt chạy thủ công | |
 | | `runs <id>` | Xem lịch sử chạy | |
 | | `trigger-add/trigger-update/trigger-delete/trigger-rotate-url` | Quản lý trigger theo lịch và webhook | |
 | `workspace` | `list/get/create/update/switch` | Quản lý không gian làm việc; `switch` đặt không gian làm việc mặc định cho profile hiện tại | |
+| | `mcp list/add/update/remove` | Quản lý thư viện MCP server của không gian làm việc | Thao tác ghi chỉ dành cho owner/admin. Server thêm ở đây chưa được gán cho agent nào — gán cho agent bằng `uniai agent mcp add`. `list` chỉ hiển thị tên và transport; mục đã lưu là chỉ ghi và không bao giờ được trả về. `--server-config-file` / `--server-config-stdin` giữ token ngoài lịch sử shell |
 | | `member list/invite <email>` | Xem thành viên, gửi lời mời | `invite`: `--role` (member hoặc admin, mặc định member) |
 | `repo` | `list/add/remove/checkout` | Quản lý repo của không gian làm việc và checkout về máy | `--url` (lặp lại được); `checkout`: `--ref` |
 | `skill` | `list/get/create/update/delete` | Quản lý skill | |
 | | `import` | Nhập skill từ URL hoặc file cục bộ | `--url` / `--file`, `--on-conflict` (`fail`, `overwrite`, `rename`, `skip`; mặc định `fail`) |
 | | `search <query>` | Tìm skill | |
 | | `files list/upsert/delete <skill-id>` | Quản lý các file bên trong một skill | |
+| | `label list/add/remove <skill-id>` | Quản lý nhãn trên một skill | `add` / `remove`: `<label-id>` nhận UUID đầy đủ hoặc tiền tố ngắn |
 | `squad` | `list/get/create/update/delete` | Quản lý đội (`delete` là lưu trữ) | |
 | | `member list/add/set-role/remove` | Quản lý thành viên đội | |
 | | `activity <issue-id> <outcome>` | Ghi một đánh giá của leader | |
@@ -275,11 +297,11 @@ Các bảng dưới đây bao phủ mọi lệnh chính hiện có, nhóm theo �
 
 | Lệnh | Lệnh con | Mục đích | Cờ chính |
 | --- | --- | --- | --- |
-| `daemon` | `start` | Khởi động daemon cục bộ | `--foreground`, `--device-name`, `--runtime-name`, `--poll-interval`, `--heartbeat-interval`, `--agent-timeout` (`0` nghĩa là không giới hạn), `--max-concurrent-tasks`, `--no-auto-update`; mỗi cờ có biến môi trường `MULTICA_*` tương ứng |
+| `daemon` | `start` | Khởi động daemon cục bộ | `--foreground`, `--device-name`, `--runtime-name`, `--workspaces-root`, `--poll-interval`, `--heartbeat-interval`, `--agent-timeout` (`0` nghĩa là không giới hạn), `--max-concurrent-tasks`, `--no-auto-update`; mỗi cờ có biến môi trường `MULTICA_*` tương ứng |
 | | `stop` / `status` / `restart` | Dừng, kiểm tra trạng thái, khởi động lại (`restart` nhận cùng cờ với `start`) | |
 | | `logs` | Xem log daemon | `--follow`, `--lines` |
 | | `disk-usage` | Xem mức dùng đĩa cục bộ | `--by-workspace`, `--by-task`, `--top` |
-| `runtime` | `list/usage/activity/update/rename/delete` | Xem và quản lý runtime | `delete`: `--cascade` (gỡ gắn kết các agent, giữ dữ liệu của chúng và hủy task của chúng) |
+| `runtime` | `list/usage/activity/update/rename/delete` | Xem và quản lý runtime | `delete`: `--cascade` (gỡ gắn kết các agent, giữ dữ liệu của chúng và hủy các lượt chạy của chúng) |
 | | `profile list/create/update/delete` | Quản lý runtime profile tùy chỉnh | |
 | | `profile set-path/unset-path <profile-id>` | Ghim đường dẫn thực thi cục bộ (chỉ cục bộ, không bao giờ tải lên máy chủ) | |
 
@@ -296,7 +318,23 @@ Các bảng dưới đây bao phủ mọi lệnh chính hiện có, nhóm theo �
 | `update` | — | Nâng CLI lên phiên bản mới nhất | |
 | `version` | — | In thông tin phiên bản | `--output` (`text` hoặc `json`) |
 
+## Điều khiển UniAI từ một coding agent khác
+
+Nếu phần lớn công việc của bạn vốn diễn ra trong Codex, Claude Code hoặc Cursor, bạn có thể
+vận hành UniAI ngay từ đó thay vì chuyển sang terminal.
+[UniAI CLI skill](https://github.com/multica-ai/multica-cli) dạy các agent đó
+dùng các lệnh trên trang này một cách an toàn: đọc issue và chuỗi bình luận
+mà không tốn token, viết bình luận qua file, và xử lý các tác dụng phụ
+đi kèm @nhắc, đổi trạng thái và giao việc.
+
+Skill chạy hoàn toàn qua CLI đã xác thực của bạn và không tự cấp quyền truy cập nào —
+quyền vẫn đến từ phiên đăng nhập, profile đã chọn và không gian làm việc của bạn. Skill cần
+CLI v0.4.26 trở lên. README của repository hướng dẫn cài đặt cho plugin marketplace của
+Claude Code, trình cài skill của Codex, Cursor và mọi công cụ khác nạp được
+chỉ dẫn dạng Markdown.
+
 ## Bước tiếp theo
 
+- [UniAI CLI skill](https://github.com/multica-ai/multica-cli) — vận hành UniAI từ Codex, Claude Code hoặc Cursor.
 - [Xác thực và token](/auth-tokens) — tạo, gia hạn và thu hồi PAT.
 - [Tạo và cấu hình agent](/agents-create) — ngữ nghĩa đầy đủ của mọi trường trong `agent create`.

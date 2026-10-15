@@ -28,9 +28,9 @@ Autopilot được bật mặc định sau khi lưu; **Run now** chạy tay tr�
 | Chế độ | Hành vi | Hợp với |
 |---|---|---|
 | **Tạo issue** | Mỗi lượt kích hoạt trước tiên tạo một issue, rồi giao cho người phụ trách; thảo luận, trạng thái và bản ghi chạy đều nằm trên issue. | Việc mà cả đội cần xem lại, xác nhận hoặc theo sát. |
-| **Chỉ chạy** | Tạo task trực tiếp, không có issue; kết quả chỉ thấy được trong lịch sử chạy của autopilot. | Các lượt chạy nền không cần dấu vết cộng tác. |
+| **Chỉ chạy** | Tạo lượt chạy trực tiếp, không có issue; kết quả chỉ thấy được trong lịch sử chạy của autopilot. | Các lượt chạy nền không cần dấu vết cộng tác. |
 
-Chế độ **tạo issue** dùng chung hàng đợi task với issue thường: khi runtime offline, issue vẫn được tạo và task chờ tới khi runtime online.
+Chế độ **tạo issue** dùng chung hàng đợi lượt chạy với issue thường: khi runtime offline, issue vẫn được tạo và lượt chạy chờ tới khi runtime online.
 
 Chế độ **chỉ chạy** yêu cầu runtime sẵn sàng đúng lúc kích hoạt; nếu không, lượt chạy hiển thị là skipped và không để lại issue nào chờ.
 
@@ -54,7 +54,7 @@ Ví dụ:
 
 Cron không có trường giây, và múi giờ dùng tên IANA như `Asia/Ho_Chi_Minh`. Trước khi lưu, đối chiếu kết quả với các mốc "next runs" hiển thị trên trang.
 
-![Trình soạn autopilot: Runbook, thiết lập lịch và bản xem trước vài lần chạy kế tiếp](/images/docs/autopilot-schedule.png)
+![Trình soạn autopilot: Runbook, thiết lập lịch và bản xem trước vài lần chạy kế tiếp](/images/docs/autopilot-schedule.webp)
 
 ## Chạy từ webhook
 
@@ -120,13 +120,13 @@ Thứ tự suy ra event và action:
 
 ## Xem lượt chạy và delivery
 
-Lịch sử chạy hiển thị nguồn kích hoạt, thời gian, trạng thái, issue hoặc task liên kết, và lý do khi thất bại hay bị bỏ qua. Trigger webhook còn giữ riêng bản ghi delivery, gồm sự kiện đã phân tích, phản hồi, thông tin khử trùng lặp và lý do thất bại.
+Lịch sử chạy hiển thị nguồn kích hoạt, thời gian, trạng thái, issue hoặc lượt chạy liên kết, và lý do khi thất bại hay bị bỏ qua. Trigger webhook còn giữ riêng bản ghi delivery, gồm sự kiện đã phân tích, phản hồi, thông tin khử trùng lặp và lý do thất bại.
 
 Một delivery webhook đã xử lý xong có thể được phát lại (replay) từ trang chi tiết của nó. Phát lại tạo delivery và lượt chạy mới mà không ghi đè bản ghi gốc; delivery không qua được xác minh chữ ký hoặc còn đang xếp hàng thì không phát lại được, và các lượt phát lại không tham gia khử trùng lặp.
 
 ## Thất bại, tạm dừng và xóa
 
-Task thất bại ở chế độ chỉ chạy không được tự thử lại; lịch kế tiếp vẫn chạy như dự kiến. Chế độ tạo issue sinh task issue thông thường, và lỗi hạ tầng tuân theo quy tắc trong [Task](/tasks#failures-and-automatic-retries).
+Lượt chạy thất bại ở chế độ chỉ chạy không được tự thử lại; lịch kế tiếp vẫn chạy như dự kiến. Chế độ tạo issue sinh lượt chạy issue thông thường, và lỗi hạ tầng tuân theo quy tắc trong [Lượt chạy](/tasks#failures-and-automatic-retries).
 
 UniAI định kỳ kiểm tra xem các lượt chạy gần đây có thất bại liên tục không: khi 7 ngày qua có ít nhất 50 lượt chạy hoàn thành hoặc thất bại với tỷ lệ thất bại 90%, hệ thống tạm dừng autopilot và thông báo cho người tạo; sửa xong nguyên nhân thì bật lại thủ công.
 
@@ -143,10 +143,13 @@ Tạm dừng thủ công sẽ dừng lịch chạy, webhook và cả **Run now**
 ## Dùng CLI
 
 ```bash
+uniai autopilot get <autopilot-id> --output json
 uniai autopilot trigger <autopilot-id>
 uniai autopilot runs <autopilot-id>
 uniai autopilot trigger-rotate-url <autopilot-id> <trigger-id>
 ```
+
+`autopilot get` mặc định đặt `webhook_token`, `webhook_path` và `webhook_url` về `null`, thay vào đó trả về `has_webhook_token` cùng `webhook_token_hint`. Chỉ thêm `--show-secrets` khi bạn chủ ý cần thông tin xác thực thật; CLI in cảnh báo ra stderr để JSON được pipe vẫn hợp lệ.
 
 Xem [Tham chiếu lệnh CLI](/cli) để biết đầy đủ tham số.
 
@@ -154,4 +157,4 @@ Xem [Tham chiếu lệnh CLI](/cli) để biết đầy đủ tham số.
 
 - [Giao issue cho agent](/assigning-issues) — giao việc và cửa sổ xác nhận.
 - [Hộp thư đến và theo dõi](/inbox) — nơi thông báo lượt chạy đổ về.
-- [Task](/tasks) — trạng thái lượt chạy và cách xử lý thất bại.
+- [Lượt chạy](/tasks) — trạng thái lượt chạy và cách xử lý thất bại.

@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, ChevronRight, Copy, Terminal } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -183,7 +189,7 @@ function CopyButton({ text, ariaLabel }: { text: string; ariaLabel: string }) {
       type="button"
       onClick={handleCopy}
       aria-label={ariaLabel}
-      className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="shrink-0 rounded-xs p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {copied ? (
         <Check className="h-3.5 w-3.5 text-success" aria-hidden />
@@ -194,18 +200,36 @@ function CopyButton({ text, ariaLabel }: { text: string; ariaLabel: string }) {
   );
 }
 
+function CommandRow({ cmd, copyAria }: { cmd: string; copyAria: string }) {
+  return (
+    <div className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2.5 font-mono text-body">
+      <Terminal
+        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground"
+        aria-hidden
+      />
+      <code
+        className={cn(
+          "min-w-0 flex-1 break-all whitespace-pre-wrap tabular-nums",
+          CODE_LIGATURE_CLASS,
+        )}
+      >
+        {cmd}
+      </code>
+      <CopyButton text={cmd} ariaLabel={copyAria} />
+    </div>
+  );
+}
+
 function CommandStep({
   n,
   label,
-  cmd,
-  copyAria,
   labelExtra,
+  children,
 }: {
   n: number;
   label: string;
-  cmd: string;
-  copyAria: string;
-  labelExtra?: React.ReactNode;
+  labelExtra?: ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div>
@@ -215,21 +239,7 @@ function CommandStep({
         </p>
         {labelExtra}
       </div>
-      <div className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2.5 font-mono text-body">
-        <Terminal
-          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground"
-          aria-hidden
-        />
-        <code
-          className={cn(
-            "min-w-0 flex-1 break-all whitespace-pre-wrap tabular-nums",
-            CODE_LIGATURE_CLASS,
-          )}
-        >
-          {cmd}
-        </code>
-        <CopyButton text={cmd} ariaLabel={copyAria} />
-      </div>
+      {children}
     </div>
   );
 }
@@ -257,21 +267,26 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
         <div className="space-y-4">
+          {/* Step 1 defaults to the visitor's OS; the toggle stays because the
+              command may be copied for another machine. */}
           <CommandStep
             n={1}
             label={t(($) => $.connect.step1_label)}
-            cmd={INSTALL_COMMANDS[os]}
-            copyAria={t(($) => $.connect.copy_aria)}
             labelExtra={<InstallOsToggle os={os} onChange={setOs} />}
-          />
-
-          <div>
-            <CommandStep
-              n={2}
-              label={t(($) => $.connect.step2_label)}
-              cmd={setupCmd}
+          >
+            <CommandRow
+              cmd={INSTALL_COMMANDS[os]}
               copyAria={t(($) => $.connect.copy_aria)}
             />
+          </CommandStep>
+
+          <div>
+            <CommandStep n={2} label={t(($) => $.connect.step2_label)}>
+              <CommandRow
+                cmd={setupCmd}
+                copyAria={t(($) => $.connect.copy_aria)}
+              />
+            </CommandStep>
             <p className="mt-1.5 text-micro leading-[1.55] text-muted-foreground">
               {t(($) => $.connect.step2_hint)}
             </p>
@@ -305,12 +320,12 @@ function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
       </summary>
       <div className="space-y-2 border-t px-3 pt-2.5 pb-3 text-micro leading-[1.55] text-muted-foreground">
         <p>{t(($) => $.connect.trouble_intro)}</p>
-        <CommandStep
-          n={2}
-          label={t(($) => $.connect.step2_label)}
-          cmd={tokenCmd}
-          copyAria={t(($) => $.connect.copy_aria)}
-        />
+        <CommandStep n={2} label={t(($) => $.connect.step2_label)}>
+          <CommandRow
+            cmd={tokenCmd}
+            copyAria={t(($) => $.connect.copy_aria)}
+          />
+        </CommandStep>
         <p>
           {t(($) => $.connect.trouble_token_hint_prefix)}
           <span className="font-medium text-foreground">
@@ -324,7 +339,7 @@ function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
             {/* CLI command — literal shell string, not i18n content. */}
             <code
               className={cn(
-                "rounded bg-muted px-1.5 py-0.5 font-mono text-micro text-foreground",
+                "rounded-xs bg-muted px-1.5 py-0.5 font-mono text-micro text-foreground",
                 CODE_LIGATURE_CLASS,
               )}
             >
@@ -336,7 +351,7 @@ function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
             {/* CLI command — literal shell string, not i18n content. */}
             <code
               className={cn(
-                "rounded bg-muted px-1.5 py-0.5 font-mono text-micro text-foreground",
+                "rounded-xs bg-muted px-1.5 py-0.5 font-mono text-micro text-foreground",
                 CODE_LIGATURE_CLASS,
               )}
             >
@@ -367,9 +382,6 @@ function LiveListening() {
       </span>
       <span className="font-medium text-foreground">
         {t(($) => $.connect.live_listening)}
-      </span>
-      <span className="text-muted-foreground">
-        {t(($) => $.connect.live_listening_hint)}
       </span>
     </div>
   );

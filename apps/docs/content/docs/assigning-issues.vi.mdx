@@ -13,20 +13,19 @@ Khi bạn chỉ cần agent xử lý một yêu cầu cụ thể mà không đ�
 
 1. Mở issue và bấm **Người phụ trách**.
 2. Chọn một agent hoặc một đội.
-3. Xem lại agent sắp khởi động trong hộp thoại xác nhận.
-4. Thêm ghi chú bàn giao nếu cần, rồi chọn **Bắt đầu**.
+3. Xem lại agent sắp khởi động trong hộp thoại xác nhận, rồi chọn **Bắt đầu**.
 
-![Hộp thoại xác nhận giao việc: thêm ghi chú bàn giao, hoặc chọn chưa bắt đầu vội](/images/docs/assign-confirm-dialog.png)
+![Hộp thoại xác nhận giao việc: xác nhận giao việc, hoặc chọn chưa bắt đầu vội](/images/docs/assign-confirm-dialog.webp)
 
-Ghi chú bàn giao chỉ áp dụng cho lượt chạy này — dùng nó cho phạm vi, thứ tự, hay điều cần tập trung lần này. Yêu cầu cần giữ lâu dài thì thuộc về issue, mô tả dự án, hoặc hướng dẫn của agent.
+Mọi điều agent cần biết về phần việc này đều thuộc về chính issue — mô tả, thảo luận của nó, hoặc mô tả dự án và hướng dẫn của agent.
 
 Khi bạn giao cho một đội, đội trở thành người phụ trách issue và leader của đội khởi động trước. Nó tự quyết có chuyển việc cho các thành viên khác hay không, theo cách vận hành của đội.
 
 ## Thực thi sau khi giao
 
-UniAI tạo một [task](/tasks) cho agent. Khi một runtime đang online nhận task, nó gọi công cụ lập trình AI trên máy đó; tiến độ, bình luận và kết quả sau đó xuất hiện trong issue.
+UniAI tạo một [lượt chạy](/tasks) cho agent. Khi một runtime đang online nhận lượt chạy, nó gọi công cụ lập trình AI trên máy đó; tiến độ, bình luận và kết quả sau đó xuất hiện trong issue.
 
-Nếu runtime tạm thời offline, task chờ trong hàng đợi; task gắn chặt với runtime của nó và không bao giờ chuyển sang máy khác.
+Nếu runtime tạm thời offline, lượt chạy chờ trong hàng đợi; lượt chạy gắn chặt với runtime của nó và không bao giờ chuyển sang máy khác.
 
 Trong lúc thực thi, agent có thể:
 
@@ -37,17 +36,19 @@ Trong lúc thực thi, agent có thể:
 
 Những gì nó thực sự làm được vẫn bị giới hạn bởi cấu hình của agent, môi trường runtime và quyền chạy agent của bạn.
 
-Trong lượt chạy, agent được kỳ vọng quản lý trạng thái issue theo quy ước (thường là `todo` → `in_progress`, rồi `in_review` khi bàn giao) — các hành động này hiện dưới danh tính của agent trong dòng thời gian. Vòng đời task và trạng thái issue là hai chuyện tách biệt: task hoàn tất không tự nó đổi trạng thái issue.
+Trong lượt chạy, agent quản lý trạng thái issue bằng cách đánh giá việc mình làm thay đổi điều gì: bắt tay vào chính yêu cầu của issue thì chuyển ngay sang `in_progress`, bàn giao thì chuyển sang `in_review`, việc còn tiếp diễn sau lượt này thì giữ `in_progress`, còn tham vấn hay thảo luận thì không đụng tới trạng thái — các hành động này hiện dưới danh tính của agent trong dòng thời gian. Vòng đời lượt chạy và trạng thái issue là hai chuyện tách biệt: lượt chạy hoàn tất không tự nó đổi trạng thái issue.
 
-Khi người phụ trách là một [đội](/squads), kỳ vọng cũng như vậy: UniAI xếp hàng leader, leader chuyển issue cha sang `in_progress` ở lượt đầu và giữ nguyên trong lúc các thành viên làm việc. Leader chỉ chuyển sang `in_review` khi mục tiêu tổng thể đã đạt — điều phối thành công lượt đầu chưa phải là hoàn thành.
+Khi người phụ trách là một [đội](/squads), quy tắc cũng như vậy: UniAI xếp hàng leader, và giao việc cho thành viên chưa phải là bàn giao kết quả — lượt giao việc để issue cha ở `in_progress`, và leader chỉ chuyển sang `in_review` khi mục tiêu tổng thể đã đạt.
 
 ## Giao mà chưa bắt đầu
 
-**Chưa bắt đầu vội** trong hộp thoại xác nhận lưu người phụ trách mà không tạo task cho lượt này. Dùng nó để chốt quyền sở hữu trước, rồi bắt đầu khi bối cảnh hoặc các phụ thuộc đã sẵn sàng.
+**Chưa bắt đầu vội** trong hộp thoại xác nhận lưu người phụ trách mà không tạo lượt chạy lần này. Dùng nó để chốt quyền sở hữu trước, rồi bắt đầu khi bối cảnh hoặc các phụ thuộc đã sẵn sàng.
 
 `backlog` cũng không khởi động lượt chạy khi giao. Việc thực thi chỉ diễn ra sau khi bạn đưa issue ra khỏi `backlog`, hoặc yêu cầu người phụ trách điều gì đó trong một bình luận tiếp theo.
 
-Chỉ `backlog` hoạt động như vậy. Issue đang ở `done` hay `cancelled` vẫn khởi động lượt chạy ngay khi được giao hoặc giao lại cho agent.
+Khi issue đã có agent hoặc đội phụ trách, đưa nó ra khỏi `backlog` sẽ mở cùng hộp thoại đó: chính thay đổi trạng thái này khởi động lượt chạy, nên hộp thoại cũng có **Chưa bắt đầu vội**, giúp chuyển trạng thái issue mà không đánh thức agent. Hộp thoại xuất hiện với mọi trạng thái đích, trừ chính `backlog` và các trạng thái thuộc nhóm `done` hoặc `closed`.
+
+Chỉ trạng thái cố định `backlog` hoạt động như vậy. Một [trạng thái tùy chỉnh](/issues#custom-statuses) thuộc nhóm `unstarted` **không** gác việc lại — giao agent cho issue ở trạng thái đó sẽ khởi động lượt chạy ngay. Issue đang ở `done` hay `cancelled` vẫn khởi động lượt chạy ngay khi được giao hoặc giao lại cho agent.
 
 ## Quyền giao việc
 
@@ -61,23 +62,27 @@ Owner và admin của không gian làm việc quản lý được agent, nhưng 
 
 ## Đổi hoặc gỡ người phụ trách
 
-Chuyển người phụ trách sang một agent khác sẽ khởi động lượt chạy mới cho người phụ trách mới; chọn một thành viên chỉ đổi người phụ trách và không gọi công cụ lập trình AI nào. Gỡ người phụ trách cũng không tạo task.
+Chuyển người phụ trách sang một agent khác sẽ khởi động lượt chạy mới cho người phụ trách mới; chọn một thành viên chỉ đổi người phụ trách và không gọi công cụ lập trình AI nào. Gỡ người phụ trách cũng không tạo lượt chạy.
 
 <Callout type="warning">
-Đổi người phụ trách, bỏ giao, hay đổi trạng thái issue đều không dừng được lượt chạy đã bắt đầu. Muốn ngắt nó, hãy dừng task tương ứng trong nhật ký thực thi.
+Đổi người phụ trách, bỏ giao, hay đổi trạng thái issue đều không dừng được lượt chạy đã bắt đầu. Muốn ngắt nó, hãy dừng lượt chạy tương ứng trong nhật ký thực thi.
 </Callout>
 
 ## Dùng CLI
 
 ```bash
 uniai issue assign UNI-42 --to "Agent name"
+uniai issue assign UNI-42 --to-id <agent-uuid> --no-start
+uniai issue status UNI-42 in_progress --no-start
 uniai issue assign UNI-42 --unassign
 ```
 
 Trong script, dùng `--to-id <uuid>` để tránh khớp nhầm đối tượng trùng tên. Tra UUID bằng `uniai agent list --output json` hoặc `uniai workspace member list --output json`.
 
+Dùng `--no-start` khi việc giao chỉ cần ghi nhận quyền sở hữu mà không tạo lượt chạy mới — ví dụ khi chính agent đó đang xử lý issue từ một lượt chạy khác. Cờ này cũng có trên `issue update` và `issue status`. Nếu một luồng chỉ ghi nhận quyền sở hữu thay đổi cả người phụ trách lẫn trạng thái, hãy truyền cờ cho cả hai lệnh; chặn lượt chạy từ việc giao không chặn lượt chạy được kích hoạt bởi thay đổi trạng thái sau đó.
+
 ## Bước tiếp theo
 
 - [@nhắc agent trong bình luận](/mentioning-agents) — xử lý một câu hỏi mới mà không đổi người phụ trách.
-- [Task](/tasks) — quy tắc xếp hàng, retry và dừng.
+- [Lượt chạy](/tasks) — quy tắc xếp hàng, retry và dừng.
 - [Đội](/squads) — để một leader điều phối nhiều agent.

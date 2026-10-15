@@ -5,10 +5,11 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@multica/ui/components/ui/sonner";
 import { cn } from "@multica/ui/lib/utils";
 import { WebProviders } from "@/components/web-providers";
-import type { SupportedLocale } from "@multica/core/i18n";
 import { RESOURCES } from "@multica/views/locales";
 import { DocsViewerHost } from "@multica/views/layout";
 import { getRequestLocale } from "@/lib/request-locale";
+import { HTML_LANG } from "@/lib/html-lang";
+import { SITE_TITLE, TITLE_TEMPLATE } from "@/platform/document-title";
 import {
   resolveBrowserApiBaseUrl,
   resolveBrowserWsUrl,
@@ -75,8 +76,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://uniai.unicomhub.com"),
   title: {
-    default: "UniAI",
-    template: "%s | UniAI",
+    default: SITE_TITLE,
+    template: TITLE_TEMPLATE,
   },
   // The layout default only reaches in-app pages (issues, workspaces, ...)
   // shared internally, so keep the preview compact: one short line, no OG
@@ -85,6 +86,22 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: ["/favicon.svg"],
+    // iOS never reads the manifest's icons for the home screen; it needs its
+    // own opaque, full-bleed square and rounds the corners itself.
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  // Home-screen behaviour: launch without browser chrome, and label the icon
+  // "UniAI" rather than the long SEO <title>. `capable` renders the
+  // standardised `mobile-web-app-capable` tag — Next 16 no longer emits the
+  // deprecated apple-prefixed spelling, so iOS standalone rides on the
+  // manifest's `display` instead (honoured since iOS 16.4).
+  appleWebApp: {
+    capable: true,
+    title: "UniAI",
+    // `default` keeps the web view below the status bar. Going edge-to-edge
+    // (`black-translucent` + viewport-fit=cover) needs env(safe-area-inset-*)
+    // padding, which no surface in the app has yet.
+    statusBarStyle: "default",
   },
   openGraph: {
     type: "website",
@@ -103,13 +120,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-};
-
-// HTML lang attribute uses BCP-47 region tags that screen readers and font
-// stacks recognize widely.
-const HTML_LANG: Record<SupportedLocale, string> = {
-  vi: "vi-VN",
-  en: "en",
 };
 
 export default async function RootLayout({

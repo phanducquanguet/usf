@@ -3,7 +3,7 @@ title: Khái niệm cốt lõi
 description: Toàn bộ đối tượng cốt lõi của UniAI và cách chúng liên kết với nhau, gói gọn trong một trang.
 ---
 
-![Sơ đồ đối tượng cốt lõi của UniAI: bên trong một không gian làm việc, một issue kích hoạt agent qua giao việc hoặc @nhắc, agent tạo task, task thực thi trên một runtime, và kết quả được ghi ngược về issue; chat và Tự động hóa là hai nguồn kích hoạt nữa, skill và đội gắn vào agent, dự án tổ chức các issue, và thông báo đổ về hộp thư đến](/images/docs/concepts-core-objects.png)
+![Sơ đồ đối tượng cốt lõi của UniAI: bên trong một không gian làm việc, một issue kích hoạt agent qua giao việc hoặc @nhắc, agent tạo một lượt chạy, lượt chạy thực thi trên một runtime, và kết quả được ghi ngược về issue; chat và Tự động hóa là hai nguồn kích hoạt nữa, skill và đội gắn vào agent, dự án tổ chức các issue, và thông báo đổ về hộp thư đến](/images/docs/concepts-core-objects.webp)
 
 ## Đối tượng cơ bản
 
@@ -33,9 +33,9 @@ Một gói năng lực tái sử dụng được. Chỉ dẫn định nghĩa age
 
 Nơi việc thực thi thực sự diễn ra: một máy tính kết nối với UniAI cùng các công cụ lập trình AI trên đó. Agent là danh tính; runtime là chiếc máy thực thi nó. Xem [Daemon và runtime](/daemon-runtimes).
 
-### Task
+### Lượt chạy
 
-Một bản ghi thực thi cụ thể của agent. Mỗi lần kích hoạt sinh ra một task, được một runtime hoàn thành rồi ghi kết quả ngược về. Một issue có thể sinh nhiều task theo thời gian; một lượt chạy xong không có nghĩa issue đã xong. Xem [Task](/tasks).
+Một bản ghi thực thi cụ thể của agent. Mỗi lần kích hoạt sinh ra một lượt chạy, được một runtime hoàn thành rồi ghi kết quả ngược về. Một issue có thể sinh nhiều lượt chạy theo thời gian; một lượt chạy xong không có nghĩa issue đã xong. Xem [Lượt chạy](/tasks).
 
 ## Cộng tác và tự động hóa
 
@@ -59,8 +59,8 @@ Tự động kích hoạt lượt chạy của agent theo lịch hoặc từ s�
 
 - **Không gian làm việc** là chiếc hộp chứa tất cả; con người và **agent** cộng tác bên trong nó.
 - Một **issue** ghi lại một phần việc; các issue liên quan được tổ chức bằng **dự án**.
-- Giao việc, `@`nhắc, **chat**, hoặc một **Tự động hóa** kích hoạt agent, sinh ra một **task**.
-- Task hoàn thành trên một **runtime**, và kết quả được ghi ngược về nơi nó được kích hoạt.
+- Giao việc, `@`nhắc, **chat**, hoặc một **Tự động hóa** kích hoạt agent, sinh ra một **lượt chạy**.
+- Lượt chạy hoàn thành trên một **runtime**, và kết quả được ghi ngược về nơi nó được kích hoạt.
 - **Skill** giúp tái sử dụng những gì hiệu quả giữa các agent; **đội** giúp nhiều agent phối hợp cùng nhau.
 - Mọi thông báo cho con người dọc đường đều về **hộp thư đến**.
 
